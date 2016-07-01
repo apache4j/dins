@@ -1,0 +1,10 @@
+package com.texaspoker.moment.room;
+
+import java.util.ArrayList;
+
+public class PotInfo {
+	public long potSize;			//彩池的大小
+	public long allinSize;			//allin的人数
+	public ArrayList<Long> playerList = new ArrayList<Long>();			//该彩池对应的玩家
+	public ArrayList<Integer> playerListpos = new ArrayList<Integer>();		//该玩家所在的位置	
+}
