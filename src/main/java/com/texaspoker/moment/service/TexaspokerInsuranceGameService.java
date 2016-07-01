@@ -7,13 +7,13 @@ import com.texaspoker.moment.room.QuickGameRoomManager;
 import com.texaspoker.rpc.server.RpcServer;
 import com.texaspoker.user.UserManager;
 
-public class TexaspokerGameService  {
+public class TexaspokerInsuranceGameService {
 
 	  private static RpcServer server = new RpcServer();
 
 	  public static void main(String[] args) throws Exception {
 	     String host = "0.0.0.0";
-	     int port = 9160;
+	     int port = 9162;
 	     
 	     ConfigaturationManager.getInstance();
 	     UserManager.getInstance();
