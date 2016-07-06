@@ -122,8 +122,6 @@ public class GameRoomManager  {
 		} else {
 			// 先检查是否在别的游戏中			
 			// 生成银币扣除数据
-			
-
 				if(stGameRoomBaseInfo.getEGameRoomSeniorType() == GAME_ROOM_SENIOR_TYPE.GAME_ROOM_SENIOR_TYPE_NO){
 					synchronized(RoomIDManager.class){
 						TexasPoker.GameRoomBaseInfo.Builder gameRoomBaseInfoBuilder = stGameRoomBaseInfo.toBuilder();
@@ -138,21 +136,12 @@ public class GameRoomManager  {
 	
 	
 						TexasPoker.GameRoomInfo.Builder gameRoomInfo = TexasPoker.GameRoomInfo.newBuilder();
-						gameRoomInfo.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL);
-											
-						// 修改用户的popularity
-						// 修改UserBaseInfo				
-//						Log   mLog   =  LogFactory.getLog("fortransaction");
-//						String sLog = uuid + " " + 0 + " " + 110000 + " " + gameRoomBaseInfoBuilder.getLGameRoomId() 
-//													+ " 0 " + " 0 " + gameRoomBaseInfoBuilder.getLBigBlinds()*100 + " " 
-//													+ stUserBaseInfoNet.getLPopularity() +" " + gameRoomBaseInfoBuilder.getLChatRoomID();;
-//						mLog.error(sLog);
-//						TranscationLogService.getInstance().error(sLog);
+						gameRoomInfo.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 											
 						GameRoomDetailInfo stGameRoomDetailInfo = new GameRoomDetailInfo();
 											
-						List<UserBaseInfoNet> userList = new ArrayList<UserBaseInfoNet>();;
-//						System.out.println("createGameRoomcreateGameRoom getECreateRoomType : " + gameRoomBaseInfoBuilder.getECreateRoomType());
+						List<UserBaseInfoNet> userList = new ArrayList<UserBaseInfoNet>();
+						
 						if(gameRoomBaseInfoBuilder.getECreateRoomType() == CREATE_ROOM_TYPE.CAHT_ROOM){
 							ChatRoomInfo stChatRoomInfo = ChatRoomManager.getInstance().getChatRoomInfo(gameRoomBaseInfoBuilder.getLChatRoomID());
 							if(stChatRoomInfo!=null){
@@ -181,7 +170,6 @@ public class GameRoomManager  {
 						gameRoomInfo.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait);
 										
 						// 设置房间的其他玩家，因为现在还没有玩家同意，所以设置7个空用户
-//						System.out.println("gameRoomBaseInfoBuilder.getIGameRoomUserMaxNums() : " + gameRoomBaseInfoBuilder.getIGameRoomUserMaxNums());
 						for (int i = 0; i < gameRoomBaseInfoBuilder.getIGameRoomUserMaxNums(); i++) {
 							TexasPoker.UserGameInfoNet.Builder userGameInfoBuilder = TexasPoker.UserGameInfoNet.newBuilder();
 	
@@ -212,7 +200,7 @@ public class GameRoomManager  {
 							gameRoomInfo.addVUserGameInfos(userGameInfoBuilder);
 						}
 	
-						gameRoomInfo.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL);
+						gameRoomInfo.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 						stGameRoomDetailInfo.setStGameRoomInfo(gameRoomInfo.build());
 						stGameRoomDetailInfo.setiGameRoomUserMaxNums(stGameRoomBaseInfo.getIGameRoomUserMaxNums());
 						stGameRoomDetailInfo.lGameRoomID = gameRoomBaseInfoBuilder.getLGameRoomId();
@@ -301,7 +289,7 @@ public class GameRoomManager  {
 							gameRoomBaseInfoBuilder.setStCreateUserBaseInfo(UserManager.getInstance().getUserBaseInfo(uuid));
 
 							TexasPoker.GameRoomInfo.Builder gameRoomInfo = TexasPoker.GameRoomInfo.newBuilder();
-							gameRoomInfo.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL);
+							gameRoomInfo.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 											
 							// 修改用户的popularity
 							// 修改UserBaseInfo				
@@ -345,7 +333,7 @@ public class GameRoomManager  {
 							
 							gameRoomInfo.setStGameRoomBaseInfo(gameRoomBaseInfoBuilder);
 							gameRoomInfo.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait);
-							gameRoomInfo.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL);			
+							gameRoomInfo.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);			
 							// 设置房间的其他玩家，因为现在还没有玩家同意，所以设置7个空用户
 							for (int i = 0; i < gameRoomBaseInfoBuilder.getIGameRoomUserMaxNums(); i++) {
 								TexasPoker.UserGameInfoNet.Builder userGameInfoBuilder = TexasPoker.UserGameInfoNet
@@ -539,5 +527,12 @@ public class GameRoomManager  {
 
 		// 发送push消息
 		GameRoomMsgManager.getInstance().sendGameRoomMsg(stToUserUuid, stGameRoomPushMsg);
+	}
+	
+	public void gotoNextStep(long lGameRoomID){
+		GameRoomDetailInfo stGameRoomDetailInfo = getGameRoomDetailInfo(lGameRoomID);
+		if(stGameRoomDetailInfo!=null){
+			stGameRoomDetailInfo.gotoNextStep();
+		}
 	}
 }

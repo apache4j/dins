@@ -257,9 +257,10 @@ public class QuickGameRoomManager {
 							stGameRoomBaseInfoBuilder.setBBuyinControl(stGameRoomBaseInfo.getBBuyinControl());
 							stGameRoomBaseInfoBuilder.setIGameRoomUserMaxNums(stGameRoomBaseInfo.getIGameRoomUserMaxNums());
 							stGameRoomBaseInfoBuilder.setIAnte(stGameRoomBaseInfo.getIAnte());
+							stGameRoomBaseInfoBuilder.setBInsurance(stGameRoomBaseInfo.getBInsurance());
 							
 							stQuickGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
-							stQuickGameRoomInfoBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL);
+							stQuickGameRoomInfoBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 							ChatRoomManager.getInstance().setChatRoomInfo(lRoomID, stChatRoomInfoBuilder.build());
 							ConnectDatabase.getInstance().insertRoomInfo(stChatRoomInfoBuilder.build());
 							
@@ -348,6 +349,7 @@ public class QuickGameRoomManager {
 								stGameRoomBaseInfoBuilder.setIGameRoomUserMaxNums(stGameRoomBaseInfo.getIGameRoomUserMaxNums());
 								stGameRoomBaseInfoBuilder.setStCreateUserBaseInfo(stFromUserBuilder);
 								stGameRoomBaseInfoBuilder.setIAnte(stGameRoomBaseInfo.getIAnte());
+								stGameRoomBaseInfoBuilder.setBInsurance(stGameRoomBaseInfo.getBInsurance());
 								
 								stQuickGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
 								
@@ -356,7 +358,7 @@ public class QuickGameRoomManager {
 								
 								stQuickGameRoomInfoBuilder.setStChatRoomInfo(stChatRoomInfoBuilder);
 								stQuickGameRoomInfoBuilder.setEQuickGameRoomStatus(QUICK_GAME_ROOM_STATUS.QUICK_GAME_ROOM_NOTSTART);
-								stQuickGameRoomInfoBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL);
+								stQuickGameRoomInfoBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 								//生成
 								String sCode = RoomIDManager.getInstance().getRandomCode();
 								stQuickGameRoomInfoBuilder.setSCryptCode(sCode);
@@ -434,13 +436,14 @@ public class QuickGameRoomManager {
 									gameRoomBaseInfoBuilder.setEGameRoomSeniorType(stSettingGameRoomBaseInfoBuilder.getEGameRoomSeniorType());
 									gameRoomBaseInfoBuilder.setIGameRoomUserMaxNums(stSettingGameRoomBaseInfoBuilder.getIGameRoomUserMaxNums());
 									gameRoomBaseInfoBuilder.setIAnte(stSettingGameRoomBaseInfoBuilder.getIAnte());
+									gameRoomBaseInfoBuilder.setBInsurance(stSettingGameRoomBaseInfoBuilder.getBInsurance());
 									// 设置房主vip信息
 									gameRoomBaseInfoBuilder.setStCreateUserBaseInfo(UserManager.getInstance().getUserBaseInfo(uuid));
 
 									gameRoomBaseInfoBuilder.setLChatRoomID(lQuickGameRoomID);
 
 									TexasPoker.GameRoomInfo.Builder gameRoomInfoBuilder = TexasPoker.GameRoomInfo.newBuilder();
-									gameRoomInfoBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL);
+									gameRoomInfoBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 
 									GameRoomDetailInfo stGameRoomDetailInfo = new GameRoomDetailInfo();
 										

@@ -3,6 +3,7 @@ package com.texaspoker.logger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.texaspoker.dubbo.game.insurance.InsuranceApi;
 import com.texaspoker.jedis.JedisManager;
 
 import redis.clients.jedis.Jedis;
@@ -33,6 +34,8 @@ public class TableLogService {
   		Jedis mJedis = JedisManager.getJedis();
   		mJedis.publish("tables_log", System.currentTimeMillis() + " " + content);  
   		JedisManager.returnRes(mJedis);
+  		
+  		InsuranceApi.parseGameAction(content);
   	}
   
 }  

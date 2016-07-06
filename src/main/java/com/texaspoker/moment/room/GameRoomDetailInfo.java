@@ -2,6 +2,7 @@ package com.texaspoker.moment.room;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
@@ -12,10 +13,12 @@ import com.texaspoker.club.ClubManager;
 import com.texaspoker.comm.AdvancedTimeoutHashMap;
 import com.texaspoker.comm.TimeoutHashMap;
 import com.texaspoker.database.ConnectDatabase;
+import com.texaspoker.dubbo.game.insurance.InsuranceApi;
 import com.texaspoker.logger.TableLogService;
 import com.texaspoker.logger.TranscationLogService;
 import com.texaspoker.moment.TexasPoker;
 import com.texaspoker.moment.TexasPoker.BUYIN_CONTROL_MESSAGE_TYPE;
+import com.texaspoker.moment.TexasPoker.BuyInsuranceInfo;
 import com.texaspoker.moment.TexasPoker.BuyinControl;
 import com.texaspoker.moment.TexasPoker.BuyinControlMsg;
 import com.texaspoker.moment.TexasPoker.GAME_ROOM_GAME_STATE;
@@ -23,6 +26,9 @@ import com.texaspoker.moment.TexasPoker.GAME_ROOM_MESSAGE_TYPE;
 import com.texaspoker.moment.TexasPoker.GAME_ROOM_SENIOR_TYPE;
 import com.texaspoker.moment.TexasPoker.GameRoomBaseInfo;
 import com.texaspoker.moment.TexasPoker.GameRoomInfo;
+import com.texaspoker.moment.TexasPoker.InsuranceInfo;
+import com.texaspoker.moment.TexasPoker.InsurancePotInfo;
+import com.texaspoker.moment.TexasPoker.InsuranceUserInfo;
 import com.texaspoker.moment.TexasPoker.USER_GAME_ROLE;
 import com.texaspoker.moment.TexasPoker.USER_GAME_STATE;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
@@ -1073,13 +1079,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			if(stUserMyGameInfoNetBuilder!=null){
 				//通知房间的其他人有人离开房间了
 				if(iPos >= 0 && iPos < iGameRoomUserMaxNums && eErrorCode == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
-					System.out.println("sitdown kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk5 : " + stGameRoomInfo.getVUserGameInfosCount());
 					//给在牌局的人push
 					for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
 						UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
 						
 						if(stUserGameInfoNet.getStUserInfo().getUuid() > 0 && stUserGameInfoNet.getStUserInfo().getUuid() != uuid){
-							System.out.println("sitdown 1111111111222222222222222333333333333 : " + stUserGameInfoNet.getStUserInfo().getUuid());
 							//首先找到离开房间的用户基本信息				
 							pushGameRoomUserMsgs(stUserMyGameInfoNetBuilder.build(),stUserGameInfoNet.getStUserInfo().getUuid(),
 									GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_SITDOWN,iPos);
@@ -1087,9 +1091,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					}
 					
 					//给旁观的人push
-					System.out.println("sitdddddddddddddddddddddddddddddd : " + getStandByUuids().size());
 					for (long push_uuid  : getStandByUuids()) {
-						System.out.println("sitdown 11111111112222222222222223333333333334: " + push_uuid);
 						UserBaseInfoNet stUserBaseInfoNet = mapStandByUserGameInfos.get(push_uuid).getStUserInfo();
 						
 						pushGameRoomUserMsgs(stUserMyGameInfoNetBuilder.build(),stUserBaseInfoNet.getUuid(),
@@ -1257,175 +1259,51 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				mGameRoomDetailInfos.setCurrent(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), this);
 				break;
 			case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
-				//检测机器人自动弃牌
-				robotFlod();
-				
-				//如果allin状态，则发牌跳转到下一个状态
-				if(stGameRoomInfo.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result && checkAllAllin() == true){
-					//如果allin状态，则发牌跳转到下一个状态
-					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-					if(stGameRoomInfoBuilder.getVCurrentCardsCount() == 0){
-						//首先发三张牌
-						int card1 = 0;
-						int card2 = 0;
-						int card3 = 0;
-						if(GameRoomDetailInfo.NOT_DEBUG){
-							card1 = getCard();
-							card2 = getCard();	
-							card3 = getCard();	
-						}else{											
-							card1 = getCard(0,0,true);
-							card2 = getCard(0,1,true);
-							card3 = getCard(0,2,true);
-						}
-						
-						stGameRoomInfoBuilder.addVCurrentCards(card1);
-						stGameRoomInfoBuilder.addVCurrentCards(card2);
-						stGameRoomInfoBuilder.addVCurrentCards(card3);
-						
-						TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
-								+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-								+"," + stGameRoomInfo.getLGameHandID()
-								+"," + 0
-								+"," + "flop" 
-								+"," + card1
-								+"," + card2
-								+"," + card3);
-						
-						stGameRoomInfoBuilder.setBStateChange(1);					
-						stGameRoomInfoBuilder.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop);	
-						stGameRoomInfo = stGameRoomInfoBuilder.build();
-						
-						//把牌局的信息push给每个人					
-						ArrayList<Integer> cards = new ArrayList<Integer>();
-						cards.add(card1);
-						cards.add(card2);
-						cards.add(card3);
-						sendAllGameStateChange(0,cards);
-					}
-
-					stGameRoomInfoBuilder.setBStateChange(1);					
-					stGameRoomInfoBuilder.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop);	
-					//记录cent需要的最后一个下牌的玩家
-					stGameRoomInfo = stGameRoomInfoBuilder.build();
+				if(checkAllAllin()){
+					checkGotoFlopSeparateSatus(0,GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_One);		
+				}else{
+					//检测机器人自动弃牌
+					robotFlod();
 				}
 			}
 			mGameRoomDetailInfos.setCurrent(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), this);
 				break;
+			case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_One_VALUE:
+			case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_Two_VALUE:
+			case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_Three_VALUE:{				
+				mGameRoomDetailInfos.setCurrent(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), this);
+			}
+			break;
 			case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
-				//检测机器人自动弃牌
-				robotFlod();
-				
-				
-				//如果allin状态，则发牌跳转到下一个状态
-				if(stGameRoomInfo.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result && checkAllAllin() == true){
-					//获取一张牌
-					int card1 = 0;
-					ArrayList<Integer> cards = new ArrayList<Integer>();
-					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-//					mLogPlays.error(LOG_TAG+" stGameRoomDetailInfo.stGameRoomInfo.getVCurrentCardsCount() ： " + stGameRoomInfo.getVCurrentCardsCount());
-					if(stGameRoomInfo.getVCurrentCardsCount() <= 3){
-						if(GameRoomDetailInfo.NOT_DEBUG){
-							card1 = getCard();
-						}else{											
-							card1 = getCard(0,3,true);
-						}
-						
-						stGameRoomInfoBuilder.addVCurrentCards(card1);
-						
-						TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
-								+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-								+"," + stGameRoomInfo.getLGameHandID()
-								+"," + 0
-								+"," + "turn" 
-								+"," + card1);
-
-						cards.add(card1);
-					}
-					
-					stGameRoomInfoBuilder.setBStateChange(1);
-					stGameRoomInfoBuilder.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Turn);
-					
-					stGameRoomInfo = stGameRoomInfoBuilder.build();
-					
-					sendAllGameStateChange(0,cards);
+				if(checkAllAllin()){
+					checkGotoTurnStatus(0);
+				}else{
+					//检测机器人自动弃牌
+					robotFlod();
 				}
 				
 				mGameRoomDetailInfos.setCurrent(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), this);
 			}
 				break;
 			case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Turn_VALUE:{
-				//检测机器人自动弃牌
-				robotFlod();
-				
-				//如果allin状态，则发牌跳转到下一个状态
-				if(stGameRoomInfo.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result && checkAllAllin() == true){
-					//获取一张牌
-					int card1 = 0;
-					ArrayList<Integer> cards = new ArrayList<Integer>();
-					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-//					mLogPlays.error(LOG_TAG+" stGameRoomDetailInfo.stGameRoomInfo.getVCurrentCardsCount() ： " + stGameRoomInfo.getVCurrentCardsCount());
-					if(stGameRoomInfo.getVCurrentCardsCount() <= 4){
-						//获取一张牌
-						if(GameRoomDetailInfo.NOT_DEBUG){
-							card1 = getCard();
-						}else{											
-							card1 = getCard(0,4,true);
-						}
-						
-						stGameRoomInfoBuilder.addVCurrentCards(card1);
-						TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
-								+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-								+"," + stGameRoomInfo.getLGameHandID()
-								+"," + 0
-								+"," + "river" 
-								+"," + card1);
-
-						cards.add(card1);
-					}
-					
-					stGameRoomInfoBuilder.setBStateChange(1);
-					stGameRoomInfoBuilder.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_River);
-					
-					stGameRoomInfo = stGameRoomInfoBuilder.build();
-					
-					sendAllGameStateChange(0,cards);
+				if(checkAllAllin()){
+					checkGotoRiverStatus(0);
+				}else{
+					//检测机器人自动弃牌
+					robotFlod();
 				}
+				
 				mGameRoomDetailInfos.setCurrent(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), this);
 			}
 				break;
 			case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_River_VALUE:{
-				//检测机器人自动弃牌
-				robotFlod();
-				
-				//如果allin状态，则发牌跳转到下一个状态
-				if(stGameRoomInfo.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result && checkAllAllin() == true){
-					//计算结果
-					calculateWinner();
-					
-					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-					
-					for(int k = 0 ; k < iGameRoomUserMaxNums;k++ ){
-						UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(k).toBuilder();
-						
-						if(stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0 
-								&&stResetUserGameInfoBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_FOLD
-								&&stResetUserGameInfoBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT){									
-								stResetUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_ALLIN);
-						}
-				
-						stGameRoomInfoBuilder.setVUserGameInfos(k, stResetUserGameInfoBuilder);
-					}
-					
-					
-					stGameRoomInfoBuilder.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result);
-
-					stGameRoomInfoBuilder.setBStateChange(1);
-					//牌局结束，进入计算输赢的阶段
-					stGameRoomInfo = stGameRoomInfoBuilder.build();
-
-					sendAllGameStateChange(0,null);
+				if(checkAllAllin()){
+					gotoResultStatus(0);
+				}else{
+					//检测机器人自动弃牌
+					robotFlod();
 				}
+
 				mGameRoomDetailInfos.setCurrent(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), this);
 			}
 				break;
@@ -1854,8 +1732,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stUserGameInfoBuilder.setBGameDealer(0);
 					stUserGameInfoBuilder.setIDelayLong(0);
 					stUserGameInfoBuilder.setIDelaySingleTime(20);
-					
-//					mapPlayingUserGameInfos.put(userIndex,stUserGameInfoBuilder.getStUserInfo().getUuid());
 
 					//设置用户的较色状态
 					if( 0 == userRole){
@@ -2653,9 +2529,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						//设置需要进行下注的人的状态		
 						stGameRoomInfo = stGameRoomInfoBuilder.build();
 						
-						System.out.println("stGameRoomInfostGameRoomInfo 2: " + stUserGameInfoBuilder.getStUserInfo().getUuid());
-						System.out.println("stGameRoomInfostGameRoomInfo 3: " + stUserGameInfoBuilder.getLRemainStacks());
-						System.out.println("stGameRoomInfostGameRoomInfo 4: " + checkAllAllin());
 						if(stUserGameInfoBuilder.getLRemainStacks() > 0 && checkAllAllin()==false){
 							stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_BETTING);
 							stUserGameInfoBuilder.setLBettingID(System.currentTimeMillis());
@@ -2882,5 +2755,135 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	
 	public void helloGame(long uuid){
 		addStandByUuid(uuid);
+	}
+	
+	public void gotoNextStep(){
+		synchronized(this){
+			switch (stGameRoomInfo.getEGameState().getNumber()) {
+			case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE: {
+				gotoFlopSeparateSatus(0,GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_One,true);
+			}
+				break;
+			case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_One_VALUE: {
+				gotoFlopSeparateSatus(0,GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_Two,true);
+			}
+				break;
+			case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_Two_VALUE: {
+				gotoFlopSeparateSatus(0,GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_Three,true);
+			}
+				break;
+			case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_Three_VALUE: {
+				gotoTurnStatus(0,true);
+			}
+				break;
+			case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Turn_VALUE: {
+				gotoRiverStatus(0,true);
+			}
+				break;
+			case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_River_VALUE: {
+				gotoResultStatus(0);
+			}
+				break;
+			}
+		}
+	}
+	
+	/**
+	 * 买入保险
+	 * @param uuid	    	 	买保险的用户
+	 * @param lGameHandID		买入牌局的手ID
+	 * @param eGameRoomStatus		买入时候的牌局状态
+	 * @param vBuyInsuranceInfo		买入动作集合
+	 */
+	public GameRoomInfo buyInsurance(long uuid,long lGameHandID,GAME_ROOM_GAME_STATE eGameRoomStatus,List<BuyInsuranceInfo> vBuyInsuranceInfo){
+		synchronized(this){
+			InsuranceInfo stInsuranceInfo = InsuranceApi.doInsuranceAction(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),lGameHandID,uuid,eGameRoomStatus,vBuyInsuranceInfo);
+			if(stInsuranceInfo!=null){
+				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+				stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
+				stGameRoomInfo =  stGameRoomInfoBuilder.build();
+							
+				//push相关
+				pushAllGameRoomUserMsgs(null, GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_BUY_INSURANCE);
+				
+				return stGameRoomInfo;
+			}else{
+				return null;
+			}
+		}
+	}
+	
+	/**
+	 * 房主设置的用户是否可以买入保险
+	 * @param uuid	    		 	房主
+	 * @param lSettedUuid			被设置的用户
+	 * @param bCanInsurance			是否可以买入保险
+	 */
+	public ERROR_CODE_TYPE creatorInsuranceSetting(long uuid,long lSettedUuid,int bCanInsurance){
+		synchronized(this){
+			InsuranceInfo stInsuranceInfo = null;
+			if(uuid!=stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()){
+				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_GAME_ROOM_OWNER;
+			}
+			
+			if(bCanInsurance > 0){
+				stInsuranceInfo = InsuranceApi.setCreaterInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), lSettedUuid, false);
+			}else{
+				stInsuranceInfo = InsuranceApi.setCreaterInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), lSettedUuid, true);
+			}
+			
+			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+			stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
+			stGameRoomInfo = stGameRoomInfoBuilder.build();
+			
+			//push相关
+			pushAllGameRoomUserMsgs(null, GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_INSURANCEABLE_CHANGE);
+			
+			return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS; 
+			
+		}
+	}
+	
+	/**
+	 * 用户设置的是否可以买入保险
+	 * @param uuid	    	 		设置的用户
+	 * @param bDefaultInsurance		是否可以买入保险
+	 */
+	public ERROR_CODE_TYPE userInsuranceSetting(long uuid,int bDefaultInsurance){
+		synchronized(this){
+			InsuranceInfo stInsuranceInfo = null;
+			if(bDefaultInsurance > 0){
+				stInsuranceInfo = InsuranceApi.setUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid, false);
+			}else{
+				stInsuranceInfo = InsuranceApi.setUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid, true);
+			}
+			
+			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+			stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
+			stGameRoomInfo = stGameRoomInfoBuilder.build();
+			
+			return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS; 
+		}
+	}
+	
+	/**
+	 * 保险延时道具
+	 * @param uuid	    	 		设置的用户
+	 * @param lGameHandID			手ID
+	 * @param eGameRoomState		牌局的状态
+	 */
+	public InsuranceUserInfo buyInsuranceDealy(long uuid,long lGameHandID,GAME_ROOM_GAME_STATE eGameRoomState){
+		synchronized(this){			
+//			InsuranceInfo stInsuranceInfo = InsuranceApi.(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),lGameHandID,uuid,eGameRoomStatus,vBuyInsuranceInfo);
+//			if(bDefaultInsurance > 0){
+//				InsuranceApi.setUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid, false);
+//			}else{
+//				InsuranceApi.setUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid, true);
+//			}
+//			
+//			stGameRoomInfo = stGameRoomInfoBuilder.build();
+			InsuranceUserInfo.Builder stInsuranceUserInfoBuilder = InsuranceUserInfo.newBuilder();
+			return stInsuranceUserInfoBuilder.build(); 
+		}
 	}
 }

@@ -9,6 +9,7 @@ import com.texaspoker.moment.TexasPoker.BUYIN_CONTROL_TYPE;
 import com.texaspoker.moment.TexasPoker.BuyinControl;
 import com.texaspoker.moment.TexasPoker.GAME_ACT_TYPE;
 import com.texaspoker.moment.TexasPoker.GameRoomInfo;
+import com.texaspoker.moment.TexasPoker.InsuranceUserInfo;
 import com.texaspoker.moment.TexasPoker.QuickGameRoomInfo;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
@@ -16,12 +17,18 @@ import com.texaspoker.moment.TexasPokerGameService;
 import com.texaspoker.moment.TexasPoker.GameRoomBaseInfo;
 import com.texaspoker.moment.TexasPokerGameService.BuyBuyInRequest;
 import com.texaspoker.moment.TexasPokerGameService.BuyBuyInResponse;
+import com.texaspoker.moment.TexasPokerGameService.BuyInsuranceDelayRequest;
+import com.texaspoker.moment.TexasPokerGameService.BuyInsuranceDelayResponse;
+import com.texaspoker.moment.TexasPokerGameService.BuyInsuranceRequest;
+import com.texaspoker.moment.TexasPokerGameService.BuyInsuranceResponse;
 import com.texaspoker.moment.TexasPokerGameService.BuyinActionRequest;
 import com.texaspoker.moment.TexasPokerGameService.BuyinActionResponse;
 import com.texaspoker.moment.TexasPokerGameService.CreateGameRoomRequest;
 import com.texaspoker.moment.TexasPokerGameService.CreateGameRoomResponse;
 import com.texaspoker.moment.TexasPokerGameService.CreateQuickGameRoomRequest;
 import com.texaspoker.moment.TexasPokerGameService.CreateQuickGameRoomResponse;
+import com.texaspoker.moment.TexasPokerGameService.CreatorInsuranceSettingRequest;
+import com.texaspoker.moment.TexasPokerGameService.CreatorInsuranceSettingResponse;
 import com.texaspoker.moment.TexasPokerGameService.EnterGameRoomRequest;
 import com.texaspoker.moment.TexasPokerGameService.EnterGameRoomResponse;
 import com.texaspoker.moment.TexasPokerGameService.EnterQuickGameRoomRequest;
@@ -78,6 +85,8 @@ import com.texaspoker.moment.TexasPokerGameService.UseDelayItemRequest;
 import com.texaspoker.moment.TexasPokerGameService.UseDelayItemResponse;
 import com.texaspoker.moment.TexasPokerGameService.UseItemRequest;
 import com.texaspoker.moment.TexasPokerGameService.UseItemResponse;
+import com.texaspoker.moment.TexasPokerGameService.UserInsuranceSettingRequest;
+import com.texaspoker.moment.TexasPokerGameService.UserInsuranceSettingResponse;
 import com.texaspoker.moment.room.GameRoomDetailInfo;
 import com.texaspoker.moment.room.GameRoomIDResultInfo;
 import com.texaspoker.moment.room.GameRoomManager;
@@ -114,6 +123,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		stGameRoomBaseInfoBuilder.setIGameRoomUserMaxNums(request.getStGameRoomBaseInfo().getIGameRoomUserMaxNums());
 		stGameRoomBaseInfoBuilder.setStCreateUserBaseInfo(UserManager.getInstance().getUserBaseInfo(request.getUuid()));
 		stGameRoomBaseInfoBuilder.setIAnte(request.getStGameRoomBaseInfo().getIAnte());
+		stGameRoomBaseInfoBuilder.setBInsurance(1);
 		GameRoomIDResultInfo stGameRoomIDResultInfo = GameRoomManager.getInstance().createGameRoom(request.getUuid()
 				,stGameRoomBaseInfoBuilder.build());
 		if(stGameRoomIDResultInfo.geteErrorCodeType() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
@@ -1091,6 +1101,108 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 	@Override
 	public void helloGame(RpcController controller, HelloGameRequest request,
 			RpcCallback<HelloGameResponse> done) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public BuyInsuranceResponse buyInsurance(RpcController controller,
+			BuyInsuranceRequest request) throws ServiceException {
+		// TODO Auto-generated method stub
+		BuyInsuranceResponse.Builder  stBuyInsuranceResponseBuilder = BuyInsuranceResponse.newBuilder();
+		stBuyInsuranceResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);	
+		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+		
+		GameRoomInfo stGameRoomInfo = stGameRoomDetailInfo.buyInsurance(request.getUuid(), request.getLGameHandID(), request.getEGameRoomStatus(), request.getStBuyInsuranceInfoList());
+		if(stGameRoomInfo!=null){
+			stBuyInsuranceResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+			stBuyInsuranceResponseBuilder.setStGameRoomInfo(stGameRoomInfo);
+		}else{
+			stBuyInsuranceResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);	
+		}
+		
+		return stBuyInsuranceResponseBuilder.build();
+	}
+
+	@Override
+	public BuyInsuranceDelayResponse buyInsuranceDelayRequest(
+			RpcController controller, BuyInsuranceDelayRequest request)
+			throws ServiceException {
+		// TODO Auto-generated method stub
+		
+		BuyInsuranceDelayResponse.Builder stBuyInsuranceDelayResponseBuilder = BuyInsuranceDelayResponse.newBuilder();
+
+		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+		
+		if(stGameRoomDetailInfo!=null){
+			InsuranceUserInfo stInsuranceUserInfo= stGameRoomDetailInfo.buyInsuranceDealy(request.getUuid(), request.getLGameHandID(), request.getEGameRoomStatus());
+			
+			if(stInsuranceUserInfo!=null){
+				stBuyInsuranceDelayResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+				stBuyInsuranceDelayResponseBuilder.setStInsuranceUserInfo(stInsuranceUserInfo);
+				
+				return stBuyInsuranceDelayResponseBuilder.build();
+			}else{
+				stBuyInsuranceDelayResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
+			}
+		}else{
+			stBuyInsuranceDelayResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);	
+		}
+		
+		return stBuyInsuranceDelayResponseBuilder.build();
+	}
+
+	@Override
+	public CreatorInsuranceSettingResponse creatorInsuranceSetting(
+			RpcController controller, CreatorInsuranceSettingRequest request)
+			throws ServiceException {
+		// TODO Auto-generated method stub
+		CreatorInsuranceSettingResponse.Builder  stCreatorInsuranceSettingResponseBuilder = CreatorInsuranceSettingResponse.newBuilder();
+		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+		ERROR_CODE_TYPE eErrorCodeType = stGameRoomDetailInfo.creatorInsuranceSetting(request.getUuid(), request.getLSettedUuid(), request.getBCanInsurance());
+		stCreatorInsuranceSettingResponseBuilder.setEErrCode(eErrorCodeType);
+		return stCreatorInsuranceSettingResponseBuilder.build();
+	}
+
+	@Override
+	public UserInsuranceSettingResponse userInsuranceSettingRequest(
+			RpcController controller, UserInsuranceSettingRequest request)
+			throws ServiceException {
+		// TODO Auto-generated method stub
+		UserInsuranceSettingResponse.Builder  stUserInsuranceSettingResponseBuilder= UserInsuranceSettingResponse.newBuilder();
+		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+		ERROR_CODE_TYPE eErrorCodeType = stGameRoomDetailInfo.userInsuranceSetting(request.getUuid(), request.getBDefaultInsurance());
+		stUserInsuranceSettingResponseBuilder.setEErrCode(eErrorCodeType);
+		return stUserInsuranceSettingResponseBuilder.build();
+	}
+
+	@Override
+	public void buyInsurance(RpcController controller,
+			BuyInsuranceRequest request, RpcCallback<BuyInsuranceResponse> done) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void buyInsuranceDelayRequest(RpcController controller,
+			BuyInsuranceDelayRequest request,
+			RpcCallback<BuyInsuranceDelayResponse> done) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void creatorInsuranceSetting(RpcController controller,
+			CreatorInsuranceSettingRequest request,
+			RpcCallback<CreatorInsuranceSettingResponse> done) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void userInsuranceSettingRequest(RpcController controller,
+			UserInsuranceSettingRequest request,
+			RpcCallback<UserInsuranceSettingResponse> done) {
 		// TODO Auto-generated method stub
 		
 	}

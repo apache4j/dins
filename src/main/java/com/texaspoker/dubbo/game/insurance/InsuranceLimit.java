@@ -1,0 +1,102 @@
+/**
+ * 包名:com.texaspoker.dubbo.game.insurance
+ * 文件名:InsuranceLimit.java
+ * 创建人:xichen
+ * 创建日期:2016年7月2日-下午12:16:21
+ * Copyright (c) 2016 Illuminate 公司-版权所有
+ */
+package com.texaspoker.dubbo.game.insurance;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * 类名称:InsuranceLimit
+ * 类描述:保险开关
+ * 创建人:xichen
+ * 修改人:xichen
+ * 修改时间:2016年7月2日-下午12:16:21
+ * 修改备注:
+ */
+public class InsuranceLimit {
+
+  // 房主的操作状态
+  private Map<Long, Set<Long>> room_creater_limits = new HashMap<Long, Set<Long>>();
+  // 玩家的操作状态
+  private Map<Long, Set<Long>> room_user_limits = new HashMap<Long, Set<Long>>();
+
+  // 房间的屏蔽列表
+  private Map<Long, Set<Long>> room_limits = new HashMap<Long, Set<Long>>();
+
+  // 检查是否关闭这个用户的保险购买信息
+  public boolean checkUserCloseInsurance(long roomId, long uuid) {
+    Set<Long> roomStatus = room_limits.get(roomId);
+    if (roomStatus == null) {
+      return false;
+    } else {
+      return roomStatus.contains(uuid);
+    }
+  }
+
+  // 设置房主的开关列表
+  public void setCreaterOpenStatus(long roomId, long uuid, boolean close) {
+    setOpenStatus(room_creater_limits, roomId, uuid, close);
+    refreshRoomOpenState(roomId);
+  }
+
+  // 设置玩家的开关列表
+  public void setUserOpenStatus(long roomId, long uuid, boolean close) {
+    setOpenStatus(room_user_limits, roomId, uuid, close);
+    refreshRoomOpenState(roomId);
+  }
+
+  // 更新这个房间的保险关闭信息
+  private void refreshRoomOpenState(long roomId) {
+    // 刷新前，清空房间的开关信息
+    Set<Long> roomStatus = room_limits.get(roomId);
+    if (roomStatus == null) {
+      roomStatus = new HashSet<Long>();
+      room_limits.put(roomId, roomStatus);
+    } else {
+      roomStatus.clear();
+    }
+    // 更新房主关闭信息
+    Set<Long> createrStatus = room_creater_limits.get(roomId);
+    if (createrStatus != null) {
+      roomStatus.addAll(createrStatus);
+    }
+    // 更新玩家关闭信息
+    Set<Long> userStatus = room_user_limits.get(roomId);
+    if (userStatus != null) {
+      roomStatus.addAll(userStatus);
+    }
+  }
+
+  // 设置关闭信息
+  private static void setOpenStatus(Map<Long, Set<Long>> limits, long roomid, long uuid, boolean close) {
+    if (close) {
+      Set<Long> roomStatus = limits.get(roomid);
+      // 是否这个房间没有关闭过保险
+      if (roomStatus == null) {
+        roomStatus = new HashSet<Long>();
+        limits.put(roomid, roomStatus);
+      }
+      // 这个用户是否已经关闭过保险
+      if (roomStatus.contains(uuid)) {
+        return;
+      }
+      // 加入屏蔽集合
+      roomStatus.add(uuid);
+    } else {
+      Set<Long> roomStatus = limits.get(roomid);
+      // 没有这个保险屏蔽信息，直接返回成功
+      if (roomStatus == null) {
+        return;
+      }
+      // 去掉这个屏蔽
+      roomStatus.remove(uuid);
+    }
+  }
+}
