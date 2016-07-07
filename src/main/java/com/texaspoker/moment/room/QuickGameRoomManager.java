@@ -192,22 +192,9 @@ public class QuickGameRoomManager {
 					stQuickGameRoomResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_GAMEROOM_OVERFLOW);
 					return stQuickGameRoomResultInfo;
 				}else{
+					System.out.println("createQuickGameRoom 1 : " + stGameRoomBaseInfo.getEGameRoomSeniorType());
 					if(stGameRoomBaseInfo.getEGameRoomSeniorType() == GAME_ROOM_SENIOR_TYPE.GAME_ROOM_SENIOR_TYPE_NO){
 						synchronized(RoomIDManager.class){
-//							Long oldRoomID = UserManager.getInstance().getUserInTable(uuid);
-//							if (oldRoomID != null) {
-//								// 说明玩家在别的屋子中，首先需要进行玩家离开房间的操作
-//								GameRoomDetailInfo stOldGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(oldRoomID);
-//								
-//								if (stOldGameRoomDetailInfo != null) {
-//									if(stOldGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBGamePause() == 1){
-//										stQuickGameRoomResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED);
-//										return stQuickGameRoomResultInfo;
-//									}
-//									
-//									stOldGameRoomDetailInfo.leaveGameRoom(uuid);
-//								}
-//							}
 							
 							//生成一个新的快速开局房间
 							QuickGameRoomInfo.Builder stQuickGameRoomInfoBuilder = QuickGameRoomInfo.newBuilder();

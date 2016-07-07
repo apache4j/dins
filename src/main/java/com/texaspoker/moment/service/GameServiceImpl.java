@@ -546,7 +546,6 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		// TODO Auto-generated method stub
 		CreateQuickGameRoomResponse.Builder  stCreateQuickGameRoomResponseBuilder = CreateQuickGameRoomResponse.newBuilder();
 
-//		System.out.println("createQuickGameRoomcreateQuickGameRoomcreateQuickGameRoom1");
 		QuickGameRoomResultInfo stQuickGameRoomResultInfo = QuickGameRoomManager.getInstance().createQuickGameRoom(request.getUuid(), request.getStGameRoomBaseInfo());
 		
 		if(stQuickGameRoomResultInfo.geteErrorCodeType() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
