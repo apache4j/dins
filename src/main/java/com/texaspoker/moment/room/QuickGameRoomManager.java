@@ -93,6 +93,7 @@ public class QuickGameRoomManager {
 	}
 	
 	public void addUserCreateQuickGameRoom(long uuid,long lQuickGameRoomID){
+		System.out.println("addUserCreateQuickGameRoom : " + lQuickGameRoomID);
 		UserManager.getInstance().setUserQuickGameRoom(uuid, lQuickGameRoomID);
 	}
 	
