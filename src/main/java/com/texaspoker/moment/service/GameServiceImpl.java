@@ -126,9 +126,11 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		stGameRoomBaseInfoBuilder.setBInsurance(1);
 		GameRoomIDResultInfo stGameRoomIDResultInfo = GameRoomManager.getInstance().createGameRoom(request.getUuid()
 				,stGameRoomBaseInfoBuilder.build());
+		System.out.println("stGameRoomIDResultInfo : " + stGameRoomIDResultInfo.getlGameRoomID());
 		if(stGameRoomIDResultInfo.geteErrorCodeType() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
 			if(stGameRoomIDResultInfo.getlGameRoomID() > 0){
 				GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(stGameRoomIDResultInfo.getlGameRoomID());
+				System.out.println("2222222222222222 : " + stGameRoomDetailInfo );
 				if(stGameRoomDetailInfo!=null){
 					stCreateGameRoomResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
 					stCreateGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
