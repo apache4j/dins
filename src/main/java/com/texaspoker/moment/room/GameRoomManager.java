@@ -142,7 +142,6 @@ public class GameRoomManager  {
 											
 						List<UserBaseInfoNet> userList = new ArrayList<UserBaseInfoNet>();
 						
-						System.out.println("createGameRoomcreateGameRoom 1 : " + gameRoomBaseInfoBuilder.getECreateRoomType());
 						if(gameRoomBaseInfoBuilder.getECreateRoomType() == CREATE_ROOM_TYPE.CAHT_ROOM){
 							ChatRoomInfo stChatRoomInfo = ChatRoomManager.getInstance().getChatRoomInfo(gameRoomBaseInfoBuilder.getLChatRoomID());
 							if(stChatRoomInfo!=null){
@@ -162,7 +161,6 @@ public class GameRoomManager  {
 								//添加俱乐部积分
 								stClubInfoBuilder = ClubManager.getInstance().addClubScore(stClubInfoBuilder.getStClubBaseInfo().getLClubID(), 5);
 												
-								System.out.println("createGameRoomcreateGameRoom 2 : " + gameRoomBaseInfoBuilder.getLChatRoomID());
 								// 将牌局ID存到关联的聊天室里面
 								ClubManager.getInstance().addGameRooms(gameRoomBaseInfoBuilder.getLChatRoomID(),gameRoomBaseInfoBuilder.getLGameRoomId());
 							}
@@ -213,7 +211,6 @@ public class GameRoomManager  {
 	
 						// 放入GameManager中
 						GameRoomManager.getInstance().setGameRoomDetailInfo(stGameRoomDetailInfo);
-						System.out.println("ddddddddddddddffffffffffffff : " + stGameRoomDetailInfo.getStGameRoomInfo());
 						
 						ConnectDatabase.getInstance().insertGameRoomInfo(stGameRoomDetailInfo);
 						

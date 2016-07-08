@@ -385,12 +385,14 @@ public class QuickGameRoomManager {
 	}	
 	
 	public GameRoomResultInfo startQuickGameRoom(long uuid,long lQuickGameRoomID){
+		System.out.println("startQuickGameRoomstartQuickGameRoomstartQuickGameRoom");
 		UserBaseInfoNet.Builder stUserBaseInfoNet = UserManager.getInstance().getUserBaseInfo(uuid);
 		
 		GameRoomResultInfo stGameRoomResultInfo = new GameRoomResultInfo();
 		//获取快速开局房间信息
 		QuickGameRoomInfo.Builder stQuickGameRoomInfoBuilder = QuickGameRoomManager.getInstance().getQuickGameRoomInfoByRoomID(lQuickGameRoomID);
 		if(stQuickGameRoomInfoBuilder!=null ){
+			System.out.println("startQuickGameRoomstartQuickGameRoomstartQuickGameRoom1");
 			if(stQuickGameRoomInfoBuilder.getEQuickGameRoomStatus() != QUICK_GAME_ROOM_STATUS.QUICK_GAME_ROOM_NOTSTART){
 				// 生成回包
 				stGameRoomResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_QUICK_GAMEROOM_ALREADY_START);
@@ -398,13 +400,14 @@ public class QuickGameRoomManager {
 			// 判断用户是否可以在创建房间
 			else {
 				// 先检查是否在别的游戏中
-
+				System.out.println("startQuickGameRoomstartQuickGameRoomstartQuickGameRoom2");
 					ChatRoomInfo.Builder stChatRoomInfoBuilder = stQuickGameRoomInfoBuilder.getStChatRoomInfoBuilder();
 					if(stChatRoomInfoBuilder!=null){
+						System.out.println("startQuickGameRoomstartQuickGameRoomstartQuickGameRoom3");
 						GameRoomBaseInfo.Builder stSettingGameRoomBaseInfoBuilder = stQuickGameRoomInfoBuilder.getStGameRoomBaseInfoBuilder();
 						if(stSettingGameRoomBaseInfoBuilder != null){
 							// 生成银币扣除数据
-								
+							System.out.println("startQuickGameRoomstartQuickGameRoomstartQuickGameRoom4");
 								synchronized(RoomIDManager.class){
 									TexasPoker.GameRoomBaseInfo.Builder gameRoomBaseInfoBuilder = TexasPoker.GameRoomBaseInfo.newBuilder();
 									gameRoomBaseInfoBuilder.setLGameRoomId(RoomIDManager.getInstance().getNewRoomID(stUserBaseInfoNet.getUuid()));
@@ -427,7 +430,7 @@ public class QuickGameRoomManager {
 									gameRoomBaseInfoBuilder.setBInsurance(stSettingGameRoomBaseInfoBuilder.getBInsurance());
 									// 设置房主vip信息
 									gameRoomBaseInfoBuilder.setStCreateUserBaseInfo(UserManager.getInstance().getUserBaseInfo(uuid));
-
+									System.out.println("startQuickGameRoomstartQuickGameRoomstartQuickGameRoom5");
 									gameRoomBaseInfoBuilder.setLChatRoomID(lQuickGameRoomID);
 
 									TexasPoker.GameRoomInfo.Builder gameRoomInfoBuilder = TexasPoker.GameRoomInfo.newBuilder();
@@ -444,7 +447,7 @@ public class QuickGameRoomManager {
 										// 将牌局ID存到关联的聊天室里面
 										ChatRoomManager.getInstance().addGameRooms(stChatRoomInfo.getStChatRoomBaseInfo().getLChatRoomId(),gameRoomBaseInfoBuilder.getLGameRoomId());
 									}
-							
+									System.out.println("startQuickGameRoomstartQuickGameRoomstartQuickGameRoom6");
 									gameRoomInfoBuilder.setStGameRoomBaseInfo(gameRoomBaseInfoBuilder);	
 									gameRoomInfoBuilder.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait);
 										
@@ -478,14 +481,14 @@ public class QuickGameRoomManager {
 
 										gameRoomInfoBuilder.addVUserGameInfos(userGameInfoBuilder);
 									}
-
+									System.out.println("startQuickGameRoomstartQuickGameRoomstartQuickGameRoom7");
 									stGameRoomDetailInfo.setStGameRoomInfo(gameRoomInfoBuilder.build()) ;
 									stGameRoomDetailInfo.setiGameRoomUserMaxNums(gameRoomBaseInfoBuilder.getIGameRoomUserMaxNums());
 
 									// 设置牌局的可玩用户数，用在开局
 									stGameRoomDetailInfo.lGameRoomID = gameRoomBaseInfoBuilder.getLGameRoomId();
 									stGameRoomDetailInfo.lFromRoomID = gameRoomBaseInfoBuilder.getLChatRoomID();
-									
+									System.out.println("startQuickGameRoomstartQuickGameRoomstartQuickGameRoom8");
 									//生成自己的数据，放到旁观队列里面
 									TexasPoker.UserGameInfoNet.Builder userSelfGameInfoBuilder = TexasPoker.UserGameInfoNet.newBuilder();
 									UserBaseInfoNet.Builder stCreateUserBaseInfoBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
@@ -520,7 +523,7 @@ public class QuickGameRoomManager {
 									stQuickGameRoomInfoBuilder.setEQuickGameRoomStatus(QUICK_GAME_ROOM_STATUS.QUICK_GAME_ROOM_START);
 									
 									QuickGameRoomManager.getInstance().setQuickGameRoomInfos(stQuickGameRoomInfoBuilder);
-
+									System.out.println("startQuickGameRoomstartQuickGameRoomstartQuickGameRoom9");
 									// 将被邀请的用户设置要被邀请的名单中,弄发送邀请通知
 									for (int i = 0; i < userList.size(); i++) {
 										UserBaseInfoNet stUserBaseInfo = userList.get(i);
@@ -535,7 +538,7 @@ public class QuickGameRoomManager {
 											}
 										}
 									}
-
+									System.out.println("startQuickGameRoomstartQuickGameRoomstartQuickGameRoom10");
 									stGameRoomResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
 									stGameRoomResultInfo.setStGameRoomInfo(gameRoomInfoBuilder.build());
 								}
