@@ -2098,6 +2098,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	
 	//用户进入房间
 	public ERROR_CODE_TYPE enterGameRoom(long uuid){
+		System.out.println("enterGameRoomenterGameRoomenterGameRoom2");
 		try{
 			//把用户加入房间
 			//获取gameroom builder,这里要注意toBuilder的方式，看看toBuilder是否会有问题
@@ -2123,7 +2124,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			if(bInClub == false){
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_CLUB_NO_USER;
 			}
-	
+			System.out.println("enterGameRoomenterGameRoomenterGameRoom3");
 			if(containUser(uuid)){
 				//如果用户已经存在房间了，就直接返回
 				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount() ; i++){

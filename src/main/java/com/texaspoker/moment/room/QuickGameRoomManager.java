@@ -555,7 +555,6 @@ public class QuickGameRoomManager {
 			stGameRoomResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_QUICK_GAMEROOM);
 		}
 		
-//		stGameRoomResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
 		return stGameRoomResultInfo;
 	}
 	

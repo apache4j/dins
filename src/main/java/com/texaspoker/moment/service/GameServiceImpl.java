@@ -147,6 +147,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 	@Override
 	public EnterGameRoomResponse enterGameRoom(RpcController controller,
 			EnterGameRoomRequest request) throws ServiceException {
+		System.out.println("enterGameRoomenterGameRoomenterGameRoom1");
 		// TODO Auto-generated method stub
 		EnterGameRoomResponse.Builder  stEnterGameRoomResponseBuilder = EnterGameRoomResponse.newBuilder();
 
