@@ -211,7 +211,7 @@ public class GameRoomManager  {
 	
 						// 放入GameManager中
 						GameRoomManager.getInstance().setGameRoomDetailInfo(stGameRoomDetailInfo);
-						System.out.println("ddddddddddddddffffffffffffff : " + stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo());
+						System.out.println("ddddddddddddddffffffffffffff : " + stGameRoomDetailInfo.getStGameRoomInfo());
 						
 						ConnectDatabase.getInstance().insertGameRoomInfo(stGameRoomDetailInfo);
 						
