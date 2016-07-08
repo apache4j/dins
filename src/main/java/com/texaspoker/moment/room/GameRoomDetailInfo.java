@@ -27,7 +27,6 @@ import com.texaspoker.moment.TexasPoker.GAME_ROOM_SENIOR_TYPE;
 import com.texaspoker.moment.TexasPoker.GameRoomBaseInfo;
 import com.texaspoker.moment.TexasPoker.GameRoomInfo;
 import com.texaspoker.moment.TexasPoker.InsuranceInfo;
-import com.texaspoker.moment.TexasPoker.InsurancePotInfo;
 import com.texaspoker.moment.TexasPoker.InsuranceUserInfo;
 import com.texaspoker.moment.TexasPoker.USER_GAME_ROLE;
 import com.texaspoker.moment.TexasPoker.USER_GAME_STATE;
