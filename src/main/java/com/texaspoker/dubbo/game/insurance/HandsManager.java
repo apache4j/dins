@@ -7,8 +7,11 @@
  */
 package com.texaspoker.dubbo.game.insurance;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.log4j.Logger;
 
 /**
  * 类名称:handsManager
@@ -20,6 +23,8 @@ import java.util.Map;
  */
 public class HandsManager {
 
+  private static Logger logger = Logger.getLogger(HandsManager.class);
+
   private final static Map<Long, HandInfo> hands_map = new HashMap<Long, HandInfo>();
 
   private static HandsManager instance = new HandsManager();
@@ -30,6 +35,7 @@ public class HandsManager {
 
   // 新一手牌局
   public void setHandOpen(long roomId, long handId) {
+    logger.info("roomId:" + roomId + ",handId:" + handId);
     HandInfo handInfo = hands_map.get(roomId);
     if (handInfo == null) {
       handInfo = new HandInfo();
@@ -37,10 +43,11 @@ public class HandsManager {
       hands_map.put(roomId, handInfo);
     }
     handInfo.handId = handId;
-    handInfo.setStatus(HandUtils.PRE_FLOP);
+    handInfo.setGameStatus(HandUtils.PRE_FLOP);
   }
 
   public void setHandClose(long roomId, long handId) {
+    logger.info("roomId:" + roomId + ",handId:" + handId);
     HandInfo handInfo = hands_map.get(roomId);
     if (handInfo == null) {
       return;
@@ -60,11 +67,15 @@ public class HandsManager {
   public void setUserBets(long roomId, long uuid, int bets) {
     HandInfo handInfo = hands_map.get(roomId);
     if (handInfo == null) {
+      logger.error("roomId:" + roomId + ",not exits");
       return;
     }
+    // 是否需要新建用户
     HandUserInfo userInfo = handInfo.getUser(uuid);
     if (userInfo == null) {
-      return;
+      userInfo = new HandUserInfo();
+      userInfo.uuid = uuid;
+      handInfo.setUser(userInfo);
     }
     // 纪录总筹码量
     userInfo.betChip += bets;
@@ -98,33 +109,53 @@ public class HandsManager {
     if (hands.length != 2) {
       return;
     }
-    HandUserInfo userInfo = new HandUserInfo();
-    userInfo.uuid = uuid;
+    // 是否需要新建用户
+    HandUserInfo userInfo = handInfo.getUser(uuid);
+    if (userInfo == null) {
+      userInfo = new HandUserInfo();
+      userInfo.uuid = uuid;
+      handInfo.setUser(userInfo);
+    }
     userInfo.hands[0] = hands[0];
     userInfo.hands[1] = hands[1];
     userInfo.handChip = handChip;
-    handInfo.setUser(userInfo);
   }
 
-  public void setTableCards(long roomId, int status, int tables) {
+  public void setTableCards(long roomId, int status, int[] tables) {
+    logger.debug("roomId:" + roomId + ",stats:" + status + ",tables:" + Arrays.toString(tables));
     HandInfo handInfo = hands_map.get(roomId);
-    if (handInfo == null) {
+    if (handInfo == null || tables == null) {
+      logger.error("roomId:" + roomId + ",handinfo:" + handInfo + ",tables:" + tables);
       return;
     }
-    // 设置状态
-    handInfo.setStatus(status);
-    // 设置公共牌
-    if (status == HandUtils.FLOP1) {
-      handInfo.tables[0] = tables;
-    } else if (status == HandUtils.FLOP2) {
-      handInfo.tables[1] = tables;
-    } else if (status == HandUtils.FLOP3) {
-      handInfo.tables[2] = tables;
-    } else if (status == HandUtils.TURN) {
-      handInfo.tables[3] = tables;
-    } else if (status == HandUtils.RIVER) {
-      handInfo.tables[4] = tables;
+    // 是否已经处于保险状态
+    if (handInfo.insuranceIsOn) {
+      handInfo.insuranceStatus = status;
+      // 设置公共牌状态后直接返回
+      if (status == HandUtils.FLOP1) {
+        handInfo.tables[0] = tables[0];
+        return;
+      } else if (status == HandUtils.FLOP2) {
+        handInfo.tables[1] = tables[0];
+        return;
+      } else if (status == HandUtils.FLOP3) {
+        handInfo.tables[2] = tables[0];
+        return;
+      }
     }
+    // 设置游戏状态
+    handInfo.setGameStatus(status);
+    // 设置公共牌
+    if (status == HandUtils.FLOP) {
+      handInfo.tables[0] = tables[0];
+      handInfo.tables[1] = tables[1];
+      handInfo.tables[2] = tables[2];
+    } else if (status == HandUtils.TURN) {
+      handInfo.tables[3] = tables[0];
+    } else if (status == HandUtils.RIVER) {
+      handInfo.tables[4] = tables[0];
+    }
+
   }
 
   // 检查当前状态的公共牌

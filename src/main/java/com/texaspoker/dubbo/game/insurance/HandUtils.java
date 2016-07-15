@@ -23,7 +23,7 @@ public class HandUtils {
   public static final int TURN = 2;
   public static final int RIVER = 3;
 
-  public static final int FLOP1 = 1;
-  public static final int FLOP2 = 2;
-  public static final int FLOP3 = 3;
+  public static final int FLOP1 = 11;
+  public static final int FLOP2 = 12;
+  public static final int FLOP3 = 13;
 }

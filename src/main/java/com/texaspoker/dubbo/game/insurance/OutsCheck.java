@@ -8,7 +8,10 @@
 package com.texaspoker.dubbo.game.insurance;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import org.apache.log4j.Logger;
 
 import com.texaspoker.dubbo.game.card.Card;
 import com.texaspoker.dubbo.game.card.CardRankEnum;
@@ -27,8 +30,13 @@ import com.texaspoker.dubbo.game.card.PlayerRanking;
  */
 public class OutsCheck {
 
+  private static Logger logger = Logger.getLogger(OutsCheck.class);
+
   // 接口层
-  public static List<OutsInfo> findOutsInPlayers(List<HandUserInfo> playerCards, int[] publicCards) {
+  public static List<OutsInfo> findOutsInPlayers(List<HandUserInfo> playerCards, HandInfo handInfo) {
+    // 获取这一手当前的公共牌信息
+    int[] publicCards = handInfo.getTableCards();
+    logger.debug("tables:" + Arrays.toString(publicCards));
     // 转换玩家信息
     List<IPlayer> players = new ArrayList<IPlayer>();
     for (HandUserInfo playerInfo : playerCards) {
@@ -36,8 +44,10 @@ public class OutsCheck {
     }
     // 转换公共牌信息
     List<Card> tableCards = new ArrayList<Card>();
-    for (int i = 0; i < publicCards.length; i++) {
-      tableCards.add(OutsUtils.getCardInfo(publicCards[i]));
+    if (publicCards != null) {
+      for (int i = 0; i < publicCards.length; i++) {
+        tableCards.add(OutsUtils.getCardInfo(publicCards[i]));
+      }
     }
     // 找出胜者
     List<IPlayer> winners = findWinnerInPlayers(players, tableCards);
@@ -45,13 +55,26 @@ public class OutsCheck {
       // 没有胜者，没有保险
       return null;
     }
+    // 找出剩余的牌
+    List<IPlayer> allPlayers = new ArrayList<IPlayer>();
+    for (HandUserInfo playerInfo : handInfo.userInfoMap.values()) {
+      allPlayers.add(OutsUtils.getPlayer(playerInfo));
+    }
+    List<Card> remainCards = findRemainCards(allPlayers, tableCards);
+    if (remainCards == null) {
+      // 没有剩余牌？扯淡，肯定有问题了
+      return null;
+    }
+    // System.out.println("remainCards:" + remainCards);
     // 检查一个胜者的out数量
     List<OutsInfo> results = new ArrayList<OutsInfo>();
     for (IPlayer winner : winners) {
-      List<Card> outsCards = findOutsInPlayer(winner, players, tableCards);
+      List<Card> outsCards = findOutsInPlayer(winner, players, tableCards, remainCards);
+      logger.debug("winner:" + winner.getUuid() + ",outs.size:" + outsCards.size());
       if (outsCards.size() > 0 && outsCards.size() <= OutsInfo.OUTS_LIMIT) {
         OutsInfo outsInfo = new OutsInfo();
         outsInfo.winner = winner.getUuid();
+        outsInfo.outs = new int[outsCards.size()];
         for (int k = 0; k < outsCards.size(); k++) {
           outsInfo.outs[k] = OutsUtils.getCardIndex(outsCards.get(k));
         }
@@ -62,16 +85,33 @@ public class OutsCheck {
   }
 
   // 找出单个赢家的outs
+  public static List<Card> findOutsInPlayer(IPlayer winner, List<IPlayer> players, List<Card> tableCards,
+      List<Card> remainCards) {
+    // 依次查找out
+    List<Card> outsCards = new ArrayList<Card>();
+    for (Card remainCard : remainCards) {
+      List<Card> checkCards = new ArrayList<Card>(tableCards);
+      checkCards.add(remainCard);
+      // System.out.println("checkCards:" + checkCards);
+      // 检查这一张是否是outs
+      if (checkOutsForWinner(winner, players, checkCards)) {
+        outsCards.add(remainCard);
+      }
+    }
+    // System.out.println("outsCards:" + outsCards);
+    return outsCards;
+  }
+
+  // 找出单个赢家的outs
   public static List<Card> findOutsInPlayer(IPlayer winner, List<IPlayer> players, List<Card> tableCards) {
-    // 找出剩余的牌
+    // 依次查找out
+    List<Card> outsCards = new ArrayList<Card>();
+    // 直接在比牌人群里找到比牌玩家
     List<Card> remainCards = findRemainCards(players, tableCards);
     if (remainCards == null) {
       // 没有剩余牌？扯淡，肯定有问题了
       return null;
     }
-    // System.out.println("remainCards:" + remainCards);
-    // 依次查找out
-    List<Card> outsCards = new ArrayList<Card>();
     for (Card remainCard : remainCards) {
       List<Card> checkCards = new ArrayList<Card>(tableCards);
       checkCards.add(remainCard);
@@ -95,10 +135,6 @@ public class OutsCheck {
         continue;
       }
       int compareResult = PlayerRanking.compareRanking(winner, player);
-      // System.out.println("winner:" + winner.getUuid() + ",card:" + winner.getRankingEnum() + ","
-      // + winner.getRankingList().toString());
-      // System.out.println("player:" + player.getUuid() + ",card:" + player.getRankingEnum() + ","
-      // + player.getRankingList().toString());
       if (compareResult == 0) {
         // 赢家和玩家牌型相等，不算outs
         continue;
@@ -107,6 +143,12 @@ public class OutsCheck {
         continue;
       } else {
         // 赢家被bb
+        // System.out.println("winner:" + winner.getUuid() + ",card:" + winner.getRankingEnum() +
+        // ","
+        // + winner.getRankingList().toString());
+        // System.out.println("player:" + player.getUuid() + ",card:" + player.getRankingEnum() +
+        // ","
+        // + player.getRankingList().toString());
         return true;
       }
     }
@@ -139,7 +181,8 @@ public class OutsCheck {
     // 检查玩家牌型
     for (IPlayer player : players) {
       CardRanking.checkRanking(player, tableCards);
-      // System.out.println("players ranklist:" + player.getRankingList().toString());
+      // logger.debug("players rankenum:" + player.getRankingEnum());
+      // logger.debug("players ranklist:" + player.getRankingList());
     }
     // 获取牌型最大的玩家们
     List<IPlayer> winnerlist = new ArrayList<IPlayer>();

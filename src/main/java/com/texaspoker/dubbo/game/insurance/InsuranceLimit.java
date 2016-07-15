@@ -40,10 +40,36 @@ public class InsuranceLimit {
     }
   }
 
+  // 获取房主开关状态
+  public boolean getCreaterCloseStatus(long roomId, long uuid) {
+    Set<Long> limitSet = room_creater_limits.get(roomId);
+    if (limitSet == null) {
+      return false;
+    }
+    if (limitSet.contains(uuid)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   // 设置房主的开关列表
-  public void setCreaterOpenStatus(long roomId, long uuid, boolean close) {
+  public void setCreaterCloseStatus(long roomId, long uuid, boolean close) {
     setOpenStatus(room_creater_limits, roomId, uuid, close);
     refreshRoomOpenState(roomId);
+  }
+
+  // 获取用户开关状态
+  public boolean getUserCloseStatus(long roomId, long uuid) {
+    Set<Long> limitSet = room_user_limits.get(roomId);
+    if (limitSet == null) {
+      return false;
+    }
+    if (limitSet.contains(uuid)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   // 设置玩家的开关列表

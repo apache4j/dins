@@ -169,7 +169,12 @@ public class CardRanking {
       return null;
     }
     orderedList.removeAll(resultList);
-    List<Card> remainCards = checkHigh(orderedList, 1);
+    // 是否还有剩余牌
+    if (orderedList.isEmpty()) {
+      return resultList;
+    }
+    int remainSize = orderedList.size() < 1 ? orderedList.size() : 1;
+    List<Card> remainCards = checkHigh(orderedList, remainSize);
     if (remainCards == null) {
       return null;
     }
@@ -220,7 +225,12 @@ public class CardRanking {
       return null;
     }
     orderedList.removeAll(resultList);
-    List<Card> remainCards = checkHigh(orderedList, 2);
+    // 是否还有剩余牌
+    if (orderedList.isEmpty()) {
+      return resultList;
+    }
+    int remainSize = orderedList.size() < 2 ? orderedList.size() : 2;
+    List<Card> remainCards = checkHigh(orderedList, remainSize);
     if (remainCards == null) {
       return null;
     }
@@ -242,7 +252,12 @@ public class CardRanking {
     }
     twoPair1.addAll(twoPair2);
     orderedList.removeAll(twoPair2);
-    List<Card> remainCards = checkHigh(orderedList, 1);
+    // 是否还有剩余牌
+    if (orderedList.isEmpty()) {
+      return twoPair1;
+    }
+    int remainSize = orderedList.size() < 1 ? orderedList.size() : 1;
+    List<Card> remainCards = checkHigh(orderedList, remainSize);
     if (remainCards == null) {
       return null;
     }
@@ -258,7 +273,12 @@ public class CardRanking {
       return null;
     }
     orderedList.removeAll(resultList);
-    List<Card> remainCards = checkHigh(orderedList, 3);
+    // 是否还有剩余牌
+    if (orderedList.isEmpty()) {
+      return resultList;
+    }
+    int remainSize = orderedList.size() < 3 ? orderedList.size() : 3;
+    List<Card> remainCards = checkHigh(orderedList, remainSize);
     if (remainCards == null) {
       return null;
     }
@@ -269,7 +289,8 @@ public class CardRanking {
   // 找出最大高牌
   public static List<Card> getHighCard(IPlayer player, List<Card> tableCards) {
     List<Card> orderedList = getOrderedCardList(player, tableCards);
-    List<Card> resultList = checkHigh(orderedList, 5);
+    int remainSize = orderedList.size() < 5 ? orderedList.size() : 5;
+    List<Card> resultList = checkHigh(orderedList, remainSize);
     if (resultList == null) {
       return null;
     }

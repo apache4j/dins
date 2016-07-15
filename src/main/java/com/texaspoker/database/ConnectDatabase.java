@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
@@ -34,6 +35,7 @@ import com.texaspoker.moment.TexasPoker.USER_GAME_STATE;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
 import com.texaspoker.moment.TexasPokerCommon.ID_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.LANGUAGE_TYPE;
+import com.texaspoker.moment.TexasPokerCommon.SNG_ROOM_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
 import com.texaspoker.moment.TexasPokerCommon.UserTokenInfoNet;
 import com.texaspoker.moment.TexasPokerCommon.GAME_ROOM_TYPE;
@@ -98,7 +100,7 @@ public class ConnectDatabase {
 				statement = stConnection.createStatement();
 				statement2 = stConnection.createStatement();
 				
-				String loadGameRoomSql="select roomid,roomname,smallblinds,bigblinds,buyin,starttime,duration,createuser,privateroom,chatroomid,createroomtype,gameroomtype,gameroomseniortype,maxbuyinratio,minbuyinratio,buyincontrol,ante from t_game_room";
+				String loadGameRoomSql="select roomid,roomname,smallblinds,bigblinds,buyin,starttime,duration,createuser,privateroom,chatroomid,createroomtype,gameroomtype,gameroomseniortype,maxbuyinratio,minbuyinratio,buyincontrol,ante,insurance from t_game_room";
 				ResultSet gameRoomRS=null;
 				
 				gameRoomRS=statement.executeQuery(loadGameRoomSql);
@@ -128,6 +130,7 @@ public class ConnectDatabase {
 	            	 stGameRoomBaseInfo.setBPrivateRoom(gameRoomRS.getInt("privateroom"));
 	            	 stGameRoomBaseInfo.setLChatRoomID(gameRoomRS.getInt("chatroomid"));
 	            	 stGameRoomBaseInfo.setIAnte(gameRoomRS.getInt("ante"));
+	            	 stGameRoomBaseInfo.setBInsurance(gameRoomRS.getInt("insurance"));
 	            	 
 	            	 stGameRoomBaseInfo.setIMaxBuyinRatio(gameRoomRS.getInt("maxbuyinratio"));
 	            	 stGameRoomBaseInfo.setIMinBuyinRatio(gameRoomRS.getInt("minbuyinratio"));
@@ -470,6 +473,7 @@ public class ConnectDatabase {
        				 
        				 stGameRoomBaseInfoBuilder.setIMaxBuyinRatio(gameRoomRS.getInt("maxbuyinratio"));
        				 stGameRoomBaseInfoBuilder.setIMinBuyinRatio(gameRoomRS.getInt("minbuyinratio"));
+       				 stGameRoomBaseInfoBuilder.setIMinBuyinRatio(gameRoomRS.getInt("insurance"));
        				 stGameRoomBaseInfoBuilder.setEGameRoomSeniorType(GAME_ROOM_SENIOR_TYPE.valueOf(gameRoomRS.getInt("gameroomseniortype")));
 		            	 
        				 stGameRoomBaseInfoBuilder.setLCreateTime(gameRoomRS.getLong("createtime"));
@@ -610,7 +614,9 @@ public class ConnectDatabase {
 	        		+",createtime=?"
 	        		+",gameroomseniortype=?"
 	        		+",maxbuyinratio=?"
-	        		+",minbuyinratio=?";
+	        		+",minbuyinratio=?"
+	        		+",ante=?"
+	        		+",insurance=?";
 	        
 //	        System.out.println("database : " + insertTransactionInfo);
 	        stConnection = mDatabasePool.getConnection();
@@ -643,6 +649,8 @@ public class ConnectDatabase {
 	        ps.setInt(25, stQuickGameRoomInfo.getStGameRoomBaseInfo().getEGameRoomSeniorType().getNumber());
 	        ps.setInt(26, stQuickGameRoomInfo.getStGameRoomBaseInfo().getIMaxBuyinRatio());
 	        ps.setInt(27, stQuickGameRoomInfo.getStGameRoomBaseInfo().getIMinBuyinRatio());
+	        ps.setInt(28, stQuickGameRoomInfo.getStGameRoomBaseInfo().getIAnte());
+	        ps.setInt(29, stQuickGameRoomInfo.getStGameRoomBaseInfo().getBInsurance());
 	        
            ps.executeUpdate();
           
@@ -716,7 +724,8 @@ public class ConnectDatabase {
      				+",maxbuyinratio=?"
      				+",minbuyinratio=?"
      				+",buyincontrol=?"
-     				+",ante=?";
+     				+",ante=?"
+     				+",insurance=?";
            //上面的方法比下面的方法有优势，一方面是安全性，另一方面我忘记了……
            PreparedStatement ps=stConnection.prepareStatement(insql);
            ps.setLong(1, stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
@@ -736,6 +745,7 @@ public class ConnectDatabase {
            ps.setInt(15,stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getIMinBuyinRatio());
            ps.setInt(16,stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBBuyinControl());
            ps.setInt(17,stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getIAnte());
+           ps.setInt(18,stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBInsurance());
            
            //保存链接 
            int result=ps.executeUpdate();
@@ -883,6 +893,42 @@ public class ConnectDatabase {
             return false;
         }
     }
+    
+    //获取大盲数据结构
+    public Map<Integer,Long>  getBlindsByType(SNG_ROOM_TYPE eSNGRoomType,int iBlindType){
+    	Connection stConnection = null;
+   		Statement statement;
+   		Map<Integer,Long> mBlindsLevel = new HashMap<Integer,Long>();
+   			try {
+   				stConnection = mDatabasePool.getConnection();
+   				statement = stConnection.createStatement();
+   		   		
+   				String loadGameRoomSql="select level,value from t_sng_blindinfo where blindtype="+iBlindType;
+   				ResultSet gameRoomRS=null;
+   				
+   				gameRoomRS=statement.executeQuery(loadGameRoomSql);
+
+   	             while(gameRoomRS.next()){
+   	     			 //将新的牌局放到GameRoomManager中
+   	     			
+   	            	mBlindsLevel.put(gameRoomRS.getInt("level"), gameRoomRS.getLong("value"));
+   	             }
+   	             
+   	             stConnection.close();
+   	             return mBlindsLevel;
+   			} catch (SQLException e) {
+   				// TODO Auto-generated catch block
+   				e.printStackTrace();
+   				
+   				try {
+   					stConnection.close();
+              	} catch (SQLException e1) {
+              		// TODO Auto-generated catch block
+              		e1.printStackTrace();
+              	}
+   			}
+   			return null;
+       }
     
 }
  

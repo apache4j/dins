@@ -409,10 +409,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 
 							switch (stGameRoomInfoBuilder.getEGameState()
 									.getNumber()) {
-							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE: {
-								checkGotoFlopStatus(uuid);
-							}
-								break;
+//							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE: {
+//								checkGotoFlopStatus(uuid);
+//							}
+//								break;
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE: {
 								checkGotoTurnStatus(uuid);
 							}
@@ -459,144 +459,152 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		return eErrorCode;
 	}
 	
-	void checkGotoFlopStatus(long uuid){
-		if(checkAllAllin()){
-			checkGotoFlopSeparateSatus(uuid,GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_One);
-		}else{
-			gotoFlopAllStatus(uuid);
-		}
-	}
-	
-	private void gotoFlopAllStatus(long uuid){
+//	void checkGotoFlopStatus(long uuid){
+//		if(checkAllAllin()){
+//			checkGotoFlopSeparateSatus(uuid,GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_One);
+//		}else{
+//			gotoFlopAllStatus(uuid);
+//		}
+//	}
+//	
+	protected void gotoFlopAllStatus(long uuid){
+		
 		GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-		int card1 = 0;
-		int card2 = 0;
-		int card3 = 0;
-		if(NOT_DEBUG){
-			card1 = getCard();
-			card2 = getCard();
-			card3 = getCard();
-		}else{
-			card1 = getCard(0,0,true);
-			card2 = getCard(0,1,true);
-			card3 = getCard(0,2,true);
-		}
-		
-		stGameRoomInfoBuilder.addVCurrentCards(card1);
-		stGameRoomInfoBuilder.addVCurrentCards(card2);
-		stGameRoomInfoBuilder.addVCurrentCards(card3);
-		
-		stGameRoomInfoBuilder.setEGameState(TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop);
-		stGameRoomInfoBuilder.setBStateChange(1);
-
-		stGameRoomInfo = stGameRoomInfoBuilder.build();
-
-		ArrayList<Integer> cards = new ArrayList<Integer>();
-		cards.add(card1);
-		cards.add(card2);
-		cards.add(card3);
-		sendAllGameStateChange(uuid,cards);
-		
-		
-		TableLogService.getInstance().error(lFromRoomID
-				+"," + lGameRoomID
-				+"," + stGameRoomInfo.getLGameHandID()
-				+"," + 0
-				+"," + "flop" 
-				+"," + card1
-				+"," + card2
-				+"," + card3);
-	}
-	
-	public void checkGotoFlopSeparateSatus(long uuid,GAME_ROOM_GAME_STATE eGameRoomState){
-		if(stGameRoomInfo.getEInsuranceStatus() == INSURANCE_STATUS.INSURANCE_STATUS_NO){
-			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-			InsuranceInfo vInsurancePotInfos = InsuranceApi.checkInsurance(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
-			
-			if(vInsurancePotInfos != null){
-				//进入保险模式
-				stGameRoomInfoBuilder.setEInsuranceStatus(INSURANCE_STATUS.INSURANCE_STATUS_BETTING);
-				stGameRoomInfoBuilder.setVInsuranceInfos(vInsurancePotInfos);
-				stGameRoomInfo = stGameRoomInfoBuilder.build();			
-				sendAllGameStateChange(0,null);
-				
-				//记录cent需要的最后一个下牌的玩家
-				stGameRoomInfo = stGameRoomInfoBuilder.build();				
+		if(stGameRoomInfoBuilder.getVCurrentCardsCount() == 0){
+			int card1 = 0;
+			int card2 = 0;
+			int card3 = 0;
+			if(NOT_DEBUG){
+				card1 = getCard();
+				card2 = getCard();
+				card3 = getCard();
 			}else{
-				gotoFlopSeparateSatus(uuid,eGameRoomState,false);
+				card1 = getCard(0,0,true);
+				card2 = getCard(0,1,true);
+				card3 = getCard(0,2,true);
 			}
-		}
-	}
-	
-	public void gotoFlopSeparateSatus(long uuid,GAME_ROOM_GAME_STATE eGameRoomState,boolean bInsurance){
-		GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-		int card1 = 0;
-		if(NOT_DEBUG){
-			card1 = getCard();
+			
+			stGameRoomInfoBuilder.addVCurrentCards(card1);
+			stGameRoomInfoBuilder.addVCurrentCards(card2);
+			stGameRoomInfoBuilder.addVCurrentCards(card3);
+			
+			stGameRoomInfoBuilder.setEGameState(TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop);
+			stGameRoomInfoBuilder.setBStateChange(1);
+
+			stGameRoomInfo = stGameRoomInfoBuilder.build();
+
+			ArrayList<Integer> cards = new ArrayList<Integer>();
+			cards.add(card1);
+			cards.add(card2);
+			cards.add(card3);
+			sendAllGameStateChange(uuid,cards);
+			
+			
+			TableLogService.getInstance().error(lFromRoomID
+					+"," + lGameRoomID
+					+"," + stGameRoomInfo.getLGameHandID()
+					+"," + 0
+					+"," + "flop" 
+					+"," + card1
+					+"," + card2
+					+"," + card3);
 		}else{
-			card1 = getCard(0,0,true);
-		}
-		
-		stGameRoomInfoBuilder.addVCurrentCards(card1);
-		
-		stGameRoomInfoBuilder.setEGameState(eGameRoomState);
-		stGameRoomInfoBuilder.setBStateChange(1);
-		
-		String sFlopStatus = "";
-		switch(eGameRoomState.getNumber()){
-		case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_One_VALUE:
-			sFlopStatus="flop1";
-			break;
-		case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_Two_VALUE:
-			sFlopStatus="flop2";
-			break;
-		case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_Three_VALUE:
-			sFlopStatus="flop3";
-			break;
-		}
-		
-		TableLogService.getInstance().error(lFromRoomID
-				+"," + lGameRoomID
-				+"," + stGameRoomInfo.getLGameHandID()
-				+"," + 0
-				+"," + sFlopStatus 
-				+"," + card1
-		);
-		
-		if(bInsurance==true){
-			InsuranceInfo  stInsuranceInfo = InsuranceApi.getInsuranceResult(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), card1);
-			stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
-			stGameRoomInfoBuilder.setEInsuranceStatus(INSURANCE_STATUS.INSURANCE_STATUS_RESULT);
-		}
+			stGameRoomInfoBuilder.setEGameState(TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop);
+			stGameRoomInfoBuilder.setBStateChange(1);
 
-		stGameRoomInfo = stGameRoomInfoBuilder.build();
-
-		ArrayList<Integer> cards = new ArrayList<Integer>();
-		cards.add(card1);
-		sendAllGameStateChange(uuid,cards);
-		
-		stGameRoomInfoBuilder.setEInsuranceStatus(INSURANCE_STATUS.INSURANCE_STATUS_NO);
-		stGameRoomInfo = stGameRoomInfoBuilder.build();
-		
-		switch(eGameRoomState.getNumber()){
-		case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_One_VALUE:
-			checkGotoFlopSeparateSatus(uuid,GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_Two);
-			break;
-		case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_Two_VALUE:
-			checkGotoFlopSeparateSatus(uuid,GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_Three);
-			break;
-		case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_Three_VALUE:
-			checkGotoTurnStatus(uuid);
-			break;
+			stGameRoomInfo = stGameRoomInfoBuilder.build();
 		}
 	}
+//	
+//	public void checkGotoFlopSeparateSatus(long uuid,GAME_ROOM_GAME_STATE eGameRoomState){
+//		if(stGameRoomInfo.getEInsuranceStatus() == INSURANCE_STATUS.INSURANCE_STATUS_NO){
+//			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+//			InsuranceInfo vInsurancePotInfos = InsuranceApi.checkInsurance(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),stGameRoomInfo.getLGameHandID(),eGameRoomState);
+//			
+//			if(vInsurancePotInfos != null){
+//				//进入保险模式
+//				stGameRoomInfoBuilder.setEInsuranceStatus(INSURANCE_STATUS.INSURANCE_STATUS_BETTING);
+//				stGameRoomInfoBuilder.setVInsuranceInfos(vInsurancePotInfos);
+//				stGameRoomInfo = stGameRoomInfoBuilder.build();			
+//				sendAllGameStateChange(0,null);
+//				
+//				//记录cent需要的最后一个下牌的玩家
+//				stGameRoomInfo = stGameRoomInfoBuilder.build();				
+//			}else{
+//				gotoFlopSeparateSatus(uuid,eGameRoomState,false);
+//			}
+//		}
+//	}
+//	
+//	public void gotoFlopSeparateSatus(long uuid,GAME_ROOM_GAME_STATE eGameRoomState,boolean bInsurance){
+//		GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+//		int card1 = 0;
+//		if(NOT_DEBUG){
+//			card1 = getCard();
+//		}else{
+//			card1 = getCard(0,0,true);
+//		}
+//		
+//		stGameRoomInfoBuilder.addVCurrentCards(card1);
+//		
+//		stGameRoomInfoBuilder.setEGameState(eGameRoomState);
+//		stGameRoomInfoBuilder.setBStateChange(1);
+//		
+//		String sFlopStatus = "";
+//		switch(eGameRoomState.getNumber()){
+//		case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_One_VALUE:
+//			sFlopStatus="flop1";
+//			break;
+//		case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_Two_VALUE:
+//			sFlopStatus="flop2";
+//			break;
+//		case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_Three_VALUE:
+//			sFlopStatus="flop3";
+//			break;
+//		}
+//		
+//		TableLogService.getInstance().error(lFromRoomID
+//				+"," + lGameRoomID
+//				+"," + stGameRoomInfo.getLGameHandID()
+//				+"," + 0
+//				+"," + sFlopStatus 
+//				+"," + card1
+//		);
+//		
+//		if(bInsurance==true){
+//			InsuranceInfo  stInsuranceInfo = InsuranceApi.getInsuranceResult(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), card1);
+//			stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
+//			stGameRoomInfoBuilder.setEInsuranceStatus(INSURANCE_STATUS.INSURANCE_STATUS_RESULT);
+//		}
+//
+//		stGameRoomInfo = stGameRoomInfoBuilder.build();
+//
+//		ArrayList<Integer> cards = new ArrayList<Integer>();
+//		cards.add(card1);
+//		sendAllGameStateChange(uuid,cards);
+//		
+//		stGameRoomInfoBuilder.setEInsuranceStatus(INSURANCE_STATUS.INSURANCE_STATUS_NO);
+//		stGameRoomInfo = stGameRoomInfoBuilder.build();
+//		
+//		switch(eGameRoomState.getNumber()){
+//		case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_One_VALUE:
+//			checkGotoFlopSeparateSatus(uuid,GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_Two);
+//			break;
+//		case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_Two_VALUE:
+//			checkGotoFlopSeparateSatus(uuid,GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_Three);
+//			break;
+//		case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_Three_VALUE:
+//			checkGotoTurnStatus(uuid);
+//			break;
+//		}
+//	}
 	
 	void checkGotoTurnStatus(long uuid){
 		if(checkAllAllin() == true){
 			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 			InsuranceInfo stInsuranceInfo = null;
 			if(stGameRoomInfoBuilder.getEInsuranceStatus() == INSURANCE_STATUS.INSURANCE_STATUS_NO){
-				stInsuranceInfo = InsuranceApi.checkInsurance(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+				stInsuranceInfo = InsuranceApi.checkInsurance(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),stGameRoomInfo.getLGameHandID(),GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Turn);
 			}
 			
 			if(stGameRoomInfoBuilder.getEInsuranceStatus() == INSURANCE_STATUS.INSURANCE_STATUS_NO){
@@ -645,7 +653,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					+"," + card1);
 			
 			if(bInsurance){
-				InsuranceInfo  stInsuranceInfo = InsuranceApi.getInsuranceResult(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), card1);
+				InsuranceInfo  stInsuranceInfo = InsuranceApi.getInsuranceResult(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() , stGameRoomInfo.getLGameHandID() ,card1);
 				stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
 				stGameRoomInfoBuilder.setEInsuranceStatus(INSURANCE_STATUS.INSURANCE_STATUS_RESULT);
 			}
@@ -668,7 +676,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 			InsuranceInfo stInsuranceInfo = null;
 			if(stGameRoomInfoBuilder.getEInsuranceStatus() == INSURANCE_STATUS.INSURANCE_STATUS_NO){
-				stInsuranceInfo = InsuranceApi.checkInsurance(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+				stInsuranceInfo = InsuranceApi.checkInsurance(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),stGameRoomInfo.getLGameHandID(),GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_River);
 			}
 			
 			if(stGameRoomInfoBuilder.getEInsuranceStatus() == INSURANCE_STATUS.INSURANCE_STATUS_NO){
@@ -712,7 +720,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				+"," + card1);
 		
 		if(bInsurance){
-			InsuranceInfo  stInsuranceInfo = InsuranceApi.getInsuranceResult(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), card1);
+			InsuranceInfo  stInsuranceInfo = InsuranceApi.getInsuranceResult(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),stGameRoomInfo.getLGameHandID() ,card1);
 			stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
 			stGameRoomInfoBuilder.setEInsuranceStatus(INSURANCE_STATUS.INSURANCE_STATUS_RESULT);
 		}
@@ -916,10 +924,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 									stGameRoomInfo = stGameRoomInfoBuilder.build();
 									//������������������
 									switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
-										case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
-											checkGotoFlopStatus(uuid);
-										}
-										break;
+//										case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
+//											checkGotoFlopStatus(uuid);
+//										}
+//										break;
 										case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
 											checkGotoTurnStatus(uuid);
 										}
@@ -1379,10 +1387,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 							
 							//������������������
 							switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
-								case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
-									checkGotoFlopStatus(uuid);
-								}
-								break;
+//								case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
+//									checkGotoFlopStatus(uuid);
+//								}
+//								break;
 								case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
 									checkGotoTurnStatus(uuid);
 								}
@@ -1602,11 +1610,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 												
 						//发牌相关操作
 						switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
-							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
-								//Flop发牌操作
-								checkGotoFlopStatus(uuid);
-							}
-							break;
+//							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
+//								//Flop发牌操作
+//								checkGotoFlopStatus(uuid);
+//							}
+//							break;
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
 								//发turn一张牌
 								checkGotoTurnStatus(uuid);
@@ -1689,10 +1697,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 								stGameRoomInfo = stGameRoomInfoBuilder.build();
 								//������������������
 								switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
-									case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
-										checkGotoFlopStatus(uuid);
-									}
-									break;
+//									case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
+//										checkGotoFlopStatus(uuid);
+//									}
+//									break;
 									case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
 										checkGotoTurnStatus(uuid);
 									}

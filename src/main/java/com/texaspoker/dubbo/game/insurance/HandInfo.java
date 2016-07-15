@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.log4j.Logger;
+
 
 /**
  * 类名称:HandInfo
@@ -21,18 +23,18 @@ import java.util.TreeMap;
  * 修改备注:
  */
 public class HandInfo {
+
+  private static Logger logger = Logger.getLogger(HandInfo.class);
+
   // 房间id
   public long roomId;
   // 本手id
   public long handId;
-  // 大盲
-  // public int bb;
-  // 大盲位
-  // public long bbUuid;
-  // anti
-  // public int anti;
   // 当前游戏状态
-  public int status;
+  public int gameStatus;
+  // 是否已经在Allin保险状态
+  public int insuranceStatus;
+  public boolean insuranceIsOn = false;
   // 桌上公共牌
   public int tables[] = new int[5];
   // 本手玩家信息
@@ -47,8 +49,10 @@ public class HandInfo {
 
   // 清理
   public void clear() {
-    status = HandUtils.PRE_FLOP;
-    tables = null;
+    gameStatus = HandUtils.PRE_FLOP;
+
+    insuranceStatus = HandUtils.PRE_FLOP;
+    insuranceIsOn = false;
 
     userInfoMap.clear();
     roundInfos.clear();
@@ -57,13 +61,9 @@ public class HandInfo {
     allin_pots_user.clear();
   }
 
-  // 获取状况
-  public int getStatus() {
-    return status;
-  }
-
-  public void setStatus(int status) {
-    this.status = status;
+  public void setGameStatus(int status) {
+    logger.debug("roomId:" + roomId + ",gameStatus:" + status);
+    this.gameStatus = status;
     // 设置这一轮状态信息
     HandRoundInfo roundInfo = roundInfos.get(status);
     if (roundInfo == null) {
@@ -73,20 +73,72 @@ public class HandInfo {
     }
   }
 
-  // 获取当前状态的公共牌
+  // 检查当前状态的公共牌
   public boolean checkTableCard(int tableCard) {
-    if (status == HandUtils.FLOP1) {
-      return tableCard == tables[0];
-    } else if (status == HandUtils.FLOP2) {
-      return tableCard == tables[1];
-    } else if (status == HandUtils.FLOP3) {
-      return tableCard == tables[2];
-    } else if (status == HandUtils.TURN) {
+    // 保险状态下，先比较前三张
+    if (insuranceIsOn) {
+      if (insuranceStatus == HandUtils.FLOP1) {
+        return tableCard == tables[0];
+      } else if (insuranceStatus == HandUtils.FLOP2) {
+        return tableCard == tables[1];
+      } else if (insuranceStatus == HandUtils.FLOP3) {
+        return tableCard == tables[2];
+      }
+    }
+    // 比较剩下的2张
+    if (gameStatus == HandUtils.TURN) {
       return tableCard == tables[3];
-    } else if (status == HandUtils.RIVER) {
+    } else if (gameStatus == HandUtils.RIVER) {
       return tableCard == tables[4];
     }
     return false;
+  }
+
+  // 获取当前状态的公共牌
+  public int[] getTableCards() {
+    if (insuranceIsOn) {
+      if (insuranceStatus == HandUtils.FLOP1) {
+        int[] cards = new int[1];
+        cards[0] = tables[0];
+        return cards;
+      } else if (insuranceStatus == HandUtils.FLOP2) {
+        int[] cards = new int[2];
+        cards[0] = tables[0];
+        cards[1] = tables[1];
+        return cards;
+      } else if (insuranceStatus == HandUtils.FLOP3) {
+        int[] cards = new int[3];
+        cards[0] = tables[0];
+        cards[1] = tables[1];
+        cards[2] = tables[2];
+        return cards;
+      }
+    }
+    // 比较剩下的2张
+    if (gameStatus == HandUtils.FLOP) {
+      int[] cards = new int[3];
+      cards[0] = tables[0];
+      cards[1] = tables[1];
+      cards[2] = tables[2];
+      return cards;
+    }
+    if (gameStatus == HandUtils.TURN) {
+      int[] cards = new int[4];
+      cards[0] = tables[0];
+      cards[1] = tables[1];
+      cards[2] = tables[2];
+      cards[3] = tables[3];
+      return cards;
+    } else if (gameStatus == HandUtils.RIVER) {
+      int[] cards = new int[5];
+      cards[0] = tables[0];
+      cards[1] = tables[1];
+      cards[2] = tables[2];
+      cards[3] = tables[3];
+      cards[4] = tables[4];
+      return cards;
+    }
+    return null;
   }
 
   // 设置这一手用户信息
@@ -100,8 +152,9 @@ public class HandInfo {
 
   // 记录玩家的下注信息
   public void setRoundUserBets(long uuid, int bets) {
-    HandRoundInfo roundInfo = roundInfos.get(status);
+    HandRoundInfo roundInfo = roundInfos.get(gameStatus);
     if (roundInfo == null) {
+      logger.error("roomId:" + roomId + ",gameStatus:" + gameStatus + ",no roundinfo");
       return;
     }
     Integer userBets = roundInfo.user_bets.get(uuid);
@@ -115,8 +168,9 @@ public class HandInfo {
 
   // 记录flod的玩家信息
   public void setRoundUserFlod(long uuid) {
-    HandRoundInfo roundInfo = roundInfos.get(status);
+    HandRoundInfo roundInfo = roundInfos.get(gameStatus);
     if (roundInfo == null) {
+      logger.error("roomId:" + roomId + ",gameStatus:" + gameStatus + ",no roundinfo");
       return;
     }
     Integer userBets = roundInfo.user_bets.get(uuid);
@@ -129,28 +183,38 @@ public class HandInfo {
 
   // 获取这一手所有的allin边池信息
   public void checkHandState() {
-    int handState = this.status;
+    logger.debug("roomId:" + roomId + ",insuranceIsOn:" + insuranceIsOn + ",insuranceStatus:" + insuranceStatus);
+    // 已经在全部allin，购买的保险的状态中，前面已经结算过筹码
+    if (this.insuranceIsOn) {
+      return;
+    }
+    int handState = this.gameStatus;
     for (int roundState = HandUtils.PRE_FLOP; roundState <= handState; roundState++) {
-      HandRoundInfo roundInfo = roundInfos.get(status);
+      HandRoundInfo roundInfo = roundInfos.get(gameStatus);
       if (roundInfo == null) {
         return;
       }
       // 是否已经检查过
       if (roundInfo.checked) {
+        logger.debug("roomId:" + roomId + ",roundState:" + roundState + ",checked");
         continue;
       }
       // 检查新一轮的筹码情况
+      logger.debug("roomId:" + roomId + ",roundState:" + roundState + ",checking");
       checkRoundState(roundState);
       // 将这一轮的allin边池信息导入本手汇总
       allin_pots.putAll(roundInfo.allin_bets);
       allin_pots_user.putAll(roundInfo.allin_user);
     }
+    // 设置这一手开启保险状态
+    this.insuranceIsOn = true;
   }
 
   // 计算这一轮的allin边池信息
   private void checkRoundState(int status) {
     HandRoundInfo roundInfo = roundInfos.get(status);
     if (roundInfo == null) {
+      logger.error("roomId:" + roomId + ",roundState:" + status + ",no roundinfo");
       return;
     }
     // 计算筹码量
@@ -158,12 +222,18 @@ public class HandInfo {
     // 设置检查状态
     roundInfo.checked = true;
     // 本轮是否有allin玩家
+    if (roundInfo.user_allins.size() == 0) {
+      logger.debug("roomId:" + roomId + ",roundState:" + status + ",no allin");
+      return;
+    }
+    // 反向建立有序的玩家allin筹码量
     Map<Integer, Long> allinBets = new TreeMap<Integer, Long>();
     for (Map.Entry<Long, Integer> allinUser : roundInfo.user_allins.entrySet()) {
       if (!allinBets.containsKey(allinUser.getValue())) {
         allinBets.put(allinUser.getValue(), allinUser.getKey());
       }
     }
+    logger.debug("roomId:" + roomId + ",roundState:" + status + ",potIds:" + allinBets.keySet());
     // 为allin玩家建立边池,默认按照筹码升序排列(allin总量排序)
     Integer preAllinBet = 0;
     for (Map.Entry<Integer, Long> allinBet : allinBets.entrySet()) {
@@ -203,9 +273,13 @@ public class HandInfo {
       }
       // 这个allin边池的玩家
       roundInfo.allin_user.put(allinBet.getKey(), allinUsers);
+      logger.debug("roomId:" + roomId + ",roundState:" + status + ",potId:" + allinBet.getKey() + ",alluser:"
+          + allinUsers.keySet());
       // 这个allin的边池总量
       int allinPool = (roundAllinBet - preAllinBet) * allinUsers.size() + roundflodBets;
       roundInfo.allin_bets.put(allinBet.getKey(), allinPool);
+      logger.debug("roomId:" + roomId + ",roundState:" + status + ",potId:" + allinBet.getKey() + ",potBets:"
+          + allinPool);
       // 定义第一个边池
       preAllinBet = roundAllinBet;
     }
@@ -253,5 +327,7 @@ public class HandInfo {
       }
       roundInfo.poolBets = roundInfo.totalBets;
     }
+    logger.debug("roomId:" + roomId + ",handId:" + handId + ",user_bets:" + roundInfo.user_bets);
+    logger.debug("roomId:" + roomId + ",handId:" + handId + ",user_totals:" + roundInfo.user_totals);
   }
 }

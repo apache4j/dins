@@ -7,16 +7,13 @@
  */
 package com.texaspoker.dubbo.game.insurance;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import com.texaspoker.moment.TexasPoker;
 import com.texaspoker.moment.TexasPoker.BuyInsuranceInfo;
-import com.texaspoker.moment.TexasPoker.GAME_ROOM_GAME_STATE;
+import com.texaspoker.moment.TexasPoker.INSURANCE_ACT;
 import com.texaspoker.moment.TexasPoker.INSURANCE_BET_STATUS;
-import com.texaspoker.moment.TexasPoker.InsurancePotInfo;
-import com.texaspoker.moment.TexasPoker.InsuranceUserInfo;
-import com.texaspoker.moment.room.GameRoomManager;
 
 /**
  * 类名称:InsuranceApiProxy
@@ -38,36 +35,52 @@ public class InsuranceApi {
   }
 
   // allin状态下开始计算保险接口
-  public static TexasPoker.InsuranceInfo checkInsurance(long lGameRoomID) {
-	  TexasPoker.InsuranceInfo.Builder insuranceInfoBuilder = TexasPoker.InsuranceInfo.newBuilder();
-    
-    return insuranceInfoBuilder.build();
-  }
-
-  // 保险购买接口
-  public static TexasPoker.InsuranceInfo doInsuranceAction(long lGameRoomID,long lGameHandID, long uuid,GAME_ROOM_GAME_STATE eGameRoomState,
-      List<BuyInsuranceInfo> stBuyInsuranceInfo) {
-	  TexasPoker.InsuranceInfo.Builder insuranceInfoBuilder = TexasPoker.InsuranceInfo.newBuilder();
-	    
-	    return insuranceInfoBuilder.build();
+  public static TexasPoker.InsuranceInfo checkInsurance(long lGameRoomID, long lHandID,
+      TexasPoker.GAME_ROOM_GAME_STATE eRoundState) {
+    InsuranceInfo insuranceInfo =
+        InsuranceManager.getInstance().checkInsurance(lGameRoomID, lHandID, getRoundStatus(eRoundState));
+    return getApiInfoFromInsuranceInfo(insuranceInfo);
   }
 
   // 发牌后获取保险接口
-  public static TexasPoker.InsuranceInfo getInsuranceResult(long lGameRoomID, int tableCard) {
-	  TexasPoker.InsuranceInfo.Builder insuranceInfoBuilder = TexasPoker.InsuranceInfo.newBuilder();
-	  return insuranceInfoBuilder.build();
+  public static TexasPoker.InsuranceInfo getInsuranceResult(long lGameRoomID, long lHandID, int tableCard) {
+    InsuranceInfo insuranceInfo = InsuranceManager.getInstance().settleInsurance(lGameRoomID, lHandID, tableCard);
+    return getApiInfoFromInsuranceInfo(insuranceInfo);
+  }
+
+  // 保险购买接口
+  public static TexasPoker.InsuranceInfo doInsuranceAction(long lGameRoomID, long lHandID,
+      TexasPoker.GAME_ROOM_GAME_STATE eRoundState, long uuid, List<BuyInsuranceInfo> vBuyInsuranceInfos) {
+    InsuranceInfo insuranceInfo = null;
+//    if (stBuyInsuranceInfo.getEInsuranceAct().equals(INSURANCE_ACT.INSURANCE_ACT_BET)) {
+//      insuranceInfo =
+//          InsuranceManager.getInstance().buyInsurance(lGameRoomID, lHandID, getRoundStatus(eRoundState), uuid,
+//              stBuyInsuranceInfo.getLPotID(), stBuyInsuranceInfo.getLBetStacks());
+//    } else if (stBuyInsuranceInfo.getEInsuranceAct().equals(INSURANCE_ACT.INSURANCE_ACT_FOLD)) {
+//      insuranceInfo =
+//          InsuranceManager.getInstance().foldInsurance(lGameRoomID, lHandID, getRoundStatus(eRoundState), uuid,
+//              stBuyInsuranceInfo.getLPotID());
+//    }
+    return getApiInfoFromInsuranceInfo(insuranceInfo);
+  }
+
+  // 延时购买接口
+  public static TexasPoker.InsuranceInfo delayInsuranceAction(long lGameRoomID, long lHandID,
+      TexasPoker.GAME_ROOM_GAME_STATE eRoundState, long uuid) {
+    InsuranceManager.getInstance().delayInsurance(lGameRoomID, lHandID, getRoundStatus(eRoundState), uuid);
+    return getApiInfoFromInsuranceInfo(InsuranceManager.getInstance().getInsurance(lGameRoomID));
   }
 
   // 房主控制开关接口
   public static TexasPoker.InsuranceInfo setCreaterInsuranceClose(long lGameRoomID, long uuid, boolean close) {
-	  TexasPoker.InsuranceInfo.Builder insuranceInfoBuilder = TexasPoker.InsuranceInfo.newBuilder();
-	  return insuranceInfoBuilder.build();
+    InsuranceManager.getInstance().openInsuranceByCreater(lGameRoomID, uuid, close);
+    return getApiInfoFromInsuranceInfo(InsuranceManager.getInstance().getInsurance(lGameRoomID));
   }
 
   // 用户控制开关接口
   public static TexasPoker.InsuranceInfo setUserInsuranceClose(long lGameRoomID, long uuid, boolean close) {
-	  TexasPoker.InsuranceInfo.Builder insuranceInfoBuilder = TexasPoker.InsuranceInfo.newBuilder();
-	  return insuranceInfoBuilder.build();
+    InsuranceManager.getInstance().openInsuranceByUser(lGameRoomID, uuid, close);
+    return getApiInfoFromInsuranceInfo(InsuranceManager.getInstance().getInsurance(lGameRoomID));
   }
 
   /*
@@ -76,49 +89,115 @@ public class InsuranceApi {
 
   // 保险购买行为超时接口
   public static void gotoNextStep(long lGameRoomID) {
-	  GameRoomManager.getInstance().gotoNextStep(lGameRoomID);
+
   }
 
-  // billserver保险结账接口
+  // billserver保险购买接口
   public static void addInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
 
   }
 
+  // billserver保险赔付接口
   public static void addInsuranceGetStack(long lGameRoomID, long uuid, long getstacks) {
 
   }
 
-  // 结构体转换函数
-  private static List<InsurancePotInfo> getPotInfoListFromInsuranceInfo(InsuranceInfo insInfo) {
-    List<InsurancePotInfo> resultList = new ArrayList<InsurancePotInfo>();
+  // 保险扣钻石接口
+  public static boolean addUserCoin(Long uuid, long nums) {
+    return true;
+  }
 
-//    for (Long potId : insInfo.pot_user_outs.keySet()) {
-//      InsurancePotInfo.Builder potInfoBuilder = InsurancePotInfo.newBuilder();
-//      potInfoBuilder.setLPotID(potId);
-//      potInfoBuilder.setLPotStacks(insInfo.pot_stacks.get(potId));
-//      // 设置这个边池参与用户
-//      for (Long potUuid : insInfo.pot_users.get(potId)) {
-//        potInfoBuilder.addVUuids(potUuid);
-//      }
-//      // 设置这个边池的保险用户
-//      Map<Long, OutsInfo> outsInfos = insInfo.pot_user_outs.get(potId);
-//      for (OutsInfo outsInfo : outsInfos.values()) {
-//        InsuranceUserInfo.Builder userInfoBuilder = InsuranceUserInfo.newBuilder();
-//        userInfoBuilder.setUuid(outsInfo.winner);
-//        // userInfoBuilder.setVOdds(index, value);
-//        userInfoBuilder.setLEqualStacks(outsInfo.pay_earn);
-//        userInfoBuilder.setLNoLosses(outsInfo.pay_loss);
-//        if (outsInfo.fold) {
-//          userInfoBuilder.setEInsuranceBetStatus(INSURANCE_BET_STATUS.INSURANCE_BET_FOLD);
-//        } else if (outsInfo.buy > 0) {
-//          userInfoBuilder.setEInsuranceBetStatus(INSURANCE_BET_STATUS.INSURANCE_BET_BETED);
-//        } else {
-//          userInfoBuilder.setEInsuranceBetStatus(INSURANCE_BET_STATUS.INSURANCE_BET_BETTING);
-//        }
-//        potInfoBuilder.addVInsuranceUserInfos(userInfoBuilder.build());
-//      }
-//      resultList.add(potInfoBuilder.build());
-//    }
-    return resultList;
+  // 保险扣币接口
+  public static boolean addUserPopularity(long uuid, long nums) {
+    return true;
+  }
+
+  /*
+   * 接口转换工具类
+   */
+
+  private static int getRoundStatus(TexasPoker.GAME_ROOM_GAME_STATE eRoomState) {
+    if (eRoomState.equals(TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop)) {
+      return HandUtils.PRE_FLOP;
+    } else if (eRoomState.equals(TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop)) {
+      return HandUtils.FLOP;
+    } else if (eRoomState.equals(TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_One)) {
+      return HandUtils.FLOP1;
+    } else if (eRoomState.equals(TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_Two)) {
+      return HandUtils.FLOP2;
+    } else if (eRoomState.equals(TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_Three)) {
+      return HandUtils.FLOP3;
+    } else if (eRoomState.equals(TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Turn)) {
+      return HandUtils.TURN;
+    } else if (eRoomState.equals(TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_River)) {
+      return HandUtils.RIVER;
+    }
+    return HandUtils.PRE_FLOP;
+  }
+
+  // 结构体转换函数
+  private static TexasPoker.InsuranceInfo getApiInfoFromInsuranceInfo(InsuranceInfo insInfo) {
+
+    TexasPoker.InsuranceInfo.Builder apiInfo = TexasPoker.InsuranceInfo.newBuilder();
+
+    for (Map.Entry<Long, List<OutsInfo>> userOuts : insInfo.user_outs.entrySet()) {
+      Long userId = userOuts.getKey();
+      TexasPoker.InsuranceUserInfo.Builder userInfo = TexasPoker.InsuranceUserInfo.newBuilder();
+      userInfo.setUuid(userId);
+      // 边池信息
+      long lTotalGetStacks = 0;
+      long lTotalBuys = 0;
+      long lTotalFold = 0;
+      for (OutsInfo outs : userOuts.getValue()) {
+        TexasPoker.InsurancePotInfo.Builder potInfo = TexasPoker.InsurancePotInfo.newBuilder();
+        potInfo.setLPotID(outs.potId);
+        potInfo.setLPotStacks(outs.pots);
+        for (int i = 0; i < outs.outs.length; i++) {
+          potInfo.addVOuts(outs.outs[i]);
+        }
+        potInfo.setIOdds((int) outs.odds * 100);
+        potInfo.setLTotalPotStacks(outs.pay_pots);
+        potInfo.setLNoLosses(outs.pay_loss);
+        potInfo.setLBetStacks(outs.buy);
+        potInfo.setLGetStacks(outs.result);
+        userInfo.addVInsurancePotInfos(potInfo);
+        if (outs.buy > 0)
+          lTotalBuys++;
+        if (outs.fold)
+          lTotalFold++;
+        if (outs.result > 0)
+          lTotalGetStacks += outs.result;
+      }
+      // 保险状态
+      if (lTotalBuys > 0) {
+        userInfo.setEInsuranceBetStatus(INSURANCE_BET_STATUS.INSURANCE_BET_BETED);
+      } else if (lTotalBuys == 0 && lTotalFold > 0) {
+        userInfo.setEInsuranceBetStatus(INSURANCE_BET_STATUS.INSURANCE_BET_FOLD);
+      } else {
+        userInfo.setEInsuranceBetStatus(INSURANCE_BET_STATUS.INSURANCE_BET_BETTING);
+      }
+      // 所以保险的赔付金额
+      userInfo.setLTotalGetStacks(lTotalGetStacks);
+      // 开关状态
+      if (InsuranceManager.getInstance().getCreaterCloseStatus(insInfo.roomId, userId)) {
+        userInfo.setBCanInsurance(0);
+      } else {
+        userInfo.setBCanInsurance(1);
+      }
+      if (InsuranceManager.getInstance().getUserCloseStatus(insInfo.roomId, userId)) {
+        userInfo.setBDefaultInsurance(0);
+      } else {
+        userInfo.setBCanInsurance(1);
+      }
+      // 超时
+      InsuranceTimer.InsuranceTimeInfo timeInfo = InsuranceManager.getInstance().getUserTimeout(insInfo.roomId, userId);
+      userInfo.setLInsuranceStartTime(timeInfo.startTime);
+      userInfo.setLInsuranceActDuration(timeInfo.endTime - timeInfo.startTime);
+      // 延时
+      userInfo.setIInsuranceDelayCost(100);
+      // 加入用户保险信息队列
+      apiInfo.addVInsuranceUserInfos(userInfo);
+    }
+    return apiInfo.build();
   }
 }

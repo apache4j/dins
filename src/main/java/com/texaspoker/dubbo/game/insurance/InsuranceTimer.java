@@ -30,7 +30,7 @@ public class InsuranceTimer {
   public static final int INSURANCE_OPERATION_DELAY_SECONDS = 10;
 
   // 用户保险超时信息
-  private class InsuranceTimeInfo {
+  public class InsuranceTimeInfo {
     long startTime;
     long endTime;
     Set<Long> potIds;
@@ -54,6 +54,11 @@ public class InsuranceTimer {
   public void InsuranceTimeoutHandler(Long roomId) {
     // API接口，通知这个房间保险超时
     InsuranceApi.gotoNextStep(roomId);
+  }
+
+  // 清空房间的超时记录
+  public void clearRoomTimeout(long roomId) {
+    room_timer.remove(roomId);
   }
 
   // 设置玩家超时
@@ -104,6 +109,8 @@ public class InsuranceTimer {
     if (newTimeSpan > oldTimeSpan) {
       room_timer.setTimeout(roomId, newTimeSpan, TimeUnit.MILLISECONDS);
     }
+    // 返回这个用户的新延时总时长，单位s
+    // return (timeInfo.endTime - timeInfo.startTime) / 1000;
   }
 
   // 玩家购买保险
@@ -120,13 +127,15 @@ public class InsuranceTimer {
     timeInfo.potIds.remove(potId);
     // 检查是否这个玩家的所有边池超时都清空了
     if (!timeInfo.potIds.isEmpty()) {
-      // 边池超时并没有完全情况，所有用户的超时不变，牌局超时不变
+      // 边池超时并没有完全结束，所有用户的超时不变，牌局超时不变
       return;
     }
     // 所以边池已经清空，这次去除这个玩家时间信息
     userTimes.remove(uuid);
     // 是否所有玩家都已经购买了保险
     if (userTimes.isEmpty()) {
+      // 删除超时逻辑
+      clearRoomTimeout(roomId);
       // 通知游戏超时结束
       InsuranceTimeoutHandler(roomId);
       return;
@@ -147,5 +156,13 @@ public class InsuranceTimer {
     if (newTimeSpan < oldTimeSpan) {
       room_timer.setTimeout(roomId, newTimeSpan, TimeUnit.MILLISECONDS);
     }
+  }
+
+  public InsuranceTimeInfo getUserTimeout(long roomId, long uuid) {
+    Map<Long, InsuranceTimeInfo> userTimes = room_timer.get(roomId);
+    if (userTimes == null) {
+      return null;
+    }
+    return userTimes.get(uuid);
   }
 }

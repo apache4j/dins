@@ -1,11 +1,13 @@
 /**
- * 包名:com.texaspoker.dubbo.game.outs
+åå * 包名:com.texaspoker.dubbo.game.outs
  * 文件名:OutsResult.java
  * 创建人:xichen
  * 创建日期:2016年6月16日-下午7:25:13
  * Copyright (c) 2016 Illuminate 公司-版权所有
  */
 package com.texaspoker.dubbo.game.insurance;
+
+import java.util.Arrays;
 
 /**
  * 类名称:OutsResult
@@ -18,9 +20,10 @@ package com.texaspoker.dubbo.game.insurance;
 public class OutsInfo {
 
   // outs数量在多少个内，才能买保险
-  public static final int OUTS_LIMIT = 15;
+  public static final int OUTS_LIMIT = 16;
   // outs赔率表
-  public static final double[] OUTS_ODDS = new double[] {30, 16, 10, 8, 6, 5, 4, 3.5, 3, 2.5, 2.2, 2, 1.8, 1.6, 1.4};
+  public static final double[] OUTS_ODDS = new double[] {30, 16, 10, 8, 6, 5, 4, 3.5, 3, 2.5, 2.2, 2, 1.8, 1.6, 1.4,
+      1.2};
 
   // 边池pot
   public long potId = 0;
@@ -38,9 +41,6 @@ public class OutsInfo {
 
   // 保险金额-保本
   public long pay_loss = 0;
-
-  // 保险金额-等利
-  public long pay_earn = 0;
 
   // 保险金额-全部
   public long pay_pots = 0;
@@ -68,17 +68,16 @@ public class OutsInfo {
     this.pots = pots;
     this.bets = bets;
     pay_loss = getBuyPrice((prebuys + bets) / odds);
-    pay_earn = getBuyPrice((prebuys + pots) / (odds + 1));
-    pay_pots = getBuyPrice(pots / odds);
+    pay_pots = getBuyPrice((prebuys + pots) / odds);
   }
 
   // 设置购买信息
-  public void setBuyInfo(long buys) {
-    if (pay_earn == buys || pay_loss == buys || pay_pots == buys) {
-      this.buy = buys;
-    } else {
-      return;
-    }
+  public void setBuy(long buys) {
+    this.buy = buys;
+  }
+
+  public long getBuy() {
+    return this.buy;
   }
 
   public void setFold() {
@@ -104,18 +103,24 @@ public class OutsInfo {
   // 获取保险赔付金额，向下取整，不能多赔
   private long getPayCoin() {
     double payCoin = 0;
-    if (buy == pay_earn) {
-      payCoin = buy * (odds + 1);
-    } else if (buy == pay_loss) {
-      payCoin = buy * odds;
-    } else if (buy == pay_pots) {
-      payCoin = buy * odds;
-    }
+    payCoin = buy * odds;
     return (long) payCoin;
   }
 
   // 保险金额采用向下取整策略，不保证完全赔付
   private long getBuyPrice(double price) {
+    long expectedPrice = (long) (price + 1);
+    // 保证一定保险可买，最少买1
+    if (expectedPrice == 0) {
+      return 1;
+    }
     return (long) price;
+  }
+
+  @Override
+  public String toString() {
+    return "outsinfo,uuid:" + winner + ",potId," + potId + ",odds:" + odds + ",pots:" + pots + ",pay_loss:" + pay_loss
+        + ",pay_pots:" + pay_pots + ",buy:" + buy + ",fold:" + fold + ",result:" + result + ",outs:"
+        + Arrays.toString(outs);
   }
 }
