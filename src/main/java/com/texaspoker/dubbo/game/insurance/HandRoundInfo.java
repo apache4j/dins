@@ -10,6 +10,8 @@ package com.texaspoker.dubbo.game.insurance;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * 类名称:RoundInfo
@@ -36,9 +38,9 @@ public class HandRoundInfo {
    * 本手进行中的数据
    */
   // 本轮玩家的筹码量
-  public Map<Long, Integer> user_bets = new HashMap<Long, Integer>();
+  public ConcurrentMap<Long, Integer> user_bets = new ConcurrentHashMap<Long, Integer>();
   // 本轮玩家的flod
-  public Map<Long, Integer> user_flods = new HashMap<Long, Integer>();
+  public ConcurrentMap<Long, Integer> user_flods = new ConcurrentHashMap<Long, Integer>();
 
   /*
    * 本手结束后的数据
@@ -50,6 +52,9 @@ public class HandRoundInfo {
   // 本轮flod的筹码量
   public int flodsBets = 0;
 
+  /*
+   * 检查状态的临时数据，无需线程安全
+   */
   // 本轮allin玩家
   public Map<Long, Integer> user_allins = new HashMap<Long, Integer>();
   // 本轮allin筹码边池

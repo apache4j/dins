@@ -8,9 +8,10 @@
 package com.texaspoker.dubbo.game.insurance;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.log4j.Logger;
 
@@ -27,13 +28,16 @@ public class InsuranceManager {
   private static Logger logger = Logger.getLogger(InsuranceManager.class);
 
   // 所有房间的保险信息
-  private final Map<Long, InsuranceInfo> insurances_map = new HashMap<Long, InsuranceInfo>();
+  private final ConcurrentMap<Long, InsuranceInfo> insurances_map = new ConcurrentHashMap<Long, InsuranceInfo>();
 
   // 购买保险的定时器
   private final InsuranceTimer insurance_timer = new InsuranceTimer();
 
   // 购买保险的开关
   private final InsuranceLimit insurance_open = new InsuranceLimit();
+
+  // 购买的延时
+  private final InsuranceDelay insurance_delay = new InsuranceDelay();
 
   private static InsuranceManager instance = new InsuranceManager();
 
@@ -181,6 +185,8 @@ public class InsuranceManager {
     }
     // 重新设置这个玩家的购买超时
     insurance_timer.addUserTimeout(roomId, uuid);
+    // 设置玩家的购买次数
+    insurance_delay.addUserDelayTimes(roomId, uuid);
   }
 
   // 房主控制保险
@@ -245,6 +251,10 @@ public class InsuranceManager {
 
   public InsuranceTimer.InsuranceTimeInfo getUserTimeout(long roomId, long uuid) {
     return insurance_timer.getUserTimeout(roomId, uuid);
+  }
+
+  public int getUserDelayCost(long roomId, long uuid) {
+    return insurance_delay.getUserDelayCost(roomId, uuid);
   }
 
   public InsuranceInfo getInsurance(long roomId) {

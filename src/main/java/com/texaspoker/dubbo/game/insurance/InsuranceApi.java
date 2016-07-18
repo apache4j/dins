@@ -12,8 +12,10 @@ import java.util.Map;
 
 import com.texaspoker.moment.TexasPoker;
 import com.texaspoker.moment.TexasPoker.BuyInsuranceInfo;
+import com.texaspoker.moment.TexasPoker.GameRoomInfo;
 import com.texaspoker.moment.TexasPoker.INSURANCE_ACT;
 import com.texaspoker.moment.TexasPoker.INSURANCE_BET_STATUS;
+import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
 
 /**
  * 类名称:InsuranceApiProxy
@@ -43,24 +45,32 @@ public class InsuranceApi {
   }
 
   // 发牌后获取保险接口
-  public static TexasPoker.InsuranceInfo getInsuranceResult(long lGameRoomID, long lHandID, int tableCard) {
-    InsuranceInfo insuranceInfo = InsuranceManager.getInstance().settleInsurance(lGameRoomID, lHandID, tableCard);
-    return getApiInfoFromInsuranceInfo(insuranceInfo);
+  public static TexasPoker.GameRoomInfo getInsuranceResult(GameRoomInfo stGameRoomInfo, long lHandID, int tableCard) {
+    InsuranceInfo insuranceInfo =
+        InsuranceManager.getInstance().settleInsurance(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),
+            lHandID, tableCard);
+    if (insuranceInfo.status != HandUtils.RIVER) {
+      return stGameRoomInfo;
+    } else {
+      return doInsuranceResult(insuranceInfo, stGameRoomInfo);
+    }
   }
 
   // 保险购买接口
   public static TexasPoker.InsuranceInfo doInsuranceAction(long lGameRoomID, long lHandID,
-      TexasPoker.GAME_ROOM_GAME_STATE eRoundState, long uuid, List<BuyInsuranceInfo> vBuyInsuranceInfos) {
+      TexasPoker.GAME_ROOM_GAME_STATE eRoundState, long uuid, List<BuyInsuranceInfo> stBuyInsuranceInfos) {
     InsuranceInfo insuranceInfo = null;
-//    if (stBuyInsuranceInfo.getEInsuranceAct().equals(INSURANCE_ACT.INSURANCE_ACT_BET)) {
-//      insuranceInfo =
-//          InsuranceManager.getInstance().buyInsurance(lGameRoomID, lHandID, getRoundStatus(eRoundState), uuid,
-//              stBuyInsuranceInfo.getLPotID(), stBuyInsuranceInfo.getLBetStacks());
-//    } else if (stBuyInsuranceInfo.getEInsuranceAct().equals(INSURANCE_ACT.INSURANCE_ACT_FOLD)) {
-//      insuranceInfo =
-//          InsuranceManager.getInstance().foldInsurance(lGameRoomID, lHandID, getRoundStatus(eRoundState), uuid,
-//              stBuyInsuranceInfo.getLPotID());
-//    }
+    for (BuyInsuranceInfo buyInfo : stBuyInsuranceInfos) {
+      if (buyInfo.getEInsuranceAct().equals(INSURANCE_ACT.INSURANCE_ACT_BET)) {
+        insuranceInfo =
+            InsuranceManager.getInstance().buyInsurance(lGameRoomID, lHandID, getRoundStatus(eRoundState), uuid,
+                buyInfo.getLPotID(), buyInfo.getLBetStacks());
+      } else if (buyInfo.getEInsuranceAct().equals(INSURANCE_ACT.INSURANCE_ACT_FOLD)) {
+        insuranceInfo =
+            InsuranceManager.getInstance().foldInsurance(lGameRoomID, lHandID, getRoundStatus(eRoundState), uuid,
+                buyInfo.getLPotID());
+      }
+    }
     return getApiInfoFromInsuranceInfo(insuranceInfo);
   }
 
@@ -135,6 +145,34 @@ public class InsuranceApi {
     return HandUtils.PRE_FLOP;
   }
 
+  private static TexasPoker.GameRoomInfo doInsuranceResult(InsuranceInfo insuranceInfo, TexasPoker.GameRoomInfo info) {
+    TexasPoker.GameRoomInfo.Builder gameBuilder = info.toBuilder();
+    for (int i = 0; i < info.getVUserGameInfosCount(); i++) {
+      UserGameInfoNet userGameInfo = info.getVUserGameInfos(i);
+      long uuid = userGameInfo.getStUserInfo().getUuid();
+      if (!insuranceInfo.user_outs.containsKey(uuid)) {
+        continue;
+      }
+      long remains = userGameInfo.getLRemainStacks();
+      for (OutsInfo outsInfo : insuranceInfo.user_outs.get(uuid)) {
+        if (outsInfo.result > 0) {
+          remains += outsInfo.result;
+        } else {
+          remains -= outsInfo.buy;
+        }
+        if (remains >= 0) {
+          userGameInfo.toBuilder().setLRemainStacks(remains);
+          gameBuilder.setVUserGameInfos(i, userGameInfo);
+        } else {
+          // 不应该来这里
+          // error log
+        }
+      }
+    }
+
+    return gameBuilder.build();
+  }
+
   // 结构体转换函数
   private static TexasPoker.InsuranceInfo getApiInfoFromInsuranceInfo(InsuranceInfo insInfo) {
 
@@ -194,7 +232,8 @@ public class InsuranceApi {
       userInfo.setLInsuranceStartTime(timeInfo.startTime);
       userInfo.setLInsuranceActDuration(timeInfo.endTime - timeInfo.startTime);
       // 延时
-      userInfo.setIInsuranceDelayCost(100);
+      int cost = InsuranceManager.getInstance().getUserDelayCost(insInfo.roomId, userId);
+      userInfo.setIInsuranceDelayCost(cost);
       // 加入用户保险信息队列
       apiInfo.addVInsuranceUserInfos(userInfo);
     }

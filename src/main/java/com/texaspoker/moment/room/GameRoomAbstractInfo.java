@@ -653,8 +653,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					+"," + card1);
 			
 			if(bInsurance){
-				InsuranceInfo  stInsuranceInfo = InsuranceApi.getInsuranceResult(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() , stGameRoomInfo.getLGameHandID() ,card1);
-				stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
+				stGameRoomInfo = stGameRoomInfoBuilder.build();
+				stGameRoomInfo = InsuranceApi.getInsuranceResult(stGameRoomInfo , stGameRoomInfo.getLGameHandID() ,card1);
+				stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 				stGameRoomInfoBuilder.setEInsuranceStatus(INSURANCE_STATUS.INSURANCE_STATUS_RESULT);
 			}
 			
@@ -720,8 +721,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				+"," + card1);
 		
 		if(bInsurance){
-			InsuranceInfo  stInsuranceInfo = InsuranceApi.getInsuranceResult(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),stGameRoomInfo.getLGameHandID() ,card1);
-			stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
+			stGameRoomInfo = stGameRoomInfoBuilder.build();
+			stGameRoomInfo = InsuranceApi.getInsuranceResult(stGameRoomInfo , stGameRoomInfo.getLGameHandID() ,card1);
+			stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 			stGameRoomInfoBuilder.setEInsuranceStatus(INSURANCE_STATUS.INSURANCE_STATUS_RESULT);
 		}
 		

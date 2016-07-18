@@ -8,8 +8,8 @@
 package com.texaspoker.dubbo.game.insurance;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.log4j.Logger;
 
@@ -25,7 +25,7 @@ public class HandsManager {
 
   private static Logger logger = Logger.getLogger(HandsManager.class);
 
-  private final static Map<Long, HandInfo> hands_map = new HashMap<Long, HandInfo>();
+  private final ConcurrentMap<Long, HandInfo> hands_map = new ConcurrentHashMap<Long, HandInfo>();
 
   private static HandsManager instance = new HandsManager();
 

@@ -7,10 +7,12 @@
  */
 package com.texaspoker.dubbo.game.insurance;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * 类名称:InsuranceLimit
@@ -23,12 +25,12 @@ import java.util.Set;
 public class InsuranceLimit {
 
   // 房主的操作状态
-  private Map<Long, Set<Long>> room_creater_limits = new HashMap<Long, Set<Long>>();
+  private ConcurrentMap<Long, Set<Long>> room_creater_limits = new ConcurrentHashMap<Long, Set<Long>>();
   // 玩家的操作状态
-  private Map<Long, Set<Long>> room_user_limits = new HashMap<Long, Set<Long>>();
+  private ConcurrentMap<Long, Set<Long>> room_user_limits = new ConcurrentHashMap<Long, Set<Long>>();
 
   // 房间的屏蔽列表
-  private Map<Long, Set<Long>> room_limits = new HashMap<Long, Set<Long>>();
+  private ConcurrentMap<Long, Set<Long>> room_limits = new ConcurrentHashMap<Long, Set<Long>>();
 
   // 检查是否关闭这个用户的保险购买信息
   public boolean checkUserCloseInsurance(long roomId, long uuid) {
@@ -83,7 +85,7 @@ public class InsuranceLimit {
     // 刷新前，清空房间的开关信息
     Set<Long> roomStatus = room_limits.get(roomId);
     if (roomStatus == null) {
-      roomStatus = new HashSet<Long>();
+      roomStatus = Collections.synchronizedSet(new HashSet<Long>());
       room_limits.put(roomId, roomStatus);
     } else {
       roomStatus.clear();
@@ -106,7 +108,7 @@ public class InsuranceLimit {
       Set<Long> roomStatus = limits.get(roomid);
       // 是否这个房间没有关闭过保险
       if (roomStatus == null) {
-        roomStatus = new HashSet<Long>();
+        roomStatus = Collections.synchronizedSet(new HashSet<Long>());
         limits.put(roomid, roomStatus);
       }
       // 这个用户是否已经关闭过保险

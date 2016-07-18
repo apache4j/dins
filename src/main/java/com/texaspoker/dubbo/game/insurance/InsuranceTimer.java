@@ -7,10 +7,11 @@
  */
 package com.texaspoker.dubbo.game.insurance;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 import com.texaspoker.dubbo.utils.timer.TimeoutListener;
@@ -37,14 +38,14 @@ public class InsuranceTimer {
   }
 
   // 所有房间的购买超时
-  public TimeoutMap<Long, Map<Long, InsuranceTimeInfo>> room_timer;
+  public TimeoutMap<Long, ConcurrentMap<Long, InsuranceTimeInfo>> room_timer;
 
   // 定时器初始化
   public InsuranceTimer() {
     room_timer =
         TimeoutMap.builder().variableTimeout().timeout(30, TimeUnit.SECONDS)
-            .timeoutListener(new TimeoutListener<Long, Map<Long, InsuranceTimeInfo>>() {
-              public void expired(Long thekey, Map<Long, InsuranceTimeInfo> thevalue) {
+            .timeoutListener(new TimeoutListener<Long, ConcurrentMap<Long, InsuranceTimeInfo>>() {
+              public void expired(Long thekey, ConcurrentMap<Long, InsuranceTimeInfo> thevalue) {
                 InsuranceTimeoutHandler(thekey);
               }
             }).build();
@@ -63,9 +64,9 @@ public class InsuranceTimer {
 
   // 设置玩家超时
   public void setUserTimeout(long roomId, long uuid, long potId) {
-    Map<Long, InsuranceTimeInfo> userTimes = room_timer.get(roomId);
+    ConcurrentMap<Long, InsuranceTimeInfo> userTimes = room_timer.get(roomId);
     if (userTimes == null) {
-      userTimes = new HashMap<Long, InsuranceTimeInfo>();
+      userTimes = new ConcurrentHashMap<Long, InsuranceTimeInfo>();
       room_timer.put(roomId, userTimes);
     }
     // 是否设置过这个玩家的超时
@@ -83,7 +84,7 @@ public class InsuranceTimer {
 
   // 玩家购买延时
   public void addUserTimeout(long roomId, long uuid) {
-    Map<Long, InsuranceTimeInfo> userTimes = room_timer.get(roomId);
+    ConcurrentMap<Long, InsuranceTimeInfo> userTimes = room_timer.get(roomId);
     if (userTimes == null) {
       return;
     }
@@ -115,7 +116,7 @@ public class InsuranceTimer {
 
   // 玩家购买保险
   public void removeUserTimeout(long roomId, long uuid, long potId) {
-    Map<Long, InsuranceTimeInfo> userTimes = room_timer.get(roomId);
+    ConcurrentMap<Long, InsuranceTimeInfo> userTimes = room_timer.get(roomId);
     if (userTimes == null) {
       return;
     }
@@ -159,7 +160,7 @@ public class InsuranceTimer {
   }
 
   public InsuranceTimeInfo getUserTimeout(long roomId, long uuid) {
-    Map<Long, InsuranceTimeInfo> userTimes = room_timer.get(roomId);
+    ConcurrentMap<Long, InsuranceTimeInfo> userTimes = room_timer.get(roomId);
     if (userTimes == null) {
       return null;
     }

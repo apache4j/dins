@@ -9,9 +9,10 @@ package com.texaspoker.dubbo.game.insurance;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.log4j.Logger;
 
@@ -35,13 +36,14 @@ public class InsuranceInfo {
   public int status;
 
   // 用户保险总投入
-  public Map<Long, Long> user_totals = new HashMap<Long, Long>();
+  public ConcurrentMap<Long, Long> user_totals = new ConcurrentHashMap<Long, Long>();
 
   // 边池的用户outs信息
-  public Map<Long, Map<Long, OutsInfo>> pot_user_outs = new HashMap<Long, Map<Long, OutsInfo>>();
+  public ConcurrentMap<Long, ConcurrentMap<Long, OutsInfo>> pot_user_outs =
+      new ConcurrentHashMap<Long, ConcurrentMap<Long, OutsInfo>>();
 
   // 用户的所有outs
-  public Map<Long, List<OutsInfo>> user_outs = new HashMap<Long, List<OutsInfo>>();
+  public ConcurrentMap<Long, List<OutsInfo>> user_outs = new ConcurrentHashMap<Long, List<OutsInfo>>();
 
   // 清除上一轮的保险信息
   public void refreshRoundState(int status) {
@@ -64,23 +66,23 @@ public class InsuranceInfo {
   // 用户保险记录操作
   public void setUserOuts(long potId, long uuid, OutsInfo info) {
     // 边池的outs信息
-    Map<Long, OutsInfo> userOuts = pot_user_outs.get(potId);
+    ConcurrentMap<Long, OutsInfo> userOuts = pot_user_outs.get(potId);
     if (userOuts == null) {
-      userOuts = new HashMap<Long, OutsInfo>();
+      userOuts = new ConcurrentHashMap<Long, OutsInfo>();
       pot_user_outs.put(potId, userOuts);
     }
     userOuts.put(uuid, info);
     // 用户的outs信息
     List<OutsInfo> outsInfos = user_outs.get(uuid);
     if (outsInfos == null) {
-      outsInfos = new ArrayList<OutsInfo>();
+      outsInfos = Collections.synchronizedList(new ArrayList<OutsInfo>());
       user_outs.put(uuid, outsInfos);
     }
     outsInfos.add(info);
   }
 
   public OutsInfo getUserOuts(long potId, long uuid) {
-    Map<Long, OutsInfo> userOuts = pot_user_outs.get(potId);
+    ConcurrentMap<Long, OutsInfo> userOuts = pot_user_outs.get(potId);
     if (userOuts == null) {
       return null;
     }
@@ -89,7 +91,7 @@ public class InsuranceInfo {
 
   // 设置用户购买信息
   public boolean setUserBuys(long potId, long uuid, long buys) {
-    Map<Long, OutsInfo> userOuts = pot_user_outs.get(potId);
+    ConcurrentMap<Long, OutsInfo> userOuts = pot_user_outs.get(potId);
     if (userOuts == null) {
       return false;
     }
@@ -108,7 +110,7 @@ public class InsuranceInfo {
 
   // 设置用户放弃
   public void setUserFold(long potId, long uuid) {
-    Map<Long, OutsInfo> userOuts = pot_user_outs.get(potId);
+    ConcurrentMap<Long, OutsInfo> userOuts = pot_user_outs.get(potId);
     if (userOuts == null) {
       return;
     }
@@ -122,7 +124,7 @@ public class InsuranceInfo {
   public List<OutsInfo> getUserBuys() {
     List<OutsInfo> buyInfos = new ArrayList<OutsInfo>();
     for (Long potId : pot_user_outs.keySet()) {
-      Map<Long, OutsInfo> userOuts = pot_user_outs.get(potId);
+      ConcurrentMap<Long, OutsInfo> userOuts = pot_user_outs.get(potId);
       for (OutsInfo info : userOuts.values()) {
         if (info.buy > 0) {
           buyInfos.add(info);

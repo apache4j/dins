@@ -10,6 +10,8 @@ package com.texaspoker.dubbo.game.insurance;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.log4j.Logger;
 
@@ -38,10 +40,13 @@ public class HandInfo {
   // 桌上公共牌
   public int tables[] = new int[5];
   // 本手玩家信息
-  public Map<Long, HandUserInfo> userInfoMap = new HashMap<Long, HandUserInfo>();
+  public ConcurrentMap<Long, HandUserInfo> userInfoMap = new ConcurrentHashMap<Long, HandUserInfo>();
   // 每一轮下注情况
-  public Map<Integer, HandRoundInfo> roundInfos = new HashMap<Integer, HandRoundInfo>();
+  public ConcurrentMap<Integer, HandRoundInfo> roundInfos = new ConcurrentHashMap<Integer, HandRoundInfo>();
 
+  /*
+   * 检查状态的临时数据，无需线程安全
+   */
   // 这一手的所有边池信息
   public Map<Integer, Integer> allin_pots = new HashMap<Integer, Integer>();
   // 这一手的边池用户筹码情况
