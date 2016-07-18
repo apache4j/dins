@@ -2880,8 +2880,18 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		stGameRoomInfoBuilder.clearVCurrentPots();
 		for(int i = 0 ; i < mPotList.size();i++){
 			PotInfo stPotInfo = mPotList.get(i);
-			//������������������������������
+			//设置Pot相关
 			stGameRoomInfoBuilder.addVCurrentPots((int)stPotInfo.potSize);
+			
+			//设置新pot结构
+			TexasPoker.PotInfo.Builder stPotInfoBuilder = TexasPoker.PotInfo.newBuilder();
+			stPotInfoBuilder.setLPotStacks(stPotInfo.potSize);
+			for(int j = 0 ; j < stPotInfo.playerList.size() ;j ++ ){
+				long uuid = stPotInfo.playerList.get(j);
+				stPotInfoBuilder.addVUuids(uuid);
+			}
+			
+			stGameRoomInfoBuilder.addVPotInfos(stPotInfoBuilder);
 		}
 		
 		stGameRoomInfo = stGameRoomInfoBuilder.build();
