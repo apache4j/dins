@@ -99,8 +99,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				stGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
 				stGameRoomInfo = stGameRoomInfoBuilder.build();
 				iGameRoomUserMaxNums = stGameRoomBaseInfoBuilder.getIGameRoomUserMaxNums();
-				
-				System.out.println("startGamestartGamestartGamestartGamestartGame : " + stGameRoomInfo);
+				System.out.println("startGamestartGamestartGamestartGamestartGame : " + stGameRoomInfo.getStGameRoomBaseInfo().getBStarted());
 				pushAppPushStartGame();
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 			}else{
