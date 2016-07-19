@@ -16,6 +16,8 @@ import com.texaspoker.moment.TexasPoker.GameRoomInfo;
 import com.texaspoker.moment.TexasPoker.INSURANCE_ACT;
 import com.texaspoker.moment.TexasPoker.INSURANCE_BET_STATUS;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
+import com.texaspoker.moment.room.GameRoomDetailInfo;
+import com.texaspoker.moment.room.GameRoomManager;
 
 /**
  * 类名称:InsuranceApiProxy
@@ -99,6 +101,10 @@ public class InsuranceApi {
 
   // 保险购买行为超时接口
   public static void gotoNextStep(long lGameRoomID) {
+	  GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
+	  if(stGameRoomDetailInfo!=null){
+		  stGameRoomDetailInfo.gotoNextStep();
+	  }
 
   }
 

@@ -600,14 +600,16 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 //	}
 	
 	void checkGotoTurnStatus(long uuid){
+		System.out.println("checkGotoTurnStatus 1");
 		if(checkAllAllin() == true){
 			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 			InsuranceInfo stInsuranceInfo = null;
+			System.out.println("checkGotoTurnStatus 2 : " + stGameRoomInfoBuilder.getEInsuranceStatus());
 			if(stGameRoomInfoBuilder.getEInsuranceStatus() == INSURANCE_STATUS.INSURANCE_STATUS_NO){
 				stInsuranceInfo = InsuranceApi.checkInsurance(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),stGameRoomInfo.getLGameHandID(),GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Turn);
-			}
 			
-			if(stGameRoomInfoBuilder.getEInsuranceStatus() == INSURANCE_STATUS.INSURANCE_STATUS_NO){
+				System.out.println("checkGotoTurnStatus 3 : " + stInsuranceInfo);
+
 				if(stInsuranceInfo != null){
 					//进入保险模式
 					stGameRoomInfoBuilder.setEInsuranceStatus(INSURANCE_STATUS.INSURANCE_STATUS_BETTING);
@@ -615,7 +617,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					stGameRoomInfo = stGameRoomInfoBuilder.build();					
 					sendAllGameStateChange(0,null);
 					//记录cent需要的最后一个下牌的玩家
-					stGameRoomInfo = stGameRoomInfoBuilder.build();				
+					stGameRoomInfo = stGameRoomInfoBuilder.build();		
+					
+					System.out.println("checkGotoTurnStatus 4 : " + stGameRoomInfo);
 				}else{
 					gotoTurnStatus(uuid,false);
 				}
