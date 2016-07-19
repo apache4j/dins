@@ -43,6 +43,7 @@ public class InsuranceApi {
       TexasPoker.GAME_ROOM_GAME_STATE eRoundState) {
     InsuranceInfo insuranceInfo =
         InsuranceManager.getInstance().checkInsurance(lGameRoomID, lHandID, getRoundStatus(eRoundState));
+    insuranceInfo.printOutsInfo();
     return getApiInfoFromInsuranceInfo(insuranceInfo);
   }
 
