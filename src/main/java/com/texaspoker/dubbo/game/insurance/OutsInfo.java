@@ -20,10 +20,11 @@ import java.util.Arrays;
 public class OutsInfo {
 
   // outs数量在多少个内，才能买保险
-  public static final int OUTS_LIMIT = 16;
-  // outs赔率表
-  public static final double[] OUTS_ODDS = new double[] {30, 16, 10, 8, 6, 5, 4, 3.5, 3, 2.5, 2.2, 2, 1.8, 1.6, 1.4,
-      1.2};
+  public static final int OUTS_LIMIT = 14;
+  // outs赔率表，20个以上是0.8
+  public static final double[] OUTS_ODDS = new double[] {31, 16, 10, 8, 6, 5, 4, 3.5, 3, 2.5, 2.3, 2, 1.8, 1.6, 1.4,
+      1.3, 1.2, 1.1, 1.0, 0.8};
+  public static final int OUTS_NUMS = 20;
 
   // 边池pot
   public long potId = 0;
@@ -45,6 +46,12 @@ public class OutsInfo {
   // 保险金额-全部
   public long pay_pots = 0;
 
+  // 保险金额-最小
+  public long pay_min = 0;
+
+  // 保险金额-最大
+  public long pay_max = 0;
+
   // 购买金额
   public long buy = 0;
 
@@ -55,20 +62,25 @@ public class OutsInfo {
   public long result = 0;
 
   // 设置保险购买信息
-  public void setPayInfo(long potId, long pots, long prebuys, long bets) {
+  public void setPayInfo(int status, long potId, long pots, long prebuys, long bets) {
     if (winner == 0 || outs == null) {
       throw new RuntimeException("outs info winner or outs error");
     }
-    int outsNum = outs.length;
-    if (outsNum > OUTS_LIMIT) {
-      throw new RuntimeException("outs size too large");
-    }
+    int outsNum = outs.length > OUTS_NUMS ? OUTS_NUMS : outs.length;
     this.odds = OUTS_ODDS[outsNum - 1];
     this.potId = potId;
     this.pots = pots;
     this.bets = bets;
     pay_loss = getBuyPrice((prebuys + bets) / odds);
     pay_pots = getBuyPrice((prebuys + pots) / odds);
+    // 根据状态判断最大值的比例
+    double potMaxRaito = status == HandUtils.TURN ? 0.25 : 0.5;
+    // 找出最大购买值
+    long pot_max = getBuyPrice(potMaxRaito * pots);
+    long pot_odds = getBuyPrice(pots / odds);
+    pay_max = pot_max > pot_odds ? pot_max : pot_odds;
+    // 找出最小购买值
+    pay_min = getBuyPrice(prebuys / odds);
   }
 
   // 设置购买信息
@@ -109,7 +121,7 @@ public class OutsInfo {
 
   // 保险金额采用向下取整策略，不保证完全赔付
   private long getBuyPrice(double price) {
-    long expectedPrice = (long) (price + 1);
+    long expectedPrice = (long) price;
     // 保证一定保险可买，最少买1
     if (expectedPrice == 0) {
       return 1;

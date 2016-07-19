@@ -50,7 +50,6 @@ public class InsuranceLog {
 
   public static void onLogMessage(String message) {
 
-	 System.out.println("InsuranceLog onLogMessage : " + message);
     // 区分边界，获取关键信息
     String[] tableLogContentArray = message.split(",");
     // long groupId = 0;
@@ -63,7 +62,6 @@ public class InsuranceLog {
       // groupId = Long.parseLong(tableLogContentArray[0]);
       roomId = Long.parseLong(tableLogContentArray[1]);
       turnId = Long.parseLong(tableLogContentArray[2]);
-      System.out.println("onLogMessage : + ");
     } catch (java.lang.ArrayIndexOutOfBoundsException ee) {
       ee.printStackTrace();
     }

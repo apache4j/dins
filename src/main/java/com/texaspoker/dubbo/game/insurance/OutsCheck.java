@@ -33,7 +33,7 @@ public class OutsCheck {
   private static Logger logger = Logger.getLogger(OutsCheck.class);
 
   // 接口层
-  public static List<OutsInfo> findOutsInPlayers(List<HandUserInfo> playerCards, HandInfo handInfo) {
+  public static List<OutsInfo> findOutsInPlayers(List<HandUserInfo> playerCards, HandInfo handInfo, boolean checkEven) {
     // 获取这一手当前的公共牌信息
     int[] publicCards = handInfo.getTableCards();
     logger.debug("tables:" + Arrays.toString(publicCards));
@@ -69,7 +69,7 @@ public class OutsCheck {
     // 检查一个胜者的out数量
     List<OutsInfo> results = new ArrayList<OutsInfo>();
     for (IPlayer winner : winners) {
-      List<Card> outsCards = findOutsInPlayer(winner, players, tableCards, remainCards);
+      List<Card> outsCards = findOutsInPlayer(winner, players, tableCards, remainCards, checkEven);
       logger.debug("winner:" + winner.getUuid() + ",outs.size:" + outsCards.size());
       if (outsCards.size() > 0 && outsCards.size() <= OutsInfo.OUTS_LIMIT) {
         OutsInfo outsInfo = new OutsInfo();
@@ -86,7 +86,7 @@ public class OutsCheck {
 
   // 找出单个赢家的outs
   public static List<Card> findOutsInPlayer(IPlayer winner, List<IPlayer> players, List<Card> tableCards,
-      List<Card> remainCards) {
+      List<Card> remainCards, boolean checkEven) {
     // 依次查找out
     List<Card> outsCards = new ArrayList<Card>();
     for (Card remainCard : remainCards) {
@@ -94,7 +94,7 @@ public class OutsCheck {
       checkCards.add(remainCard);
       // System.out.println("checkCards:" + checkCards);
       // 检查这一张是否是outs
-      if (checkOutsForWinner(winner, players, checkCards)) {
+      if (checkOutsForWinner(winner, players, checkCards, checkEven)) {
         outsCards.add(remainCard);
       }
     }
@@ -102,8 +102,14 @@ public class OutsCheck {
     return outsCards;
   }
 
-  // 找出单个赢家的outs
+  // 默认不查找平分outs
   public static List<Card> findOutsInPlayer(IPlayer winner, List<IPlayer> players, List<Card> tableCards) {
+    return findOutsInPlayer(winner, players, tableCards, false);
+  }
+
+  // 找出单个赢家的outs
+  public static List<Card> findOutsInPlayer(IPlayer winner, List<IPlayer> players, List<Card> tableCards,
+      boolean checkEven) {
     // 依次查找out
     List<Card> outsCards = new ArrayList<Card>();
     // 直接在比牌人群里找到比牌玩家
@@ -117,7 +123,7 @@ public class OutsCheck {
       checkCards.add(remainCard);
       // System.out.println("checkCards:" + checkCards);
       // 检查这一张是否是outs
-      if (checkOutsForWinner(winner, players, checkCards)) {
+      if (checkOutsForWinner(winner, players, checkCards, checkEven)) {
         outsCards.add(remainCard);
       }
     }
@@ -125,7 +131,8 @@ public class OutsCheck {
     return outsCards;
   }
 
-  public static boolean checkOutsForWinner(IPlayer winner, List<IPlayer> players, List<Card> tableCards) {
+  public static boolean checkOutsForWinner(IPlayer winner, List<IPlayer> players, List<Card> tableCards,
+      boolean checkEven) {
     for (IPlayer player : players) {
       CardRanking.checkRanking(player, tableCards);
     }
@@ -137,7 +144,11 @@ public class OutsCheck {
       int compareResult = PlayerRanking.compareRanking(winner, player);
       if (compareResult == 0) {
         // 赢家和玩家牌型相等，不算outs
-        continue;
+        if (checkEven) {
+          return true;
+        } else {
+          continue;
+        }
       } else if (compareResult == 1) {
         // 赢家继续胜出
         continue;

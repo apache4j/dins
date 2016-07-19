@@ -43,8 +43,6 @@ public class InsuranceApi {
       TexasPoker.GAME_ROOM_GAME_STATE eRoundState) {
     InsuranceInfo insuranceInfo =
         InsuranceManager.getInstance().checkInsurance(lGameRoomID, lHandID, getRoundStatus(eRoundState));
-    if(insuranceInfo!=null)
-    	insuranceInfo.printOutsInfo();
     return getApiInfoFromInsuranceInfo(insuranceInfo);
   }
 
@@ -107,7 +105,6 @@ public class InsuranceApi {
 	  if(stGameRoomDetailInfo!=null){
 		  stGameRoomDetailInfo.gotoNextStep();
 	  }
-
   }
 
   // billserver保险购买接口
@@ -120,20 +117,19 @@ public class InsuranceApi {
 
   }
 
-  // 保险扣钻石接口
-  public static boolean addUserCoin(Long uuid, long nums) {
+  // 保险代理人账单信息接口
+  public static boolean setInsuranceGame(long lGameRoomID, long nums) {
     return true;
   }
 
-  // 保险扣币接口
-  public static boolean addUserPopularity(long uuid, long nums) {
+  // 保险扣钻石接口
+  public static boolean addUserCoin(Long uuid, long nums) {
     return true;
   }
 
   /*
    * 接口转换工具类
    */
-
   private static int getRoundStatus(TexasPoker.GAME_ROOM_GAME_STATE eRoomState) {
     if (eRoomState.equals(TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop)) {
       return HandUtils.PRE_FLOP;
@@ -158,14 +154,15 @@ public class InsuranceApi {
     for (int i = 0; i < info.getVUserGameInfosCount(); i++) {
       UserGameInfoNet userGameInfo = info.getVUserGameInfos(i);
       long uuid = userGameInfo.getStUserInfo().getUuid();
-      if (!insuranceInfo.user_outs.containsKey(uuid)) {
+      if (!insuranceInfo.round_user_outs.containsKey(uuid)) {
         continue;
       }
       long remains = userGameInfo.getLRemainStacks();
-      for (OutsInfo outsInfo : insuranceInfo.user_outs.get(uuid)) {
+      for (OutsInfo outsInfo : insuranceInfo.round_user_outs.get(uuid)) {
         if (outsInfo.result > 0) {
           remains += outsInfo.result;
-        } else {
+        }
+        if (outsInfo.buy > 0) {
           remains -= outsInfo.buy;
         }
         if (remains >= 0) {
@@ -177,19 +174,16 @@ public class InsuranceApi {
         }
       }
     }
-
     return gameBuilder.build();
   }
 
   // 结构体转换函数
   private static TexasPoker.InsuranceInfo getApiInfoFromInsuranceInfo(InsuranceInfo insInfo) {
-	  if(insInfo==null){
-		  return null;
-	  }
-
+    if (insInfo == null) {
+      return null;
+    }
     TexasPoker.InsuranceInfo.Builder apiInfo = TexasPoker.InsuranceInfo.newBuilder();
-
-    for (Map.Entry<Long, List<OutsInfo>> userOuts : insInfo.user_outs.entrySet()) {
+    for (Map.Entry<Long, List<OutsInfo>> userOuts : insInfo.round_user_outs.entrySet()) {
       Long userId = userOuts.getKey();
       TexasPoker.InsuranceUserInfo.Builder userInfo = TexasPoker.InsuranceUserInfo.newBuilder();
       userInfo.setUuid(userId);

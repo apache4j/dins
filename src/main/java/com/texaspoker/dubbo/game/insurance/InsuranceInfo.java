@@ -35,24 +35,41 @@ public class InsuranceInfo {
   // 当前游戏状态
   public int status;
 
-  // 用户保险总投入
-  public ConcurrentMap<Long, Long> user_totals = new ConcurrentHashMap<Long, Long>();
+  // 代理人赔付金额
+  public long proxy_shop;
+
+  // 用户本手的保险总投入
+  public ConcurrentMap<Long, ConcurrentMap<Long, Long>> hand_user_totals =
+      new ConcurrentHashMap<Long, ConcurrentMap<Long, Long>>();
+
+  // 用户本手的每一轮购买记录
+  // public ConcurrentMap<Integer, ConcurrentMap<Long, List<OutsInfo>>> hand_user_buys =
+  // new ConcurrentHashMap<Integer, ConcurrentMap<Long, List<OutsInfo>>>();
 
   // 边池的用户outs信息
-  public ConcurrentMap<Long, ConcurrentMap<Long, OutsInfo>> pot_user_outs =
+  public ConcurrentMap<Long, ConcurrentMap<Long, OutsInfo>> round_pot_user_outs =
       new ConcurrentHashMap<Long, ConcurrentMap<Long, OutsInfo>>();
 
   // 用户的所有outs
-  public ConcurrentMap<Long, List<OutsInfo>> user_outs = new ConcurrentHashMap<Long, List<OutsInfo>>();
+  public ConcurrentMap<Long, List<OutsInfo>> round_user_outs = new ConcurrentHashMap<Long, List<OutsInfo>>();
 
   // 清除上一轮的保险信息
-  public void refreshRoundState(int status) {
-    logger.debug("status:" + status);
-    if (this.status != status) {
-      // 状态更新了
+  public void refreshRoundState(long handId, int status) {
+    logger.debug("handId:" + handId + ",status:" + status);
+    if (this.handId != handId) {
+      // 手数更新
+      this.handId = handId;
+      hand_user_totals.clear();
+      // 状态更新
       this.status = status;
-      pot_user_outs.clear();
-      user_outs.clear();
+      round_pot_user_outs.clear();
+      round_user_outs.clear();
+      logger.debug("roomId:" + roomId + ",handId:" + handId + ",refresh");
+    } else if (this.status != status) {
+      // 仅仅状态更新
+      this.status = status;
+      round_pot_user_outs.clear();
+      round_user_outs.clear();
       logger.debug("roomId:" + roomId + ",status:" + status + ",refresh");
     }
   }
@@ -66,23 +83,23 @@ public class InsuranceInfo {
   // 用户保险记录操作
   public void setUserOuts(long potId, long uuid, OutsInfo info) {
     // 边池的outs信息
-    ConcurrentMap<Long, OutsInfo> userOuts = pot_user_outs.get(potId);
+    ConcurrentMap<Long, OutsInfo> userOuts = round_pot_user_outs.get(potId);
     if (userOuts == null) {
       userOuts = new ConcurrentHashMap<Long, OutsInfo>();
-      pot_user_outs.put(potId, userOuts);
+      round_pot_user_outs.put(potId, userOuts);
     }
     userOuts.put(uuid, info);
     // 用户的outs信息
-    List<OutsInfo> outsInfos = user_outs.get(uuid);
+    List<OutsInfo> outsInfos = round_user_outs.get(uuid);
     if (outsInfos == null) {
       outsInfos = Collections.synchronizedList(new ArrayList<OutsInfo>());
-      user_outs.put(uuid, outsInfos);
+      round_user_outs.put(uuid, outsInfos);
     }
     outsInfos.add(info);
   }
 
   public OutsInfo getUserOuts(long potId, long uuid) {
-    ConcurrentMap<Long, OutsInfo> userOuts = pot_user_outs.get(potId);
+    ConcurrentMap<Long, OutsInfo> userOuts = round_pot_user_outs.get(potId);
     if (userOuts == null) {
       return null;
     }
@@ -91,7 +108,7 @@ public class InsuranceInfo {
 
   // 设置用户购买信息
   public boolean setUserBuys(long potId, long uuid, long buys) {
-    ConcurrentMap<Long, OutsInfo> userOuts = pot_user_outs.get(potId);
+    ConcurrentMap<Long, OutsInfo> userOuts = round_pot_user_outs.get(potId);
     if (userOuts == null) {
       return false;
     }
@@ -99,18 +116,50 @@ public class InsuranceInfo {
       return false;
     }
     // 这个边池已经购买过了！！！
-    if (userOuts.get(uuid).getBuy() > 0) {
+    OutsInfo info = userOuts.get(uuid);
+    if (info.getBuy() > 0) {
       logger.error("roomId" + roomId + ",handId:" + handId + ",potId" + potId + ",uuid:" + uuid + ",has already buy "
           + buys);
       return false;
     }
-    userOuts.get(uuid).setBuy(buys);
+    // 这是购买金额
+    info.setBuy(buys);
+    // 设置用户购买记录
+    // ConcurrentMap<Long, List<OutsInfo>> roundUserBuys = hand_user_buys.get(status);
+    // if (roundUserBuys == null) {
+    // roundUserBuys = new ConcurrentHashMap<Long, List<OutsInfo>>();
+    // hand_user_buys.put(status, roundUserBuys);
+    // }
+    // List<OutsInfo> buyInfos = roundUserBuys.get(uuid);
+    // if (buyInfos == null) {
+    // buyInfos = Collections.synchronizedList(new ArrayList<OutsInfo>());
+    // roundUserBuys.put(uuid, buyInfos);
+    // }
+    // buyInfos.add(info);
     return true;
   }
 
+  // 检查用户之前是否购买过
+  // public long checkUserPreviousBuy(long potId, long uuid) {
+  // ConcurrentMap<Long, List<OutsInfo>> roundUserBuys = hand_user_buys.get(status - 1);
+  // if (roundUserBuys == null) {
+  // return 0;
+  // }
+  // List<OutsInfo> buyInfos = roundUserBuys.get(uuid);
+  // if (buyInfos == null) {
+  // return 0;
+  // }
+  // for (OutsInfo info : buyInfos) {
+  // if (info.potId == potId && info.winner == uuid) {
+  // return info.buy;
+  // }
+  // }
+  // return 0;
+  // }
+
   // 设置用户放弃
   public void setUserFold(long potId, long uuid) {
-    ConcurrentMap<Long, OutsInfo> userOuts = pot_user_outs.get(potId);
+    ConcurrentMap<Long, OutsInfo> userOuts = round_pot_user_outs.get(potId);
     if (userOuts == null) {
       return;
     }
@@ -120,11 +169,55 @@ public class InsuranceInfo {
     userOuts.get(uuid).setFold();
   }
 
+  // 用户购买操作
+  public void addUserTotal(long uuid, long potId, long buy) {
+    // 保险总投入
+    ConcurrentMap<Long, Long> potTotals = hand_user_totals.get(uuid);
+    if (potTotals == null) {
+      potTotals = new ConcurrentHashMap<Long, Long>();
+      hand_user_totals.put(uuid, potTotals);
+    }
+    Long totals = potTotals.get(potTotals);
+    if (totals == null) {
+      totals = Long.valueOf(buy);
+    } else {
+      totals += buy;
+    }
+    potTotals.put(uuid, totals);
+  }
+
+  // 获取用户保险投入
+  public long getUserTotal(long uuid, long potId) {
+    ConcurrentMap<Long, Long> potTotals = hand_user_totals.get(uuid);
+    if (potTotals == null) {
+      return 0;
+    }
+    Long totals = potTotals.get(potId);
+    if (totals == null) {
+      return 0;
+    }
+    return potTotals.get(uuid);
+  }
+
+  // 设置牌局的保险实时赔付情况
+  public void setShopTotal(long buy, long result) {
+    proxy_shop += buy;
+    proxy_shop -= result;
+  }
+
+  public long getShopTotal() {
+    return this.proxy_shop;
+  }
+
+  /*
+   * 工具函数，与业务逻辑无关
+   */
+
   // 获取用户购买的保险信息
-  public List<OutsInfo> getUserBuys() {
+  public List<OutsInfo> getAllBuys() {
     List<OutsInfo> buyInfos = new ArrayList<OutsInfo>();
-    for (Long potId : pot_user_outs.keySet()) {
-      ConcurrentMap<Long, OutsInfo> userOuts = pot_user_outs.get(potId);
+    for (Long potId : round_pot_user_outs.keySet()) {
+      ConcurrentMap<Long, OutsInfo> userOuts = round_pot_user_outs.get(potId);
       for (OutsInfo info : userOuts.values()) {
         if (info.buy > 0) {
           buyInfos.add(info);
@@ -135,38 +228,17 @@ public class InsuranceInfo {
   }
 
   // 获取所有保险信息
-  public List<OutsInfo> getUserOuts() {
+  public List<OutsInfo> getAllOuts() {
     List<OutsInfo> allInfos = new ArrayList<OutsInfo>();
-    for (Long potId : pot_user_outs.keySet()) {
-      allInfos.addAll(pot_user_outs.get(potId).values());
+    for (Long potId : round_pot_user_outs.keySet()) {
+      allInfos.addAll(round_pot_user_outs.get(potId).values());
     }
     return allInfos;
   }
 
-  // 用户购买操作
-  public void addUserTotal(long uuid, long buy) {
-    // 保险总投入
-    Long totals = user_totals.get(uuid);
-    if (totals == null) {
-      totals = Long.valueOf(buy);
-    } else {
-      totals += buy;
-    }
-    user_totals.put(uuid, totals);
-  }
-
-  // 获取用户保险投入
-  public long getUserTotal(long uuid) {
-    Long totals = user_totals.get(uuid);
-    if (totals == null) {
-      return 0;
-    }
-    return user_totals.get(uuid);
-  }
-
   // 打印所有outs信息
   public void printOutsInfo() {
-    List<OutsInfo> infos = getUserOuts();
+    List<OutsInfo> infos = getAllOuts();
     for (OutsInfo info : infos) {
       logger.debug("status:" + status + "," + info);
     }
@@ -174,7 +246,7 @@ public class InsuranceInfo {
 
   // 打印所有outs信息
   public void printBuysInfo() {
-    List<OutsInfo> infos = getUserBuys();
+    List<OutsInfo> infos = getAllBuys();
     for (OutsInfo info : infos) {
       logger.debug("status:" + status + "," + info);
     }

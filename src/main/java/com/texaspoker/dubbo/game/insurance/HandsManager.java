@@ -134,13 +134,10 @@ public class HandsManager {
       // 设置公共牌状态后直接返回
       if (status == HandUtils.FLOP1) {
         handInfo.tables[0] = tables[0];
-        return;
       } else if (status == HandUtils.FLOP2) {
         handInfo.tables[1] = tables[0];
-        return;
       } else if (status == HandUtils.FLOP3) {
         handInfo.tables[2] = tables[0];
-        return;
       }
     }
     // 设置游戏状态

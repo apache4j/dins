@@ -47,6 +47,7 @@ public class InsuranceManager {
 
   // 解析游戏数据
   public void onGameAction(String tableLog) {
+    logger.debug(tableLog);
     InsuranceLog.onLogMessage(tableLog);
   }
 
@@ -55,6 +56,7 @@ public class InsuranceManager {
     // 检查手数信息
     HandInfo handInfo = HandsManager.getInstance().getHandInfo(roomId);
     if (handInfo == null) {
+      logger.error("roomId:" + roomId + ",handinfo null");
       return null;
     }
     return checkInsurance(handInfo);
@@ -66,6 +68,14 @@ public class InsuranceManager {
       return null;
     }
     long roomId = handInfo.roomId;
+    logger.debug("roomId:" + roomId + ",handinfo status :" + handInfo.gameStatus);
+    // 检查牌局状态，现在只有turn，river能够买保险
+    if (handInfo.gameStatus != HandUtils.FLOP && handInfo.gameStatus != HandUtils.TURN) {
+      logger.error("roomId:" + roomId + ",handinfo status error:" + handInfo.gameStatus);
+      return null;
+    }
+    // 刷新这一桌的保险超时
+    insurance_timer.clearRoomTimeout(roomId);
     // 检查筹码信息
     handInfo.checkHandState();
     // 检查保险信息
@@ -78,10 +88,10 @@ public class InsuranceManager {
       insuranceInfo.status = handInfo.insuranceStatus;
       insurances_map.put(roomId, insuranceInfo);
     }
-    // 刷新这一桌的保险超时
-    insurance_timer.clearRoomTimeout(roomId);
     // 刷新这一桌的保险信息
-    insuranceInfo.refreshRoundState(handInfo.insuranceStatus);
+    insuranceInfo.refreshRoundState(handInfo.handId, handInfo.insuranceStatus);
+    // 是否计算分钱outs，river阶段才计算分钱outs
+    boolean checkEvenOuts = insuranceInfo.status == HandUtils.TURN ? true : false;
     // 遍历每一个边池
     for (Map.Entry<Integer, Integer> allinPotEntry : handInfo.allin_pots.entrySet()) {
       // allin_bets定义为potId
@@ -90,9 +100,14 @@ public class InsuranceManager {
       logger.debug("roomId:" + roomId + ",potId:" + allin_bets + ",potBets:" + allin_pots);
       // 遍历这个边池的玩家列表
       Map<Long, Integer> allinUsersMap = handInfo.allin_pots_user.get(allin_bets);
-      // 这个边池至少多于一个玩家
+      // 这个边池至少2个玩家
       if (allinUsersMap.size() < 2) {
         logger.debug("roomId:" + roomId + ",potId:" + allin_bets + ",only one user");
+        continue;
+      }
+      // 这个边池多于3个玩家，不激活保险
+      if (allinUsersMap.size() > 3) {
+        logger.debug("roomId:" + roomId + ",potId:" + allin_bets + ",user size:" + allinUsersMap.size() + ",too more");
         continue;
       }
       List<HandUserInfo> allinUserInfos = new ArrayList<HandUserInfo>();
@@ -101,7 +116,7 @@ public class InsuranceManager {
         logger.debug("roomId:" + roomId + ",potId:" + allin_bets + ",user:" + uuid);
       }
       // 找出这个边池玩家的out保险
-      List<OutsInfo> outsList = OutsCheck.findOutsInPlayers(allinUserInfos, handInfo);
+      List<OutsInfo> outsList = OutsCheck.findOutsInPlayers(allinUserInfos, handInfo, checkEvenOuts);
       if (outsList == null || outsList.size() == 0) {
         logger.debug("roomId:" + roomId + ",potId:" + allin_bets + ",outs size:" + outsList.size());
         continue;
@@ -116,9 +131,9 @@ public class InsuranceManager {
         logger.debug("roomdId:" + roomId + ",outs info:" + outsInfo);
         long potId = allin_bets;
         long potBets = allinUsersMap.get(outsInfo.winner);
-        long preBuys = insuranceInfo.getUserTotal(outsInfo.winner);
+        long preBuys = insuranceInfo.getUserTotal(outsInfo.winner, potId);
         // 计算出这个玩家outs下的保险信息
-        outsInfo.setPayInfo(potId, allin_pots, preBuys, potBets);
+        outsInfo.setPayInfo(insuranceInfo.status, potId, allin_pots, preBuys, potBets);
         // 保存这个玩家的保险信息
         insuranceInfo.setUserOuts(allin_bets, outsInfo.winner, outsInfo);
         // 设置这个玩家的购买超时
@@ -137,21 +152,21 @@ public class InsuranceManager {
       return null;
     }
     // 能否扣币成功
-    if (!InsuranceApi.addUserPopularity(uuid, -buys)) {
-      logger.debug("roomId" + roomId + ",uuid:" + uuid + ",no enough popularitys");
-      return insuranceInfo;
-    }
+    // if (!InsuranceApi.addUserPopularity(uuid, -buys)) {
+    // logger.debug("roomId" + roomId + ",uuid:" + uuid + ",no enough popularitys");
+    // return insuranceInfo;
+    // }
     // 找到边池信息
     if (insuranceInfo.setUserBuys(potId, uuid, buys)) {
       // 设置本手保险购买总额
-      insuranceInfo.addUserTotal(uuid, buys);
+      insuranceInfo.addUserTotal(uuid, potId, buys);
       // 去掉这个玩家的购买超时
       insurance_timer.removeUserTimeout(roomId, uuid, potId);
       // 写入账单
       InsuranceApi.addInsuranceBuyin(roomId, uuid, buys);
     } else {
       // 购买失败的情况下，退款
-      InsuranceApi.addUserPopularity(uuid, buys);
+      // InsuranceApi.addUserPopularity(uuid, buys);
     }
     // 返回所有保险信息
     return insuranceInfo;
@@ -227,16 +242,21 @@ public class InsuranceManager {
     // 先刷新保险信息的游戏状态
     insuranceInfo.status = handInfo.insuranceStatus;
     // 找到所有用户的购买信息
-    List<OutsInfo> userBuyInfos = insuranceInfo.getUserBuys();
+    List<OutsInfo> userBuyInfos = insuranceInfo.getAllBuys();
     for (OutsInfo outsInfo : userBuyInfos) {
       // 检查这个保险是否买中
       if (outsInfo.checkBuyWin(tableCard)) {
+        insuranceInfo.setShopTotal(outsInfo.buy, outsInfo.result);
         // API接口，调用用户结算接口
         InsuranceApi.addInsuranceGetStack(roomId, outsInfo.winner, outsInfo.result);
       } else {
+        // 扣住买保险的钱
+        insuranceInfo.setShopTotal(outsInfo.buy, 0);
         continue;
       }
     }
+    // API接口，保险实时赔付账单信息
+    InsuranceApi.setInsuranceGame(roomId, insuranceInfo.getShopTotal());
     // 返回所有保险结算结果
     return insuranceInfo;
   }
