@@ -181,6 +181,9 @@ public class InsuranceApi {
 
   // 结构体转换函数
   private static TexasPoker.InsuranceInfo getApiInfoFromInsuranceInfo(InsuranceInfo insInfo) {
+	  if(insInfo==null){
+		  return null;
+	  }
 
     TexasPoker.InsuranceInfo.Builder apiInfo = TexasPoker.InsuranceInfo.newBuilder();
 
