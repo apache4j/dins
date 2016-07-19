@@ -2448,6 +2448,18 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					vHandList.add(stUserGameInfoBuilder.getStUserInfo().getUuid());
 					mHandPos.put(userIndex, stUserGameInfoBuilder.getStUserInfo().getUuid());
 					
+					
+					String content = stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
+							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+							+"," + stGameRoomInfo.getLGameHandID()
+							+"," + stUserGameInfoBuilder.getStUserInfo().getUuid()
+							+"," + "hand" 
+							+"," + card1
+							+"," + card2
+							+"," + lRemainStacks;
+					
+					InsuranceApi.parseGameAction(content);
+					
 					switch (userRole){
 					case 1:
 						stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_BLIND);
@@ -2641,6 +2653,18 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					mHandMap.put(stUserGameInfoBuilder.getStUserInfo().getUuid() , stHandInfo);
 					vHandList.add(stUserGameInfoBuilder.getStUserInfo().getUuid());
 					mHandPos.put(j, stUserGameInfoBuilder.getStUserInfo().getUuid());
+					
+					
+					String content = stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
+							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+							+"," + stGameRoomInfo.getLGameHandID()
+							+"," + stUserGameInfoBuilder.getStUserInfo().getUuid()
+							+"," + "hand" 
+							+"," + card1
+							+"," + card2
+							+"," + lRemainStacks;
+					
+					InsuranceApi.parseGameAction(content);
 					
 					if(j == mBigBlindPos){
 						//设置大盲的游戏状态
