@@ -283,17 +283,20 @@ public class InsuranceManager {
 
   // 外部使用，查询是否需要购买保险
   public InsuranceInfo checkInsurance(long roomId, long handId, int roundStatus) {
-    // 检查手数信息
-    HandInfo handInfo = HandsManager.getInstance().getHandInfo(roomId);
-    if (handInfo == null) {
-      return null;
-    }
-    // 检查手数状态是否正确
-    if (handInfo.handId != handId || handInfo.gameStatus != roundStatus) {
-      return null;
-    }
-    return checkInsurance(handInfo);
-  }
+	    // 检查手数信息
+	    HandInfo handInfo = HandsManager.getInstance().getHandInfo(roomId);
+	    if (handInfo == null) {
+	      logger.error("roomId" + roomId + ",handId:" + handId + ",roundstatus:" + roundStatus + ",handinfo null");
+	      return null;
+	    }
+	    // 检查手数状态是否正确
+	    if (handInfo.handId != handId || handInfo.gameStatus != roundStatus) {
+	      logger.error("roomId" + roomId + ",handId:" + handId + ",roundstatus:" + roundStatus + ",status errors");
+	      return null;
+	    }
+	    
+	    return checkInsurance(handInfo);
+	  }
 
   // 外部使用，购买pot保险
   public InsuranceInfo buyInsurance(long roomId, long handId, int roundStatus, long uuid, long potId, long buys) {
