@@ -71,6 +71,8 @@ public class InsuranceInfo {
       round_pot_user_outs.clear();
       round_user_outs.clear();
       logger.debug("roomId:" + roomId + ",status:" + status + ",refresh");
+    } else {
+      logger.debug("roomId:" + roomId + ",handId:" + this.handId + ",status:" + this.status + ",init");
     }
   }
 

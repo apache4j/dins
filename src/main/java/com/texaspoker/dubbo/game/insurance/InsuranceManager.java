@@ -49,26 +49,21 @@ public class InsuranceManager {
   public void onGameAction(String tableLog) {
     logger.debug(tableLog);
     InsuranceLog.onLogMessage(tableLog);
-    System.out.println("onGameActiononGameAction : " + tableLog);
   }
 
   // 内部使用，查询是否需要购买保险
   public InsuranceInfo checkInsurance(long roomId) {
     // 检查手数信息
     HandInfo handInfo = HandsManager.getInstance().getHandInfo(roomId);
-    System.out.println("checkInsurancecheckInsurancecheckInsurancecheckInsurance1");
     if (handInfo == null) {
       logger.error("roomId:" + roomId + ",handinfo null");
       return null;
     }
-    System.out.println("checkInsurancecheckInsurancecheckInsurancecheckInsurance");
     return checkInsurance(handInfo);
   }
 
   // 内部使用
   private InsuranceInfo checkInsurance(HandInfo handInfo) {
-	 
-	  System.out.println("checkInsurancecheckInsurance5 : " + handInfo);
     if (handInfo == null) {
       return null;
     }
@@ -288,18 +283,15 @@ public class InsuranceManager {
 
   // 外部使用，查询是否需要购买保险
   public InsuranceInfo checkInsurance(long roomId, long handId, int roundStatus) {
-	System.out.println("checkInsurancecheckInsurance2");
     // 检查手数信息
     HandInfo handInfo = HandsManager.getInstance().getHandInfo(roomId);
     if (handInfo == null) {
       return null;
     }
-    System.out.println("checkInsurancecheckInsurance3");
     // 检查手数状态是否正确
     if (handInfo.handId != handId || handInfo.gameStatus != roundStatus) {
       return null;
     }
-    System.out.println("checkInsurancecheckInsurance4");
     return checkInsurance(handInfo);
   }
 

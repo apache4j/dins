@@ -41,13 +41,8 @@ public class InsuranceApi {
   // allin状态下开始计算保险接口
   public static TexasPoker.InsuranceInfo checkInsurance(long lGameRoomID, long lHandID,
       TexasPoker.GAME_ROOM_GAME_STATE eRoundState) {
-	  System.out.println("checkInsurancecheckInsurancecheckInsurance begin. ");
     InsuranceInfo insuranceInfo =
         InsuranceManager.getInstance().checkInsurance(lGameRoomID, lHandID, getRoundStatus(eRoundState));
-    System.out.println("checkInsurancecheckInsurancecheckInsurance : " + insuranceInfo);
-    if(insuranceInfo!=null){
-    	insuranceInfo.printOutsInfo();
-    }
     return getApiInfoFromInsuranceInfo(insuranceInfo);
   }
 
@@ -107,6 +102,7 @@ public class InsuranceApi {
   // 保险购买行为超时接口
   public static void gotoNextStep(long lGameRoomID) {
 	  GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
+	  
 	  if(stGameRoomDetailInfo!=null){
 		  stGameRoomDetailInfo.gotoNextStep();
 	  }
@@ -135,6 +131,7 @@ public class InsuranceApi {
   /*
    * 接口转换工具类
    */
+
   private static int getRoundStatus(TexasPoker.GAME_ROOM_GAME_STATE eRoomState) {
     if (eRoomState.equals(TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop)) {
       return HandUtils.PRE_FLOP;

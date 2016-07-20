@@ -129,8 +129,8 @@ public class HandsManager {
       return;
     }
     // 是否已经处于保险状态
+    handInfo.insuranceStatus = status;
     if (handInfo.insuranceIsOn) {
-      handInfo.insuranceStatus = status;
       // 设置公共牌状态后直接返回
       if (status == HandUtils.FLOP1) {
         handInfo.tables[0] = tables[0];
