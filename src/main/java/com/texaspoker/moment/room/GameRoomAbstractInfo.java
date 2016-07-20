@@ -682,9 +682,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			InsuranceInfo stInsuranceInfo = null;
 			if(stGameRoomInfoBuilder.getEInsuranceStatus() == INSURANCE_STATUS.INSURANCE_STATUS_NO){
 				stInsuranceInfo = InsuranceApi.checkInsurance(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),stGameRoomInfo.getLGameHandID(),GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Turn);
-			}
-			
-			if(stGameRoomInfoBuilder.getEInsuranceStatus() == INSURANCE_STATUS.INSURANCE_STATUS_NO){
+
 				if(stInsuranceInfo != null){
 					//进入保险模式
 					stGameRoomInfoBuilder.setEInsuranceStatus(INSURANCE_STATUS.INSURANCE_STATUS_BETTING);
