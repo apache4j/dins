@@ -34,7 +34,6 @@ import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
 import com.texaspoker.moment.TexasPokerCommon.CREATE_ROOM_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.GAME_ROOM_TYPE;
-import com.texaspoker.moment.TexasPokerCommon.LANGUAGE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
 import com.texaspoker.moment.TexasPokerCommon.UserTokenInfoNet;
 import com.texaspoker.moment.TexasPokerHttpClub.ClubInfo;
@@ -1965,15 +1964,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		UserTokenInfoNet stUserTokenInfoNet = UserManager.getInstance().getUserTokenInfo(touuid);
 
 		if(stUserTokenInfoNet!=null && stFromUserBaseInfoNetBuilder!=null){
-	        if(stFromUserBaseInfoNetBuilder.getELanguageType() == LANGUAGE_TYPE.LANGUAGE_TYPE_ENGLISH){
-	            //发送开局push
-	            APNManager.getInstance().pushAPNMsg(stUserTokenInfoNet.getUuid(),stUserTokenInfoNet.getStrAPNToken()
-	            		,"Game "+stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName()+" has ended.Please check your results.",1);  
-	    	}else{
-	            //发送开局push
-	            APNManager.getInstance().pushAPNMsg(stUserTokenInfoNet.getUuid(),stUserTokenInfoNet.getStrAPNToken()
-	            		,"您刚刚参加的牌局“"+stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName()+"”已结束，请查看战绩。",1);  
-	    	}
+			APNManager.getInstance().gameOverPush(touuid, stUserTokenInfoNet.getStrAPNToken(), stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(), 1);
 		}
 	}
 	
@@ -1982,15 +1973,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		UserTokenInfoNet stUserTokenInfoNet = UserManager.getInstance().getUserTokenInfo(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid());
 
         if(stUserTokenInfoNet!=null && stFromUserBaseInfoNetBuilder!=null){
-        	if(stFromUserBaseInfoNetBuilder.getELanguageType() == LANGUAGE_TYPE.LANGUAGE_TYPE_ENGLISH){
-	            //发送开局push
-	            APNManager.getInstance().pushAPNMsg(stUserTokenInfoNet.getUuid(),stUserTokenInfoNet.getStrAPNToken()
-	            		,stFromUserBaseInfoNetBuilder.getStrNick()+" request buyin at" + getStGameRoomInfo().getStGameRoomBaseInfo().getStrRoomName() + ".",1);  
-	    	}else{
-	            //发送开局push
-	            APNManager.getInstance().pushAPNMsg(touuid,stUserTokenInfoNet.getStrAPNToken()
-	            		,stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName()+stFromUserBaseInfoNetBuilder.getStrNick()+"请求买入，请返回牌局处理",1);    
-	    	} 
+        	APNManager.getInstance().buyinPush(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
+        			, stUserTokenInfoNet.getStrAPNToken()
+        			, stFromUserBaseInfoNetBuilder.getStrNick()
+        			, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName()
+        			, 1);
         }
 	}
 	
@@ -2001,15 +1988,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
         UserTokenInfoNet stUserTokenInfoNet = UserManager.getInstance().getUserTokenInfo(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid());
 
         if(stUserTokenInfoNet!=null && stFromUserBaseInfoNetBuilder!=null){
-        	if(stFromUserBaseInfoNetBuilder.getELanguageType() == LANGUAGE_TYPE.LANGUAGE_TYPE_ENGLISH){
-	            //发送开局push
-	            APNManager.getInstance().pushAPNMsg(stUserTokenInfoNet.getUuid(),stUserTokenInfoNet.getStrAPNToken()
-	            		,stFromUserBaseInfoNetBuilder.getStrNick()+" joined game " + getStGameRoomInfo().getStGameRoomBaseInfo().getStrRoomName() + ".",1);  
-	    	}else{
-	            //发送开局push
-	            APNManager.getInstance().pushAPNMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(),stUserTokenInfoNet.getStrAPNToken()
-	            		,stFromUserBaseInfoNetBuilder.getStrNick()+"刚刚加入了牌局“"+getStGameRoomInfo().getStGameRoomBaseInfo().getStrRoomName()+"”",1);   
-	    	} 
+        	APNManager.getInstance().enterGameRoomPush(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
+        			, stUserTokenInfoNet.getStrAPNToken()
+        			, stFromUserBaseInfoNetBuilder.getStrNick()
+        			, getStGameRoomInfo().getStGameRoomBaseInfo().getStrRoomName()
+        			, 1);
         }
 	}
 	
@@ -2020,15 +2003,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				UserBaseInfoNet.Builder stFromUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(stUserGameInfoNet.getStUserInfo().getUuid());	
 				UserTokenInfoNet stUserTokenInfoNet = UserManager.getInstance().getUserTokenInfo(stUserGameInfoNet.getStUserInfo().getUuid());
 				if(stFromUserBaseInfoNetBuilder!=null && stUserTokenInfoNet!=null){
-					if(stFromUserBaseInfoNetBuilder.getELanguageType() == LANGUAGE_TYPE.LANGUAGE_TYPE_ENGLISH){
-			            //发送开局push
-			            APNManager.getInstance().pushAPNMsg(stUserTokenInfoNet.getUuid(),stUserTokenInfoNet.getStrAPNToken()
-			            		,stFromUserBaseInfoNetBuilder.getStrNick()+" joined game " + getStGameRoomInfo().getStGameRoomBaseInfo().getStrRoomName() + ".",1);  
-			    	}else{
-			            //发送开局push
-			            APNManager.getInstance().pushAPNMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(),stUserTokenInfoNet.getStrAPNToken()
-			            		,"您参加的牌局“"+getStGameRoomInfo().getStGameRoomBaseInfo().getStrRoomName()+"”已经开始,请及时操作。",1);   
-			    	} 
+					APNManager.getInstance().StartGameRoomPush(stUserGameInfoNet.getStUserInfo().getUuid()
+							, stUserTokenInfoNet.getStrAPNToken()
+							, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName()
+							, 1);
 				}
 			}
 		}
@@ -2038,15 +2016,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				UserBaseInfoNet.Builder stFromUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(standUuid);	
 				UserTokenInfoNet stUserTokenInfoNet = UserManager.getInstance().getUserTokenInfo(standUuid);
 				if(stFromUserBaseInfoNetBuilder!=null && stUserTokenInfoNet!=null){
-					if(stFromUserBaseInfoNetBuilder.getELanguageType() == LANGUAGE_TYPE.LANGUAGE_TYPE_ENGLISH){
-			            //发送开局push
-			            APNManager.getInstance().pushAPNMsg(stUserTokenInfoNet.getUuid(),stUserTokenInfoNet.getStrAPNToken()
-			            		,stFromUserBaseInfoNetBuilder.getStrNick()+" joined game " + getStGameRoomInfo().getStGameRoomBaseInfo().getStrRoomName() + ".",1);  
-			    	}else{
-			            //发送开局push
-			            APNManager.getInstance().pushAPNMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(),stUserTokenInfoNet.getStrAPNToken()
-			            		,"您参加的牌局“"+getStGameRoomInfo().getStGameRoomBaseInfo().getStrRoomName()+"”已经开始,请及时操作。",1);   
-			    	} 
+					APNManager.getInstance().StartGameRoomPush(stFromUserBaseInfoNetBuilder.getUuid()
+							, stUserTokenInfoNet.getStrAPNToken()
+							, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName()
+							, 1);
 				}
 
 			}
@@ -2055,24 +2028,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	
 	void pushAppPushGameSeatEmpty(){
 		if(stGameRoomInfo.getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
-			String sMsg="";
 			long sb = stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds();
 			int ante = stGameRoomInfo.getStGameRoomBaseInfo().getIAnte();
 			float fHour =  (float)stGameRoomInfo.getStGameRoomBaseInfo().getLDuration()/(float)3600;
-			if(ante > 0){ 		
-    	            //发送开局push
-    	    		sMsg = getStGameRoomInfo().getStGameRoomBaseInfo().getStrRoomName()+"牌局，时长"+fHour+"小时，盲注"
-    	            +sb+"/"+(sb*2)+"("+ante+"),有空位了,快来参加吧。";    
-        	}else{
-    	            //发送开局push
-    	    		sMsg = getStGameRoomInfo().getStGameRoomBaseInfo().getStrRoomName()+"牌局，时长"+fHour+"小时，盲注"
-    	            +sb+"/"+(sb*2)+",有空位了,快去参加吧。";    
-    	    	
-        	}
-			
-			 APNManager.getInstance().pushClubGameEmptyAPNMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
+			 APNManager.getInstance().emptyGameRoomPush(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
 					 , stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
-	            	 , sMsg,1);   
+					 , stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName()
+					 , ""+fHour , sb, ante, 1);  
 		}
 	}
 

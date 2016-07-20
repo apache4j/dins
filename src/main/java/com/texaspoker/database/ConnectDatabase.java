@@ -34,7 +34,6 @@ import com.texaspoker.moment.TexasPoker.USER_GAME_ROLE;
 import com.texaspoker.moment.TexasPoker.USER_GAME_STATE;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
 import com.texaspoker.moment.TexasPokerCommon.ID_TYPE;
-import com.texaspoker.moment.TexasPokerCommon.LANGUAGE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.SNG_ROOM_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
 import com.texaspoker.moment.TexasPokerCommon.UserTokenInfoNet;
@@ -346,15 +345,7 @@ public class ConnectDatabase {
         UserTokenInfoNet stUserTokenInfoNet = UserManager.getInstance().getUserTokenInfo(touuid);
 
         if(stUserTokenInfoNet!=null && stFromUserBaseInfoNetBuilder!=null){
-        	if(stFromUserBaseInfoNetBuilder.getELanguageType() == LANGUAGE_TYPE.LANGUAGE_TYPE_ENGLISH){
-                //发送开局push
-                APNManager.getInstance().pushAPNMsg(stUserTokenInfoNet.getUuid(),stUserTokenInfoNet.getStrAPNToken()
-                		,"Game "+sRoomName+" has ended.Please check your results.",1);  
-        	}else{
-                //发送开局push
-                APNManager.getInstance().pushAPNMsg(stUserTokenInfoNet.getUuid(),stUserTokenInfoNet.getStrAPNToken()
-                		,"您刚刚参加的牌局“"+sRoomName+"”已结束，请查看战绩。",1);  
-        	}
+        	APNManager.getInstance().gameOverPush(touuid, stUserTokenInfoNet.getStrAPNToken(), sRoomName, 1);
         }
 	}
     //用来查看用户的用户名和密码是否匹配

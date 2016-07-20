@@ -230,8 +230,8 @@ public class GameRoomManager  {
 									UserBaseInfoNet stUserBaseInfo = userList.get(i);
 									if (stUserBaseInfo.getUuid() != uuid) {
 										// 发送APP Push
-										pushAppCreateMsg(stUserBaseInfo.getUuid(),stClubInfoBuilder.getStClubBaseInfo().getSClubName(),
-												gameRoomBaseInfoBuilder.getStrRoomName()
+										pushAppCreateMsg(stUserBaseInfo.getUuid(),stClubInfoBuilder.getStClubBaseInfo().getLClubID()
+												,gameRoomBaseInfoBuilder.getStrRoomName()
 												,gameRoomBaseInfoBuilder.getLDuration()
 												,gameRoomBaseInfoBuilder.getLSmallBlinds()
 												,gameRoomBaseInfoBuilder.getIAnte());
@@ -400,10 +400,10 @@ public class GameRoomManager  {
 										UserBaseInfoNet stUserBaseInfo = userList.get(i);
 										if (stUserBaseInfo.getUuid() != uuid) {
 											// 发送APP Push
-											pushAppCreateMsg(stUserBaseInfo.getUuid(),stClubInfoBuilder.getStClubBaseInfo().getSClubName(),
-													gameRoomBaseInfoBuilder.getStrRoomName(),gameRoomBaseInfoBuilder.getLDuration()
-													,gameRoomBaseInfoBuilder.getLSmallBlinds(),
-													gameRoomBaseInfoBuilder.getIAnte());
+											pushAppCreateMsg(stUserBaseInfo.getUuid(),stClubInfoBuilder.getStClubBaseInfo().getLClubID()
+													,gameRoomBaseInfoBuilder.getStrRoomName(),gameRoomBaseInfoBuilder.getLDuration()
+													,gameRoomBaseInfoBuilder.getLSmallBlinds()
+													,gameRoomBaseInfoBuilder.getIAnte());
 										}
 									}
 								}
@@ -453,43 +453,10 @@ public class GameRoomManager  {
 	}
 
 	
-	public void pushAppCreateMsg(long uuid,String sClubName,String sGameName,long lDuration,long sb,long ante){
+	public void pushAppCreateMsg(long uuid,long lClubID,String sGameName,long lDuration,long sb,int ante){
 		//获取push相关信息
-        UserTokenInfoNet stUserTokenInfoNet = UserManager.getInstance().getUserTokenInfo(uuid);
-
-        UserBaseInfoNet.Builder stFromUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
-        if(stUserTokenInfoNet!=null && sClubName!=null){
-        	
-        	if(ante>0){
-        		if(stFromUserBaseInfoNetBuilder.getELanguageType() == LANGUAGE_TYPE.LANGUAGE_TYPE_ENGLISH){
-                	int fHour =  (int)lDuration/3600;
-                	int fMin =  (int)((lDuration%3600)/60);
-    	            //发送开局push
-    	            APNManager.getInstance().pushAPNMsg(stUserTokenInfoNet.getUuid(),stUserTokenInfoNet.getStrAPNToken()
-    	            		,"Club"+sClubName+" just created a game "+sGameName+", game length "+fHour+":"+fMin+", Blinds "+sb+"/"+(sb*2)+"("+ante+"). Let join the game!",1);  
-    	    	}else{
-    	    		float fHour =  (float)lDuration/(float)3600;
-    	            //发送开局push
-    	            APNManager.getInstance().pushAPNMsg(uuid,stUserTokenInfoNet.getStrAPNToken()
-    	            		,sClubName+"俱乐部刚建了新牌局“"+sGameName+"”，时长"+fHour+"小时，盲注"+sb+"/"+(sb*2)+"("+ante+")，快去参加吧。",1);    
-    	    	} 
-        	}else{
-        		
-        		if(stFromUserBaseInfoNetBuilder.getELanguageType() == LANGUAGE_TYPE.LANGUAGE_TYPE_ENGLISH){
-                	int fHour =  (int)lDuration/3600;
-                	int fMin =  (int)((lDuration%3600)/60);
-    	            //发送开局push
-    	            APNManager.getInstance().pushAPNMsg(stUserTokenInfoNet.getUuid(),stUserTokenInfoNet.getStrAPNToken()
-    	            		,"Club"+sClubName+" just created a game "+sGameName+", game length "+fHour+":"+fMin+", Blinds "+sb+"/"+(sb*2)+". Let join the game!",1);  
-    	    	}else{
-    	    		float fHour =  (float)lDuration/(float)3600;
-    	            //发送开局push
-    	            APNManager.getInstance().pushAPNMsg(uuid,stUserTokenInfoNet.getStrAPNToken()
-    	            		,sClubName+"俱乐部刚建了新牌局“"+sGameName+"”，时长"+fHour+"小时，盲注"+sb+"/"+(sb*2)+"，快去参加吧。",1);    
-    	    	} 
-        	}
-            
-        }
+    	float fHour =  (float)lDuration/(float)3600;
+    	APNManager.getInstance().createGameRoomPush(uuid, lClubID, sGameName, ""+fHour, sb, ante, 1);  
 	}
 	
 	void pushGametRoomUserMsgs(UserGameInfoNet stFromUserGamenfo/* 邀请人 */,

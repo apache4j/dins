@@ -1,73 +1,51 @@
 package com.texaspoker.apns;
 
-import java.util.ArrayList;
-import com.google.protobuf.RpcCallback;
-import com.texaspoker.configuration.ConfigaturationManager;
-import com.texaspoker.logger.Log;
-import com.texaspoker.logger.LoggerService;
-import com.texaspoker.moment.TexasPokerAPNService.APNClubGameEmptyRequest;
-import com.texaspoker.moment.TexasPokerAPNService.APNClubGameEmptyResponse;
-import com.texaspoker.moment.TexasPokerAPNService.APNMsgResponse;
-import com.texaspoker.moment.TexasPokerAPNService.APNMsgService;
-import com.texaspoker.moment.TexasPokerAPNService;
-import com.texaspoker.moment.TexasPokerAPNService.APNMsgRequest;
-import com.texaspoker.rpc.client.RpcChannel;
-import com.texaspoker.rpc.client.RpcClient;
-import com.texaspoker.rpc.client.RpcController;
+import java.io.File;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
+import com.alibaba.dubbo.rpc.protocol.protobuf.ProtobufController;
+import com.texaspoker.moment.TexasPokerAPNDubbo.BuyinPushRequest;
+import com.texaspoker.moment.TexasPokerAPNDubbo.CreateGameRoomPushRequest;
+import com.texaspoker.moment.TexasPokerAPNDubbo.EmptyGameRoomPushRequest;
+import com.texaspoker.moment.TexasPokerAPNDubbo.EnterGameRoomPushRequest;
+import com.texaspoker.moment.TexasPokerAPNDubbo.APNService;
+import com.texaspoker.moment.TexasPokerAPNDubbo.GameOverPushRequest;
+import com.texaspoker.moment.TexasPokerAPNDubbo.StartGameRoomPushRequest;
 
 public class APNManager  {
+	private static APNManager instance;
 
 	//RPC相关变量
-    private RpcClient client;
-    private RpcChannel channel;
-    private String host = "";
-    private int port = 0;
-    private static RpcController controller = new RpcController();
-    APNMsgService.Stub apnService ;
-    RpcCallback<APNMsgResponse> done;
-    RpcCallback<APNClubGameEmptyResponse> stClubDone;
-    
-	private static APNManager instance;
-    static LoggerService mLog = Log.getLoggerService(APNManager.class.getName()); 
-    ArrayList<APNData> vAPNDatas = new ArrayList<APNData>();
-    ArrayList<APNData> vTempAPNDatas = new ArrayList<APNData>();
+	private APNService.BlockingInterface stAPNService;
+	
+	private ProtobufController pbController;
     
 	//私有的构造函数
 	private APNManager (){
-	    host = ConfigaturationManager.sApnServiceHost;
-	    port = ConfigaturationManager.iApnServicePost;
-		
-		client = new RpcClient();
-	    channel = new RpcChannel(client);
-	    try {
-	      channel.connect(host, port);
-	    } catch (Exception e) {
-	      return;
-	    }
+		File directory = new File("");//设定为当前文件夹
+	    String dirName = directory.getAbsolutePath();
 	    
-	   	 // Make the (asynchronous) RPC request
-	   	 apnService = TexasPokerAPNService.APNMsgService.newStub(channel);
-	   	 
-		 // Create the response
-	  	 done = new RpcCallback<APNMsgResponse>() {
-	  	 public void run(APNMsgResponse response) {
-	  		 if (response != null) {
-//	  		 System.out.println("asyn echo response:" + response.getIErrorCode());
-	  		 } else {
-//	  		 System.out.println("asyn echo response null" + controller.errorText());
-	  		 }
-	  	 }
-	  	 };
-	  	 
-	  	stClubDone = new RpcCallback<APNClubGameEmptyResponse>() {
-		  	 public void run(APNClubGameEmptyResponse response) {
-		  		 if (response != null) {
-//		  		 System.out.println("asyn echo response:" + response.getIErrorCode());
-		  		 } else {
-//		  		 System.out.println("asyn echo response null" + controller.errorText());
-		  		 }
-		  	 }
-		  	 };
+	    //获取配置文件
+	    String fileName = "/" + dirName + "/src/res/consumer.xml";
+	    
+	    System.out.println("APNManager fileName : " + fileName);
+	    
+	    FileSystemXmlApplicationContext context = new FileSystemXmlApplicationContext(new String[] {fileName});
+	    context.start();
+	    
+	    stAPNService = (APNService.BlockingInterface)context.getBean("apnService");
+	        if(stAPNService!=null){
+	        	System.out.println("stPokerHistoryService not null");
+	        }else{
+	        	System.out.println("stPokerHistoryService null");
+	        }
+	        
+	        pbController = (ProtobufController)context.getBean("pbController");
+	      
+	      if(pbController!=null){
+	      	System.out.println("pbController not null");
+	      }else{
+	      	System.out.println("pbController null");
+	      }
 	}
 	
 	//单例模式
@@ -78,32 +56,102 @@ public class APNManager  {
 			}
 		}  
 		return instance;  
-	}  
+	} 
 
-	public void pushAPNMsg(long uuid,String strToken,String msg,int badge){
+	public void enterGameRoomPush(long uuid,String strToken,String strNick,String strGameRoomName,int badge){
 		try{
-			APNMsgRequest.Builder stAPNMsgRequestBuilder = APNMsgRequest.newBuilder();
-			stAPNMsgRequestBuilder.setUuid(uuid);
-			stAPNMsgRequestBuilder.setSMsg(msg);
-			stAPNMsgRequestBuilder.setSToken(strToken);
-			stAPNMsgRequestBuilder.setIBadge(""+badge);
+			
+			EnterGameRoomPushRequest.Builder stEnterGameRoomPushRequestBuilder = EnterGameRoomPushRequest.newBuilder();
+			stEnterGameRoomPushRequestBuilder.setUuid(uuid);
+			stEnterGameRoomPushRequestBuilder.setSToken(strToken);
+			stEnterGameRoomPushRequestBuilder.setStrNick(strNick);
+			stEnterGameRoomPushRequestBuilder.setIBadge(""+badge);
+			stEnterGameRoomPushRequestBuilder.setStrRoomName(strGameRoomName);
 
-			apnService.pushFriendMsg(controller, stAPNMsgRequestBuilder.build(), done);
+			stAPNService.enterGameRoomPush(pbController, stEnterGameRoomPushRequestBuilder.build());
 
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
 	
-	public void pushClubGameEmptyAPNMsg(long uuid,long lClubID,String msg,int badge){
+	public void buyinPush(long uuid,String strToken,String strNick,String strGameRoomName,int badge){
 		try{
-			APNClubGameEmptyRequest.Builder stAPNClubGameEmptyRequestBuilder = APNClubGameEmptyRequest.newBuilder();
-			stAPNClubGameEmptyRequestBuilder.setUuid(uuid);
-			stAPNClubGameEmptyRequestBuilder.setSMsg(msg);
-			stAPNClubGameEmptyRequestBuilder.setLClubID(lClubID);
-			stAPNClubGameEmptyRequestBuilder.setIBadge(""+badge);
+			
+			BuyinPushRequest.Builder stBuyinPushRequestBuilder = BuyinPushRequest.newBuilder();
+			stBuyinPushRequestBuilder.setUuid(uuid);
+			stBuyinPushRequestBuilder.setSToken(strToken);
+			stBuyinPushRequestBuilder.setStrNick(strNick);
+			stBuyinPushRequestBuilder.setIBadge(""+badge);
+			stBuyinPushRequestBuilder.setStrRoomName(strGameRoomName);
 
-			apnService.pushAPNClubGameEmpty(controller, stAPNClubGameEmptyRequestBuilder.build(), stClubDone);
+			stAPNService.buyinPush(pbController, stBuyinPushRequestBuilder.build());
+
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	public void StartGameRoomPush(long uuid,String strToken,String strGameRoomName,int badge){
+		try{
+			
+			StartGameRoomPushRequest.Builder stStartGameRoomPushRequestBuilder = StartGameRoomPushRequest.newBuilder();
+			stStartGameRoomPushRequestBuilder.setUuid(uuid);
+			stStartGameRoomPushRequestBuilder.setSToken(strToken);
+			stStartGameRoomPushRequestBuilder.setSGameRoomName(strGameRoomName);
+
+			stAPNService.startGameRoomPush(pbController, stStartGameRoomPushRequestBuilder.build());
+
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	public void gameOverPush(long uuid,String strToken,String strGameRoomName,int badge){
+		try{
+			
+			System.out.println("gameOverPushgameOverPushgameOverPush!!!!!!!!!!~~~~~~~~~~~~~~~~~~~~");
+			GameOverPushRequest.Builder stGameOverPushRequestBuilder = GameOverPushRequest.newBuilder();
+			stGameOverPushRequestBuilder.setUuid(uuid);
+			stGameOverPushRequestBuilder.setSToken(strToken);
+			stGameOverPushRequestBuilder.setIBadge(""+badge);
+			stGameOverPushRequestBuilder.setStrRoomName(strGameRoomName);
+
+			stAPNService.gameOverPush(pbController, stGameOverPushRequestBuilder.build());
+
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	public void createGameRoomPush(long uuid,long lClubID,String strGameRoomName,String sHour,long lSmallBlinds,int iAnte,int badge){
+		try{
+			
+			CreateGameRoomPushRequest.Builder stCreateGameRoomPushRequestBuilder = CreateGameRoomPushRequest.newBuilder();
+			stCreateGameRoomPushRequestBuilder.setUuid(uuid);
+			stCreateGameRoomPushRequestBuilder.setLClubID(lClubID);
+			stCreateGameRoomPushRequestBuilder.setSHour(sHour);
+			stCreateGameRoomPushRequestBuilder.setLSmallBlind(lSmallBlinds);
+			stCreateGameRoomPushRequestBuilder.setIAnte(iAnte);
+
+			stAPNService.createGameRoomPush(pbController, stCreateGameRoomPushRequestBuilder.build());
+
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	public void emptyGameRoomPush(long uuid,long lClubID,String strGameRoomName,String sHour,long lSmallBlinds,int iAnte,int badge){
+		try{
+			
+			EmptyGameRoomPushRequest.Builder stEmptyGameRoomPushRequestBuilder = EmptyGameRoomPushRequest.newBuilder();
+			stEmptyGameRoomPushRequestBuilder.setUuid(uuid);
+			stEmptyGameRoomPushRequestBuilder.setLClubID(lClubID);
+			stEmptyGameRoomPushRequestBuilder.setSHour(sHour);
+			stEmptyGameRoomPushRequestBuilder.setLSmallBlind(lSmallBlinds);
+			stEmptyGameRoomPushRequestBuilder.setIAnte(iAnte);
+
+			stAPNService.emptyGameRoomPush(pbController, stEmptyGameRoomPushRequestBuilder.build());
 
 		}catch(Exception e){
 			e.printStackTrace();
