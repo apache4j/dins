@@ -17,9 +17,7 @@ public class TexaspokerInsuranceGameService {
 	     
 	     ConfigaturationManager.getInstance();
 	     UserManager.getInstance();
-	     QuickGameRoomManager.getInstance();
-	     GameRoomManager.getInstance();
-	     
+
 	     server.config(host, port);
 
 	     server.registerService(TexasPokerGameService.GameService.newReflectiveService(new GameServiceImpl()));
@@ -28,5 +26,9 @@ public class TexaspokerInsuranceGameService {
 
 	     server.run();
 	     System.out.println("server start... ");
+	     
+	     QuickGameRoomManager.getInstance();
+	     GameRoomManager.getInstance();
+	     
 	  }
 	}
