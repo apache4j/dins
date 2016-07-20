@@ -49,6 +49,7 @@ public class InsuranceManager {
   public void onGameAction(String tableLog) {
     logger.debug(tableLog);
     InsuranceLog.onLogMessage(tableLog);
+    System.out.println("onGameActiononGameAction : " + tableLog);
   }
 
   // 内部使用，查询是否需要购买保险
@@ -283,6 +284,7 @@ public class InsuranceManager {
 
   // 外部使用，查询是否需要购买保险
   public InsuranceInfo checkInsurance(long roomId, long handId, int roundStatus) {
+	System.out.println("checkInsurancecheckInsurance2");
     // 检查手数信息
     HandInfo handInfo = HandsManager.getInstance().getHandInfo(roomId);
     if (handInfo == null) {
