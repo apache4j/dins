@@ -10,6 +10,8 @@ package com.texaspoker.dubbo.game.insurance;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import com.texaspoker.moment.TexasPoker;
 import com.texaspoker.moment.TexasPoker.BuyInsuranceInfo;
 import com.texaspoker.moment.TexasPoker.GameRoomInfo;
@@ -29,6 +31,8 @@ import com.texaspoker.moment.room.GameRoomManager;
  */
 public class InsuranceApi {
 
+  private static Logger logger = Logger.getLogger(InsuranceApi.class);
+
   /*
    * 保险方API接口，由保险提供实现
    */
@@ -43,9 +47,6 @@ public class InsuranceApi {
       TexasPoker.GAME_ROOM_GAME_STATE eRoundState) {
     InsuranceInfo insuranceInfo =
         InsuranceManager.getInstance().checkInsurance(lGameRoomID, lHandID, getRoundStatus(eRoundState));
-    if(insuranceInfo!=null){
-    	insuranceInfo.printOutsInfo();
-    }
     return getApiInfoFromInsuranceInfo(insuranceInfo);
   }
 
@@ -105,7 +106,6 @@ public class InsuranceApi {
   // 保险购买行为超时接口
   public static void gotoNextStep(long lGameRoomID) {
 	  GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
-	  
 	  if(stGameRoomDetailInfo!=null){
 		  stGameRoomDetailInfo.gotoNextStep();
 	  }
@@ -197,6 +197,10 @@ public class InsuranceApi {
       long lTotalBuys = 0;
       long lTotalFold = 0;
       for (OutsInfo outs : userOuts.getValue()) {
+        if (outs.winner != userId) {
+          logger.error("outs info errors,outs winner:" + outs.winner + ",userId:" + userId);
+          continue;
+        }
         TexasPoker.InsurancePotInfo.Builder potInfo = TexasPoker.InsurancePotInfo.newBuilder();
         potInfo.setLPotID(outs.potId);
         potInfo.setLPotStacks(outs.pots);
@@ -206,6 +210,8 @@ public class InsuranceApi {
         potInfo.setIOdds((int) outs.odds * 100);
         potInfo.setLTotalPotStacks(outs.pay_pots);
         potInfo.setLNoLosses(outs.pay_loss);
+        potInfo.setLMinStacks(outs.pay_min);
+        potInfo.setLMaxStacks(outs.pay_max);
         potInfo.setLBetStacks(outs.buy);
         potInfo.setLGetStacks(outs.result);
         userInfo.addVInsurancePotInfos(potInfo);
