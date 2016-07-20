@@ -93,13 +93,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums());
 				}
 				
+				System.out.println("startGamestartGamestartGamestartGamestartGame 1: " + stGameRoomInfo.getStGameRoomBaseInfo().getBStarted());
 				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 				GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = stGameRoomInfo.getStGameRoomBaseInfo().toBuilder();
+				System.out.println("startGamestartGamestartGamestartGamestartGame 2.");
 				stGameRoomBaseInfoBuilder.setBStarted(1);
 				stGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
 				stGameRoomInfo = stGameRoomInfoBuilder.build();
 				iGameRoomUserMaxNums = stGameRoomBaseInfoBuilder.getIGameRoomUserMaxNums();
-				System.out.println("startGamestartGamestartGamestartGamestartGame : " + stGameRoomInfo.getStGameRoomBaseInfo().getBStarted());
+				System.out.println("startGamestartGamestartGamestartGamestartGame 3: " + stGameRoomInfo.getStGameRoomBaseInfo().getBStarted());
 				pushAppPushStartGame();
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 			}else{
