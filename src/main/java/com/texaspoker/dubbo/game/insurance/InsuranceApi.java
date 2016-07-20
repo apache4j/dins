@@ -41,6 +41,7 @@ public class InsuranceApi {
   // allin状态下开始计算保险接口
   public static TexasPoker.InsuranceInfo checkInsurance(long lGameRoomID, long lHandID,
       TexasPoker.GAME_ROOM_GAME_STATE eRoundState) {
+	  System.out.println("checkInsurancecheckInsurancecheckInsurance begin. ");
     InsuranceInfo insuranceInfo =
         InsuranceManager.getInstance().checkInsurance(lGameRoomID, lHandID, getRoundStatus(eRoundState));
     System.out.println("checkInsurancecheckInsurancecheckInsurance : " + insuranceInfo);
