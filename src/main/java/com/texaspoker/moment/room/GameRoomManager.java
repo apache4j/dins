@@ -28,9 +28,7 @@ import com.texaspoker.moment.TexasPokerCommon.CREATE_ROOM_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.GAME_ROOM_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.ID_TYPE;
-import com.texaspoker.moment.TexasPokerCommon.LANGUAGE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
-import com.texaspoker.moment.TexasPokerCommon.UserTokenInfoNet;
 import com.texaspoker.moment.TexasPokerCommon.VIP_TYPE;
 import com.texaspoker.moment.TexasPokerHttpClub.ClubInfo;
 import com.texaspoker.moment.TexasPokerHttpClub.ClubUserInfo;
@@ -225,20 +223,14 @@ public class GameRoomManager  {
 						if(gameRoomBaseInfoBuilder.getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
 							ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(gameRoomBaseInfoBuilder.getLChatRoomID());
 							if(stClubInfoBuilder!=null){
-								// 如果是俱乐部开局，则对俱乐部里的每个人进行push操作
-								for (int i = 0; i < userList.size(); i++) {
-									UserBaseInfoNet stUserBaseInfo = userList.get(i);
-									if (stUserBaseInfo.getUuid() != uuid) {
-										// 发送APP Push
-										pushAppCreateMsg(stUserBaseInfo.getUuid(),stClubInfoBuilder.getStClubBaseInfo().getLClubID()
-												,gameRoomBaseInfoBuilder.getStrRoomName()
-												,gameRoomBaseInfoBuilder.getLDuration()
-												,gameRoomBaseInfoBuilder.getLSmallBlinds()
-												,gameRoomBaseInfoBuilder.getIAnte());
-									}
-								}
-							}
-						}				
+								// 发送APP Push
+								pushAppCreateMsg(0,stClubInfoBuilder.getStClubBaseInfo().getLClubID()
+										,gameRoomBaseInfoBuilder.getStrRoomName()
+										,gameRoomBaseInfoBuilder.getLDuration()
+										,gameRoomBaseInfoBuilder.getLSmallBlinds()
+										,gameRoomBaseInfoBuilder.getIAnte());
+							}	
+						}			
 						
 						TexasPoker.UserGameInfoNet.Builder userSelfGameInfoBuilder = TexasPoker.UserGameInfoNet.newBuilder();
 						
