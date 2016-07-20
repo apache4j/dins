@@ -1,5 +1,6 @@
 package com.texaspoker.moment.service;
 
+import com.texaspoker.apns.APNManager;
 import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.moment.TexasPokerGameService;
 import com.texaspoker.moment.room.GameRoomManager;
@@ -16,6 +17,7 @@ public class TexaspokerInsuranceGameService {
 	     int port = 9162;
 	     
 	     ConfigaturationManager.getInstance();
+	     APNManager.getInstance();
 	     UserManager.getInstance();
 
 	     server.config(host, port);
