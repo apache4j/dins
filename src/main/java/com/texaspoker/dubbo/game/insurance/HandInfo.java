@@ -195,7 +195,7 @@ public class HandInfo {
     }
     int handState = this.gameStatus;
     for (int roundState = HandUtils.PRE_FLOP; roundState <= handState; roundState++) {
-      HandRoundInfo roundInfo = roundInfos.get(gameStatus);
+      HandRoundInfo roundInfo = roundInfos.get(roundState);
       if (roundInfo == null) {
         return;
       }
