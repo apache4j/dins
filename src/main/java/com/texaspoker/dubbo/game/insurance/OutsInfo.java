@@ -78,7 +78,7 @@ public class OutsInfo {
     // 找出最大购买值
     long pot_max = getBuyPrice(potMaxRaito * pots);
     long pot_odds = getBuyPrice(pots / odds);
-    pay_max = pot_max > pot_odds ? pot_max : pot_odds;
+    pay_max = pot_max > pot_odds ? pot_odds : pot_max;
     // 找出最小购买值
     pay_min = getBuyPrice(prebuys / odds);
   }

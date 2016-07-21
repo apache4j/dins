@@ -15,8 +15,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.apache.log4j.Logger;
 
-import com.texaspoker.logger.NormalLogService;
-
 /**
  * 类名称:InsuranceManager
  * 类描述:
@@ -49,9 +47,8 @@ public class InsuranceManager {
 
   // 解析游戏数据
   public void onGameAction(String tableLog) {
-	  NormalLogService.getInstance().error("tableLogtableLog : " + tableLog);
-	  logger.debug(tableLog);
-	  InsuranceLog.onLogMessage(tableLog);
+    logger.debug(tableLog);
+    InsuranceLog.onLogMessage(tableLog);
   }
 
   // 内部使用，查询是否需要购买保险
@@ -144,7 +141,11 @@ public class InsuranceManager {
       }
     }
     // 返回提示保险信息
-    return insuranceInfo;
+    if (insuranceInfo.isOutsEmpty()) {
+      return null;
+    } else {
+      return insuranceInfo;
+    }
   }
 
   // 内部使用

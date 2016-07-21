@@ -8,7 +8,6 @@
 package com.texaspoker.dubbo.game.insurance;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -77,9 +76,8 @@ public class InsuranceInfo {
   }
 
   // 设置边池信息
-  public void setPotInfo(long potId, long potStacks, Collection<Long> users) {
-    // pot_stacks.put(potId, potStacks);
-    // pot_users.put(potId, new HashSet<>(users));
+  public boolean isOutsEmpty() {
+    return round_pot_user_outs.isEmpty();
   }
 
   // 用户保险记录操作

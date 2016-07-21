@@ -109,6 +109,7 @@ public class InsuranceApi {
 	  if(stGameRoomDetailInfo!=null){
 		  stGameRoomDetailInfo.gotoNextStep();
 	  }
+
   }
 
   // billserver保险购买接口
@@ -183,12 +184,15 @@ public class InsuranceApi {
   }
 
   // 结构体转换函数
-  private static TexasPoker.InsuranceInfo getApiInfoFromInsuranceInfo(InsuranceInfo insInfo) {
+  public static TexasPoker.InsuranceInfo getApiInfoFromInsuranceInfo(InsuranceInfo insInfo) {
     if (insInfo == null) {
       logger.error("no insinfo!!!");
       return null;
     }
-    System.out.println("stGameRoomDetailInfo1");
+    if (insInfo.round_user_outs.isEmpty()) {
+      logger.error("no user outs!!!");
+      return null;
+    }
     TexasPoker.InsuranceInfo.Builder apiInfo = TexasPoker.InsuranceInfo.newBuilder();
     for (Map.Entry<Long, List<OutsInfo>> userOuts : insInfo.round_user_outs.entrySet()) {
       Long userId = userOuts.getKey();
@@ -257,7 +261,6 @@ public class InsuranceApi {
       // 加入用户保险信息队列
       apiInfo.addVInsuranceUserInfos(userInfo);
     }
-    System.out.println("stGameRoomDetailInfo2");
     return apiInfo.build();
   }
 }
