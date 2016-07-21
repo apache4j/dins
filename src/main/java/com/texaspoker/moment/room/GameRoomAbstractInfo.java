@@ -608,7 +608,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			if(stGameRoomInfoBuilder.getEInsuranceStatus() == INSURANCE_STATUS.INSURANCE_STATUS_NO){
 				stInsuranceInfo = InsuranceApi.checkInsurance(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),stGameRoomInfo.getLGameHandID(),GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop);
 			
-				System.out.println("checkGotoTurnStatus 3 : " + stInsuranceInfo);
+//				System.out.println("checkGotoTurnStatus 3 : " + stInsuranceInfo);
 
 				if(stInsuranceInfo != null){
 					//进入保险模式
@@ -619,7 +619,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					//记录cent需要的最后一个下牌的玩家
 					stGameRoomInfo = stGameRoomInfoBuilder.build();		
 					
-					System.out.println("checkGotoTurnStatus 4 : " + stGameRoomInfo);
+//					System.out.println("checkGotoTurnStatus 4 : " + stGameRoomInfo);
 				}else{
 					gotoTurnStatus(uuid,false);
 				}

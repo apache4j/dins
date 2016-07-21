@@ -47,8 +47,9 @@ public class InsuranceManager {
 
   // 解析游戏数据
   public void onGameAction(String tableLog) {
-    logger.debug(tableLog);
-    InsuranceLog.onLogMessage(tableLog);
+	  System.out.println("tableLogtableLog : " + tableLog);
+	  logger.debug(tableLog);
+	  InsuranceLog.onLogMessage(tableLog);
   }
 
   // 内部使用，查询是否需要购买保险
