@@ -14,6 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.Logger;
+
 import com.texaspoker.dubbo.utils.timer.TimeoutListener;
 import com.texaspoker.dubbo.utils.timer.TimeoutMap;
 
@@ -26,6 +28,8 @@ import com.texaspoker.dubbo.utils.timer.TimeoutMap;
  * 修改备注:
  */
 public class InsuranceTimer {
+
+  private static Logger logger = Logger.getLogger(InsuranceTimer.class);
 
   public static final int INSURANCE_OPERATION_TIMEOUT_SECONDS = 30;
   public static final int INSURANCE_OPERATION_DELAY_SECONDS = 10;
@@ -53,12 +57,14 @@ public class InsuranceTimer {
 
   // 超时处理响应，这个牌桌保险时间超时，需要进行后续操作
   public void InsuranceTimeoutHandler(Long roomId) {
+    logger.debug("roomId:" + roomId + ",has been timeout");
     // API接口，通知这个房间保险超时
     InsuranceApi.gotoNextStep(roomId);
   }
 
   // 清空房间的超时记录
   public void clearRoomTimeout(long roomId) {
+    logger.debug("roomId" + roomId + ",clean timeout");
     room_timer.remove(roomId);
   }
 
@@ -80,16 +86,19 @@ public class InsuranceTimer {
     }
     // 增加这个用户的边池超时时间
     timeInfo.potIds.add(potId);
+    logger.debug("roomId" + roomId + ",uuid:" + uuid + ",set timeout");
   }
 
   // 玩家购买延时
   public void addUserTimeout(long roomId, long uuid) {
     ConcurrentMap<Long, InsuranceTimeInfo> userTimes = room_timer.get(roomId);
     if (userTimes == null) {
+      logger.error("roomId" + roomId + ",no room info");
       return;
     }
     InsuranceTimeInfo timeInfo = userTimes.get(uuid);
     if (timeInfo == null) {
+      logger.debug("roomId" + roomId + ",uuid:" + uuid + ",no user info");
       return;
     }
     // 增加这一个用户的超时时间
@@ -108,6 +117,7 @@ public class InsuranceTimer {
     long oldTimeSpan = room_timer.getTimeout(roomId);
     // 是否超时时间延长了
     if (newTimeSpan > oldTimeSpan) {
+      logger.debug("roomId" + roomId + ",uuid:" + uuid + ",add timeout");
       room_timer.setTimeout(roomId, newTimeSpan, TimeUnit.MILLISECONDS);
     }
     // 返回这个用户的新延时总时长，单位s
@@ -129,6 +139,7 @@ public class InsuranceTimer {
     // 检查是否这个玩家的所有边池超时都清空了
     if (!timeInfo.potIds.isEmpty()) {
       // 边池超时并没有完全结束，所有用户的超时不变，牌局超时不变
+      logger.debug("roomId" + roomId + ",uuid:" + uuid + ",remove no timeout");
       return;
     }
     // 所以边池已经清空，这次去除这个玩家时间信息
@@ -139,6 +150,7 @@ public class InsuranceTimer {
       clearRoomTimeout(roomId);
       // 通知游戏超时结束
       InsuranceTimeoutHandler(roomId);
+      logger.debug("roomId" + roomId + ",uuid:" + uuid + ",start room timeout");
       return;
     }
     // 重新计算超时时间，遍历所有玩家的超时时间，找出剩下最大的那一个
@@ -156,12 +168,14 @@ public class InsuranceTimer {
     // 是否超时时间缩短了
     if (newTimeSpan < oldTimeSpan) {
       room_timer.setTimeout(roomId, newTimeSpan, TimeUnit.MILLISECONDS);
+      logger.debug("roomId" + roomId + ",uuid:" + uuid + ",sub timeout");
     }
   }
 
   public InsuranceTimeInfo getUserTimeout(long roomId, long uuid) {
     ConcurrentMap<Long, InsuranceTimeInfo> userTimes = room_timer.get(roomId);
     if (userTimes == null) {
+      logger.error("roomId:" + roomId + ",uuid:" + uuid + ",no timeout info!");
       return null;
     }
     return userTimes.get(uuid);

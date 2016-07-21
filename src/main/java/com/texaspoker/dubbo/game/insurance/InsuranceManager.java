@@ -135,7 +135,7 @@ public class InsuranceManager {
         // 计算出这个玩家outs下的保险信息
         outsInfo.setPayInfo(insuranceInfo.status, potId, allin_pots, preBuys, potBets);
         // 保存这个玩家的保险信息
-        insuranceInfo.setUserOuts(allin_bets, outsInfo.winner, outsInfo);
+        insuranceInfo.setUserOuts(potId, outsInfo.winner, outsInfo);
         // 设置这个玩家的购买超时
         insurance_timer.setUserTimeout(roomId, outsInfo.winner, potId);
       }

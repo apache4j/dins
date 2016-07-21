@@ -175,7 +175,7 @@ public class InsuranceApi {
           gameBuilder.setVUserGameInfos(i, userGameInfo);
         } else {
           // 不应该来这里
-          // error log
+          logger.fatal("roomId:" + insuranceInfo.roomId + ",uuid:" + uuid + ",remains errors:" + remains);
         }
       }
     }
@@ -185,8 +185,10 @@ public class InsuranceApi {
   // 结构体转换函数
   private static TexasPoker.InsuranceInfo getApiInfoFromInsuranceInfo(InsuranceInfo insInfo) {
     if (insInfo == null) {
+      logger.error("no insinfo!!!");
       return null;
     }
+    System.out.println("stGameRoomDetailInfo1");
     TexasPoker.InsuranceInfo.Builder apiInfo = TexasPoker.InsuranceInfo.newBuilder();
     for (Map.Entry<Long, List<OutsInfo>> userOuts : insInfo.round_user_outs.entrySet()) {
       Long userId = userOuts.getKey();
@@ -245,14 +247,17 @@ public class InsuranceApi {
       }
       // 超时
       InsuranceTimer.InsuranceTimeInfo timeInfo = InsuranceManager.getInstance().getUserTimeout(insInfo.roomId, userId);
-      userInfo.setLInsuranceStartTime(timeInfo.startTime);
-      userInfo.setLInsuranceActDuration(timeInfo.endTime - timeInfo.startTime);
+      if (timeInfo != null) {
+        userInfo.setLInsuranceStartTime(timeInfo.startTime);
+        userInfo.setLInsuranceActDuration(timeInfo.endTime - timeInfo.startTime);
+      }
       // 延时
       int cost = InsuranceManager.getInstance().getUserDelayCost(insInfo.roomId, userId);
       userInfo.setIInsuranceDelayCost(cost);
       // 加入用户保险信息队列
       apiInfo.addVInsuranceUserInfos(userInfo);
     }
+    System.out.println("stGameRoomDetailInfo2");
     return apiInfo.build();
   }
 }
