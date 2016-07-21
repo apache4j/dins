@@ -2,21 +2,18 @@ package com.texaspoker.moment.room;
 
 import java.util.ArrayList;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import com.texaspoker.logger.NormalLogService;
 import com.texaspoker.moment.TexasPoker.GAME_ROOM_GAME_STATE;
 
 public class GameRoomService  implements Runnable {
 
-	Log   mLogNormals   =   LogFactory.getLog("fornormal");
 	
 	public void run() {
 		// TODO Auto-generated method stub
 		//每次需要执行的代码放到这里面。  
 		ArrayList<GameRoomDetailInfo> timeoutArray = GameRoomManager.getInstance().getTimeOutGameRoom();
 		
-		mLogNormals.error("GameRoomService begin : " +timeoutArray.size() );
+		NormalLogService.getInstance().error("GameRoomService begin : " +timeoutArray.size() );
 		for(int i = 0 ; i < timeoutArray.size() ; i++){
 			try{	
 				GameRoomDetailInfo stGameRoomDetailInfo = (GameRoomDetailInfo) timeoutArray.get(i);
@@ -37,6 +34,6 @@ public class GameRoomService  implements Runnable {
 				e.printStackTrace();
 			}
 		}	
-		mLogNormals.error("GameRoomService end : " +timeoutArray.size() );
+		NormalLogService.getInstance().error("GameRoomService end : " +timeoutArray.size() );
 	}
 }
