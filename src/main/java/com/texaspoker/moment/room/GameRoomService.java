@@ -2,11 +2,15 @@ package com.texaspoker.moment.room;
 
 import java.util.ArrayList;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.texaspoker.logger.NormalLogService;
 import com.texaspoker.moment.TexasPoker.GAME_ROOM_GAME_STATE;
 
 public class GameRoomService  implements Runnable {
 
+	Log   mLogNormals   =   LogFactory.getLog("fornormal");
 	
 	public void run() {
 		// TODO Auto-generated method stub
@@ -34,6 +38,6 @@ public class GameRoomService  implements Runnable {
 				e.printStackTrace();
 			}
 		}	
-		NormalLogService.getInstance().error("GameRoomService end : " +timeoutArray.size() );
+		mLogNormals.error("GameRoomService end : " +timeoutArray.size() );
 	}
 }
