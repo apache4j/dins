@@ -142,8 +142,10 @@ public class InsuranceManager {
     }
     // 返回提示保险信息
     if (insuranceInfo.isOutsEmpty()) {
+      logger.debug("roomdId:" + roomId + ",outs null");
       return null;
     } else {
+      logger.debug("roomdId:" + roomId + ",outs size:" + insuranceInfo.getAllOuts().size());
       return insuranceInfo;
     }
   }
@@ -244,8 +246,6 @@ public class InsuranceManager {
     if (insuranceInfo == null) {
       return null;
     }
-    // 先刷新保险信息的游戏状态
-    insuranceInfo.status = handInfo.insuranceStatus;
     // 找到所有用户的购买信息
     List<OutsInfo> userBuyInfos = insuranceInfo.getAllBuys();
     for (OutsInfo outsInfo : userBuyInfos) {
