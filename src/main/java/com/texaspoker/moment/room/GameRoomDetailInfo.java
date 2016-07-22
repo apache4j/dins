@@ -214,6 +214,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 										}
 									}
 								}else{
+									System.out.println("doStandUpAction USER_GAME_STATE_BETTING");
 									if(stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_BETTING){
 										doFlodAction(uuid , pos);
 									}else{
@@ -1671,8 +1672,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				
 				if( getTimeoutTimesUser(uuid) > 1){
 					removeTimeoutTimesUser(uuid);
+					System.out.println("robotFlod11!!!!!!!!!!!!!!!");
 					doStandUpAction(uuid,true);
-					System.out.println("robotFlod1");
+					System.out.println("robotFlod12!!!!!!!!!!!!!!!");
 				}else{
 					
 					
