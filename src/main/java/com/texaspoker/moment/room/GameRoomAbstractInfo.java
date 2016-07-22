@@ -1459,14 +1459,15 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	public ERROR_CODE_TYPE doFlodAction(long uuid,int userPos,long lBettingID){
 		ERROR_CODE_TYPE eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 
+		System.out.println("doFlodActiondoFlodAction 111111111111111111. : " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 		if(bPause == true){
 			return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
 		}
+		
 		synchronized(this){
 			if(checkGameActionValidation()==false){
 				return eErrorCode;
 			}
-			
 			//初始化变量
 			int victoryUser = -1;
 			
@@ -1525,6 +1526,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 
 					//检查牌局是否结束
 					victoryUser = iGameOver();
+					System.out.println("doFlodActiondoFlodAction 111111111111111112. : " + victoryUser);
 					if(victoryUser != -1){		
 						//如果牌局已，则进入牌局输赢结算状态
 						sendAllGameStateChange(uuid,null);
