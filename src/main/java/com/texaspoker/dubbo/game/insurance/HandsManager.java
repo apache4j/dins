@@ -52,6 +52,9 @@ public class HandsManager {
     if (handInfo == null) {
       return;
     }
+    // 调用保险结算逻辑
+    InsuranceManager.getInstance().onHandCloseAction(roomId, handId);
+    // 清空这一手数据
     handInfo.clear();
   }
 

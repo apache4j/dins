@@ -65,13 +65,13 @@ public class OutsCheck {
       // 没有剩余牌？扯淡，肯定有问题了
       return null;
     }
-    // System.out.println("remainCards:" + remainCards);
+    // logger.debug("remainCards:" + remainCards);
     // 检查一个胜者的out数量
     List<OutsInfo> results = new ArrayList<OutsInfo>();
     for (IPlayer winner : winners) {
       List<Card> outsCards = findOutsInPlayer(winner, players, tableCards, remainCards, checkEven);
       logger.debug("winner:" + winner.getUuid() + ",outs.size:" + outsCards.size());
-      if (outsCards.size() > 0 && outsCards.size() <= OutsInfo.OUTS_LIMIT) {
+      if (outsCards.size() > 0) {
         OutsInfo outsInfo = new OutsInfo();
         outsInfo.winner = winner.getUuid();
         outsInfo.outs = new int[outsCards.size()];

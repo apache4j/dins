@@ -132,7 +132,7 @@ public class OutsInfo {
   @Override
   public String toString() {
     return "outsinfo,uuid:" + winner + ",potId," + potId + ",odds:" + odds + ",pots:" + pots + ",pay_loss:" + pay_loss
-        + ",pay_pots:" + pay_pots + ",buy:" + buy + ",fold:" + fold + ",result:" + result + ",outs:"
-        + Arrays.toString(outs);
+        + ",pay_pots:" + pay_pots + ",pay_min:" + pay_min + ",pay_max:" + pay_max + ",buy:" + buy + ",fold:" + fold
+        + ",result:" + result + ",outs:" + Arrays.toString(outs);
   }
 }

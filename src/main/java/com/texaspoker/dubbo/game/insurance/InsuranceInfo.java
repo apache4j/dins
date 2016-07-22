@@ -38,8 +38,11 @@ public class InsuranceInfo {
   public long proxy_shop;
 
   // 用户本手的保险总投入
-  public ConcurrentMap<Long, ConcurrentMap<Long, Long>> hand_user_totals =
+  public ConcurrentMap<Long, ConcurrentMap<Long, Long>> hand_user_buy_totals =
       new ConcurrentHashMap<Long, ConcurrentMap<Long, Long>>();
+
+  // 用户本手的保险总收益
+  public ConcurrentMap<Long, Long> hand_user_result_totals = new ConcurrentHashMap<Long, Long>();
 
   // 用户本手的每一轮购买记录
   // public ConcurrentMap<Integer, ConcurrentMap<Long, List<OutsInfo>>> hand_user_buys =
@@ -58,7 +61,9 @@ public class InsuranceInfo {
     if (this.handId != handId) {
       // 手数更新
       this.handId = handId;
-      hand_user_totals.clear();
+      this.proxy_shop = 0;
+      hand_user_buy_totals.clear();
+      hand_user_result_totals.clear();
       // 状态更新
       this.status = status;
       round_pot_user_outs.clear();
@@ -107,23 +112,30 @@ public class InsuranceInfo {
   }
 
   // 设置用户购买信息
-  public boolean setUserBuys(long potId, long uuid, long buys) {
+  public long setUserBuys(long potId, long uuid, long buys) {
     ConcurrentMap<Long, OutsInfo> userOuts = round_pot_user_outs.get(potId);
     if (userOuts == null) {
-      return false;
+      logger.error("roomId" + roomId + ",potId" + potId + ",uuid:" + uuid + ",no potId outs info");
+      return 0;
     }
     if (!userOuts.containsKey(uuid)) {
-      return false;
+      logger.error("roomId" + roomId + ",potId" + potId + ",uuid:" + uuid + ",no uuid outs info");
+      return 0;
     }
     // 这个边池已经购买过了！！！
     OutsInfo info = userOuts.get(uuid);
     if (info.getBuy() > 0) {
-      logger.error("roomId" + roomId + ",handId:" + handId + ",potId" + potId + ",uuid:" + uuid + ",has already buy "
-          + buys);
-      return false;
+      logger.error("roomId" + roomId + ",potId" + potId + ",uuid:" + uuid + ",has already buy " + buys);
+      return 0;
+    }
+    long finalBuys = buys;
+    if (buys < info.pay_min) {
+      logger.error("roomId" + roomId + ",potId" + potId + ",uuid:" + uuid + ",must > min pay " + info.pay_min);
+      finalBuys = info.pay_min;
     }
     // 这是购买金额
-    info.setBuy(buys);
+    info.setBuy(finalBuys);
+    logger.debug("roomId" + roomId + ",potId" + potId + ",uuid:" + uuid + ",buys:" + buys);
     // 设置用户购买记录
     // ConcurrentMap<Long, List<OutsInfo>> roundUserBuys = hand_user_buys.get(status);
     // if (roundUserBuys == null) {
@@ -136,7 +148,7 @@ public class InsuranceInfo {
     // roundUserBuys.put(uuid, buyInfos);
     // }
     // buyInfos.add(info);
-    return true;
+    return finalBuys;
   }
 
   // 检查用户之前是否购买过
@@ -158,45 +170,70 @@ public class InsuranceInfo {
   // }
 
   // 设置用户放弃
-  public void setUserFold(long potId, long uuid) {
+  public long setUserFold(long potId, long uuid) {
     ConcurrentMap<Long, OutsInfo> userOuts = round_pot_user_outs.get(potId);
     if (userOuts == null) {
-      return;
+      logger.error("roomId" + roomId + ",potId" + potId + ",uuid:" + uuid + ",no potId outs info");
+      return 0;
     }
     if (!userOuts.containsKey(uuid)) {
-      return;
+      logger.error("roomId" + roomId + ",potId" + potId + ",uuid:" + uuid + ",no user outs info");
+      return 0;
     }
-    userOuts.get(uuid).setFold();
+    // 是否需要强制购买保险
+    OutsInfo info = userOuts.get(uuid);
+    if (info.pay_min > 0) {
+      return info.pay_min;
+    } else {
+      info.setFold();
+    }
+    return 0;
   }
 
   // 用户购买操作
-  public void addUserTotal(long uuid, long potId, long buy) {
+  public void addUserBuyTotal(long uuid, long potId, long buy) {
     // 保险总投入
-    ConcurrentMap<Long, Long> potTotals = hand_user_totals.get(uuid);
+    ConcurrentMap<Long, Long> potTotals = hand_user_buy_totals.get(uuid);
     if (potTotals == null) {
       potTotals = new ConcurrentHashMap<Long, Long>();
-      hand_user_totals.put(uuid, potTotals);
+      hand_user_buy_totals.put(uuid, potTotals);
     }
-    Long totals = potTotals.get(potTotals);
+    Long totals = potTotals.get(potId);
     if (totals == null) {
-      totals = Long.valueOf(buy);
+      totals = buy;
     } else {
       totals += buy;
     }
-    potTotals.put(uuid, totals);
+    potTotals.put(potId, totals);
+    logger.debug("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",total:" + totals);
   }
 
   // 获取用户保险投入
-  public long getUserTotal(long uuid, long potId) {
-    ConcurrentMap<Long, Long> potTotals = hand_user_totals.get(uuid);
+  public long getUserBuyTotal(long uuid, long potId) {
+    ConcurrentMap<Long, Long> potTotals = hand_user_buy_totals.get(uuid);
     if (potTotals == null) {
+      logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",potId:" + potId + ",no user info");
       return 0;
     }
     Long totals = potTotals.get(potId);
     if (totals == null) {
+      logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",potId:" + potId + ",no pot info");
       return 0;
     }
-    return potTotals.get(uuid);
+    return totals;
+  }
+
+  // 用户保险的赔付信息
+  public void addUserResultTotal(long uuid, long result) {
+    // 保险总投入
+    Long totals = hand_user_result_totals.get(uuid);
+    if (totals == null) {
+      totals = result;
+    } else {
+      totals += result;
+    }
+    hand_user_result_totals.put(uuid, totals);
+    logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",total:" + totals);
   }
 
   // 设置牌局的保险实时赔付情况

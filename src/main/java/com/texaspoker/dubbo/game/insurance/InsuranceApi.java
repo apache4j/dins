@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.texaspoker.bill.BillManager;
 import com.texaspoker.moment.TexasPoker;
 import com.texaspoker.moment.TexasPoker.BuyInsuranceInfo;
 import com.texaspoker.moment.TexasPoker.GameRoomInfo;
@@ -20,6 +21,7 @@ import com.texaspoker.moment.TexasPoker.INSURANCE_BET_STATUS;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
 import com.texaspoker.moment.room.GameRoomDetailInfo;
 import com.texaspoker.moment.room.GameRoomManager;
+import com.texaspoker.user.UserManager;
 
 /**
  * 类名称:InsuranceApiProxy
@@ -106,30 +108,31 @@ public class InsuranceApi {
   // 保险购买行为超时接口
   public static void gotoNextStep(long lGameRoomID) {
 	  GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
-	  if(stGameRoomDetailInfo!=null){
+	  if(stGameRoomDetailInfo!=null)
 		  stGameRoomDetailInfo.gotoNextStep();
-	  }
 
   }
 
   // billserver保险购买接口
-  public static void addInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
-
+  public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
+	  BillManager.getInstance().addInsuranceBuyin(uuid, lGameRoomID, buyin);
   }
 
   // billserver保险赔付接口
-  public static void addInsuranceGetStack(long lGameRoomID, long uuid, long getstacks) {
-
+  public static void setInsuranceGetStack(long lGameRoomID, long uuid, long getstacks) {
+	  BillManager.getInstance().addInsuranceGetStacks(uuid, lGameRoomID, getstacks);
   }
 
   // 保险代理人账单信息接口
   public static boolean setInsuranceGame(long lGameRoomID, long nums) {
-    return true;
+	  BillManager.getInstance().addInsuranceGetStacks(1000, lGameRoomID, nums);
+	  return true;
   }
 
   // 保险扣钻石接口
   public static boolean addUserCoin(Long uuid, long nums) {
-    return true;
+	  UserManager.getInstance().addUserCoin(uuid, nums);
+	  return true;
   }
 
   /*
