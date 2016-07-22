@@ -133,9 +133,13 @@ public class InsuranceInfo {
       logger.error("roomId" + roomId + ",potId" + potId + ",uuid:" + uuid + ",must > min pay " + info.pay_min);
       finalBuys = info.pay_min;
     }
+    if (buys > info.pay_max) {
+      logger.error("roomId" + roomId + ",potId" + potId + ",uuid:" + uuid + ",must < max pay " + info.pay_max);
+      finalBuys = info.pay_max;
+    }
     // 这是购买金额
     info.setBuy(finalBuys);
-    logger.debug("roomId" + roomId + ",potId" + potId + ",uuid:" + uuid + ",buys:" + buys);
+    logger.debug("roomId" + roomId + ",potId" + potId + ",uuid:" + uuid + ",buys:" + finalBuys);
     // 设置用户购买记录
     // ConcurrentMap<Long, List<OutsInfo>> roundUserBuys = hand_user_buys.get(status);
     // if (roundUserBuys == null) {

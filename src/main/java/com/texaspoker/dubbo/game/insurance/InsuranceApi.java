@@ -107,33 +107,33 @@ public class InsuranceApi {
 
   // 保险购买行为超时接口
   public static void gotoNextStep(long lGameRoomID) {
-	  GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
-	  if(stGameRoomDetailInfo!=null)
-		  stGameRoomDetailInfo.gotoNextStep();
-
+	  GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
+	  if(stGameRoomDetail!=null){
+		  stGameRoomDetail.gotoNextStep();
+	  }
   }
-
-  // billserver保险购买接口
+  
+  //billserver保险购买接口
   public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
 	  BillManager.getInstance().addInsuranceBuyin(uuid, lGameRoomID, buyin);
   }
 
-  // billserver保险赔付接口
-  public static void setInsuranceGetStack(long lGameRoomID, long uuid, long getstacks) {
+	//billserver保险赔付接口
+	public static void setInsuranceGetStack(long lGameRoomID, long uuid, long getstacks) {
 	  BillManager.getInstance().addInsuranceGetStacks(uuid, lGameRoomID, getstacks);
-  }
+	}
 
-  // 保险代理人账单信息接口
-  public static boolean setInsuranceGame(long lGameRoomID, long nums) {
-	  BillManager.getInstance().addInsuranceGetStacks(1000, lGameRoomID, nums);
-	  return true;
-  }
+	//保险代理人账单信息接口
+	public static boolean setInsuranceGame(long lGameRoomID, long nums) {
+		BillManager.getInstance().addInsuranceGetStacks(1000, lGameRoomID, nums);
+		return true;
+	}
 
-  // 保险扣钻石接口
-  public static boolean addUserCoin(Long uuid, long nums) {
-	  UserManager.getInstance().addUserCoin(uuid, nums);
-	  return true;
-  }
+	//保险扣钻石接口
+	public static boolean addUserCoin(Long uuid, long nums) {
+		UserManager.getInstance().addUserCoin(uuid, nums);
+		return true;
+	}
 
   /*
    * 接口转换工具类

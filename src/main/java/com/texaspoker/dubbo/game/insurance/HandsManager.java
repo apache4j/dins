@@ -65,7 +65,10 @@ public class HandsManager {
   }
 
   public void delHandInfo(long roomId) {
+    logger.debug("remove roomId:" + roomId);
     hands_map.remove(roomId);
+    // 调用本局结束逻辑
+    InsuranceManager.getInstance().onTableCloseAction(roomId);
   }
 
   public void setUserBets(long roomId, long uuid, int bets) {

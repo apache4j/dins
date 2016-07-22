@@ -28,6 +28,7 @@ public class InsuranceLog {
   private static Logger logger = Logger.getLogger(InsuranceLog.class);
 
   private final static String ACTION_OPEN = "open";
+  private final static String ACTION_OPENTYPE = "opentype";
   private final static String ACTION_CLEAR_TABLE = "cleartable";
   private final static String ACTION_CLOSE_TABLE = "closetable";
 
@@ -64,13 +65,20 @@ public class InsuranceLog {
       // groupId = Long.parseLong(tableLogContentArray[0]);
       roomId = Long.parseLong(tableLogContentArray[1]);
       turnId = Long.parseLong(tableLogContentArray[2]);
-    } catch (java.lang.ArrayIndexOutOfBoundsException ee) {
+    } catch (java.lang.ArrayIndexOutOfBoundsException e1) {
       logger.error("roomId turnId error," + message);
-      ee.printStackTrace();
+      e1.printStackTrace();
+      return;
+    } catch (NumberFormatException e2) {
+      logger.error("uuid action error," + message);
+      e2.printStackTrace();
+      return;
     }
 
     // 牌局开局，这时还没有turnid，前移一位
-    if (tableLogContentArray[3].equalsIgnoreCase(ACTION_OPEN)) {
+    if (tableLogContentArray[3].equalsIgnoreCase(ACTION_OPEN)
+        || tableLogContentArray[3].equalsIgnoreCase(ACTION_OPENTYPE)) {
+      // 本局开始
       return;
     } else if (tableLogContentArray[3].equalsIgnoreCase(ACTION_STARTROUND)) {
       // 本手开始
@@ -81,9 +89,14 @@ public class InsuranceLog {
     try {
       uuid = Long.parseLong(tableLogContentArray[3]);
       actionStr = tableLogContentArray[4];
-    } catch (java.lang.ArrayIndexOutOfBoundsException eee) {
+    } catch (ArrayIndexOutOfBoundsException e1) {
       logger.error("uuid action error," + message);
-      eee.printStackTrace();
+      e1.printStackTrace();
+      return;
+    } catch (NumberFormatException e2) {
+      logger.error("uuid action error," + message);
+      e2.printStackTrace();
+      return;
     }
 
     if (actionStr.equalsIgnoreCase(ACTION_CLEAR_TABLE)) {

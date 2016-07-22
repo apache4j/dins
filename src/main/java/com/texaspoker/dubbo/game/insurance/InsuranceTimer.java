@@ -58,6 +58,8 @@ public class InsuranceTimer {
   // 超时处理响应，这个牌桌保险时间超时，需要进行后续操作
   public void InsuranceTimeoutHandler(Long roomId) {
     logger.debug("roomId:" + roomId + ",has been timeout");
+    // 清理房间超时的购买逻辑
+    InsuranceManager.getInstance().foldInsurance(roomId);
     // API接口，通知这个房间保险超时
     InsuranceApi.gotoNextStep(roomId);
   }
