@@ -600,15 +600,15 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 //	}
 	
 	void checkGotoTurnStatus(long uuid){
-		System.out.println("checkGotoTurnStatus 1");
+		System.out.println("checkGotoTurnStatus 1 ; " + checkAllAllin());
 		if(checkAllAllin() == true){
 			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 			InsuranceInfo stInsuranceInfo = null;
 			System.out.println("checkGotoTurnStatus 2 : " + stGameRoomInfoBuilder.getEInsuranceStatus());
 			if(stGameRoomInfoBuilder.getEInsuranceStatus() == INSURANCE_STATUS.INSURANCE_STATUS_NO){
+				System.out.println("checkGotoTurnStatus 3");
 				stInsuranceInfo = InsuranceApi.checkInsurance(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),stGameRoomInfo.getLGameHandID(),GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop);
-			
-//				System.out.println("checkGotoTurnStatus 3 : " + stInsuranceInfo);
+		
 
 				if(stInsuranceInfo != null){
 					//进入保险模式
@@ -677,10 +677,13 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	}
 	
 	void checkGotoRiverStatus(long uuid){
+		System.out.println("checkGotoRiverStatus 1 : "  + checkAllAllin());
 		if(checkAllAllin() == true){
 			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 			InsuranceInfo stInsuranceInfo = null;
+			System.out.println("checkGotoRiverStatus 2 : " + stGameRoomInfoBuilder.getEInsuranceStatus());
 			if(stGameRoomInfoBuilder.getEInsuranceStatus() == INSURANCE_STATUS.INSURANCE_STATUS_NO){
+				System.out.println("checkGotoRiverStatus 3");
 				stInsuranceInfo = InsuranceApi.checkInsurance(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),stGameRoomInfo.getLGameHandID(),GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Turn);
 
 				if(stInsuranceInfo != null){

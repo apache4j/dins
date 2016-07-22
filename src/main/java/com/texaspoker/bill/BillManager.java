@@ -243,7 +243,7 @@ public class BillManager {
 			AddInsuranceGetStackRequest.Builder stAddInsuranceGetStackRequestBuilder = AddInsuranceGetStackRequest.newBuilder();
 			stAddInsuranceGetStackRequestBuilder.setUuid(uuid);
 			stAddInsuranceGetStackRequestBuilder.setLBillID(roomid);
-			stAddInsuranceGetStackRequestBuilder.setLBillID(stacks);
+			stAddInsuranceGetStackRequestBuilder.setLGetStacks(stacks);
 			
 			billService.addInsuranceGetStack(controller, stAddInsuranceGetStackRequestBuilder.build(), null);
 			
