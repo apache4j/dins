@@ -1458,11 +1458,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								stResetUserGameInfoBuilder.setLBettingID(System.currentTimeMillis());
 								stResetUserGameInfoBuilder.setIDelayLong(0);
 								stResetUserGameInfoBuilder.setIDelaySingleTime(20);
+								
+								removeAllTimeOutUser();
+								setTimeoutUserCurrent(stResetUserGameInfoBuilder.getStUserInfo().getUuid());
 							}
-							
-							
-							removeAllTimeOutUser();
-							setTimeoutUserCurrent(stResetUserGameInfoBuilder.getStUserInfo().getUuid());
 						}else{
 							if(bAllAllin==true){
 								stResetUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_ALLIN);
@@ -1519,11 +1518,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 									stResetUserGameInfoBuilder.setLActTime(System.currentTimeMillis());
 									stResetUserGameInfoBuilder.setIDelayLong(0);
 									stResetUserGameInfoBuilder.setIDelaySingleTime(20);
-								}
 									
-								removeAllTimeOutUser();
-								setTimeoutUserCurrent(stResetUserGameInfoBuilder.getStUserInfo().getUuid());
-								iBetting = 1;
+									removeAllTimeOutUser();
+									setTimeoutUserCurrent(stResetUserGameInfoBuilder.getStUserInfo().getUuid());
+									iBetting = 1;
+								}
 							}else{
 								stResetUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_READY);
 							}
@@ -1572,11 +1571,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								stResetUserGameInfoBuilder.setLBettingID(System.currentTimeMillis());
 								stResetUserGameInfoBuilder.setIDelayLong(0);
 								stResetUserGameInfoBuilder.setIDelaySingleTime(20);
+								
+								
+								removeAllTimeOutUser();
+								setTimeoutUserCurrent(stResetUserGameInfoBuilder.getStUserInfo().getUuid());
 							}
 							
-							
-							removeAllTimeOutUser();
-							setTimeoutUserCurrent(stResetUserGameInfoBuilder.getStUserInfo().getUuid());
 						}else{
 							if(bAllAllin==true){
 								stResetUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_ALLIN);
@@ -1631,11 +1631,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 									stResetUserGameInfoBuilder.setLActTime(System.currentTimeMillis());
 									stResetUserGameInfoBuilder.setIDelayLong(0);
 									stResetUserGameInfoBuilder.setIDelaySingleTime(20);
-								}
 									
-								removeAllTimeOutUser();
-								setTimeoutUserCurrent(stResetUserGameInfoBuilder.getStUserInfo().getUuid());
-								iBetting = 1;
+									removeAllTimeOutUser();
+									setTimeoutUserCurrent(stResetUserGameInfoBuilder.getStUserInfo().getUuid());
+									iBetting = 1;
+								}
 							}else{
 								stResetUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_READY);
 							}
@@ -1672,6 +1672,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				if( getTimeoutTimesUser(uuid) > 1){
 					removeTimeoutTimesUser(uuid);
 					doStandUpAction(uuid,true);
+					System.out.println("robotFlod1");
 				}else{
 					
 					
@@ -1689,13 +1690,16 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						if(lStepMaxStacks == stUserGameInfoBuilder.getLBetStacks()){
 							addUserTimeoutTimes(uuid);
 							doCheckAction(uuid, 0);
+							System.out.println("robotFlod2");
 						}else{
 							addUserTimeoutTimes(uuid);
 							doFlodAction(uuid,(long)-1);
+							System.out.println("robotFlod3");
 						}
 					}else{
 						addUserTimeoutTimes(uuid);
 						doFlodAction(uuid,(long)-1);
+						System.out.println("robotFlod4");
 					}
 				}
 			}
