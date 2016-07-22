@@ -117,6 +117,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	 */
 	public ERROR_CODE_TYPE doStandUpAction(long uuid,boolean bAuto){
 		synchronized(this){
+			System.out.println("doStandUpAction1");
 			if(this.stGameRoomInfo.getStGameRoomBaseInfo().getBGamePause() == 1){
 				boolean bExist = false;
 				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount();i++){
@@ -133,17 +134,20 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				}
 			}
 			
+			System.out.println("doStandUpAction2");
 			//站起用户的副本，push使用
 			UserGameInfoNet.Builder stUserMyGameInfoNetBuilder = null;
 			
 			//牌局副本
 			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-
+			
 			int pos = 0;
 			boolean bRemoved = false;
 			if(this.containUser(uuid)){
 				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount();i++){
 					UserGameInfoNet.Builder stUserGameInfoBuilder = stGameRoomInfo.getVUserGameInfos(i).toBuilder();
+					System.out.println("doStandUpAction3 :  " + uuid);
+					System.out.println("doStandUpAction4 :  " + stUserGameInfoBuilder.getStUserInfo().getUuid());
 					if(stUserGameInfoBuilder.getStUserInfo().getUuid() == uuid){
 						//获取用户副本
 						stUserMyGameInfoNetBuilder = stUserGameInfoBuilder.clone();
@@ -172,8 +176,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								&& stGameRoomInfo.getEGameState().getNumber() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result_VALUE
 								&& stGameRoomInfo.getEGameState().getNumber() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD_VALUE
 								&& stUserMyGameInfoNetBuilder.getEGameState().getNumber() != USER_GAME_STATE.USER_GAME_STATE_WAIT_VALUE){
+							System.out.println("doStandUpAction5 : " + bAllAllin );
 							if(bAllAllin == false){
+								System.out.println("doStandUpAction6 : " + checkAllAllin() );
 								if(checkAllAllin()!=true){
+									System.out.println("doStandUpAction7 : " + stUserGameInfoBuilder.getEGameState());
 									if(stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_BETTING){
 										doFlodAction(uuid , pos);
 									}else{
