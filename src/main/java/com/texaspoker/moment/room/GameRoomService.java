@@ -17,12 +17,9 @@ public class GameRoomService  implements Runnable {
 		//每次需要执行的代码放到这里面。  
 		ArrayList<GameRoomDetailInfo> timeoutArray = GameRoomManager.getInstance().getTimeOutGameRoom();
 		
-		NormalLogService.getInstance().error("GameRoomService begin : " +timeoutArray.size() );
 		for(int i = 0 ; i < timeoutArray.size() ; i++){
 			try{	
 				GameRoomDetailInfo stGameRoomDetailInfo = (GameRoomDetailInfo) timeoutArray.get(i);
-				System.out.println("stGameRoomDetailInfo : " + stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
-				System.out.println("stGameRoomDetailInfo : " + stGameRoomDetailInfo.getStGameRoomInfo().getEGameState());
 				switch(stGameRoomDetailInfo.getStGameRoomInfo().getEGameState().getNumber()){
 				case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait_VALUE:
 				case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_River_VALUE:
@@ -38,6 +35,5 @@ public class GameRoomService  implements Runnable {
 				e.printStackTrace();
 			}
 		}	
-		mLogNormals.error("GameRoomService end : " +timeoutArray.size() );
 	}
 }

@@ -50,9 +50,6 @@ public class TimeoutHashMap<K,V> {
 		    Long  key = (Long) entry.getKey();
 		    TimeNode  stTimeNode = (TimeNode) entry.getValue();	    
 		    
-		    System.out.println("1111111111 : " + stTimeNode.data);
-		    System.out.println("1111111112 : " + (curTime - stTimeNode.updateTime));
-		    System.out.println("1111111113 : " + mTimeout);
 		    if(curTime - stTimeNode.updateTime > mTimeout){
 		    	list.add(stTimeNode.data);
 		    }
