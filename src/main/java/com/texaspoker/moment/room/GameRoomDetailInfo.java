@@ -169,7 +169,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						stGameRoomInfoBuilder.setVUserGameInfos(i,stUserGameInfoBuilder);
 						stGameRoomInfo = stGameRoomInfoBuilder.build();
 						bRemoved = true;
-		
+						System.out.println("doStandUpAction51 :  " +stGameRoomInfo.getStGameRoomBaseInfo().getBStarted());
 						//如果用户正在打牌，则需要要先完成弃牌操作
 						if(stGameRoomInfo.getStGameRoomBaseInfo().getBStarted() == 1 
 								&& stGameRoomInfo.getEGameState().getNumber() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait_VALUE
