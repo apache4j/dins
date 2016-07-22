@@ -1225,11 +1225,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					saveOriginalStacks();
 					//每个选手发两张牌,并把游戏的状态设置为FirstRound	
 					beforeTheGame();
-					if(this.stGameRoomInfo.getStGameRoomBaseInfo().getIAnte() > 0 ){
+					if(stGameRoomInfo.getStGameRoomBaseInfo().getIAnte() > 0 ){
 						gotoAnteStatus();
 					}
 				
+					System.out.println("gotoStartStatus before : " + stGameRoomInfo);
 					gotoStartStatus();
+					System.out.println("gotoStartStatus after : " + stGameRoomInfo);
 				}
 			}
 			break;
