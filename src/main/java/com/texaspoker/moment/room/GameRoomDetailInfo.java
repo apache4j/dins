@@ -92,15 +92,16 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums());
 				}
 				
-				System.out.println("startGamestartGamestartGamestartGamestartGame 1: " + stGameRoomInfo.getStGameRoomBaseInfo().getBStarted());
+
 				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 				GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = stGameRoomInfo.getStGameRoomBaseInfo().toBuilder();
-				System.out.println("startGamestartGamestartGamestartGamestartGame 2.");
+
 				stGameRoomBaseInfoBuilder.setBStarted(1);
 				stGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
 				stGameRoomInfo = stGameRoomInfoBuilder.build();
 				iGameRoomUserMaxNums = stGameRoomBaseInfoBuilder.getIGameRoomUserMaxNums();
-				System.out.println("startGamestartGamestartGamestartGamestartGame 3: " + stGameRoomInfo.getStGameRoomBaseInfo().getBStarted());
+				
+				System.out.println("startGamestartGamestartGame: " + stGameRoomInfo);
 				pushAppPushStartGame();
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 			}else{
@@ -146,8 +147,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			if(this.containUser(uuid)){
 				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount();i++){
 					UserGameInfoNet.Builder stUserGameInfoBuilder = stGameRoomInfo.getVUserGameInfos(i).toBuilder();
-					System.out.println("doStandUpAction3 :  " + uuid);
-					System.out.println("doStandUpAction4 :  " + stUserGameInfoBuilder.getStUserInfo().getUuid());
+
 					if(stUserGameInfoBuilder.getStUserInfo().getUuid() == uuid){
 						//获取用户副本
 						stUserMyGameInfoNetBuilder = stUserGameInfoBuilder.clone();
@@ -169,18 +169,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						stGameRoomInfoBuilder.setVUserGameInfos(i,stUserGameInfoBuilder);
 						stGameRoomInfo = stGameRoomInfoBuilder.build();
 						bRemoved = true;
-						System.out.println("doStandUpAction51 :  " +stGameRoomInfo.getStGameRoomBaseInfo().getBStarted());
+
 						//如果用户正在打牌，则需要要先完成弃牌操作
 						if(stGameRoomInfo.getStGameRoomBaseInfo().getBStarted() == 1 
 								&& stGameRoomInfo.getEGameState().getNumber() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait_VALUE
 								&& stGameRoomInfo.getEGameState().getNumber() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result_VALUE
 								&& stGameRoomInfo.getEGameState().getNumber() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD_VALUE
 								&& stUserMyGameInfoNetBuilder.getEGameState().getNumber() != USER_GAME_STATE.USER_GAME_STATE_WAIT_VALUE){
-							System.out.println("doStandUpAction5 : " + bAllAllin );
 							if(bAllAllin == false){
-								System.out.println("doStandUpAction6 : " + checkAllAllin() );
 								if(checkAllAllin()!=true){
-									System.out.println("doStandUpAction7 : " + stUserGameInfoBuilder.getEGameState());
 									if(stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_BETTING){
 										doFlodAction(uuid , pos);
 									}else{
@@ -1273,8 +1270,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				robotFlod();
 				
 				//如果allin状态，则发牌跳转到下一个状态
-				System.out.println("check all allin !!!!!!!!!!!!!!!!!!!!!!!!!!! : " + checkAllAllin());
-				System.out.println("ROOM_GAME_STATE_PreFlop_VALUE : " + stGameRoomInfo);
 				if(stGameRoomInfo.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result && checkAllAllin() == true){
 					gotoFlopAllStatus(0);
 				}
