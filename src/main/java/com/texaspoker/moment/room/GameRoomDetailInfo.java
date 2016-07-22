@@ -66,13 +66,16 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	/****************************牌局操作函数*******************************/
 	public ERROR_CODE_TYPE startGame(long uuid){
 		synchronized(this){
+			System.out.println("startGamestartGamestartGame1.");
 			if(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == uuid){
+				System.out.println("startGamestartGamestartGame2.");
 				//赋初值
 				bPause = false;
 				bStarted = true;
 				lFromRoomID=stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
 				lGameRoomID=stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId();
 				iGameRoomUserMaxNums = stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums();
+				System.out.println("startGamestartGamestartGame3.");
 				
 				if(stGameRoomInfo.getStGameRoomBaseInfo().getBStarted()== 0){
 					TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
@@ -91,13 +94,16 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							+"," + 0
 							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums());
 				}
-				
+				System.out.println("startGamestartGamestartGame4.");
 
 				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+				System.out.println("startGamestartGamestartGame5.");
 				GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = stGameRoomInfo.getStGameRoomBaseInfo().toBuilder();
-
+				System.out.println("startGamestartGamestartGame6.");
 				stGameRoomBaseInfoBuilder.setBStarted(1);
+				System.out.println("startGamestartGamestartGame7.");
 				stGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
+				System.out.println("startGamestartGamestartGame8.");
 				stGameRoomInfo = stGameRoomInfoBuilder.build();
 				iGameRoomUserMaxNums = stGameRoomBaseInfoBuilder.getIGameRoomUserMaxNums();
 				
