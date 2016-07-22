@@ -50,6 +50,7 @@ public class HandsManager {
     logger.info("roomId:" + roomId + ",handId:" + handId);
     HandInfo handInfo = hands_map.get(roomId);
     if (handInfo == null) {
+      logger.error("roomId:" + roomId + ",handId:" + handId + ",info null");
       return;
     }
     // 调用保险结算逻辑
@@ -93,10 +94,12 @@ public class HandsManager {
   public void setUserFold(long roomId, long uuid) {
     HandInfo handInfo = hands_map.get(roomId);
     if (handInfo == null) {
+      logger.error("roomId:" + roomId + ",info null");
       return;
     }
     HandUserInfo userInfo = handInfo.getUser(uuid);
     if (userInfo == null) {
+      logger.error("roomId:" + roomId + ",uuid:" + uuid + ",info null");
       return;
     }
     userInfo.fold = false;
@@ -107,9 +110,11 @@ public class HandsManager {
   public void setUserCards(long roomId, long uuid, int[] hands, int handChip) {
     HandInfo handInfo = hands_map.get(roomId);
     if (handInfo == null) {
+      logger.error("roomId:" + roomId + ",info null");
       return;
     }
     if (hands.length != 2) {
+      logger.error("roomId:" + roomId + ",uuid:" + uuid + ",hands error");
       return;
     }
     // 是否需要新建用户
@@ -162,6 +167,7 @@ public class HandsManager {
   public boolean checkTableCard(long roomId, int tableCard) {
     HandInfo handInfo = hands_map.get(roomId);
     if (handInfo == null) {
+      logger.error("roomId:" + roomId + ",info null");
       return false;
     }
     return handInfo.checkTableCard(tableCard);

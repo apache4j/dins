@@ -13,6 +13,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
+
 /**
  * 类名称:InsuranceLog
  * 类描述:
@@ -23,7 +25,7 @@ import java.io.IOException;
  */
 public class InsuranceLog {
 
-  // private static Logger logger = Logger.getLogger(InsuranceLog.class);
+  private static Logger logger = Logger.getLogger(InsuranceLog.class);
 
   private final static String ACTION_OPEN = "open";
   private final static String ACTION_CLEAR_TABLE = "cleartable";
@@ -63,6 +65,7 @@ public class InsuranceLog {
       roomId = Long.parseLong(tableLogContentArray[1]);
       turnId = Long.parseLong(tableLogContentArray[2]);
     } catch (java.lang.ArrayIndexOutOfBoundsException ee) {
+      logger.error("roomId turnId error," + message);
       ee.printStackTrace();
     }
 
@@ -79,6 +82,7 @@ public class InsuranceLog {
       uuid = Long.parseLong(tableLogContentArray[3]);
       actionStr = tableLogContentArray[4];
     } catch (java.lang.ArrayIndexOutOfBoundsException eee) {
+      logger.error("uuid action error," + message);
       eee.printStackTrace();
     }
 
@@ -161,6 +165,7 @@ public class InsuranceLog {
       HandsManager.getInstance().setTableCards(roomId, HandUtils.RIVER, tableCards);
       return;
     }
+    logger.debug("others:" + message);
   }
 
   private static void readFile(String filepath) {

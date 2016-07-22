@@ -101,9 +101,6 @@ public class InsuranceManager {
 
   // 内部使用
   private InsuranceInfo checkInsurance(HandInfo handInfo) {
-    if (handInfo == null) {
-      return null;
-    }
     long roomId = handInfo.roomId;
     logger.debug("roomId:" + roomId + ",handinfo status :" + handInfo.gameStatus);
     // 检查牌局状态，现在只有turn，river能够买保险
@@ -268,11 +265,13 @@ public class InsuranceManager {
 
   // 房主控制保险
   public void openInsuranceByCreater(long roomId, long uuid, boolean close) {
+    logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",close:" + close);
     insurance_open.setCreaterCloseStatus(roomId, uuid, close);
   }
 
   // 玩家控制保险
   public void openInsuranceByUser(long roomId, long uuid, boolean close) {
+    logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",close:" + close);
     insurance_open.setUserOpenStatus(roomId, uuid, close);
   }
 
