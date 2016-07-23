@@ -105,6 +105,7 @@ public class InsuranceApi {
    * 游戏方API接口，由游戏方提供实现
    */
 
+
 //保险购买行为超时接口
 public static void gotoNextStep(long lGameRoomID) {
 	  GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
@@ -256,7 +257,7 @@ public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
       InsuranceTimer.InsuranceTimeInfo timeInfo = InsuranceManager.getInstance().getUserTimeout(insInfo.roomId, userId);
       if (timeInfo != null) {
         userInfo.setLInsuranceStartTime(timeInfo.startTime);
-        userInfo.setLInsuranceActDuration(timeInfo.endTime - timeInfo.startTime);
+        userInfo.setLInsuranceActDuration((timeInfo.endTime - timeInfo.startTime) / 1000);
       }
       // 延时
       int cost = InsuranceManager.getInstance().getUserDelayCost(insInfo.roomId, userId);
