@@ -63,7 +63,7 @@ public class InsuranceDelay {
     }
   }
 
-  private int getDelayCost(int times) {
+  private static int getDelayCost(int times) {
     switch (times) {
       case 0:
         return 0;

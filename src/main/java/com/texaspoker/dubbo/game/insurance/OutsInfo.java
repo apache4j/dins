@@ -71,16 +71,19 @@ public class OutsInfo {
     this.potId = potId;
     this.pots = pots;
     this.bets = bets;
-    pay_loss = getBuyPrice((prebuys + bets) / odds);
-    pay_pots = getBuyPrice((prebuys + pots) / odds);
     // 根据状态判断最大值的比例
     double potMaxRaito = status == HandUtils.TURN ? 0.25 : 0.5;
     // 找出最大购买值
     long pot_max = getBuyPrice(potMaxRaito * pots);
     long pot_odds = getBuyPrice(pots / odds);
     pay_max = pot_max > pot_odds ? pot_odds : pot_max;
-    // 找出最小购买值，可为0
-    pay_min = (long) (prebuys / odds);
+    // 找出最小购买值，可为0，如果以前购买过，则至少为1
+    pay_min = prebuys > 0 ? getBuyPrice(prebuys / odds) : 0;
+    // 处理保本额度，不能比最大额度还大
+    long temp_noloss = getBuyPrice((prebuys + bets) / odds);
+    pay_loss = temp_noloss > pay_max ? pay_max : temp_noloss;
+    // 全底池额度
+    pay_pots = getBuyPrice((prebuys + pots) / odds);
   }
 
   // 设置购买信息
