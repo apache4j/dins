@@ -2881,17 +2881,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	 * @param eGameRoomState		牌局的状态
 	 */
 	public InsuranceUserInfo buyInsuranceDealy(long uuid,long lGameHandID,GAME_ROOM_GAME_STATE eGameRoomState){
-		synchronized(this){			
-//			InsuranceInfo stInsuranceInfo = InsuranceApi.(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),lGameHandID,uuid,eGameRoomStatus,vBuyInsuranceInfo);
-//			if(bDefaultInsurance > 0){
-//				InsuranceApi.setUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid, false);
-//			}else{
-//				InsuranceApi.setUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid, true);
-//			}
-//			
-//			stGameRoomInfo = stGameRoomInfoBuilder.build();
-			InsuranceUserInfo.Builder stInsuranceUserInfoBuilder = InsuranceUserInfo.newBuilder();
-			return stInsuranceUserInfoBuilder.build(); 
+		synchronized(this){					      
+			InsuranceInfo stInsuranceInfo = InsuranceApi.delayInsuranceAction(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),lGameHandID,eGameRoomState, uuid);
+			for(InsuranceUserInfo stInsuranceUserInfo:stInsuranceInfo.getVInsuranceUserInfosList()){
+				if(stInsuranceUserInfo.getUuid() == uuid){
+					return stInsuranceUserInfo; 
+				}
+			}
+			return null;
 		}
 	}
 }
