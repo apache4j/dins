@@ -1133,7 +1133,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		BuyInsuranceDelayResponse.Builder stBuyInsuranceDelayResponseBuilder = BuyInsuranceDelayResponse.newBuilder();
 
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
-		
+		System.out.println("buyInsuranceDelayRequestbuyInsuranceDelayRequest");
 		if(stGameRoomDetailInfo!=null){
 			InsuranceUserInfo stInsuranceUserInfo= stGameRoomDetailInfo.buyInsuranceDealy(request.getUuid(), request.getLGameHandID(), request.getEGameRoomStatus());
 			

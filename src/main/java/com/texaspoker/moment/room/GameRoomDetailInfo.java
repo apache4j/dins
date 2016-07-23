@@ -2881,9 +2881,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	 * @param eGameRoomState		牌局的状态
 	 */
 	public InsuranceUserInfo buyInsuranceDealy(long uuid,long lGameHandID,GAME_ROOM_GAME_STATE eGameRoomState){
-		synchronized(this){					      
+		synchronized(this){					
+			System.out.println("buyInsuranceDealybuyInsuranceDealybuyInsuranceDealy 1");
 			InsuranceInfo stInsuranceInfo = InsuranceApi.delayInsuranceAction(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),lGameHandID,eGameRoomState, uuid);
+			System.out.println("buyInsuranceDealybuyInsuranceDealybuyInsuranceDealy 2 : " + stInsuranceInfo);
 			for(InsuranceUserInfo stInsuranceUserInfo:stInsuranceInfo.getVInsuranceUserInfosList()){
+				System.out.println("buyInsuranceDealybuyInsuranceDealybuyInsuranceDealy 3 : " + stInsuranceUserInfo.getUuid());
+				System.out.println("buyInsuranceDealybuyInsuranceDealybuyInsuranceDealy 4 : " + uuid);
 				if(stInsuranceUserInfo.getUuid() == uuid){
 					return stInsuranceUserInfo; 
 				}
