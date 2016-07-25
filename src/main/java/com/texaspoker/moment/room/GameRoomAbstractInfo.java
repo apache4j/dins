@@ -2890,7 +2890,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				long uuid = stPotInfo.playerList.get(j);
 				stPotInfoBuilder.addVUuids(uuid);
 			}
-			
+			stGameRoomInfoBuilder.clearVPotInfos();
 			stGameRoomInfoBuilder.addVPotInfos(stPotInfoBuilder);
 		}
 		
