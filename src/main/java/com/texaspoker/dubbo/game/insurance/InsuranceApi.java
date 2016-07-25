@@ -47,8 +47,8 @@ public class InsuranceApi {
   // allin状态下开始计算保险接口
   public static TexasPoker.InsuranceInfo checkInsurance(long lGameRoomID, long lHandID,
       TexasPoker.GAME_ROOM_GAME_STATE eRoundState) {
-    InsuranceInfo insuranceInfo =
-        InsuranceManager.getInstance().checkInsurance(lGameRoomID, lHandID, getRoundStatus(eRoundState));
+    int roundStatus = getRoundStatus(eRoundState);
+    InsuranceInfo insuranceInfo = InsuranceManager.getInstance().checkInsurance(lGameRoomID, lHandID, roundStatus);
     return getApiInfoFromInsuranceInfo(insuranceInfo);
   }
 
@@ -62,16 +62,16 @@ public class InsuranceApi {
   // 保险购买接口
   public static TexasPoker.InsuranceInfo doInsuranceAction(long lGameRoomID, long lHandID,
       TexasPoker.GAME_ROOM_GAME_STATE eRoundState, long uuid, List<BuyInsuranceInfo> stBuyInsuranceInfos) {
+    int roundStatus = getRoundStatus(eRoundState);
     InsuranceInfo insuranceInfo = null;
     for (BuyInsuranceInfo buyInfo : stBuyInsuranceInfos) {
       if (buyInfo.getEInsuranceAct().equals(INSURANCE_ACT.INSURANCE_ACT_BET)) {
         insuranceInfo =
-            InsuranceManager.getInstance().buyInsurance(lGameRoomID, lHandID, getRoundStatus(eRoundState), uuid,
-                buyInfo.getLPotID(), buyInfo.getLBetStacks());
+            InsuranceManager.getInstance().buyInsurance(lGameRoomID, lHandID, roundStatus, uuid, buyInfo.getLPotID(),
+                buyInfo.getLBetStacks());
       } else if (buyInfo.getEInsuranceAct().equals(INSURANCE_ACT.INSURANCE_ACT_FOLD)) {
         insuranceInfo =
-            InsuranceManager.getInstance().foldInsurance(lGameRoomID, lHandID, getRoundStatus(eRoundState), uuid,
-                buyInfo.getLPotID());
+            InsuranceManager.getInstance().foldInsurance(lGameRoomID, lHandID, roundStatus, uuid, buyInfo.getLPotID());
       } else {
         logger.error("roomId:" + lGameRoomID + ",handId:" + lHandID + ",eRoundState" + eRoundState + ",buy info:"
             + buyInfo);
@@ -79,10 +79,14 @@ public class InsuranceApi {
     }
     // 先保存购买时的超时信息
     TexasPoker.InsuranceInfo resultInfo = getApiInfoFromInsuranceInfo(insuranceInfo);
-    // 本次操作执行完毕以后，再来查看是否需要超时继续往下走
-    InsuranceManager.getInstance().checkRoomTimeout(lGameRoomID);
     // 返回当时状态
     return resultInfo;
+  }
+
+  // 检查是否进行超时逻辑
+  public static void doInsuranceTimeout(long lGameRoomID) {
+    // 本次操作执行完毕以后，再来查看是否需要超时继续往下走
+    InsuranceManager.getInstance().checkRoomTimeout(lGameRoomID);
   }
 
   // 延时购买接口
@@ -109,10 +113,6 @@ public class InsuranceApi {
       return null;
     }
   }
-
-  /*
-   * 游戏方API接口，由游戏方提供实现
-   */
 
 //保险购买行为超时接口
 public static void gotoNextStep(long lGameRoomID) {
@@ -143,7 +143,6 @@ public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
 		UserManager.getInstance().addUserCoin(uuid, nums);
 		return true;
 	}
-
 
   /*
    * 接口转换工具类
@@ -185,11 +184,14 @@ public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
           remains -= outsInfo.buy;
         }
       }
+      logger.debug("remains:" + remains);
       userGameInfo.toBuilder().setLRemainStacks(remains);
+      logger.debug("usergameinfo:" + userGameInfo);
       gameBuilder.setVUserGameInfos(i, userGameInfo);
     }
+    TexasPoker.GameRoomInfo gameInfo = gameBuilder.build();
     logger.debug("gameinfo:" + gameBuilder.build());
-    return gameBuilder.build();
+    return gameInfo;
   }
 
   // 结构体转换函数
@@ -266,7 +268,8 @@ public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
       // 加入用户保险信息队列
       apiInfo.addVInsuranceUserInfos(userInfo);
     }
-    logger.debug("insuranceinfo:" + apiInfo.build());
-    return apiInfo.build();
+    TexasPoker.InsuranceInfo resultInfo = apiInfo.build();
+    logger.debug("insuranceinfo:" + resultInfo);
+    return resultInfo;
   }
 }

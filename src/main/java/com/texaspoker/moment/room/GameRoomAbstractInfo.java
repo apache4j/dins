@@ -2876,7 +2876,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		
 		
 		//���������������pot������
-		GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();	
+		GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+		stGameRoomInfoBuilder.clearVPotInfos();
 		stGameRoomInfoBuilder.clearVCurrentPots();
 		for(int i = 0 ; i < mPotList.size();i++){
 			PotInfo stPotInfo = mPotList.get(i);
@@ -2890,7 +2891,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				long uuid = stPotInfo.playerList.get(j);
 				stPotInfoBuilder.addVUuids(uuid);
 			}
-			stGameRoomInfoBuilder.clearVPotInfos();
+			
 			stGameRoomInfoBuilder.addVPotInfos(stPotInfoBuilder);
 		}
 		

@@ -1337,6 +1337,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		//���������������������������������������������
 		stGameRoomInfoBuilder.clearVCurrentCards();
 		stGameRoomInfoBuilder.clearVCurrentPots();
+		stGameRoomInfoBuilder.clearVPotInfos();
 		stGameRoomInfoBuilder.clearStGameResultInfo();
 		
 		stGameRoomInfoBuilder.setBAllAllin(0);
@@ -2883,4 +2884,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			return null;
 		}
 	}
+	
+	
+	/**
+	 * 保险超时
+	 */
+	public void doInsuranceTimeout(){
+		synchronized(this){					
+			InsuranceApi.doInsuranceTimeout(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+		}
+	}
+	
 }
