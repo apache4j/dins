@@ -77,6 +77,9 @@ public class InsuranceApi {
         insuranceInfo =
             InsuranceManager.getInstance().foldInsurance(lGameRoomID, lHandID, getRoundStatus(eRoundState), uuid,
                 buyInfo.getLPotID());
+      } else {
+        logger.error("roomId:" + lGameRoomID + ",handId:" + lHandID + ",eRoundState" + eRoundState + ",buy info:"
+            + buyInfo);
       }
     }
     return getApiInfoFromInsuranceInfo(insuranceInfo);
@@ -141,6 +144,7 @@ public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
 		UserManager.getInstance().addUserCoin(uuid, nums);
 		return true;
 	}
+
 
   /*
    * 接口转换工具类

@@ -221,7 +221,7 @@ public class InsuranceManager {
     // 检查保险信息
     InsuranceInfo insuranceInfo = insurances_map.get(roomId);
     if (insuranceInfo == null) {
-      logger.error("roomId" + roomId + ",insurance info null");
+      logger.error("roomId:" + roomId + ",insurance info null");
       return null;
     }
     // 能否扣币成功
@@ -243,6 +243,7 @@ public class InsuranceManager {
       // InsuranceApi.addUserPopularity(uuid, buys);
     }
     // 返回所有保险信息
+    logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",potId:" + potId + ",buys:" + buys);
     return insuranceInfo;
   }
 
@@ -258,15 +259,8 @@ public class InsuranceManager {
       if (outsInfo.fold || outsInfo.buy > 0) {
         continue;
       }
-      // 是否需要强制购买
-      if (outsInfo.pay_min > 0) {
-        logger.debug("roomId:" + roomId + ",uuid:" + outsInfo.winner + ",potId:" + outsInfo.potId
-            + ",can't auto fold,must buy min");
-        // 强制购买
-        insuranceInfo.setUserBuys(outsInfo.potId, outsInfo.winner, outsInfo.pay_min);
-        // 设置本手保险购买总额
-        insuranceInfo.addUserBuyTotal(outsInfo.winner, outsInfo.potId, outsInfo.pay_min);
-      }
+      // 进行弃牌操作
+      foldInsurance(insuranceInfo, outsInfo.winner, outsInfo.potId);
     }
   }
 
@@ -281,9 +275,17 @@ public class InsuranceManager {
     // 去掉这个玩家的购买超时
     insurance_timer.removeUserTimeout(roomId, uuid, potId);
     // 保存放弃操作信息
+    foldInsurance(insuranceInfo, uuid, potId);
+    // 返回所有保险信息
+    return insuranceInfo;
+  }
+
+  private void foldInsurance(InsuranceInfo insuranceInfo, long uuid, long potId) {
+    // 保存放弃操作信息
+    logger.debug("roomId:" + insuranceInfo.roomId + ",uuid:" + uuid + ",potId:" + potId + ",fold");
     long mustBuys = insuranceInfo.setUserFold(potId, uuid);
     if (mustBuys > 0) {
-      logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",potId:" + potId + ",can't fold,must buy min");
+      logger.debug("roomId:" + insuranceInfo.roomId + ",uuid:" + uuid + ",potId:" + potId + ",can't fold,must buy min");
       // 强制购买
       insuranceInfo.setUserBuys(potId, uuid, mustBuys);
       // 设置本手保险购买总额
@@ -291,8 +293,6 @@ public class InsuranceManager {
       // 写入账单
       // InsuranceApi.addInsuranceBuyin(roomId, uuid, mustBuys);
     }
-    // 返回所有保险信息
-    return insuranceInfo;
   }
 
   public void delayInsurance(long roomId, long uuid) {
@@ -435,6 +435,7 @@ public class InsuranceManager {
     // 检查手数信息
     HandInfo handInfo = HandsManager.getInstance().getHandInfo(roomId);
     if (handInfo == null) {
+      logger.error("roomId" + roomId + ",handId:" + handId + ",roundstatus:" + roundStatus + ",handinfo null");
       return null;
     }
     // 检查手数状态是否正确
@@ -451,6 +452,7 @@ public class InsuranceManager {
     // 检查手数信息
     HandInfo handInfo = HandsManager.getInstance().getHandInfo(roomId);
     if (handInfo == null) {
+      logger.error("roomId" + roomId + ",handId:" + handId + ",roundstatus:" + roundStatus + ",handinfo null");
       return null;
     }
     // 检查手数状态是否正确
@@ -466,6 +468,7 @@ public class InsuranceManager {
     // 检查手数信息
     HandInfo handInfo = HandsManager.getInstance().getHandInfo(roomId);
     if (handInfo == null) {
+      logger.error("roomId" + roomId + ",handId:" + handId + ",roundstatus:" + roundStatus + ",handinfo null");
       return;
     }
     // 检查手数状态是否正确
@@ -481,6 +484,7 @@ public class InsuranceManager {
     // 检查手数信息
     HandInfo handInfo = HandsManager.getInstance().getHandInfo(roomId);
     if (handInfo == null) {
+      logger.error("roomId" + roomId + ",handId:" + handId + ",handinfo null");
       return null;
     }
     // 检查手数状态是否正确
