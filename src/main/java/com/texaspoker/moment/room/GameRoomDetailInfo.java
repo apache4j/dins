@@ -2829,23 +2829,23 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	 */
 	public ERROR_CODE_TYPE creatorInsuranceSetting(long uuid,long lSettedUuid,int bCanInsurance){
 		synchronized(this){
-			InsuranceInfo stInsuranceInfo = null;
-			if(uuid!=stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()){
-				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_GAME_ROOM_OWNER;
-			}
-			
-			if(bCanInsurance > 0){
-				stInsuranceInfo = InsuranceApi.setCreaterInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), lSettedUuid, false);
-			}else{
-				stInsuranceInfo = InsuranceApi.setCreaterInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), lSettedUuid, true);
-			}
-			
-			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-			stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
-			stGameRoomInfo = stGameRoomInfoBuilder.build();
-			
-			//push相关
-			pushAllGameRoomUserMsgs(null, GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_INSURANCEABLE_CHANGE);
+//			InsuranceInfo stInsuranceInfo = null;
+//			if(uuid!=stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()){
+//				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_GAME_ROOM_OWNER;
+//			}
+//			
+//			if(bCanInsurance > 0){
+//				stInsuranceInfo = InsuranceApi.setCreaterInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), lSettedUuid, false);
+//			}else{
+//				stInsuranceInfo = InsuranceApi.setCreaterInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), lSettedUuid, true);
+//			}
+//			
+//			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+//			stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
+//			stGameRoomInfo = stGameRoomInfoBuilder.build();
+//			
+//			//push相关
+//			pushAllGameRoomUserMsgs(null, GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_INSURANCEABLE_CHANGE);
 			
 			return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS; 
 			
@@ -2861,16 +2861,22 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		synchronized(this){
 			InsuranceInfo stInsuranceInfo = null;
 			if(bDefaultInsurance > 0){
-				stInsuranceInfo = InsuranceApi.setUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid, false);
+				stInsuranceInfo = InsuranceApi.setUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), 
+						stGameRoomInfo.getLGameHandID(),stGameRoomInfo.getEGameState(),uuid, false);
 			}else{
-				stInsuranceInfo = InsuranceApi.setUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid, true);
+				stInsuranceInfo = InsuranceApi.setUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), 
+						stGameRoomInfo.getLGameHandID(),stGameRoomInfo.getEGameState(),uuid, true);
 			}
 			
 			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 			stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
 			stGameRoomInfo = stGameRoomInfoBuilder.build();
 			
-			return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS; 
+			if(stInsuranceInfo==null){
+				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS; 
+			}else{
+				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SET_INSURANCE; 
+			}
 		}
 	}
 	

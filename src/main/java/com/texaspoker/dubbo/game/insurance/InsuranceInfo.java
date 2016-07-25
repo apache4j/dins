@@ -227,6 +227,21 @@ public class InsuranceInfo {
     return totals;
   }
 
+  // 获取这个用户的保险总投入
+  public long getUserAllBuyTotal(long uuid) {
+    ConcurrentMap<Long, Long> potTotals = hand_user_buy_totals.get(uuid);
+    if (potTotals == null) {
+      logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",no user info");
+      return 0;
+    }
+    long totals = 0;
+    for (Long bets : potTotals.values()) {
+      totals += bets;
+    }
+    logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",total:" + totals);
+    return totals;
+  }
+
   // 用户保险的赔付信息
   public void addUserResultTotal(long uuid, long result) {
     // 保险总投入

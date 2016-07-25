@@ -90,15 +90,21 @@ public class InsuranceApi {
   }
 
   // 房主控制开关接口
-  public static TexasPoker.InsuranceInfo setCreaterInsuranceClose(long lGameRoomID, long uuid, boolean close) {
+  public static TexasPoker.InsuranceInfo setCreaterInsuranceClose(long lGameRoomID, long lHandID,
+      TexasPoker.GAME_ROOM_GAME_STATE eRoundState, long uuid, boolean close) {
     InsuranceManager.getInstance().openInsuranceByCreater(lGameRoomID, uuid, close);
     return getApiInfoFromInsuranceInfo(InsuranceManager.getInstance().getInsurance(lGameRoomID));
   }
 
   // 用户控制开关接口
-  public static TexasPoker.InsuranceInfo setUserInsuranceClose(long lGameRoomID, long uuid, boolean close) {
-    InsuranceManager.getInstance().openInsuranceByUser(lGameRoomID, uuid, close);
-    return getApiInfoFromInsuranceInfo(InsuranceManager.getInstance().getInsurance(lGameRoomID));
+  public static TexasPoker.InsuranceInfo setUserInsuranceClose(long lGameRoomID, long lHandID,
+      TexasPoker.GAME_ROOM_GAME_STATE eRoundState, long uuid, boolean close) {
+    if (InsuranceManager.getInstance().openInsuranceByUser(lGameRoomID, uuid, close)) {
+      return getApiInfoFromInsuranceInfo(InsuranceManager.getInstance().getInsurance(lGameRoomID));
+    } else {
+      // 控制开关失败
+      return null;
+    }
   }
 
   /*
@@ -190,7 +196,6 @@ public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
   // 结构体转换函数
   public static TexasPoker.InsuranceInfo getApiInfoFromInsuranceInfo(InsuranceInfo insInfo) {
     if (insInfo == null) {
-      logger.error("no insinfo!!!");
       return null;
     }
     if (insInfo.round_user_outs.isEmpty()) {
@@ -243,11 +248,7 @@ public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
       // 所以保险的赔付金额
       userInfo.setLTotalGetStacks(lTotalGetStacks);
       // 开关状态
-      if (InsuranceManager.getInstance().getCreaterCloseStatus(insInfo.roomId, userId)) {
-        userInfo.setBCanInsurance(0);
-      } else {
-        userInfo.setBCanInsurance(1);
-      }
+      userInfo.setBDefaultInsurance(1);
       if (InsuranceManager.getInstance().getUserCloseStatus(insInfo.roomId, userId)) {
         userInfo.setBDefaultInsurance(0);
       } else {

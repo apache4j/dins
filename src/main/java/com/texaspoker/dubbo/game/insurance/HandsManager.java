@@ -64,7 +64,13 @@ public class HandsManager {
     return hands_map.get(roomId);
   }
 
-  public void delHandInfo(long roomId) {
+  public void onTableOpen(long roomId) {
+    logger.debug("open roomId:" + roomId);
+    // 调用本局开始逻辑
+    InsuranceManager.getInstance().onTableOpenAction(roomId);
+  }
+
+  public void onTableClose(long roomId) {
     logger.debug("remove roomId:" + roomId);
     hands_map.remove(roomId);
     // 调用本局结束逻辑

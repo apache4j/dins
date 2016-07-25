@@ -51,19 +51,29 @@ public class InsuranceManager {
     InsuranceLog.onLogMessage(tableLog);
   }
 
+  public void onTableOpenAction(long roomId) {
+    insurance_timer.onRoomOpen(roomId);
+    insurance_open.onRoomOpen(roomId);
+    insurance_delay.onRoomOpen(roomId);
+  }
+
   // 每一句结束时间调用
   public void onTableCloseAction(long roomId) {
-    HandInfo handInfo = HandsManager.getInstance().getHandInfo(roomId);
-    if (handInfo != null) {
-      logger.error("roomId:" + roomId + ",handinfo not null");
-      HandsManager.getInstance().delHandInfo(roomId);
-    }
+    // 防止相互调用
+    // HandInfo handInfo = HandsManager.getInstance().getHandInfo(roomId);
+    // if (handInfo != null) {
+    // logger.error("roomId:" + roomId + ",handinfo not null");
+    // HandsManager.getInstance().onTableClose(roomId);
+    // }
     InsuranceInfo insuranceInfo = insurances_map.get(roomId);
     if (insuranceInfo == null) {
       logger.error("roomId:" + roomId + ",insuranceInfo null");
     } else {
       insurances_map.remove(roomId);
     }
+    insurance_timer.onRoomClose(roomId);
+    insurance_open.onRoomClose(roomId);
+    insurance_delay.onRoomClose(roomId);
   }
 
   // 每一手结束时间调用，一次性写入账单
@@ -310,9 +320,30 @@ public class InsuranceManager {
   }
 
   // 玩家控制保险
-  public void openInsuranceByUser(long roomId, long uuid, boolean close) {
+  public boolean openInsuranceByUser(long roomId, long uuid, boolean close) {
     logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",close:" + close);
-    insurance_open.setUserOpenStatus(roomId, uuid, close);
+    // 检查保险信息
+    InsuranceInfo insuranceInfo = insurances_map.get(roomId);
+    if (insuranceInfo == null) {
+      logger.debug("roomId:" + roomId + ",no insurance info");
+      // 第一手信息初始化问题
+      insurance_open.setUserOpenStatus(roomId, uuid, close);
+      return true;
+    }
+    // 检查这一手是否有保险买入
+    if (close) {
+      // 买入则不让关闭保险
+      if (insuranceInfo.getUserAllBuyTotal(uuid) > 0) {
+        return false;
+      } else {
+        insurance_open.setUserOpenStatus(roomId, uuid, close);
+        return true;
+      }
+    } else {
+      // 恢复保险没有限制
+      insurance_open.setUserOpenStatus(roomId, uuid, close);
+      return true;
+    }
   }
 
   // 结算购买的保险
@@ -369,10 +400,6 @@ public class InsuranceManager {
 
   public boolean getUserCloseStatus(long roomId, long uuid) {
     return insurance_open.getUserCloseStatus(roomId, uuid);
-  }
-
-  public boolean getCreaterCloseStatus(long roomId, long uuid) {
-    return insurance_open.getCreaterCloseStatus(roomId, uuid);
   }
 
   public InsuranceTimer.InsuranceTimeInfo getUserTimeout(long roomId, long uuid) {

@@ -23,12 +23,12 @@ public class InsuranceDelay {
   public final ConcurrentMap<Long, ConcurrentMap<Long, Integer>> room_user_delays =
       new ConcurrentHashMap<Long, ConcurrentMap<Long, Integer>>();
 
-  public void RoomOpen(long roomId) {
+  public void onRoomOpen(long roomId) {
     ConcurrentMap<Long, Integer> user_delays = new ConcurrentHashMap<Long, Integer>();
     room_user_delays.put(roomId, user_delays);
   }
 
-  public void RoomClose(long roomId) {
+  public void onRoomClose(long roomId) {
     room_user_delays.remove(roomId);
   }
 

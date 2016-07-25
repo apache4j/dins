@@ -76,9 +76,11 @@ public class InsuranceLog {
     }
 
     // 牌局开局，这时还没有turnid，前移一位
-    if (tableLogContentArray[3].equalsIgnoreCase(ACTION_OPEN)
-        || tableLogContentArray[3].equalsIgnoreCase(ACTION_OPENTYPE)) {
+    if (tableLogContentArray[3].equalsIgnoreCase(ACTION_OPEN)) {
       // 本局开始
+      return;
+    } else if (tableLogContentArray[3].equalsIgnoreCase(ACTION_OPENTYPE)) {
+      // 游戏类型
       return;
     } else if (tableLogContentArray[3].equalsIgnoreCase(ACTION_STARTROUND)) {
       // 本手开始
@@ -105,7 +107,7 @@ public class InsuranceLog {
       return;
     } else if (actionStr.equalsIgnoreCase(ACTION_CLOSE_TABLE)) {
       // 清理本次牌局
-      HandsManager.getInstance().delHandInfo(roomId);
+      HandsManager.getInstance().onTableClose(roomId);
       return;
     } else if (actionStr.equalsIgnoreCase(ACTION_SHOWDOWN)) {
       return;

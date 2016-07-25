@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.apache.log4j.Logger;
+
 /**
  * 类名称:InsuranceLimit
  * 类描述:保险开关
@@ -24,6 +26,8 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class InsuranceLimit {
 
+  private static Logger logger = Logger.getLogger(InsuranceLimit.class);
+
   // 房主的操作状态
   private ConcurrentMap<Long, Set<Long>> room_creater_limits = new ConcurrentHashMap<Long, Set<Long>>();
   // 玩家的操作状态
@@ -31,6 +35,17 @@ public class InsuranceLimit {
 
   // 房间的屏蔽列表
   private ConcurrentMap<Long, Set<Long>> room_limits = new ConcurrentHashMap<Long, Set<Long>>();
+
+  public void onRoomOpen(long roomId) {
+    logger.debug("roomId:" + roomId + ",open table");
+  }
+
+  public void onRoomClose(long roomId) {
+    logger.debug("roomId:" + roomId + ",close table");
+    room_creater_limits.remove(roomId);
+    room_user_limits.remove(roomId);
+    room_limits.remove(roomId);
+  }
 
   // 检查是否关闭这个用户的保险购买信息
   public boolean checkUserCloseInsurance(long roomId, long uuid) {

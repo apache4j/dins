@@ -64,6 +64,15 @@ public class InsuranceTimer {
     InsuranceApi.gotoNextStep(roomId);
   }
 
+  public void onRoomOpen(long roomId) {
+    logger.debug("roomId:" + roomId + ",open table");
+  }
+
+  public void onRoomClose(long roomId) {
+    logger.debug("roomId:" + roomId + ",close table");
+    room_timer.remove(roomId);
+  }
+
   // 清空房间的超时记录
   public void clearRoomTimeout(long roomId) {
     logger.debug("roomId:" + roomId + ",clean timeout");
