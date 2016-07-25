@@ -600,13 +600,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 //	}
 	
 	void checkGotoTurnStatus(long uuid){
-		System.out.println("checkGotoTurnStatus 1 ; " + checkAllAllin());
 		if(checkAllAllin() == true){
 			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 			InsuranceInfo stInsuranceInfo = null;
-			System.out.println("checkGotoTurnStatus 2 : " + stGameRoomInfoBuilder.getEInsuranceStatus());
 			if(stGameRoomInfoBuilder.getEInsuranceStatus() == INSURANCE_STATUS.INSURANCE_STATUS_NO){
-				System.out.println("checkGotoTurnStatus 3");
 				stInsuranceInfo = InsuranceApi.checkInsurance(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),stGameRoomInfo.getLGameHandID(),GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop);
 		
 
@@ -677,13 +674,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	}
 	
 	void checkGotoRiverStatus(long uuid){
-		System.out.println("checkGotoRiverStatus 1 : "  + checkAllAllin());
 		if(checkAllAllin() == true){
 			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 			InsuranceInfo stInsuranceInfo = null;
-			System.out.println("checkGotoRiverStatus 2 : " + stGameRoomInfoBuilder.getEInsuranceStatus());
 			if(stGameRoomInfoBuilder.getEInsuranceStatus() == INSURANCE_STATUS.INSURANCE_STATUS_NO){
-				System.out.println("checkGotoRiverStatus 3");
+
 				stInsuranceInfo = InsuranceApi.checkInsurance(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),stGameRoomInfo.getLGameHandID(),GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Turn);
 
 				if(stInsuranceInfo != null){
@@ -1459,7 +1454,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	public ERROR_CODE_TYPE doFlodAction(long uuid,int userPos,long lBettingID){
 		ERROR_CODE_TYPE eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 
-		System.out.println("doFlodActiondoFlodAction 111111111111111111. : " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 		if(bPause == true){
 			return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
 		}
@@ -1526,7 +1520,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 
 					//检查牌局是否结束
 					victoryUser = iGameOver();
-					System.out.println("doFlodActiondoFlodAction 111111111111111112. : " + victoryUser);
 					if(victoryUser != -1){		
 						//如果牌局已，则进入牌局输赢结算状态
 						sendAllGameStateChange(uuid,null);

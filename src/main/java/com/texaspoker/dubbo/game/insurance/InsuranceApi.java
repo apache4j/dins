@@ -12,16 +12,12 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.texaspoker.bill.BillManager;
 import com.texaspoker.moment.TexasPoker;
 import com.texaspoker.moment.TexasPoker.BuyInsuranceInfo;
 import com.texaspoker.moment.TexasPoker.GameRoomInfo;
 import com.texaspoker.moment.TexasPoker.INSURANCE_ACT;
 import com.texaspoker.moment.TexasPoker.INSURANCE_BET_STATUS;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
-import com.texaspoker.moment.room.GameRoomDetailInfo;
-import com.texaspoker.moment.room.GameRoomManager;
-import com.texaspoker.user.UserManager;
 
 /**
  * 类名称:InsuranceApiProxy
@@ -56,11 +52,7 @@ public class InsuranceApi {
   public static TexasPoker.GameRoomInfo getInsuranceResult(GameRoomInfo stGameRoomInfo, long lHandID, int tableCard) {
     long lGameRoomID = stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId();
     InsuranceInfo insuranceInfo = InsuranceManager.getInstance().settleInsurance(lGameRoomID, lHandID, tableCard);
-    if (insuranceInfo.status == HandUtils.RIVER || insuranceInfo.status == HandUtils.TURN) {
-      return doInsuranceResult(insuranceInfo, stGameRoomInfo);
-    } else {
-      return stGameRoomInfo;
-    }
+    return doInsuranceResult(insuranceInfo, stGameRoomInfo);
   }
 
   // 保险购买接口
@@ -118,36 +110,30 @@ public class InsuranceApi {
    * 游戏方API接口，由游戏方提供实现
    */
 
-//保险购买行为超时接口
-public static void gotoNextStep(long lGameRoomID) {
-	  GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
-	  if(stGameRoomDetail!=null){
-		  stGameRoomDetail.gotoNextStep();
-	  }
-}
+  // 保险购买行为超时接口
+  public static void gotoNextStep(long lGameRoomID) {
 
-//billserver保险购买接口
-public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
-	  BillManager.getInstance().addInsuranceBuyin(uuid, lGameRoomID, buyin);
-}
+  }
 
-	//billserver保险赔付接口
-	public static void setInsuranceGetStack(long lGameRoomID, long uuid, long getstacks) {
-	  BillManager.getInstance().addInsuranceGetStacks(uuid, lGameRoomID, getstacks);
-	}
+  // billserver保险购买接口
+  public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
 
-	//保险代理人账单信息接口
-	public static boolean setInsuranceGame(long lGameRoomID, long nums) {
-		BillManager.getInstance().addInsuranceGetStacks(1000, lGameRoomID, nums);
-		return true;
-	}
+  }
 
-	//保险扣钻石接口
-	public static boolean addUserCoin(Long uuid, long nums) {
-		UserManager.getInstance().addUserCoin(uuid, nums);
-		return true;
-	}
+  // billserver保险赔付接口
+  public static void setInsuranceGetStack(long lGameRoomID, long uuid, long getstacks) {
 
+  }
+
+  // 保险代理人账单信息接口
+  public static boolean setInsuranceGame(long lGameRoomID, long nums) {
+    return true;
+  }
+
+  // 保险扣钻石接口
+  public static boolean addUserCoin(Long uuid, long nums) {
+    return true;
+  }
 
   /*
    * 接口转换工具类

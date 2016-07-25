@@ -66,16 +66,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	/****************************牌局操作函数*******************************/
 	public ERROR_CODE_TYPE startGame(long uuid){
 		synchronized(this){
-			System.out.println("startGamestartGamestartGame1.");
 			if(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == uuid){
-				System.out.println("startGamestartGamestartGame2.");
+	
 				//赋初值
 				bPause = false;
 				bStarted = true;
 				lFromRoomID=stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
 				lGameRoomID=stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId();
 				iGameRoomUserMaxNums = stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums();
-				System.out.println("startGamestartGamestartGame3.");
+
 				
 				if(stGameRoomInfo.getStGameRoomBaseInfo().getBStarted()== 0){
 					TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
@@ -94,20 +93,18 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							+"," + 0
 							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums());
 				}
-				System.out.println("startGamestartGamestartGame4.");
 
 				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-				System.out.println("startGamestartGamestartGame5.");
+
 				GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = stGameRoomInfo.getStGameRoomBaseInfo().toBuilder();
-				System.out.println("startGamestartGamestartGame6.");
+		
 				stGameRoomBaseInfoBuilder.setBStarted(1);
-				System.out.println("startGamestartGamestartGame7.");
 				stGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
-				System.out.println("startGamestartGamestartGame8.");
+
 				stGameRoomInfo = stGameRoomInfoBuilder.build();
 				iGameRoomUserMaxNums = stGameRoomBaseInfoBuilder.getIGameRoomUserMaxNums();
 				
-				System.out.println("startGamestartGamestartGame: " + stGameRoomInfo);
+
 				pushAppPushStartGame();
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 			}else{
@@ -124,7 +121,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	 */
 	public ERROR_CODE_TYPE doStandUpAction(long uuid,boolean bAuto){
 		synchronized(this){
-			System.out.println("doStandUpAction1");
 			if(this.stGameRoomInfo.getStGameRoomBaseInfo().getBGamePause() == 1){
 				boolean bExist = false;
 				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount();i++){
@@ -141,7 +137,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				}
 			}
 			
-			System.out.println("doStandUpAction2");
 			//站起用户的副本，push使用
 			UserGameInfoNet.Builder stUserMyGameInfoNetBuilder = null;
 			
@@ -224,7 +219,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 										}
 									}
 								}else{
-									System.out.println("doStandUpAction USER_GAME_STATE_BETTING");
 									if(stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_BETTING){
 										doFlodAction(uuid , pos);
 									}else{
@@ -374,7 +368,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	
 	public ERROR_CODE_TYPE  resetBuyinState(int bBuyinControl){
 		synchronized(this){
-			System.out.println("CmdSetBuyinControlState getBBuyinControl : " + bBuyinControl);
             if(bBuyinControl == 1){
                     GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
                     GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = stGameRoomInfoBuilder.getStGameRoomBaseInfoBuilder();
@@ -1240,9 +1233,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						gotoAnteStatus();
 					}
 				
-					System.out.println("gotoStartStatus before : " + stGameRoomInfo);
 					gotoStartStatus();
-					System.out.println("gotoStartStatus after : " + stGameRoomInfo);
 				}
 			}
 			break;
@@ -1680,9 +1671,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				
 				if( getTimeoutTimesUser(uuid) > 1){
 					removeTimeoutTimesUser(uuid);
-					System.out.println("robotFlod11!!!!!!!!!!!!!!!");
 					doStandUpAction(uuid,true);
-					System.out.println("robotFlod12!!!!!!!!!!!!!!!");
 				}else{
 					
 					
@@ -1700,16 +1689,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						if(lStepMaxStacks == stUserGameInfoBuilder.getLBetStacks()){
 							addUserTimeoutTimes(uuid);
 							doCheckAction(uuid, 0);
-							System.out.println("robotFlod2");
 						}else{
 							addUserTimeoutTimes(uuid);
 							doFlodAction(uuid,(long)-1);
-							System.out.println("robotFlod3");
 						}
 					}else{
 						addUserTimeoutTimes(uuid);
 						doFlodAction(uuid,(long)-1);
-						System.out.println("robotFlod4");
 					}
 				}
 			}
@@ -2082,7 +2068,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	
 	//用户进入房间
 	public ERROR_CODE_TYPE enterGameRoom(long uuid){
-		System.out.println("enterGameRoomenterGameRoomenterGameRoom2");
 		try{
 			//把用户加入房间
 			//获取gameroom builder,这里要注意toBuilder的方式，看看toBuilder是否会有问题
@@ -2108,7 +2093,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			if(bInClub == false){
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_CLUB_NO_USER;
 			}
-			System.out.println("enterGameRoomenterGameRoomenterGameRoom3");
 			if(containUser(uuid)){
 				//如果用户已经存在房间了，就直接返回
 				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount() ; i++){
@@ -2888,12 +2872,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	 */
 	public InsuranceUserInfo buyInsuranceDealy(long uuid,long lGameHandID,GAME_ROOM_GAME_STATE eGameRoomState){
 		synchronized(this){					
-			System.out.println("buyInsuranceDealybuyInsuranceDealybuyInsuranceDealy 1");
 			InsuranceInfo stInsuranceInfo = InsuranceApi.delayInsuranceAction(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),lGameHandID,eGameRoomState, uuid);
-			System.out.println("buyInsuranceDealybuyInsuranceDealybuyInsuranceDealy 2 : " + stInsuranceInfo);
+
 			for(InsuranceUserInfo stInsuranceUserInfo:stInsuranceInfo.getVInsuranceUserInfosList()){
-				System.out.println("buyInsuranceDealybuyInsuranceDealybuyInsuranceDealy 3 : " + stInsuranceUserInfo.getUuid());
-				System.out.println("buyInsuranceDealybuyInsuranceDealybuyInsuranceDealy 4 : " + uuid);
+
 				if(stInsuranceUserInfo.getUuid() == uuid){
 					return stInsuranceUserInfo; 
 				}
