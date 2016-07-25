@@ -79,6 +79,15 @@ public class InsuranceTimer {
     room_timer.remove(roomId);
   }
 
+  // 查询房间是否需要超时操作,只限于主动购买或者放弃时需要调用，破解嵌套调用
+  public void checkRoomTimeout(long roomId) {
+    logger.debug("roomId:" + roomId + ",clean timeout");
+    if (!room_timer.containsKey(roomId)) {
+      // 房间超时信息突然没有了，这哥们的操作应该是最后一个人的，所以可以调用超时操作
+      InsuranceTimeoutHandler(roomId);
+    }
+  }
+
   // 设置玩家超时
   public void setUserTimeout(long roomId, long uuid, long potId) {
     ConcurrentMap<Long, InsuranceTimeInfo> userTimes = room_timer.get(roomId);
@@ -159,9 +168,9 @@ public class InsuranceTimer {
     if (userTimes.isEmpty()) {
       // 删除超时逻辑
       clearRoomTimeout(roomId);
-      // 通知游戏超时结束
-      InsuranceTimeoutHandler(roomId);
-      logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",start room timeout");
+      // （日，小心会产生嵌套调用！！！）通知游戏超时结束，开始一下轮发牌
+      // InsuranceTimeoutHandler(roomId);
+      logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",clear room timeout");
       return;
     }
     // 重新计算超时时间，遍历所有玩家的超时时间，找出剩下最大的那一个

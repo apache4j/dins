@@ -398,6 +398,11 @@ public class InsuranceManager {
     return insuranceInfo;
   }
 
+  // 主要用于最后一个人购买或者放弃时调用，用于解耦
+  public void checkRoomTimeout(long roomId) {
+    insurance_timer.checkRoomTimeout(roomId);
+  }
+
   public boolean getUserCloseStatus(long roomId, long uuid) {
     return insurance_open.getUserCloseStatus(roomId, uuid);
   }

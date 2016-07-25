@@ -115,31 +115,31 @@ public class InsuranceInfo {
   public long setUserBuys(long potId, long uuid, long buys) {
     ConcurrentMap<Long, OutsInfo> userOuts = round_pot_user_outs.get(potId);
     if (userOuts == null) {
-      logger.error("roomId" + roomId + ",potId" + potId + ",uuid:" + uuid + ",no potId outs info");
+      logger.error("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",no potId outs info");
       return 0;
     }
     if (!userOuts.containsKey(uuid)) {
-      logger.error("roomId" + roomId + ",potId" + potId + ",uuid:" + uuid + ",no uuid outs info");
+      logger.error("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",no uuid outs info");
       return 0;
     }
     // 这个边池已经购买过了！！！
     OutsInfo info = userOuts.get(uuid);
     if (info.getBuy() > 0) {
-      logger.error("roomId" + roomId + ",potId" + potId + ",uuid:" + uuid + ",has already buy " + buys);
+      logger.error("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",has already buy " + buys);
       return 0;
     }
     long finalBuys = buys;
     if (buys < info.pay_min) {
-      logger.error("roomId" + roomId + ",potId" + potId + ",uuid:" + uuid + ",must > min pay " + info.pay_min);
+      logger.error("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",must > min pay " + info.pay_min);
       finalBuys = info.pay_min;
     }
     if (buys > info.pay_max) {
-      logger.error("roomId" + roomId + ",potId" + potId + ",uuid:" + uuid + ",must < max pay " + info.pay_max);
+      logger.error("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",must < max pay " + info.pay_max);
       finalBuys = info.pay_max;
     }
     // 这是购买金额
     info.setBuy(finalBuys);
-    logger.debug("roomId" + roomId + ",potId" + potId + ",uuid:" + uuid + ",buys:" + finalBuys);
+    logger.debug("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",buys:" + finalBuys);
     // 设置用户购买记录
     // ConcurrentMap<Long, List<OutsInfo>> roundUserBuys = hand_user_buys.get(status);
     // if (roundUserBuys == null) {

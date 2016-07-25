@@ -82,7 +82,12 @@ public class InsuranceApi {
             + buyInfo);
       }
     }
-    return getApiInfoFromInsuranceInfo(insuranceInfo);
+    // 先保存购买时的超时信息
+    TexasPoker.InsuranceInfo resultInfo = getApiInfoFromInsuranceInfo(insuranceInfo);
+    // 本次操作执行完毕以后，再来查看是否需要超时继续往下走
+    InsuranceManager.getInstance().checkRoomTimeout(lGameRoomID);
+    // 返回当时状态
+    return resultInfo;
   }
 
   // 延时购买接口
@@ -113,7 +118,6 @@ public class InsuranceApi {
   /*
    * 游戏方API接口，由游戏方提供实现
    */
-
 
 //保险购买行为超时接口
 public static void gotoNextStep(long lGameRoomID) {
