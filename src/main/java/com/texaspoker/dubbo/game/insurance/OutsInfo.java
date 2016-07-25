@@ -107,11 +107,11 @@ public class OutsInfo {
   public boolean checkBuyWin(int tableCard) {
     for (int i = 0; i < outs.length; i++) {
       if (tableCard == outs[i]) {
-        result = getPayCoin();
+        this.result = getPayCoin();
         return true;
       }
     }
-    result = 0;
+    this.result = 0;
     return false;
   }
 

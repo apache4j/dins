@@ -195,7 +195,7 @@ public class InsuranceTimer {
   public InsuranceTimeInfo getUserTimeout(long roomId, long uuid) {
     ConcurrentMap<Long, InsuranceTimeInfo> userTimes = room_timer.get(roomId);
     if (userTimes == null) {
-      logger.error("roomId:" + roomId + ",uuid:" + uuid + ",no timeout info!");
+      logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",no timeout info!");
       return null;
     }
     return userTimes.get(uuid);

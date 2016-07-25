@@ -54,13 +54,12 @@ public class InsuranceApi {
 
   // 发牌后获取保险接口
   public static TexasPoker.GameRoomInfo getInsuranceResult(GameRoomInfo stGameRoomInfo, long lHandID, int tableCard) {
-    InsuranceInfo insuranceInfo =
-        InsuranceManager.getInstance().settleInsurance(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),
-            lHandID, tableCard);
-    if (insuranceInfo.status != HandUtils.RIVER) {
-      return stGameRoomInfo;
-    } else {
+    long lGameRoomID = stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId();
+    InsuranceInfo insuranceInfo = InsuranceManager.getInstance().settleInsurance(lGameRoomID, lHandID, tableCard);
+    if (insuranceInfo.status == HandUtils.RIVER || insuranceInfo.status == HandUtils.TURN) {
       return doInsuranceResult(insuranceInfo, stGameRoomInfo);
+    } else {
+      return stGameRoomInfo;
     }
   }
 
@@ -118,7 +117,6 @@ public class InsuranceApi {
   /*
    * 游戏方API接口，由游戏方提供实现
    */
-
 //保险购买行为超时接口
 public static void gotoNextStep(long lGameRoomID) {
 	  GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
@@ -148,7 +146,6 @@ public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
 		UserManager.getInstance().addUserCoin(uuid, nums);
 		return true;
 	}
-
 
   /*
    * 接口转换工具类
