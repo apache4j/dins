@@ -49,7 +49,6 @@ public class InsuranceApi {
       TexasPoker.GAME_ROOM_GAME_STATE eRoundState) {
     InsuranceInfo insuranceInfo =
         InsuranceManager.getInstance().checkInsurance(lGameRoomID, lHandID, getRoundStatus(eRoundState));
-    logger.debug("insuranceInfo:" + insuranceInfo);
     return getApiInfoFromInsuranceInfo(insuranceInfo);
   }
 
@@ -57,11 +56,8 @@ public class InsuranceApi {
   public static TexasPoker.GameRoomInfo getInsuranceResult(GameRoomInfo stGameRoomInfo, long lHandID, int tableCard) {
     long lGameRoomID = stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId();
     InsuranceInfo insuranceInfo = InsuranceManager.getInstance().settleInsurance(lGameRoomID, lHandID, tableCard);
-    logger.debug("insuranceInfo:" + insuranceInfo);
     if (insuranceInfo.status == HandUtils.RIVER || insuranceInfo.status == HandUtils.TURN) {
-      TexasPoker.GameRoomInfo gameInfo = doInsuranceResult(insuranceInfo, stGameRoomInfo);
-      logger.debug("gameroominfo:" + gameInfo);
-      return gameInfo;
+      return doInsuranceResult(insuranceInfo, stGameRoomInfo);
     } else {
       return stGameRoomInfo;
     }
@@ -86,7 +82,6 @@ public class InsuranceApi {
       }
     }
     // 先保存购买时的超时信息
-    logger.debug("insuranceInfo:" + insuranceInfo);
     TexasPoker.InsuranceInfo resultInfo = getApiInfoFromInsuranceInfo(insuranceInfo);
     // 本次操作执行完毕以后，再来查看是否需要超时继续往下走
     InsuranceManager.getInstance().checkRoomTimeout(lGameRoomID);
@@ -122,6 +117,7 @@ public class InsuranceApi {
   /*
    * 游戏方API接口，由游戏方提供实现
    */
+
 //保险购买行为超时接口
 public static void gotoNextStep(long lGameRoomID) {
 	  GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
@@ -151,6 +147,7 @@ public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
 		UserManager.getInstance().addUserCoin(uuid, nums);
 		return true;
 	}
+
 
   /*
    * 接口转换工具类
@@ -192,14 +189,10 @@ public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
           remains -= outsInfo.buy;
         }
       }
-      if (remains >= 0) {
-        userGameInfo.toBuilder().setLRemainStacks(remains);
-        gameBuilder.setVUserGameInfos(i, userGameInfo);
-      } else {
-        // 不应该来这里
-        logger.fatal("roomId:" + insuranceInfo.roomId + ",uuid:" + uuid + ",remains errors:" + remains);
-      }
+      userGameInfo.toBuilder().setLRemainStacks(remains);
+      gameBuilder.setVUserGameInfos(i, userGameInfo);
     }
+    logger.debug("gameinfo:" + gameBuilder.build());
     return gameBuilder.build();
   }
 
@@ -277,6 +270,7 @@ public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
       // 加入用户保险信息队列
       apiInfo.addVInsuranceUserInfos(userInfo);
     }
+    logger.debug("insuranceinfo:" + apiInfo.build());
     return apiInfo.build();
   }
 }
