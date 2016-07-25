@@ -49,6 +49,7 @@ public class InsuranceApi {
       TexasPoker.GAME_ROOM_GAME_STATE eRoundState) {
     InsuranceInfo insuranceInfo =
         InsuranceManager.getInstance().checkInsurance(lGameRoomID, lHandID, getRoundStatus(eRoundState));
+    logger.debug("insuranceInfo:" + insuranceInfo);
     return getApiInfoFromInsuranceInfo(insuranceInfo);
   }
 
@@ -56,8 +57,11 @@ public class InsuranceApi {
   public static TexasPoker.GameRoomInfo getInsuranceResult(GameRoomInfo stGameRoomInfo, long lHandID, int tableCard) {
     long lGameRoomID = stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId();
     InsuranceInfo insuranceInfo = InsuranceManager.getInstance().settleInsurance(lGameRoomID, lHandID, tableCard);
+    logger.debug("insuranceInfo:" + insuranceInfo);
     if (insuranceInfo.status == HandUtils.RIVER || insuranceInfo.status == HandUtils.TURN) {
-      return doInsuranceResult(insuranceInfo, stGameRoomInfo);
+      TexasPoker.GameRoomInfo gameInfo = doInsuranceResult(insuranceInfo, stGameRoomInfo);
+      logger.debug("gameroominfo:" + gameInfo);
+      return gameInfo;
     } else {
       return stGameRoomInfo;
     }
@@ -82,6 +86,7 @@ public class InsuranceApi {
       }
     }
     // 先保存购买时的超时信息
+    logger.debug("insuranceInfo:" + insuranceInfo);
     TexasPoker.InsuranceInfo resultInfo = getApiInfoFromInsuranceInfo(insuranceInfo);
     // 本次操作执行完毕以后，再来查看是否需要超时继续往下走
     InsuranceManager.getInstance().checkRoomTimeout(lGameRoomID);
@@ -186,13 +191,13 @@ public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
         if (outsInfo.buy > 0) {
           remains -= outsInfo.buy;
         }
-        if (remains >= 0) {
-          userGameInfo.toBuilder().setLRemainStacks(remains);
-          gameBuilder.setVUserGameInfos(i, userGameInfo);
-        } else {
-          // 不应该来这里
-          logger.fatal("roomId:" + insuranceInfo.roomId + ",uuid:" + uuid + ",remains errors:" + remains);
-        }
+      }
+      if (remains >= 0) {
+        userGameInfo.toBuilder().setLRemainStacks(remains);
+        gameBuilder.setVUserGameInfos(i, userGameInfo);
+      } else {
+        // 不应该来这里
+        logger.fatal("roomId:" + insuranceInfo.roomId + ",uuid:" + uuid + ",remains errors:" + remains);
       }
     }
     return gameBuilder.build();
