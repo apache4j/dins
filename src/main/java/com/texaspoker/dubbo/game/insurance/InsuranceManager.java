@@ -380,7 +380,7 @@ public class InsuranceManager {
       logger.debug("roomId:" + roomId + "," + outsInfo);
       // 检查这个保险是否买中
       if (outsInfo.checkBuyWin(tableCard)) {
-        logger.debug("roomId:" + roomId + ",outs hit!!!");
+        logger.debug("roomId:" + roomId + ",result:" + outsInfo.result + ",outs hit!!!");
         insuranceInfo.setShopTotal(outsInfo.buy, outsInfo.result);
         insuranceInfo.addUserResultTotal(outsInfo.winner, outsInfo.result);
         // API接口，调用用户结算接口
