@@ -963,7 +963,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			long stToUserUuid,GAME_ROOM_MESSAGE_TYPE eGameRoomMessageType ,int pos){
 		
 		//给被邀请用户发通知
-		TexasPoker.GameRoomPushMsg.Builder stGameRoomPushMsgBuilder = TexasPoker.GameRoomPushMsg.newBuilder() ;
+		TexasPoker.GameRoomPushMsg.Builder stGameRoomPushMsgBuilder = TexasPoker.GameRoomPushMsg.newBuilder();
 			
 		//获取时间
 		long curTime = System.currentTimeMillis();

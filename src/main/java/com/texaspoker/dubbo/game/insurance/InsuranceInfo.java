@@ -255,6 +255,15 @@ public class InsuranceInfo {
     logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",total:" + totals);
   }
 
+  // 获取用户保险的所有赔付总额
+  public long getUserAllResultTotal(long uuid) {
+    Long totals = hand_user_result_totals.get(uuid);
+    if (totals == null) {
+      return 0;
+    }
+    return totals;
+  }
+
   // 设置牌局的保险实时赔付情况
   public void setShopTotal(long buy, long result) {
     proxy_shop += buy;

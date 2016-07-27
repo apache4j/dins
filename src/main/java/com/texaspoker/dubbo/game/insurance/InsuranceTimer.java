@@ -81,7 +81,7 @@ public class InsuranceTimer {
 
   // 查询房间是否需要超时操作,只限于主动购买或者放弃时需要调用，破解嵌套调用
   public void checkRoomTimeout(long roomId) {
-    logger.debug("roomId:" + roomId + ",clean timeout");
+    logger.debug("roomId:" + roomId + ",check timeout");
     if (!room_timer.containsKey(roomId)) {
       // 房间超时信息突然没有了，这哥们的操作应该是最后一个人的，所以可以调用超时操作
       InsuranceTimeoutHandler(roomId);

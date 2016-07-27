@@ -114,6 +114,11 @@ public class InsuranceApi {
     }
   }
 
+  /*
+   * 游戏方API接口，由游戏方提供实现
+   */
+
+
 //保险购买行为超时接口
 public static void gotoNextStep(long lGameRoomID) {
 	  GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
@@ -143,7 +148,6 @@ public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
 		UserManager.getInstance().addUserCoin(uuid, nums);
 		return true;
 	}
-
   /*
    * 接口转换工具类
    */
@@ -167,40 +171,46 @@ public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
     return HandUtils.PRE_FLOP;
   }
 
-  private static TexasPoker.GameRoomInfo doInsuranceResult(InsuranceInfo insuranceInfo, TexasPoker.GameRoomInfo info) {
+  public static TexasPoker.GameRoomInfo doInsuranceResult(InsuranceInfo insuranceInfo, TexasPoker.GameRoomInfo info) {
     TexasPoker.GameRoomInfo.Builder gameBuilder = info.toBuilder();
     // turn阶段不实时显示购买保险的当前筹码量信息，只有再river结算时，才显示
-    if (insuranceInfo.status == HandUtils.RIVER) {
+    if (insuranceInfo.status == HandUtils.TURN) {
       for (int i = 0; i < info.getVUserGameInfosCount(); i++) {
         UserGameInfoNet userGameInfo = info.getVUserGameInfos(i);
         long uuid = userGameInfo.getStUserInfo().getUuid();
-        if (!insuranceInfo.round_user_outs.containsKey(uuid)) {
+        if (uuid == 0) {
           continue;
         }
         long remains = userGameInfo.getLRemainStacks();
-        for (OutsInfo outsInfo : insuranceInfo.round_user_outs.get(uuid)) {
-          if (outsInfo.result > 0) {
-            remains += outsInfo.result;
-          }
-          if (outsInfo.buy > 0) {
-            remains -= outsInfo.buy;
-          }
-        }
-        logger.debug("remains:" + remains);
+        // 计算这一轮的保险情况
+        // for (OutsInfo outsInfo : insuranceInfo.round_user_outs.get(uuid)) {
+        // if (outsInfo.result > 0) {
+        // remains += outsInfo.result;
+        // }
+        // if (outsInfo.buy > 0) {
+        // remains -= outsInfo.buy;
+        // }
+        // }
+        // 计算这一手的保险情况
+        logger.debug("remains before:" + remains);
+        remains -= insuranceInfo.getUserAllBuyTotal(uuid);
+        logger.debug("buytotal:" + insuranceInfo.getUserAllBuyTotal(uuid));
+        remains += insuranceInfo.getUserAllResultTotal(uuid);
+        logger.debug("resulttotal:" + insuranceInfo.getUserAllResultTotal(uuid));
+        logger.debug("remains after:" + remains);
+
         TexasPoker.UserGameInfoNet.Builder userGameBuilder = userGameInfo.toBuilder();
         userGameBuilder.setLRemainStacks(remains);
-        // userGameInfo.toBuilder().setLRemainStacks(remains);
-        logger.debug("userGameBuilder:" + userGameBuilder);
+        // logger.debug("userGameBuilder:" + userGameBuilder);
         gameBuilder.setVUserGameInfos(i, userGameBuilder);
       }
     }
     // 每次都需要设置保险信息
     TexasPoker.InsuranceInfo insInfo = getApiInfoFromInsuranceInfo(insuranceInfo);
     if (insInfo != null) {
-      logger.error("insinfo null");
       gameBuilder.setVInsuranceInfos(insInfo);
     }
-    logger.debug("gameinfo:" + gameBuilder);
+    // logger.debug("gameinfo:" + gameBuilder);
     return gameBuilder.build();
   }
 
