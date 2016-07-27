@@ -62,7 +62,7 @@ public class GameRoomMsgManager {
 	
 	public void sendGameRoomMsg(Long toUserId,GameRoomPushMsg stGameRoomPushMsg){
 		// TODO Auto-generated method stub
-		System.out.println("sendGameRoomMsg : "+stGameRoomPushMsg);
+		System.out.println("sendGameRoomMsg.");
 		GameRoomPushMsgRequest.Builder stGameRoomPushMsgBuilder = GameRoomPushMsgRequest.newBuilder(); 
 		stGameRoomPushMsgBuilder.setUuid(toUserId);
 		stGameRoomPushMsgBuilder.addVPushMsgs(stGameRoomPushMsg);
@@ -99,7 +99,7 @@ public class GameRoomMsgManager {
 	}
 	
 	public void sendGameRoomStateChangeMsg(Long toUserId,SCGameRoomStateChange stSCGameRoomStateChange){
-		System.out.println("sendGameRoomStateChangeMsg : "+stSCGameRoomStateChange);
+		System.out.println("sendGameRoomStateChangeMsg.");
 		GameRoomStateChangePushRequest.Builder stGameRoomStateChangePushRequestBuilder = GameRoomStateChangePushRequest.newBuilder(); 
 		stGameRoomStateChangePushRequestBuilder.setUuid(toUserId);
 		stGameRoomStateChangePushRequestBuilder.setStSCGameRoomStateChange(stSCGameRoomStateChange);
