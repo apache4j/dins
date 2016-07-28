@@ -411,6 +411,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 								}
 							}
 							
+							stGameRoomInfo = stGameRoomInfoBuilder.build();
 							switch (stGameRoomInfoBuilder.getEGameState()
 									.getNumber()) {
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE: {
@@ -1391,6 +1392,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 								}
 							}
 							
+							stGameRoomInfo = stGameRoomInfoBuilder.build();
 							//������������������
 							switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
 								case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
@@ -1613,7 +1615,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	                            stGameRoomInfoBuilder.setVUserGameInfos(userIndex2, stResetUserGameInfoBuilder);
 	                        }
 	                    }
-												
+								
+						stGameRoomInfo = stGameRoomInfoBuilder.build();
 						//发牌相关操作
 						switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
