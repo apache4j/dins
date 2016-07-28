@@ -12,6 +12,7 @@ import com.texaspoker.moment.TexasPokerBillService.RemoveBillInfoResponse;
 import com.texaspoker.moment.TexasPokerBillService.SetCurrentStacksInRoomRequest;
 import com.texaspoker.moment.TexasPokerBillService.AddInsuranceBuyinRequest;
 import com.texaspoker.moment.TexasPokerBillService.AddInsuranceGetStackRequest;
+import com.texaspoker.moment.TexasPokerBillService.SetFinalInsuranceInfoRequest;
 import com.texaspoker.moment.TexasPokerBillService.SetGameOverTagRequest;
 import com.texaspoker.moment.TexasPokerCommon.GAME_ROOM_TYPE;
 import com.texaspoker.moment.room.GameRoomDetailInfo;
@@ -246,6 +247,30 @@ public class BillManager {
 			stAddInsuranceGetStackRequestBuilder.setLGetStacks(stacks);
 			
 			billService.addInsuranceGetStack(controller, stAddInsuranceGetStackRequestBuilder.build(), null);
+			
+//			try {
+//				blockingBillService.setCurrentStacksInRoom(controller, stSetCurrentStacksInRoomRequestBuilder.build());
+//			} catch (ServiceException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+		}
+	}
+	
+	public void setFinalInsuranceGetStacks(long uuid,long roomid,long stacks){
+		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(roomid);
+		
+		if(stGameRoomDetailInfo!=null 
+				&& stGameRoomDetailInfo.getStGameRoomInfo()!=null
+				&& stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo()!=null){
+			//设置用户
+			SetFinalInsuranceInfoRequest.Builder stSetFinalInsuranceInfoRequestBuilder = SetFinalInsuranceInfoRequest.newBuilder();
+			stSetFinalInsuranceInfoRequestBuilder.setUuid(uuid);
+			stSetFinalInsuranceInfoRequestBuilder.setLBillID(roomid);
+			stSetFinalInsuranceInfoRequestBuilder.setLTotalGetStacks(stacks);
+			stSetFinalInsuranceInfoRequestBuilder.setLTotalInsuranceBuyin(0);
+			
+			billService.setFinalInsuranceInfo(controller, stSetFinalInsuranceInfoRequestBuilder.build(), null);
 			
 //			try {
 //				blockingBillService.setCurrentStacksInRoom(controller, stSetCurrentStacksInRoomRequestBuilder.build());

@@ -86,12 +86,6 @@ public class InsuranceApi {
   // 检查是否进行超时逻辑
   public static void doInsuranceTimeout(long lGameRoomID) {
     // 本次操作执行完毕以后，再来查看是否需要超时继续往下走
-	 try {
-		Thread.sleep(3000);
-	} catch (InterruptedException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
     InsuranceManager.getInstance().checkRoomTimeout(lGameRoomID);
   }
 
@@ -145,7 +139,7 @@ public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
 
 	//保险代理人账单信息接口
 	public static boolean setInsuranceGame(long lGameRoomID, long nums) {
-		BillManager.getInstance().addInsuranceGetStacks(1000, lGameRoomID, nums);
+		BillManager.getInstance().setFinalInsuranceGetStacks(1000, lGameRoomID, nums);
 		return true;
 	}
 
