@@ -10,7 +10,3 @@ public class APNData {
 	public String msg;
 	public int badge;
 }
-
-
-
-
