@@ -282,6 +282,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 							break;
 						}
 					}else if(stUserGameInfoBuilder.getStUserInfo().getUuid() != 0){
+						System.out.println("doCheckActiondoCheckAction 1 ： " + userIndex);
+						System.out.println("doCheckActiondoCheckAction 2 ： " + mEndPos);
 						
 						if (userIndex == mEndPos) {
 							// ������������������������������������
@@ -406,12 +408,13 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 									}
 								}
 							}
-
+							
+							System.out.println("");
 							switch (stGameRoomInfoBuilder.getEGameState()
 									.getNumber()) {
-//							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE: {
-//								checkGotoFlopStatus(uuid);
-//							}
+							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE: {
+								gotoFlopAllStatus(uuid);
+							}
 //								break;
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE: {
 								checkGotoTurnStatus(uuid);
