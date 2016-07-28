@@ -415,7 +415,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE: {
 								gotoFlopAllStatus(uuid);
 							}
-//								break;
+								break;
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE: {
 								checkGotoTurnStatus(uuid);
 							}
