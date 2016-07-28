@@ -929,10 +929,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 									stGameRoomInfo = stGameRoomInfoBuilder.build();
 									//������������������
 									switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
-//										case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
-//											checkGotoFlopStatus(uuid);
-//										}
-//										break;
+										case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
+											gotoFlopAllStatus(uuid);
+										}
+										break;
 										case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
 											checkGotoTurnStatus(uuid);
 										}
@@ -1392,10 +1392,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 							
 							//������������������
 							switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
-//								case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
-//									checkGotoFlopStatus(uuid);
-//								}
-//								break;
+								case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
+									gotoFlopAllStatus(uuid);
+								}
+								break;
 								case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
 									checkGotoTurnStatus(uuid);
 								}
@@ -1615,11 +1615,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 												
 						//发牌相关操作
 						switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
-//							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
-//								//Flop发牌操作
-//								checkGotoFlopStatus(uuid);
-//							}
-//							break;
+							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
+								//Flop发牌操作
+								gotoFlopAllStatus(uuid);
+							}
+							break;
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
 								//发turn一张牌
 								checkGotoTurnStatus(uuid);
@@ -1702,10 +1702,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 								stGameRoomInfo = stGameRoomInfoBuilder.build();
 								//������������������
 								switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
-//									case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
-//										checkGotoFlopStatus(uuid);
-//									}
-//									break;
+									case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
+										gotoFlopAllStatus(uuid);
+									}
+									break;
 									case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
 										checkGotoTurnStatus(uuid);
 									}

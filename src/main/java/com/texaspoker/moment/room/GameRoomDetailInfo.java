@@ -1265,7 +1265,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
 				//检测机器人自动弃牌
 				robotFlod();
-				
+				System.out.println("ROOM_GAME_STATE_PreFlop_VALUE");
 				//如果allin状态，则发牌跳转到下一个状态
 				if(stGameRoomInfo.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result && checkAllAllin() == true){
 					gotoFlopAllStatus(0);
@@ -1281,6 +1281,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			}
 			break;
 			case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
+				System.out.println("ROOM_GAME_STATE_Flop_VALUE");
 				if(checkAllAllin()){
 					checkGotoTurnStatus(0);
 				}else{
@@ -1292,6 +1293,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			}
 				break;
 			case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Turn_VALUE:{
+				System.out.println("ROOM_GAME_STATE_Turn_VALUE");
 				if(checkAllAllin()){
 					checkGotoRiverStatus(0);
 				}else{
@@ -1303,6 +1305,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			}
 				break;
 			case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_River_VALUE:{
+				System.out.println("ROOM_GAME_STATE_River_VALUE");
 				if(checkAllAllin()){
 					gotoResultStatus(0);
 				}else{
