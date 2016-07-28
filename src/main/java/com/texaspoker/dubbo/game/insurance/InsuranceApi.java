@@ -86,6 +86,12 @@ public class InsuranceApi {
   // 检查是否进行超时逻辑
   public static void doInsuranceTimeout(long lGameRoomID) {
     // 本次操作执行完毕以后，再来查看是否需要超时继续往下走
+	 try {
+		Thread.sleep(3000);
+	} catch (InterruptedException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
     InsuranceManager.getInstance().checkRoomTimeout(lGameRoomID);
   }
 
