@@ -309,13 +309,15 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 									//reset������
 									for(int k = 0 ; k < iGameRoomUserMaxNums;k++ ){
 										UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(k).toBuilder();
-										
+										System.out.println("111111111111222222222222222222222222333333333");
 										if(stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0 
 												&&stResetUserGameInfoBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_FOLD
 												&&stResetUserGameInfoBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT){
 											if(stResetUserGameInfoBuilder.getLRemainStacks() > 0){
 												if(mBigBlindPos == k){
 													//���������������������������
+													System.out.println("111111111111222222222222222222222222333333334:" + bAllAllin);
+													System.out.println("111111111111222222222222222222222222333333335:" + stResetUserGameInfoBuilder.getStUserInfo().getUuid());
 													if(bAllAllin==false){
 														stResetUserGameInfoBuilder.setLActTime(System.currentTimeMillis());
 														stResetUserGameInfoBuilder.setIDelayLong(0);
@@ -409,7 +411,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 								}
 							}
 							
-							System.out.println("");
 							switch (stGameRoomInfoBuilder.getEGameState()
 									.getNumber()) {
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE: {
