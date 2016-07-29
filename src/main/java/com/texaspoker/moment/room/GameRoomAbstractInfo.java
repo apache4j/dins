@@ -695,10 +695,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					stGameRoomInfo = stGameRoomInfoBuilder.build();				
 				}else{
 					gotoRiverStatus(uuid,false);
+					System.out.println("gotoRiverStatusgotoRiverStatus1");
 				}
 			}
 		}else{
 			gotoRiverStatus(uuid,false);
+			System.out.println("gotoRiverStatusgotoRiverStatus2");
 		}
 		
 	}

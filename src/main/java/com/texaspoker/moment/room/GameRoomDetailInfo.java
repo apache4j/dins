@@ -2775,6 +2775,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				break;
 			case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Turn_VALUE: {
 				gotoRiverStatus(0,true);
+				System.out.println("gotoRiverStatusgotoRiverStatus3");
 			}
 				break;
 			case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_River_VALUE: {
