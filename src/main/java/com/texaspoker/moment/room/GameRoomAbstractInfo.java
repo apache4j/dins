@@ -309,15 +309,13 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 									//reset������
 									for(int k = 0 ; k < iGameRoomUserMaxNums;k++ ){
 										UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(k).toBuilder();
-										System.out.println("111111111111222222222222222222222222333333333");
 										if(stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0 
 												&&stResetUserGameInfoBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_FOLD
 												&&stResetUserGameInfoBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT){
 											if(stResetUserGameInfoBuilder.getLRemainStacks() > 0){
 												if(mBigBlindPos == k){
 													//���������������������������
-													System.out.println("111111111111222222222222222222222222333333334:" + bAllAllin);
-													System.out.println("111111111111222222222222222222222222333333335:" + stResetUserGameInfoBuilder.getStUserInfo().getUuid());
+
 													if(bAllAllin==false){
 														stResetUserGameInfoBuilder.setLActTime(System.currentTimeMillis());
 														stResetUserGameInfoBuilder.setIDelayLong(0);
@@ -416,7 +414,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 									.getNumber()) {
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE: {
 								gotoFlopAllStatus(uuid);
-								System.out.println("gotoFlopAllStatusgotoFlopAllStatus1");
 							}
 								break;
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE: {
@@ -650,6 +647,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			stGameRoomInfoBuilder.addVCurrentCards(card1);
 			
 			stGameRoomInfoBuilder.setEGameState(TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Turn);	
+			System.out.println("gotoTurnStatus");
 			stGameRoomInfoBuilder.setBStateChange(1);
 			
 			TableLogService.getInstance().error(lFromRoomID
@@ -717,6 +715,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		
 		stGameRoomInfoBuilder.addVCurrentCards(card1);										
 		stGameRoomInfoBuilder.setEGameState(TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_River);	
+		System.out.println("gotoRiverStatus");
 		stGameRoomInfoBuilder.setBStateChange(1);
 		
 		TableLogService.getInstance().error(lFromRoomID
