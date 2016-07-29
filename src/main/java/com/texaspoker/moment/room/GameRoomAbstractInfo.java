@@ -950,7 +950,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 										}
 										break;
 									}
-									stGameRoomInfo = stGameRoomInfoBuilder.build();
 								}
 							}
 					}
@@ -1728,7 +1727,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 									}
 									break;
 								}
-								stGameRoomInfo = stGameRoomInfoBuilder.build();
 							}
 						}
 					}
