@@ -416,6 +416,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 									.getNumber()) {
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE: {
 								gotoFlopAllStatus(uuid);
+								System.out.println("gotoFlopAllStatusgotoFlopAllStatus1");
 							}
 								break;
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE: {
@@ -488,6 +489,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				card2 = getCard(0,1,true);
 				card3 = getCard(0,2,true);
 			}
+			System.out.println("111111111111111111111222222222222221");
 			
 			stGameRoomInfoBuilder.addVCurrentCards(card1);
 			stGameRoomInfoBuilder.addVCurrentCards(card2);
@@ -933,6 +935,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 									switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
 										case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
 											gotoFlopAllStatus(uuid);
+											System.out.println("gotoFlopAllStatusgotoFlopAllStatus2");
 										}
 										break;
 										case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
@@ -1397,6 +1400,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 							switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
 								case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
 									gotoFlopAllStatus(uuid);
+									System.out.println("gotoFlopAllStatusgotoFlopAllStatus3");
 								}
 								break;
 								case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
@@ -1622,6 +1626,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
 								//Flop发牌操作
 								gotoFlopAllStatus(uuid);
+								System.out.println("gotoFlopAllStatusgotoFlopAllStatus4");
 							}
 							break;
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
@@ -1708,6 +1713,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 								switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
 									case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
 										gotoFlopAllStatus(uuid);
+										System.out.println("gotoFlopAllStatusgotoFlopAllStatus5");
 									}
 									break;
 									case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{

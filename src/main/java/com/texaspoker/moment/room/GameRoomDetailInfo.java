@@ -1269,6 +1269,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				//如果allin状态，则发牌跳转到下一个状态
 				if(stGameRoomInfo.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result && checkAllAllin() == true){
 					gotoFlopAllStatus(0);
+					System.out.println("gotoFlopAllStatusgotoFlopAllStatus6");
 				}
 
 			}

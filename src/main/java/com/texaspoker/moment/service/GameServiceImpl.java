@@ -147,20 +147,25 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 	@Override
 	public EnterGameRoomResponse enterGameRoom(RpcController controller,
 			EnterGameRoomRequest request) throws ServiceException {
-		System.out.println("enterGameRoomenterGameRoomenterGameRoom1");
 		// TODO Auto-generated method stub
 		EnterGameRoomResponse.Builder  stEnterGameRoomResponseBuilder = EnterGameRoomResponse.newBuilder();
 
 		try{
 			GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
-	
-			ERROR_CODE_TYPE eErrorCodeType =  stGameRoomDetailInfo.enterGameRoom(request.getUuid());
-			if(eErrorCodeType == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
-				stEnterGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-				stEnterGameRoomResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
+			
+			if(stGameRoomDetailInfo!=null){
+				ERROR_CODE_TYPE eErrorCodeType =  stGameRoomDetailInfo.enterGameRoom(request.getUuid());
+				if(eErrorCodeType == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
+					stEnterGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+					stEnterGameRoomResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
+				}else{
+					stEnterGameRoomResponseBuilder.setEErrCode(eErrorCodeType);
+				}
 			}else{
-				stEnterGameRoomResponseBuilder.setEErrCode(eErrorCodeType);
+				System.out.println("1111111111222222222222222 : " + request.getLGameRoomID());
+				stEnterGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
 			}
+			
 		}catch(Exception e){
 			System.out.println("out1gService throw unexpected exception, : " + request.getUuid());
 			e.printStackTrace();
