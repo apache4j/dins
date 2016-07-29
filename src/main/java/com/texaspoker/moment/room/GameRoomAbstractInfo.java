@@ -518,9 +518,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		}else{
 			stGameRoomInfoBuilder.setEGameState(TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop);
 			stGameRoomInfoBuilder.setBStateChange(1);
-
-			stGameRoomInfo = stGameRoomInfoBuilder.build();
 		}
+		stGameRoomInfo = stGameRoomInfoBuilder.build();
 	}
 //	
 //	public void checkGotoFlopSeparateSatus(long uuid,GAME_ROOM_GAME_STATE eGameRoomState){
