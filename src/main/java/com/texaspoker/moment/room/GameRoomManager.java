@@ -14,6 +14,7 @@ import com.texaspoker.bill.BillManager;
 import com.texaspoker.club.ClubManager;
 import com.texaspoker.comm.TimeoutHashMap;
 import com.texaspoker.database.ConnectDatabase;
+import com.texaspoker.logger.TableLogService;
 import com.texaspoker.moment.TexasPoker;
 import com.texaspoker.moment.TexasPoker.ChatRoomInfo;
 import com.texaspoker.moment.TexasPoker.GAME_ROOM_GAME_STATE;
@@ -63,8 +64,7 @@ public class GameRoomManager  {
 		}  
 		return instance;  
 	}
-
-	       
+	
 	void init(){
 		GameRoomService stGameRoomService = new GameRoomService();
         ScheduledExecutorService service1 = Executors.newSingleThreadScheduledExecutor();

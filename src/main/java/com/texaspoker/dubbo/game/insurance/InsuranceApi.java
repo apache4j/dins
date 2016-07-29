@@ -13,6 +13,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.texaspoker.bill.BillManager;
+import com.texaspoker.logger.TableLogService;
 import com.texaspoker.moment.TexasPoker;
 import com.texaspoker.moment.TexasPoker.BuyInsuranceInfo;
 import com.texaspoker.moment.TexasPoker.GameRoomInfo;
@@ -119,18 +120,18 @@ public class InsuranceApi {
    */
 
 
-//保险购买行为超时接口
-public static void gotoNextStep(long lGameRoomID) {
+  //保险购买行为超时接口
+  public static void gotoNextStep(long lGameRoomID) {
 	  GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
 	  if(stGameRoomDetail!=null){
 		  stGameRoomDetail.gotoNextStep();
 	  }
-}
+  }
 
-//billserver保险购买接口
-public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
+  //billserver保险购买接口
+  public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
 	  BillManager.getInstance().addInsuranceBuyin(uuid, lGameRoomID, buyin);
-}
+  }
 
 	//billserver保险赔付接口
 	public static void setInsuranceGetStack(long lGameRoomID, long uuid, long getstacks) {
@@ -147,6 +148,11 @@ public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
 	public static boolean addUserCoin(Long uuid, long nums) {
 		UserManager.getInstance().addUserCoin(uuid, nums);
 		return true;
+	}
+	
+	//保险扣钻石接口
+	public void insuranceDebug(String sLog) {
+		TableLogService.getInstance().error(sLog);
 	}
   /*
    * 接口转换工具类

@@ -2898,5 +2898,4 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			InsuranceApi.doInsuranceTimeout(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 		}
 	}
-	
 }

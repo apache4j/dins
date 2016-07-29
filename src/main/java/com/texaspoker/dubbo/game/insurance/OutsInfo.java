@@ -72,7 +72,12 @@ public class OutsInfo {
     this.pots = pots;
     this.bets = bets;
     // 根据状态判断最大值的比例
-    double potMaxRaito = status == HandUtils.TURN ? 0.25 : 0.5;
+    double potMaxRaito = 0;
+    if (status == HandUtils.FLOP) {
+      potMaxRaito = 0.25;
+    } else if (status == HandUtils.TURN) {
+      potMaxRaito = 0.5;
+    }
     // 找出最大购买值
     long pot_max = getBuyPrice(potMaxRaito * pots);
     long pot_odds = getBuyPrice(pots / odds);
@@ -119,6 +124,8 @@ public class OutsInfo {
   private long getPayCoin() {
     double payCoin = 0;
     payCoin = buy * odds;
+    // 赔付金额中还要退还之前的购买jine
+    payCoin += buy;
     return (long) payCoin;
   }
 
