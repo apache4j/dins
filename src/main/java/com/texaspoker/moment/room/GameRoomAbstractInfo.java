@@ -674,7 +674,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		stGameRoomInfoBuilder.setEInsuranceStatus(INSURANCE_STATUS.INSURANCE_STATUS_NO);
 		stGameRoomInfo = stGameRoomInfoBuilder.build();
 		
-		checkGotoRiverStatus(uuid);
+//		if(checkAllAllin() == true){
+//			checkGotoRiverStatus(uuid);
+//		}
+		
 	}
 	
 	void checkGotoRiverStatus(long uuid){
