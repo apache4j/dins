@@ -14,7 +14,6 @@ import com.texaspoker.bill.BillManager;
 import com.texaspoker.club.ClubManager;
 import com.texaspoker.comm.TimeoutHashMap;
 import com.texaspoker.database.ConnectDatabase;
-import com.texaspoker.logger.TableLogService;
 import com.texaspoker.moment.TexasPoker;
 import com.texaspoker.moment.TexasPoker.ChatRoomInfo;
 import com.texaspoker.moment.TexasPoker.GAME_ROOM_GAME_STATE;
@@ -249,8 +248,8 @@ public class GameRoomManager  {
 						BillManager.getInstance().buyStackInRoom(stUserBaseInfoNet.getUuid(),
 								stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId(),0);
 						
-						stGameRoomDetailInfo.mapStandByUserGameInfos.put(stCreateUserBaseInfoBuilder.getUuid(), userSelfGameInfoBuilder);
-						stGameRoomDetailInfo.addStandByUuid(stCreateUserBaseInfoBuilder.getUuid());
+//						stGameRoomDetailInfo.mapStandByUserGameInfos.put(stCreateUserBaseInfoBuilder.getUuid(), userSelfGameInfoBuilder);
+//						stGameRoomDetailInfo.addStandByUuid(stCreateUserBaseInfoBuilder.getUuid());
 						// 将被邀请的用户设置要被邀请的名单中,弄发送邀请通知
 						for (int i = 0; i < userList.size(); i++) {
 							UserBaseInfoNet stUserBaseInfo = userList.get(i);
@@ -414,8 +413,8 @@ public class GameRoomManager  {
 							userSelfGameInfoBuilder.setBGameDealer(0);
 							userSelfGameInfoBuilder.setIDelaySingleTime(20);
 							
-							stGameRoomDetailInfo.mapStandByUserGameInfos.put(stCreateUserBaseInfoBuilder.getUuid(), userSelfGameInfoBuilder);
-							stGameRoomDetailInfo.addStandByUuid(stCreateUserBaseInfoBuilder.getUuid());
+//							stGameRoomDetailInfo.mapStandByUserGameInfos.put(stCreateUserBaseInfoBuilder.getUuid(), userSelfGameInfoBuilder);
+//							stGameRoomDetailInfo.addStandByUuid(stCreateUserBaseInfoBuilder.getUuid());
 							// 将被邀请的用户设置要被邀请的名单中,弄发送邀请通知
 							for (int i = 0; i < userList.size(); i++) {
 								UserBaseInfoNet stUserBaseInfo = userList.get(i);

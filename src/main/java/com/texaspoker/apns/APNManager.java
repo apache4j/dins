@@ -133,7 +133,8 @@ public class APNManager  {
 			stCreateGameRoomPushRequestBuilder.setSHour(sHour);
 			stCreateGameRoomPushRequestBuilder.setLSmallBlind(lSmallBlinds);
 			stCreateGameRoomPushRequestBuilder.setIAnte(iAnte);
-
+			stCreateGameRoomPushRequestBuilder.setSGameRoomName(strGameRoomName);
+			
 			stAPNService.createGameRoomPush(pbController, stCreateGameRoomPushRequestBuilder.build());
 
 		}catch(Exception e){
