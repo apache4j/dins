@@ -55,14 +55,14 @@ public class InsuranceLog {
 
     // 区分边界，获取关键信息
     String[] tableLogContentArray = message.split(",");
-    // long groupId = 0;
+    long groupId = 0;
     long roomId = 0;
     long turnId = 0;
     long uuid = 0;
     String actionStr = null;
 
     try {
-      // groupId = Long.parseLong(tableLogContentArray[0]);
+      groupId = Long.parseLong(tableLogContentArray[0]);
       roomId = Long.parseLong(tableLogContentArray[1]);
       turnId = Long.parseLong(tableLogContentArray[2]);
     } catch (java.lang.ArrayIndexOutOfBoundsException e1) {
@@ -84,7 +84,7 @@ public class InsuranceLog {
       return;
     } else if (tableLogContentArray[3].equalsIgnoreCase(ACTION_STARTROUND)) {
       // 本手开始
-      HandsManager.getInstance().setHandOpen(roomId, turnId);
+      HandsManager.getInstance().setHandOpen(groupId, roomId, turnId);
       return;
     }
 

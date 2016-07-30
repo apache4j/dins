@@ -34,11 +34,12 @@ public class HandsManager {
   }
 
   // 新一手牌局
-  public void setHandOpen(long roomId, long handId) {
+  public void setHandOpen(long groupId, long roomId, long handId) {
     logger.info("roomId:" + roomId + ",handId:" + handId);
     HandInfo handInfo = hands_map.get(roomId);
     if (handInfo == null) {
       handInfo = new HandInfo();
+      handInfo.groupId = groupId;
       handInfo.roomId = roomId;
       hands_map.put(roomId, handInfo);
     }

@@ -58,7 +58,7 @@ public class OutsInfo {
   // 是否放弃
   public boolean fold = false;
 
-  // 保险结果
+  // 保险结果，包含购买金额
   public long result = 0;
 
   // 设置保险购买信息

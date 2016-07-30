@@ -143,6 +143,7 @@ public class InsuranceManager {
       logger.debug("roomId:" + roomId + ",new insurance info");
       insuranceInfo = new InsuranceInfo();
       insuranceInfo.roomId = roomId;
+      insuranceInfo.groupId = handInfo.groupId;
       insuranceInfo.handId = handInfo.handId;
       insuranceInfo.status = handInfo.insuranceStatus;
       insurances_map.put(roomId, insuranceInfo);
@@ -389,7 +390,6 @@ public class InsuranceManager {
         // 扣住买保险的钱
         logger.debug("roomId:" + roomId + ",outs miss...");
         insuranceInfo.setShopTotal(outsInfo.buy, 0);
-        continue;
       }
     }
     // API接口，保险实时赔付账单信息

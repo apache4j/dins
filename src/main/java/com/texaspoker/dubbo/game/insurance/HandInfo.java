@@ -27,7 +27,8 @@ import org.apache.log4j.Logger;
 public class HandInfo {
 
   private static Logger logger = Logger.getLogger(HandInfo.class);
-
+  // 群组id
+  public long groupId;
   // 房间id
   public long roomId;
   // 本手id

@@ -55,8 +55,12 @@ public class InsuranceApi {
 
   // 发牌后获取保险接口
   public static TexasPoker.GameRoomInfo getInsuranceResult(GameRoomInfo stGameRoomInfo, long lHandID, int tableCard) {
+    // 获取房间id
     long lGameRoomID = stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId();
+    // 结算保险
     InsuranceInfo insuranceInfo = InsuranceManager.getInstance().settleInsurance(lGameRoomID, lHandID, tableCard);
+    // 打印计算日志
+    printInsuranceResultLog(insuranceInfo);
     return doInsuranceResult(insuranceInfo, stGameRoomInfo);
   }
 
@@ -78,6 +82,8 @@ public class InsuranceApi {
             + buyInfo);
       }
     }
+    // 打印操作日志
+    printInsuranceActionLog(insuranceInfo);
     // 先保存购买时的超时信息
     TexasPoker.InsuranceInfo resultInfo = getApiInfoFromInsuranceInfo(insuranceInfo);
     // 返回当时状态
@@ -118,42 +124,40 @@ public class InsuranceApi {
   /*
    * 游戏方API接口，由游戏方提供实现
    */
-
-
   //保险购买行为超时接口
   public static void gotoNextStep(long lGameRoomID) {
-	  GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
-	  if(stGameRoomDetail!=null){
-		  stGameRoomDetail.gotoNextStep();
-	  }
+  	  GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
+  	  if(stGameRoomDetail!=null){
+  		  stGameRoomDetail.gotoNextStep();
+  	  }
   }
 
   //billserver保险购买接口
   public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
-	  BillManager.getInstance().addInsuranceBuyin(uuid, lGameRoomID, buyin);
+  	  BillManager.getInstance().addInsuranceBuyin(uuid, lGameRoomID, buyin);
   }
 
-	//billserver保险赔付接口
-	public static void setInsuranceGetStack(long lGameRoomID, long uuid, long getstacks) {
-	  BillManager.getInstance().addInsuranceGetStacks(uuid, lGameRoomID, getstacks);
-	}
+  	//billserver保险赔付接口
+  	public static void setInsuranceGetStack(long lGameRoomID, long uuid, long getstacks) {
+  	  BillManager.getInstance().addInsuranceGetStacks(uuid, lGameRoomID, getstacks);
+  	}
 
-	//保险代理人账单信息接口
-	public static boolean setInsuranceGame(long lGameRoomID, long nums) {
-		BillManager.getInstance().setFinalInsuranceGetStacks(1000, lGameRoomID, nums);
-		return true;
-	}
+  	//保险代理人账单信息接口
+  	public static boolean setInsuranceGame(long lGameRoomID, long nums) {
+  		BillManager.getInstance().setFinalInsuranceGetStacks(1000, lGameRoomID, nums);
+  		return true;
+  	}
 
-	//保险扣钻石接口
-	public static boolean addUserCoin(Long uuid, long nums) {
-		UserManager.getInstance().addUserCoin(uuid, nums);
-		return true;
-	}
-	
-	//保险扣钻石接口
-	public void insuranceDebug(String sLog) {
-		TableLogService.getInstance().error(sLog);
-	}
+  	//保险扣钻石接口
+  	public static boolean addUserCoin(Long uuid, long nums) {
+  		UserManager.getInstance().addUserCoin(uuid, nums);
+  		return true;
+  	}
+  	
+  	//保险扣钻石接口
+  	public static void insuranceDebug(String sLog) {
+  		TableLogService.getInstance().error(sLog);
+  	}
   /*
    * 接口转换工具类
    */
@@ -198,13 +202,20 @@ public class InsuranceApi {
         // }
         // }
         // 计算这一手的保险情况
-        logger.debug("remains before:" + remains);
-        remains -= insuranceInfo.getUserAllBuyTotal(uuid);
-        logger.debug("buytotal:" + insuranceInfo.getUserAllBuyTotal(uuid));
-        remains += insuranceInfo.getUserAllResultTotal(uuid);
-        logger.debug("resulttotal:" + insuranceInfo.getUserAllResultTotal(uuid));
-        logger.debug("remains after:" + remains);
-
+        logger.debug("uuid:" + uuid + "remains before:" + remains);
+        long buys = insuranceInfo.getUserAllBuyTotal(uuid);
+        remains -= buys;
+        logger.debug("uuid:" + uuid + "buytotal:" + buys);
+        long results = insuranceInfo.getUserAllResultTotal(uuid);
+        // 防止买保险的比赔付的还多，- -！
+        if (results > 0 && results < buys) {
+          logger.error("uuid:" + uuid + ",error,results:" + results + " more than buys:" + buys);
+          remains += buys;
+        } else if (results > 0) {
+          logger.debug("uuid:" + uuid + "resulttotal:" + results);
+          remains += results;
+        }
+        logger.debug("uuid:" + uuid + "remains after:" + remains);
         TexasPoker.UserGameInfoNet.Builder userGameBuilder = userGameInfo.toBuilder();
         userGameBuilder.setLRemainStacks(remains);
         // logger.debug("userGameBuilder:" + userGameBuilder);
@@ -256,7 +267,8 @@ public class InsuranceApi {
         potInfo.setLMinStacks(outs.pay_min);
         potInfo.setLMaxStacks(outs.pay_max);
         potInfo.setLBetStacks(outs.buy);
-        potInfo.setLGetStacks(outs.result);
+        // 保险的赔付额显示需要扣住自己的购买金额
+        potInfo.setLGetStacks(outs.result - outs.buy);
         userInfo.addVInsurancePotInfos(potInfo);
         if (outs.buy > 0)
           lTotalBuys++;
@@ -298,5 +310,74 @@ public class InsuranceApi {
     }
     logger.debug("insuranceinfo:" + apiInfo);
     return apiInfo.build();
+  }
+
+  // 打印保险的操作日志，用于统计
+  public static void printInsuranceActionLog(InsuranceInfo info) {
+    for (Map.Entry<Long, List<OutsInfo>> entry : info.round_user_outs.entrySet()) {
+      long uuid = entry.getKey();
+      List<OutsInfo> userInfos = entry.getValue();
+      // 计算这个用户这一次总共的够买量
+      long buytotal = 0;
+      for (OutsInfo userInfo : userInfos) {
+        buytotal += userInfo.buy;
+      }
+      if (buytotal > 0) {
+        // 购买日志
+        StringBuilder loginfo = new StringBuilder();
+        loginfo.append(info.groupId);
+        loginfo.append(",");
+        loginfo.append(info.roomId);
+        loginfo.append(",");
+        loginfo.append(info.handId);
+        loginfo.append(",");
+        loginfo.append(uuid);
+        loginfo.append(",insbuy,");
+        loginfo.append(buytotal);
+        InsuranceApi.insuranceDebug(loginfo.toString());
+      } else {
+        // 放弃日志
+        StringBuilder loginfo = new StringBuilder();
+        loginfo.append(info.groupId);
+        loginfo.append(",");
+        loginfo.append(info.roomId);
+        loginfo.append(",");
+        loginfo.append(info.handId);
+        loginfo.append(",");
+        loginfo.append(uuid);
+        loginfo.append(",insfold");
+        InsuranceApi.insuranceDebug(loginfo.toString());
+      }
+    }
+  }
+
+  // 打印保险的赔付日志，用于统计
+  public static void printInsuranceResultLog(InsuranceInfo info) {
+    for (Map.Entry<Long, List<OutsInfo>> entry : info.round_user_outs.entrySet()) {
+      long uuid = entry.getKey();
+      List<OutsInfo> userInfos = entry.getValue();
+      // 计算这个用户这一次总共的够买量
+      long buytotal = 0;
+      long resulttotal = 0;
+      for (OutsInfo userInfo : userInfos) {
+        buytotal += userInfo.buy;
+        resulttotal += userInfo.result;
+      }
+      // 有购买行为
+      if (buytotal > 0) {
+        // 购买日志
+        StringBuilder loginfo = new StringBuilder();
+        loginfo.append(info.groupId);
+        loginfo.append(",");
+        loginfo.append(info.roomId);
+        loginfo.append(",");
+        loginfo.append(info.handId);
+        loginfo.append(",");
+        loginfo.append(uuid);
+        loginfo.append(",insresult,");
+        loginfo.append(resulttotal);
+        InsuranceApi.insuranceDebug(loginfo.toString());
+      }
+    }
   }
 }

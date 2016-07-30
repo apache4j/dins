@@ -67,6 +67,7 @@ public class APNManager  {
 			stEnterGameRoomPushRequestBuilder.setStrNick(strNick);
 			stEnterGameRoomPushRequestBuilder.setIBadge(""+badge);
 			stEnterGameRoomPushRequestBuilder.setStrRoomName(strGameRoomName);
+			stEnterGameRoomPushRequestBuilder.setIGameRoomUsers(0);
 
 			stAPNService.enterGameRoomPush(pbController, stEnterGameRoomPushRequestBuilder.build());
 

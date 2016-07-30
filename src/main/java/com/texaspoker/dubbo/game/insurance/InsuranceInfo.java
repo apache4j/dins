@@ -26,7 +26,8 @@ import org.apache.log4j.Logger;
 public class InsuranceInfo {
 
   private static Logger logger = Logger.getLogger(InsuranceInfo.class);
-
+  // 群组id
+  public long groupId;
   // 房间id
   public long roomId;
   // 本手id
