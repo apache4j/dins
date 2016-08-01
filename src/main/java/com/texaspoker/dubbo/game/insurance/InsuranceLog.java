@@ -180,7 +180,7 @@ public class InsuranceLog {
       HandsManager.getInstance().setTableCards(roomId, HandUtils.RIVER, tableCards);
       return;
     }
-    logger.debug("others:" + message);
+    // logger.debug("others:" + message);
   }
 
   private static void readFile(String filepath) {

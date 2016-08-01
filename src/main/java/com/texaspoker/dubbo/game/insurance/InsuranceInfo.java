@@ -45,6 +45,9 @@ public class InsuranceInfo {
   // 用户本手的保险总收益
   public ConcurrentMap<Long, Long> hand_user_result_totals = new ConcurrentHashMap<Long, Long>();
 
+  // 用户本手的保险触发情况
+  public ConcurrentMap<Long, Integer> hand_user_ocur_state = new ConcurrentHashMap<Long, Integer>();
+
   // 用户本手的每一轮购买记录
   // public ConcurrentMap<Integer, ConcurrentMap<Long, List<OutsInfo>>> hand_user_buys =
   // new ConcurrentHashMap<Integer, ConcurrentMap<Long, List<OutsInfo>>>();
@@ -65,6 +68,7 @@ public class InsuranceInfo {
       this.proxy_shop = 0;
       hand_user_buy_totals.clear();
       hand_user_result_totals.clear();
+      hand_user_ocur_state.clear();
       // 状态更新
       this.status = status;
       round_pot_user_outs.clear();
@@ -102,6 +106,8 @@ public class InsuranceInfo {
       round_user_outs.put(uuid, outsInfos);
     }
     outsInfos.add(info);
+    // 记录用户触发信息
+    setUserOcur(uuid);
   }
 
   public OutsInfo getUserOuts(long potId, long uuid) {
@@ -131,11 +137,11 @@ public class InsuranceInfo {
     }
     long finalBuys = buys;
     if (buys < info.pay_min) {
-      logger.error("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",must > min pay " + info.pay_min);
+      logger.error("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",must>min_pay:" + info.pay_min);
       finalBuys = info.pay_min;
     }
     if (buys > info.pay_max) {
-      logger.error("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",must < max pay " + info.pay_max);
+      logger.error("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",must<max_pay:" + info.pay_max);
       finalBuys = info.pay_max;
     }
     // 这是购买金额
@@ -273,6 +279,24 @@ public class InsuranceInfo {
 
   public long getShopTotal() {
     return this.proxy_shop;
+  }
+
+  public void setUserOcur(long uuid) {
+    if (hand_user_ocur_state.containsKey(uuid)) {
+      return;
+    }
+    hand_user_ocur_state.put(uuid, status);
+  }
+
+  public boolean checkFirstOcur(long uuid) {
+    Integer status = hand_user_ocur_state.get(uuid);
+    if (status == null) {
+      return true;
+    } else if (status == this.status) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /*

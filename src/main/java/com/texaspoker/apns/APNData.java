@@ -12,4 +12,3 @@ public class APNData {
 	public int badge;
 }
 
-

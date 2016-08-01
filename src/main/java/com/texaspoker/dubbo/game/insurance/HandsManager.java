@@ -35,7 +35,7 @@ public class HandsManager {
 
   // 新一手牌局
   public void setHandOpen(long groupId, long roomId, long handId) {
-    logger.info("roomId:" + roomId + ",handId:" + handId);
+    logger.debug("roomId:" + roomId + ",handId:" + handId);
     HandInfo handInfo = hands_map.get(roomId);
     if (handInfo == null) {
       handInfo = new HandInfo();
@@ -48,7 +48,7 @@ public class HandsManager {
   }
 
   public void setHandClose(long roomId, long handId) {
-    logger.info("roomId:" + roomId + ",handId:" + handId);
+    logger.debug("roomId:" + roomId + ",handId:" + handId);
     HandInfo handInfo = hands_map.get(roomId);
     if (handInfo == null) {
       logger.error("roomId:" + roomId + ",handId:" + handId + ",info null");
@@ -109,7 +109,8 @@ public class HandsManager {
     }
     HandUserInfo userInfo = handInfo.getUser(uuid);
     if (userInfo == null) {
-      logger.error("roomId:" + roomId + ",uuid:" + uuid + ",info null");
+      // 可能是日志错误
+      logger.debug("roomId:" + roomId + ",handId:" + handInfo.handId + ",uuid:" + uuid + ",info null");
       return;
     }
     userInfo.fold = false;
@@ -183,4 +184,13 @@ public class HandsManager {
     return handInfo.checkTableCard(tableCard);
   }
 
+  // 检查当前的allin状态
+  public boolean checkAllinState(long roomId) {
+    HandInfo handInfo = hands_map.get(roomId);
+    if (handInfo == null) {
+      logger.error("roomId:" + roomId + ",info null");
+      return false;
+    }
+    return handInfo.checkAllinState();
+  }
 }

@@ -32,7 +32,7 @@ public class InsuranceTimer {
   private static Logger logger = Logger.getLogger(InsuranceTimer.class);
 
   public static final int INSURANCE_OPERATION_TIMEOUT_SECONDS = 30;
-  public static final int INSURANCE_OPERATION_DELAY_SECONDS = 10;
+  public static final int INSURANCE_OPERATION_DELAY_SECONDS = 20;
 
   // 用户保险超时信息
   public class InsuranceTimeInfo {

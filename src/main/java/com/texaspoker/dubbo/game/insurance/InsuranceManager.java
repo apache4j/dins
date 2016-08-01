@@ -67,7 +67,7 @@ public class InsuranceManager {
     // }
     InsuranceInfo insuranceInfo = insurances_map.get(roomId);
     if (insuranceInfo == null) {
-      logger.error("roomId:" + roomId + ",insuranceInfo null");
+      logger.debug("roomId:" + roomId + ",insuranceInfo null");
     } else {
       insurances_map.remove(roomId);
     }
@@ -85,7 +85,7 @@ public class InsuranceManager {
     }
     InsuranceInfo insuranceInfo = insurances_map.get(roomId);
     if (insuranceInfo == null) {
-      logger.error("roomId:" + roomId + ",insuranceInfo null");
+      // logger.error("roomId:" + roomId + ",insuranceInfo null");
       return;
     }
     // 写入用户买入账单
@@ -200,7 +200,8 @@ public class InsuranceManager {
           continue;
         }
         // 计算出这个玩家outs下的保险信息
-        outsInfo.setPayInfo(insuranceInfo.status, potId, allin_pots, potPreBuys, potBets);
+        int potIndex = handInfo.getPotIdIndex(potId);
+        outsInfo.setPayInfo(insuranceInfo.status, potId, potIndex, allin_pots, potPreBuys, potBets);
         // 保存这个玩家的保险信息
         insuranceInfo.setUserOuts(potId, outsInfo.winner, outsInfo);
         // 设置这个玩家的购买超时
@@ -347,34 +348,27 @@ public class InsuranceManager {
     }
   }
 
-  // 结算购买的保险
-  public InsuranceInfo settleInsurance(long roomId, int tableCard) {
+  // 内部调用，结算购买的保险
+  public InsuranceInfo settleInsurance(long roomId) {
     // 检查手数信息
     HandInfo handInfo = HandsManager.getInstance().getHandInfo(roomId);
     if (handInfo == null) {
       logger.error("roomId:" + roomId + ",nu hand info");
       return null;
     }
-    return settleInsurance(handInfo, tableCard);
+    return settleInsurance(handInfo);
   }
 
-  private InsuranceInfo settleInsurance(HandInfo handInfo, int tableCard) {
-    if (handInfo == null) {
-      return null;
-    }
-    long roomId = handInfo.roomId;
-    // 检查公共牌是否正确
-    if (!handInfo.checkTableCard(tableCard)) {
-      logger.error("roomId:" + roomId + ",tableCard error:" + tableCard);
-      return null;
-    }
+  private InsuranceInfo settleInsurance(HandInfo handInfo) {
     // 找出那一桌保险信息
+    long roomId = handInfo.roomId;
     InsuranceInfo insuranceInfo = insurances_map.get(roomId);
     if (insuranceInfo == null) {
       logger.error("roomId:" + roomId + ",no insurance info");
       return null;
     }
     // 找到所有用户的购买信息
+    int tableCard = handInfo.getTableCard();
     logger.debug("roomId:" + roomId + ",tablecard:" + tableCard);
     List<OutsInfo> userBuyInfos = insuranceInfo.getAllBuys();
     for (OutsInfo outsInfo : userBuyInfos) {
@@ -429,7 +423,8 @@ public class InsuranceManager {
     }
     // 检查手数状态是否正确
     if (handInfo.handId != handId || handInfo.gameStatus != roundStatus) {
-      logger.error("roomId" + roomId + ",handId:" + handId + ",roundstatus:" + roundStatus + ",status errors");
+      logger.error("roomId" + roomId + ",handId:" + handId + ",roundstatus:" + roundStatus + ",gamestatus:"
+          + handInfo.gameStatus + ",state error");
       return null;
     }
     return checkInsurance(handInfo);
@@ -462,7 +457,8 @@ public class InsuranceManager {
     }
     // 检查手数状态是否正确
     if (handInfo.handId != handId || handInfo.gameStatus != roundStatus) {
-      logger.error("roomId" + roomId + ",handId:" + handId + ",roundstatus:" + roundStatus + ",status errors");
+      logger.error("roomId" + roomId + ",handId:" + handId + ",roundstatus:" + roundStatus + ",gamestatus:"
+          + handInfo.gameStatus + ",state error");
       return null;
     }
     return foldInsurance(roomId, uuid, potId);
@@ -478,7 +474,8 @@ public class InsuranceManager {
     }
     // 检查手数状态是否正确
     if (handInfo.handId != handId || handInfo.gameStatus != roundStatus) {
-      logger.error("roomId" + roomId + ",handId:" + handId + ",roundstatus:" + roundStatus + ",status errors");
+      logger.error("roomId" + roomId + ",handId:" + handId + ",roundstatus:" + roundStatus + ",gamestatus:"
+          + handInfo.gameStatus + ",state error");
       return;
     }
     delayInsurance(roomId, uuid);
@@ -494,9 +491,14 @@ public class InsuranceManager {
     }
     // 检查手数状态是否正确
     if (handInfo.handId != handId) {
-      logger.error("roomId" + roomId + ",handId:" + handId + ",status errors");
+      logger.error("roomId" + roomId + ",handId:" + handId + ",handId errors");
       return null;
     }
-    return settleInsurance(handInfo, tableCard);
+    // 检查公共牌是否正确
+    if (!handInfo.checkTableCard(tableCard)) {
+      logger.error("roomId:" + roomId + ",tableCard error:" + tableCard);
+      return null;
+    }
+    return settleInsurance(handInfo);
   }
 }

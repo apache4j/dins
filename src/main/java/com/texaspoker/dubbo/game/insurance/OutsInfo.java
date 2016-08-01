@@ -28,6 +28,7 @@ public class OutsInfo {
 
   // 边池pot
   public long potId = 0;
+  public int potIndex = 0;
   public long pots = 0;
   public long bets = 0;
 
@@ -62,13 +63,14 @@ public class OutsInfo {
   public long result = 0;
 
   // 设置保险购买信息
-  public void setPayInfo(int status, long potId, long pots, long prebuys, long bets) {
+  public void setPayInfo(int status, long potId, int potIndex, long pots, long prebuys, long bets) {
     if (winner == 0 || outs == null) {
       throw new RuntimeException("outs info winner or outs error");
     }
     int outsNum = outs.length > OUTS_NUMS ? OUTS_NUMS : outs.length;
     this.odds = OUTS_ODDS[outsNum - 1];
     this.potId = potId;
+    this.potIndex = potIndex;
     this.pots = pots;
     this.bets = bets;
     // 根据状态判断最大值的比例
