@@ -12,6 +12,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -190,18 +191,8 @@ public class ConnectDatabase {
 	            	UserManager.getInstance().addUserCreateGameRooms(stGameRoomInfoBuild.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(), stGameRoomInfoBuild.getStGameRoomBaseInfo().getLGameRoomId());
 	            	//加载gameroom邀请人员信息
 	            	 
-	            	
-	            	//读取账单数据，然后将钱返还用户
-	            	 ResultSet playerRS=null;
-	            	 String loadGameRoomMember="select * from t_bill_info where roomid="+stGameRoomBaseInfo.getLGameRoomId();
-	            	 playerRS=statement2.executeQuery(loadGameRoomMember);
-	            	 while(playerRS.next()){
-	            		long uuid = playerRS.getLong("uuid");
-	            		long lRemainStacks =  playerRS.getLong("remainstacks");
-	            		//返还筹码
-	            		UserManager.getInstance().addUserPopularity(uuid, lRemainStacks);	
-	            	 }
-	            	
+	            	BillManager.getInstance().finishGameRoomAndReturn(stGameRoomBaseInfo.getLGameRoomId());
+	            		            	
 					TableLogService.getInstance().error(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID()
 								+"," +stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId()
 								+"," + stGameRoomDetailInfo.getStGameRoomInfo().getLGameHandID()
@@ -219,10 +210,9 @@ public class ConnectDatabase {
 					ClubManager.getInstance().removeChatRoomGameRoom(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID(),stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
 						
 					BillManager.getInstance().setGameOverTag(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId(),stGameRoomDetailInfo.getMaxPot(),stGameRoomDetailInfo.getHandID());	
-					//QuickGameRoomManager.getInstance().finishQuickGameRoom(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID());
 					mapGameRoomInfoMap.removeKey(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
 					
-					ArrayList<Long> vPushUsers = ConnectDatabase.getInstance().getBillInfoUsers(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
+					List<Long> vPushUsers = BillManager.getInstance().getBillInfoUsers(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
 					for(long uuid:vPushUsers){
 						pushAppPush(uuid,stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStrRoomName());
 					}
@@ -242,37 +232,6 @@ public class ConnectDatabase {
 			}
     }
     
-    public void finishGameRoomAndReturn(long lBillID){
-    	Connection stConnection = null;
-      	try{
-      		 stConnection = mDatabasePool.getConnection();
-      		 String insql="select * from t_bill_info where roomid=?";
-//             System.out.println("database : " + insql);
-               
-             //查询操作
-             PreparedStatement ps = stConnection.prepareStatement(insql);
-             ps.setLong(1, lBillID);
-            
-             ResultSet playerRS = ps.executeQuery();
-            
-             while(playerRS.next()){
-         		long uuid = playerRS.getLong("uuid");
-         		long lRemainStacks =  playerRS.getLong("remainstacks");
-         		//返还筹码
-         		UserManager.getInstance().addUserPopularity(uuid, lRemainStacks);	
-         	 }
-             
-             stConnection.close(); 
-      	}catch(Exception e){
-      		e.printStackTrace();
-      		try {
-      			stConnection.close();
-          	} catch (SQLException e1) {
-          		// TODO Auto-generated catch block
-          	 	e1.printStackTrace();
-          	 }
-      	}
-    }
     
     //游戏房间信息落地
     public boolean removeGameRoomMember(long roomid){
@@ -659,39 +618,6 @@ public class ConnectDatabase {
 			return false;
 		}
     }
-    
-    //插入、删除、更新的方法是一样的，不一样的是数据库参数
-    public ArrayList<Long> getBillInfoUsers(long gameroomid){
-   	 Connection stConnection = null;
-   	 try{
-   		 ArrayList<Long> vMyBillInfoUsers = new ArrayList<Long>();
-   		 stConnection = mDatabasePool.getConnection();
-            String insql="select uuid from t_bill_info where roomid=?";
-            System.out.println("database : " + insql);
-            
-            //查询操作
-            PreparedStatement ps = stConnection.prepareStatement(insql);
-            ps.setLong(1, gameroomid);
-            ResultSet rs = ps.executeQuery();
-         
-            while(rs.next()){
-           	 long uuid = rs.getLong("uuid");
-           	 vMyBillInfoUsers.add(uuid);
-             }
-            
-            stConnection.close(); 
-            return vMyBillInfoUsers;
-        }catch(Exception e){
-            e.printStackTrace();
-       	 try {
-				stConnection.close();
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-        }
-   	 return null;
-   }
     
     //游戏房间信息落地
     public boolean insertGameRoomInfo(GameRoomDetailInfo stGameRoomDetailInfo){

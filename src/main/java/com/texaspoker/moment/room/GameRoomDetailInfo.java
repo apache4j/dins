@@ -1183,7 +1183,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								+"," + 0
 								+"," + "closetable" );
 												
-						ConnectDatabase.getInstance().finishGameRoomAndReturn(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+						BillManager.getInstance().finishGameRoomAndReturn(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 						
 						pushAllGameRoomUserMsgs(null,GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_OVER);
 						bOver = true;
@@ -1202,7 +1202,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						QuickGameRoomManager.getInstance().finishQuickGameRoom(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID());
 						mGameRoomDetailInfos.removeKey(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 							
-						ArrayList<Long> vPushUsers = ConnectDatabase.getInstance().getBillInfoUsers(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+						List<Long> vPushUsers = BillManager.getInstance().getBillInfoUsers(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 						for(long uuid:vPushUsers){
 							pushAppPushGameFinish(uuid);
 						}

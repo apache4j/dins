@@ -1,5 +1,7 @@
 package com.texaspoker.bill;
 
+import java.util.List;
+
 import com.google.protobuf.ServiceException;
 import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.logger.NormalLogService;
@@ -7,6 +9,9 @@ import com.texaspoker.moment.TexasPoker.GameRoomBaseInfo;
 import com.texaspoker.moment.TexasPokerBillService;
 import com.texaspoker.moment.TexasPokerBillService.BuyStackInRoomRequest;
 import com.texaspoker.moment.TexasPokerBillService.CreateBillInfoRequest;
+import com.texaspoker.moment.TexasPokerBillService.FinishGameRoomAndReturnRequest;
+import com.texaspoker.moment.TexasPokerBillService.GetAllBillUsersRequest;
+import com.texaspoker.moment.TexasPokerBillService.GetAllBillUsersResponse;
 import com.texaspoker.moment.TexasPokerBillService.RemoveBillInfoRequest;
 import com.texaspoker.moment.TexasPokerBillService.RemoveBillInfoResponse;
 import com.texaspoker.moment.TexasPokerBillService.SetCurrentStacksInRoomRequest;
@@ -65,43 +70,6 @@ public class BillManager {
 		return instance;  
 	}  
 	
-//	//获取用户所对应的房间
-//	public ArrayList<Long> getUserBillInfo(long uuid){
-//		GetUserBillInfoRequest.Builder stGetUserBillInfoRequestBuilder = GetUserBillInfoRequest.newBuilder();
-//		stGetUserBillInfoRequestBuilder.setUuid(uuid);
-//		GetUserBillInfoResponse stGetUserBillInfoResponse = null;
-//		try {
-//			stGetUserBillInfoResponse = blockingBillService.getUserBillInfo(controller, stGetUserBillInfoRequestBuilder.build());
-//		} catch (ServiceException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		
-//		if(stGetUserBillInfoResponse!=null && stGetUserBillInfoResponse.getIErrorCode() == 0){
-//			return new ArrayList<Long>(stGetUserBillInfoResponse.getVBillIDsList());
-//		}else{
-//			return null;
-//		}
-//	}
-//	//获取用户所对应的房间
-//	public ArrayList<Long> getUserBillInfoOver(long uuid){
-//		GetUserBillInfoOverRequest.Builder stGetUserBillInfoOverRequestBuilder = GetUserBillInfoOverRequest.newBuilder();
-//		stGetUserBillInfoOverRequestBuilder.setUuid(uuid);
-//		GetUserBillInfoOverResponse stGetUserBillInfoOverResponse = null;
-//		try {
-//			stGetUserBillInfoOverResponse = blockingBillService.getUserBillInfoOver(controller, stGetUserBillInfoOverRequestBuilder.build());
-//		} catch (ServiceException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		
-//		if(stGetUserBillInfoOverResponse!=null && stGetUserBillInfoOverResponse.getIErrorCode() == 0){
-//			return new ArrayList<Long>(stGetUserBillInfoOverResponse.getVBillIDsList());
-//		}else{
-//			return null;
-//		}
-//	}
-	
 	public boolean removeBill(long uuid , long roomid){
 		//设置用户
 		RemoveBillInfoRequest.Builder stRemoveBillInfoRequestBuilder = RemoveBillInfoRequest.newBuilder();
@@ -121,28 +89,6 @@ public class BillManager {
 			return false;
 		}
 	}
-	
-//	//获取某个房间的账单信息
-//	public BillInfoNet getRoomBills(long roomid){
-//		//设置用户
-//		GetRoomBillInfoRequest.Builder stGetRoomBillInfoRequestBuilder = GetRoomBillInfoRequest.newBuilder();
-//		stGetRoomBillInfoRequestBuilder.setLBillID(roomid);
-//		
-//		GetRoomBillInfoResponse stGetRoomBillInfoResponse = null;
-//		try {
-//			stGetRoomBillInfoResponse = blockingBillService.getRoomBillInfo(controller, stGetRoomBillInfoRequestBuilder.build());
-//		} catch (ServiceException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		
-//		if(stGetRoomBillInfoResponse!=null && stGetRoomBillInfoResponse.getIErrorCode() == 0){
-//			
-//			return stGetRoomBillInfoResponse.getStBillInfoNet();
-//		}else{
-//			return null;
-//		}
-//	}
 
 	//改变某个房间的某个用户的购买筹码的值
 	public void buyStackInRoom(long uuid , long roomid , long changeStacks){
@@ -165,29 +111,7 @@ public class BillManager {
 			}
 		}
 	}
-	
-//	//改变某个房间的某个用户的总筹码至
-//	public void setFinalStacksInRoom(long uuid,long roomid,long stacks,int iSNGRank){
-//		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(roomid);
-//		
-//		if(stGameRoomDetailInfo!=null 
-//				&& stGameRoomDetailInfo.getStGameRoomInfo()!=null
-//				&& stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo()!=null){
-//			//设置用户
-//			SetFinalStacksInRoomRequest.Builder stSetFinalStacksInRoomRequestBuilder = SetFinalStacksInRoomRequest.newBuilder();
-//			stSetFinalStacksInRoomRequestBuilder.setUuid(uuid);
-//			stSetFinalStacksInRoomRequestBuilder.setLBillID(roomid);
-//			stSetFinalStacksInRoomRequestBuilder.setLStacks(stacks);
-//			stSetFinalStacksInRoomRequestBuilder.setISNGRank(0);
-//			try {
-//				blockingBillService.setFinalStacksInRoom(controller, stSetFinalStacksInRoomRequestBuilder.build());
-//			} catch (ServiceException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}	
-//	}	
-	
+		
 	public void setCurrentStacksInRoom(long uuid,long roomid,long stacks){
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(roomid);
 		
@@ -202,12 +126,6 @@ public class BillManager {
 			stSetCurrentStacksInRoomRequestBuilder.setISNGRank(0);
 			
 			billService.setCurrentStacksInRoom(controller, stSetCurrentStacksInRoomRequestBuilder.build(), null);
-//			try {
-//				blockingBillService.setCurrentStacksInRoom(controller, stSetCurrentStacksInRoomRequestBuilder.build());
-//			} catch (ServiceException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
 		}
 	}
 	
@@ -224,13 +142,6 @@ public class BillManager {
 			stAddInsuranceBuyinRequestBuilder.setLInsuranceBuyin(stacks);
 			
 			billService.addInsuranceBuyin(controller, stAddInsuranceBuyinRequestBuilder.build(), null);
-			
-//			try {
-//				blockingBillService.setCurrentStacksInRoom(controller, stSetCurrentStacksInRoomRequestBuilder.build());
-//			} catch (ServiceException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
 		}
 	}
 	
@@ -248,12 +159,6 @@ public class BillManager {
 			
 			billService.addInsuranceGetStack(controller, stAddInsuranceGetStackRequestBuilder.build(), null);
 			
-//			try {
-//				blockingBillService.setCurrentStacksInRoom(controller, stSetCurrentStacksInRoomRequestBuilder.build());
-//			} catch (ServiceException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
 		}
 	}
 	
@@ -271,13 +176,6 @@ public class BillManager {
 			stSetFinalInsuranceInfoRequestBuilder.setLTotalInsuranceBuyin(0);
 			
 			billService.setFinalInsuranceInfo(controller, stSetFinalInsuranceInfoRequestBuilder.build(), null);
-			
-//			try {
-//				blockingBillService.setCurrentStacksInRoom(controller, stSetCurrentStacksInRoomRequestBuilder.build());
-//			} catch (ServiceException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
 		}
 	}
 
@@ -306,6 +204,37 @@ public class BillManager {
 			
 		try {
 			blockingBillService.createBillInfo(controller, stCreateBillInfoRequestBuilder.build());
+		} catch (ServiceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public List<Long> getBillInfoUsers(long lBillID){
+		GetAllBillUsersRequest.Builder stGetAllBillUsersRequestBuilder = GetAllBillUsersRequest.newBuilder();
+		stGetAllBillUsersRequestBuilder.setLBillID(lBillID);
+		
+		GetAllBillUsersResponse stGetAllBillUsersResponse = null;
+		try {
+			stGetAllBillUsersResponse = blockingBillService.getAllBillUsers(controller, stGetAllBillUsersRequestBuilder.build());
+		} catch (ServiceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if(stGetAllBillUsersResponse!=null && stGetAllBillUsersResponse.getIErrorCode() == 0){
+			return stGetAllBillUsersResponse.getVUuidsList();
+		}else{
+			return null;
+		}
+	}
+	
+	public void finishGameRoomAndReturn(long lBillID){
+		FinishGameRoomAndReturnRequest.Builder stFinishGameRoomAndReturnRequestBuilder = FinishGameRoomAndReturnRequest.newBuilder();
+		stFinishGameRoomAndReturnRequestBuilder.setLBillID(lBillID);
+		
+		try {
+			blockingBillService.finishGameRoomAndReturn(controller, stFinishGameRoomAndReturnRequestBuilder.build());
 		} catch (ServiceException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
