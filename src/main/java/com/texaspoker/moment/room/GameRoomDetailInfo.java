@@ -121,19 +121,39 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	 */
 	public ERROR_CODE_TYPE doStandUpAction(long uuid,boolean bAuto){
 		synchronized(this){
+			
+			
 			if(this.stGameRoomInfo.getStGameRoomBaseInfo().getBGamePause() == 1){
 				boolean bExist = false;
 				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount();i++){
 					UserGameInfoNet.Builder stUserGameInfoBuilderTemp = stGameRoomInfo.getVUserGameInfos(i).toBuilder();
-					if(stUserGameInfoBuilderTemp.getStUserInfo().getUuid() == uuid 
-							&& stUserGameInfoBuilderTemp.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT
-							&& stUserGameInfoBuilderTemp.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_READY){
-						bExist = true;
-						break;
+					if(stUserGameInfoBuilderTemp.getStUserInfo().getUuid() == uuid ){
+						if(stUserGameInfoBuilderTemp.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT
+								&& stUserGameInfoBuilderTemp.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_READY){
+							bExist = true;
+							break;
+						}
 					}
 				}
 				if(bExist){
 					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
+				}
+			}else{
+				boolean bPlaying = true;
+				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount();i++){
+					UserGameInfoNet.Builder stUserGameInfoBuilderTemp = stGameRoomInfo.getVUserGameInfos(i).toBuilder();
+					if(stUserGameInfoBuilderTemp.getStUserInfo().getUuid() == uuid ){
+						if(stUserGameInfoBuilderTemp.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_WAIT
+								|| stUserGameInfoBuilderTemp.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_FOLD
+								|| stUserGameInfoBuilderTemp.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_STANDBY){
+							bPlaying = false;
+							break;
+						}
+					}
+				}
+				
+				if(bPlaying){
+					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ALLOW_STANDUP;
 				}
 			}
 			

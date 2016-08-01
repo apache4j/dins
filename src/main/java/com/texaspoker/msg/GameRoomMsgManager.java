@@ -99,7 +99,7 @@ public class GameRoomMsgManager {
 	}
 	
 	public void sendGameRoomStateChangeMsg(Long toUserId,SCGameRoomStateChange stSCGameRoomStateChange){
-		System.out.println("sendGameRoomStateChangeMsg.");
+//		System.out.println("sendGameRoomStateChangeMsg.");
 		GameRoomStateChangePushRequest.Builder stGameRoomStateChangePushRequestBuilder = GameRoomStateChangePushRequest.newBuilder(); 
 		stGameRoomStateChangePushRequestBuilder.setUuid(toUserId);
 		stGameRoomStateChangePushRequestBuilder.setStSCGameRoomStateChange(stSCGameRoomStateChange);
