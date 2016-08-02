@@ -111,6 +111,8 @@ public class InsuranceManager {
     }
     // 写入代理人账单
     InsuranceApi.setInsuranceGame(roomId, insuranceInfo.getShopTotal());
+    // 打印代理人日志
+    InsuranceApi.printInsuranceActionLog(insuranceInfo);
   }
 
   // 内部使用，查询是否需要购买保险
