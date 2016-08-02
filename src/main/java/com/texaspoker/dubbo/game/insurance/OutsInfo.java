@@ -122,23 +122,34 @@ public class OutsInfo {
     return false;
   }
 
-  // 获取保险赔付金额，向下取整，不能多赔
+  // 获取保险赔付金额，向上取整，不能多赔
   private long getPayCoin() {
     double payCoin = 0;
     payCoin = buy * odds;
-    // 赔付金额中还要退还之前的购买jine
+    // 赔付金额中还要退还之前的购买金额
     payCoin += buy;
-    return (long) payCoin;
+    // 小于0.1的
+    long expected = (long) payCoin;
+    if ((payCoin - (double) expected) < 0.1) {
+      return expected;
+    } else {
+      return expected + 1;
+    }
   }
 
   // 保险金额采用向上取整策略，不保证完全赔付
   private long getBuyPrice(double price) {
-    long expectedPrice = (long) price;
+    long expected = (long) price;
     // 保证一定保险可买，最少买1
-    if (expectedPrice == 0) {
+    if (expected == 0) {
       return 1;
     }
-    return (long) price;
+    // 小于0.1的
+    if ((price - (double) expected) < 0.1) {
+      return expected;
+    } else {
+      return expected + 1;
+    }
   }
 
   @Override

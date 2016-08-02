@@ -2869,22 +2869,18 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	 */
 	public ERROR_CODE_TYPE userInsuranceSetting(long uuid,int bDefaultInsurance){
 		synchronized(this){
-			InsuranceInfo stInsuranceInfo = null;
+			boolean bInsurance = false;
 			if(bDefaultInsurance > 0){
-				stInsuranceInfo = InsuranceApi.setUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), 
+				bInsurance = InsuranceApi.setUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), 
 						stGameRoomInfo.getLGameHandID(),stGameRoomInfo.getEGameState(),uuid, false);
 			}else{
-				stInsuranceInfo = InsuranceApi.setUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), 
+				bInsurance = InsuranceApi.setUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), 
 						stGameRoomInfo.getLGameHandID(),stGameRoomInfo.getEGameState(),uuid, true);
 			}
-			System.out.println("userInsuranceSetting kkkk : " + stInsuranceInfo);
 			
-			if(stInsuranceInfo==null){
+			if(bInsurance==false){
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SET_INSURANCE; 
 			}else{
-				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-				stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
-				stGameRoomInfo = stGameRoomInfoBuilder.build();
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS; 
 			}
 		}

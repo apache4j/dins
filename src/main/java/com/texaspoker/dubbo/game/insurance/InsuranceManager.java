@@ -97,6 +97,7 @@ public class InsuranceManager {
           userTotalBuys += potBuy;
         }
       }
+      // 这一手用户的买入总计
       if (userTotalBuys > 0) {
         InsuranceApi.setInsuranceBuyin(roomId, uuid, userTotalBuys);
       }
@@ -113,6 +114,8 @@ public class InsuranceManager {
     InsuranceApi.setInsuranceGame(roomId, insuranceInfo.getShopTotal());
     // 打印代理人日志
     InsuranceApi.printInsuranceActionLog(insuranceInfo);
+    // 这一手结束后，清空保险的信息
+    insuranceInfo.refreshHandState(handId);
   }
 
   // 内部使用，查询是否需要购买保险

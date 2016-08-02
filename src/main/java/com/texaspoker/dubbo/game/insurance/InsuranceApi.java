@@ -25,6 +25,12 @@ import com.texaspoker.moment.room.GameRoomDetailInfo;
 import com.texaspoker.moment.room.GameRoomManager;
 import com.texaspoker.user.UserManager;
 
+//import com.texaspoker.bill.BillManager;
+//import com.texaspoker.logger.TableLogService;
+//import com.texaspoker.moment.room.GameRoomDetailInfo;
+//import com.texaspoker.moment.room.GameRoomManager;
+//import com.texaspoker.user.UserManager;
+
 /**
  * 类名称:InsuranceApiProxy
  * 类描述:
@@ -105,59 +111,56 @@ public class InsuranceApi {
   }
 
   // 房主控制开关接口
-  public static TexasPoker.InsuranceInfo setCreaterInsuranceClose(long lGameRoomID, long lHandID,
+  public static boolean setCreaterInsuranceClose(long lGameRoomID, long lHandID,
       TexasPoker.GAME_ROOM_GAME_STATE eRoundState, long uuid, boolean close) {
     InsuranceManager.getInstance().openInsuranceByCreater(lGameRoomID, uuid, close);
-    return getApiInfoFromInsuranceInfo(InsuranceManager.getInstance().getInsurance(lGameRoomID));
+    return true;
   }
 
   // 用户控制开关接口
-  public static TexasPoker.InsuranceInfo setUserInsuranceClose(long lGameRoomID, long lHandID,
+  public static boolean setUserInsuranceClose(long lGameRoomID, long lHandID,
       TexasPoker.GAME_ROOM_GAME_STATE eRoundState, long uuid, boolean close) {
-    if (InsuranceManager.getInstance().openInsuranceByUser(lGameRoomID, uuid, close)) {
-      return getApiInfoFromInsuranceInfo(InsuranceManager.getInstance().getInsurance(lGameRoomID));
-    } else {
-      // 控制开关失败
-      return null;
-    }
+    return InsuranceManager.getInstance().openInsuranceByUser(lGameRoomID, uuid, close);
   }
 
   /*
    * 游戏方API接口，由游戏方提供实现
    */
-  //保险购买行为超时接口
+
+  // 保险购买行为超时接口
   public static void gotoNextStep(long lGameRoomID) {
-  	  GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
-  	  if(stGameRoomDetail!=null){
-  		  stGameRoomDetail.gotoNextStep();
-  	  }
+     GameRoomDetailInfo stGameRoomDetail =
+     GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
+     if(stGameRoomDetail!=null){
+     stGameRoomDetail.gotoNextStep();
+     }
   }
 
-  //billserver保险购买接口
+  // billserver保险购买接口
   public static void setInsuranceBuyin(long lGameRoomID, long uuid, long buyin) {
-  	  BillManager.getInstance().addInsuranceBuyin(uuid, lGameRoomID, buyin);
+     BillManager.getInstance().addInsuranceBuyin(uuid, lGameRoomID, buyin);
   }
 
-  //billserver保险赔付接口
+  // billserver保险赔付接口
   public static void setInsuranceGetStack(long lGameRoomID, long uuid, long getstacks) {
-    BillManager.getInstance().addInsuranceGetStacks(uuid, lGameRoomID, getstacks);
+     BillManager.getInstance().addInsuranceGetStacks(uuid, lGameRoomID, getstacks);
   }
 
-  //保险代理人账单信息接口
+  // 保险代理人账单信息接口
   public static boolean setInsuranceGame(long lGameRoomID, long nums) {
-  	BillManager.getInstance().setFinalInsuranceGetStacks(1000, lGameRoomID, nums);
-  	return true;
+     BillManager.getInstance().setFinalInsuranceGetStacks(1000, lGameRoomID, nums);
+    return true;
   }
 
-  //保险扣钻石接口
+  // 保险扣钻石接口
   public static boolean addUserCoin(Long uuid, long nums) {
-  	UserManager.getInstance().addUserCoin(uuid, nums);
-  	return true;
+     UserManager.getInstance().addUserCoin(uuid, nums);
+    return true;
   }
 
-  //保险扣钻石接口
+  // 保险扣钻石接口
   public static void insuranceDebug(String sLog) {
-  	TableLogService.getInstance().error(sLog);
+     TableLogService.getInstance().error(sLog);
   }
 
   /*
@@ -238,10 +241,10 @@ public class InsuranceApi {
     if (insInfo == null) {
       return null;
     }
-    // if (insInfo.round_user_outs.isEmpty()) {
-    // logger.error("no user outs!!!");
-    // return null;
-    // }
+    if (insInfo.round_user_outs.isEmpty()) {
+      logger.error("no user outs!!!");
+      return null;
+    }
     TexasPoker.InsuranceInfo.Builder apiInfo = TexasPoker.InsuranceInfo.newBuilder();
     for (Map.Entry<Long, List<OutsInfo>> userOuts : insInfo.round_user_outs.entrySet()) {
       Long userId = userOuts.getKey();

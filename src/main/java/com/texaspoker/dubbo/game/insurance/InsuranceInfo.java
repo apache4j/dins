@@ -65,7 +65,6 @@ public class InsuranceInfo {
     if (this.handId != handId) {
       // 手数更新
       this.handId = handId;
-      this.proxy_shop = 0;
       hand_user_buy_totals.clear();
       hand_user_result_totals.clear();
       hand_user_ocur_state.clear();
@@ -83,6 +82,18 @@ public class InsuranceInfo {
     } else {
       logger.debug("roomId:" + roomId + ",handId:" + this.handId + ",status:" + this.status + ",init");
     }
+  }
+
+  // 清除上一手的保险信息
+  public void refreshHandState(long handId) {
+    logger.debug("handId:" + handId);
+    // 清空最后一轮数据
+    round_pot_user_outs.clear();
+    round_user_outs.clear();
+    // 清空这一手数据
+    hand_user_buy_totals.clear();
+    hand_user_result_totals.clear();
+    hand_user_ocur_state.clear();
   }
 
   // 设置边池信息
