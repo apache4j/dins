@@ -69,7 +69,8 @@ public class OutsCheck {
     // 检查一个胜者的out数量
     List<OutsInfo> results = new ArrayList<OutsInfo>();
     for (IPlayer winner : winners) {
-      List<Card> outsCards = findOutsInPlayer(winner, players, tableCards, remainCards, checkEven);
+      // 先找outs
+      List<Card> outsCards = findOutsInPlayer(winner, players, tableCards, remainCards);
       logger.debug("winner:" + winner.getUuid() + ",outs.size:" + outsCards.size());
       if (outsCards.size() > 0) {
         OutsInfo outsInfo = new OutsInfo();
@@ -79,37 +80,60 @@ public class OutsCheck {
           outsInfo.outs[k] = OutsUtils.getCardIndex(outsCards.get(k));
         }
         results.add(outsInfo);
+        // 在有outs情况下，再看是否检查分钱outs
+        if (checkEven) {
+          List<Card> evenCards = findEvensInPlayer(winner, players, tableCards, remainCards);
+          logger.debug("winner:" + winner.getUuid() + ",outs.size:" + evenCards.size());
+          if (evenCards.size() > 0) {
+            outsInfo.evens = new int[evenCards.size()];
+            for (int i = 0; i < evenCards.size(); i++) {
+              outsInfo.evens[i] = OutsUtils.getCardIndex(evenCards.get(i));
+            }
+          }
+        }
       }
     }
     return results;
   }
 
-  // 找出单个赢家的outs
-  public static List<Card> findOutsInPlayer(IPlayer winner, List<IPlayer> players, List<Card> tableCards,
-      List<Card> remainCards, boolean checkEven) {
+  // 只找分钱outs
+  public static List<Card> findEvensInPlayer(IPlayer winner, List<IPlayer> players, List<Card> tableCards,
+      List<Card> remainCards) {
     // 依次查找out
     List<Card> outsCards = new ArrayList<Card>();
     for (Card remainCard : remainCards) {
       List<Card> checkCards = new ArrayList<Card>(tableCards);
       checkCards.add(remainCard);
-      // System.out.println("checkCards:" + checkCards);
+      // logger.debug("checkCards:" + checkCards);
       // 检查这一张是否是outs
-      if (checkOutsForWinner(winner, players, checkCards, checkEven)) {
+      if (checkEvensForWinner(winner, players, checkCards)) {
         outsCards.add(remainCard);
       }
     }
-    // System.out.println("outsCards:" + outsCards);
+    // logger.debug("outsCards:" + outsCards);
     return outsCards;
   }
 
-  // 默认不查找平分outs
-  public static List<Card> findOutsInPlayer(IPlayer winner, List<IPlayer> players, List<Card> tableCards) {
-    return findOutsInPlayer(winner, players, tableCards, false);
+  // 找出单个赢家的outs,默认不查找平分outs
+  public static List<Card> findOutsInPlayer(IPlayer winner, List<IPlayer> players, List<Card> tableCards,
+      List<Card> remainCards) {
+    // 依次查找out
+    List<Card> outsCards = new ArrayList<Card>();
+    for (Card remainCard : remainCards) {
+      List<Card> checkCards = new ArrayList<Card>(tableCards);
+      checkCards.add(remainCard);
+      // logger.debug("checkCards:" + checkCards);
+      // 检查这一张是否是outs
+      if (checkOutsForWinner(winner, players, checkCards)) {
+        outsCards.add(remainCard);
+      }
+    }
+    // logger.debug("outsCards:" + outsCards);
+    return outsCards;
   }
 
-  // 找出单个赢家的outs
-  public static List<Card> findOutsInPlayer(IPlayer winner, List<IPlayer> players, List<Card> tableCards,
-      boolean checkEven) {
+  // 找出单个赢家的平分outs,用于测试用例
+  public static List<Card> findEvensInPlayer(IPlayer winner, List<IPlayer> players, List<Card> tableCards) {
     // 依次查找out
     List<Card> outsCards = new ArrayList<Card>();
     // 直接在比牌人群里找到比牌玩家
@@ -121,18 +145,40 @@ public class OutsCheck {
     for (Card remainCard : remainCards) {
       List<Card> checkCards = new ArrayList<Card>(tableCards);
       checkCards.add(remainCard);
-      // System.out.println("checkCards:" + checkCards);
+      // logger.debug("checkCards:" + checkCards);
       // 检查这一张是否是outs
-      if (checkOutsForWinner(winner, players, checkCards, checkEven)) {
+      if (checkEvensForWinner(winner, players, checkCards)) {
         outsCards.add(remainCard);
       }
     }
-    // System.out.println("outsCards:" + outsCards);
+    // logger.debug("outsCards:" + outsCards);
     return outsCards;
   }
 
-  public static boolean checkOutsForWinner(IPlayer winner, List<IPlayer> players, List<Card> tableCards,
-      boolean checkEven) {
+  // 找出单个赢家的outs,用于测试用例
+  public static List<Card> findOutsInPlayer(IPlayer winner, List<IPlayer> players, List<Card> tableCards) {
+    // 依次查找out
+    List<Card> outsCards = new ArrayList<Card>();
+    // 直接在比牌人群里找到比牌玩家
+    List<Card> remainCards = findRemainCards(players, tableCards);
+    if (remainCards == null) {
+      // 没有剩余牌？扯淡，肯定有问题了
+      return null;
+    }
+    for (Card remainCard : remainCards) {
+      List<Card> checkCards = new ArrayList<Card>(tableCards);
+      checkCards.add(remainCard);
+      // logger.debug("checkCards:" + checkCards);
+      // 检查这一张是否是outs
+      if (checkOutsForWinner(winner, players, checkCards)) {
+        outsCards.add(remainCard);
+      }
+    }
+    // logger.debug("outsCards:" + outsCards);
+    return outsCards;
+  }
+
+  public static boolean checkOutsForWinner(IPlayer winner, List<IPlayer> players, List<Card> tableCards) {
     for (IPlayer player : players) {
       CardRanking.checkRanking(player, tableCards);
     }
@@ -144,23 +190,37 @@ public class OutsCheck {
       int compareResult = PlayerRanking.compareRanking(winner, player);
       if (compareResult == 0) {
         // 赢家和玩家牌型相等，不算outs
-        if (checkEven) {
-          return true;
-        } else {
-          continue;
-        }
+        continue;
       } else if (compareResult == 1) {
         // 赢家继续胜出
         continue;
       } else {
         // 赢家被bb
-        // System.out.println("winner:" + winner.getUuid() + ",card:" + winner.getRankingEnum() +
-        // ","
-        // + winner.getRankingList().toString());
-        // System.out.println("player:" + player.getUuid() + ",card:" + player.getRankingEnum() +
-        // ","
-        // + player.getRankingList().toString());
         return true;
+      }
+    }
+    return false;
+  }
+
+  public static boolean checkEvensForWinner(IPlayer winner, List<IPlayer> players, List<Card> tableCards) {
+    for (IPlayer player : players) {
+      CardRanking.checkRanking(player, tableCards);
+    }
+    for (IPlayer player : players) {
+      // 自己不用比较
+      if (winner.getUuid() == player.getUuid()) {
+        continue;
+      }
+      int compareResult = PlayerRanking.compareRanking(winner, player);
+      if (compareResult == 0) {
+        // 赢家和玩家牌型相等，不算outs
+        return true;
+      } else if (compareResult == 1) {
+        // 赢家继续胜出
+        continue;
+      } else {
+        // 赢家被bb
+        continue;
       }
     }
     return false;

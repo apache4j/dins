@@ -22,8 +22,8 @@ public class OutsInfo {
   // outs数量在多少个内，才能买保险
   public static final int OUTS_LIMIT = 14;
   // outs赔率表，20个以上是0.8
-  public static final double[] OUTS_ODDS = new double[] {31, 16, 10, 8, 6, 5, 4, 3.50, 3, 2.50, 2.30, 2, 1.80, 1.60,
-      1.40, 1.30, 1.20, 1.10, 1.00, 0.80};
+  public static final int[] OUTS_ODDS = new int[] {3100, 1600, 1000, 800, 600, 500, 400, 350, 300, 250, 230, 200, 180,
+      160, 140, 130, 120, 110, 100, 80};
   public static final int OUTS_NUMS = 20;
 
   // 边池pot
@@ -38,8 +38,14 @@ public class OutsInfo {
   // 保险的out信息
   public int[] outs;
 
+  // 保险的分钱outs
+  public int[] evens;
+
   // 保险的赔率
-  public double odds = 0;
+  public double odds_d = 0;
+
+  // 保险的数字表示
+  public int odds_i = 0;
 
   // 保险金额-保本
   public long pay_loss = 0;
@@ -68,7 +74,9 @@ public class OutsInfo {
       throw new RuntimeException("outs info winner or outs error");
     }
     int outsNum = outs.length > OUTS_NUMS ? OUTS_NUMS : outs.length;
-    this.odds = OUTS_ODDS[outsNum - 1];
+    this.odds_i = OUTS_ODDS[outsNum - 1];
+    this.odds_d = odds_i / 100;
+
     this.potId = potId;
     this.potIndex = potIndex;
     this.pots = pots;
@@ -82,15 +90,20 @@ public class OutsInfo {
     }
     // 找出最大购买值
     long pot_max = getBuyPrice(potMaxRaito * pots);
-    long pot_odds = getBuyPrice(pots / odds);
+    long pot_odds = getBuyPrice(pots / odds_d);
     pay_max = pot_max > pot_odds ? pot_odds : pot_max;
+    // turn阶段有分钱outs，也有一个最高限制
+    if (status == HandUtils.TURN && evens != null && evens.length > 0) {
+      long pot_evens = bets - prebuys;
+      pay_max = pay_max > pot_evens ? pot_evens : pay_max;
+    }
     // 找出最小购买值，可为0，如果以前购买过，则至少为1
-    pay_min = prebuys > 0 ? getBuyPrice(prebuys / odds) : 0;
+    pay_min = prebuys > 0 ? getBuyPrice(prebuys / odds_d) : 0;
     // 处理保本额度，不能比最大额度还大
-    long temp_noloss = getBuyPrice((prebuys + bets) / odds);
+    long temp_noloss = getBuyPrice((prebuys + bets) / odds_d);
     pay_loss = temp_noloss > pay_max ? pay_max : temp_noloss;
     // 全底池额度
-    pay_pots = getBuyPrice((prebuys + pots) / odds);
+    pay_pots = getBuyPrice((prebuys + pots) / odds_d);
   }
 
   // 设置购买信息
@@ -122,10 +135,10 @@ public class OutsInfo {
     return false;
   }
 
-  // 获取保险赔付金额，向上取整，不能多赔
+  // 获取保险赔付金额，向上取整，多赔一点
   private long getPayCoin() {
     double payCoin = 0;
-    payCoin = buy * odds;
+    payCoin = buy * odds_d;
     // 赔付金额中还要退还之前的购买金额
     payCoin += buy;
     // 小于0.1的
@@ -137,25 +150,20 @@ public class OutsInfo {
     }
   }
 
-  // 保险金额采用向上取整策略，不保证完全赔付
+  // 保险金额采用向下取整策略，不保证完全赔付
   private long getBuyPrice(double price) {
     long expected = (long) price;
     // 保证一定保险可买，最少买1
     if (expected == 0) {
       return 1;
     }
-    // 小于0.1的
-    if ((price - (double) expected) < 0.1) {
-      return expected;
-    } else {
-      return expected + 1;
-    }
+    return expected;
   }
 
   @Override
   public String toString() {
-    return "outsinfo,uuid:" + winner + ",potId," + potId + ",odds:" + odds + ",pots:" + pots + ",pay_loss:" + pay_loss
-        + ",pay_pots:" + pay_pots + ",pay_min:" + pay_min + ",pay_max:" + pay_max + ",buy:" + buy + ",fold:" + fold
-        + ",result:" + result + ",outs:" + Arrays.toString(outs);
+    return "outsinfo,uuid:" + winner + ",potId," + potId + ",odds:" + odds_d + ",pots:" + pots + ",pay_loss:"
+        + pay_loss + ",pay_pots:" + pay_pots + ",pay_min:" + pay_min + ",pay_max:" + pay_max + ",buy:" + buy + ",fold:"
+        + fold + ",result:" + result + ",outs:" + Arrays.toString(outs);
   }
 }

@@ -284,6 +284,7 @@ public class InsuranceInfo {
 
   // 设置牌局的保险实时赔付情况
   public void setShopTotal(long buy, long result) {
+    logger.debug("roomId:" + roomId + ",handId:" + handId + ",buy:" + buy + ",result:" + result);
     proxy_shop += buy;
     proxy_shop -= result;
   }

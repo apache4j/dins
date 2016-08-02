@@ -9,7 +9,6 @@ package com.texaspoker.dubbo.game.insurance;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
 
 import org.apache.log4j.Logger;
 
@@ -55,8 +54,11 @@ public class InsuranceApi {
   // allin状态下开始计算保险接口
   public static TexasPoker.InsuranceInfo checkInsurance(long lGameRoomID, long lHandID,
       TexasPoker.GAME_ROOM_GAME_STATE eRoundState) {
+    // 检查保险
     int roundStatus = getRoundStatus(eRoundState);
     InsuranceInfo insuranceInfo = InsuranceManager.getInstance().checkInsurance(lGameRoomID, lHandID, roundStatus);
+    // 检查是否需要自动购买逻辑
+    doInsuranceAutoBuy(insuranceInfo);
     return getApiInfoFromInsuranceInfo(insuranceInfo);
   }
 
@@ -66,7 +68,7 @@ public class InsuranceApi {
     long lGameRoomID = stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId();
     // 结算保险
     InsuranceInfo insuranceInfo = InsuranceManager.getInstance().settleInsurance(lGameRoomID, lHandID, tableCard);
-    // 打印计算日志
+    // 打印结算日志
     printInsuranceResultLog(insuranceInfo);
     return doInsuranceResult(insuranceInfo, stGameRoomInfo);
   }
@@ -89,8 +91,6 @@ public class InsuranceApi {
             + buyInfo);
       }
     }
-    // 打印操作日志
-    printInsuranceActionLog(insuranceInfo);
     // 先保存购买时的超时信息
     TexasPoker.InsuranceInfo resultInfo = getApiInfoFromInsuranceInfo(insuranceInfo);
     // 返回当时状态
@@ -129,10 +129,9 @@ public class InsuranceApi {
 
   // 保险购买行为超时接口
   public static void gotoNextStep(long lGameRoomID) {
-     GameRoomDetailInfo stGameRoomDetail =
-     GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
+     GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
      if(stGameRoomDetail!=null){
-     stGameRoomDetail.gotoNextStep();
+    	 stGameRoomDetail.gotoNextStep();
      }
   }
 
@@ -186,6 +185,24 @@ public class InsuranceApi {
     return HandUtils.PRE_FLOP;
   }
 
+  public static void doInsuranceAutoBuy(InsuranceInfo insuranceInfo) {
+	  if (insuranceInfo == null) {
+	      return;
+	    }
+    // turn阶段超过14张out时，系统强制帮用户购买即可
+    if (insuranceInfo.status == HandUtils.TURN) {
+      for (Map.Entry<Long, List<OutsInfo>> userOuts : insuranceInfo.round_user_outs.entrySet()) {
+        long uuid = userOuts.getKey();
+        List<OutsInfo> outsInfos = userOuts.getValue();
+        for (OutsInfo outsInfo : outsInfos) {
+          if (outsInfo.outs.length > OutsInfo.OUTS_LIMIT && outsInfo.pay_min > 0) {
+            InsuranceManager.getInstance().buyInsurance(insuranceInfo.roomId, uuid, outsInfo.potId, outsInfo.pay_min);
+          }
+        }
+      }
+    }
+  }
+
   public static TexasPoker.GameRoomInfo doInsuranceResult(InsuranceInfo insuranceInfo, TexasPoker.GameRoomInfo info) {
     TexasPoker.GameRoomInfo.Builder gameBuilder = info.toBuilder();
     // turn阶段不实时显示购买保险的当前筹码量信息，只有再river结算时，才显示
@@ -236,6 +253,9 @@ public class InsuranceApi {
     return gameBuilder.build();
   }
 
+  // 查看是否需要自动购买保险
+
+
   // 结构体转换函数
   public static TexasPoker.InsuranceInfo getApiInfoFromInsuranceInfo(InsuranceInfo insInfo) {
     if (insInfo == null) {
@@ -267,7 +287,7 @@ public class InsuranceApi {
         for (int i = 0; i < outs.outs.length; i++) {
           potInfo.addVOuts(outs.outs[i]);
         }
-        potInfo.setIOdds((int) (outs.odds * 100));
+        potInfo.setIOdds(outs.odds_i);
         potInfo.setLTotalPotStacks(outs.pay_pots);
         potInfo.setLNoLosses(outs.pay_loss);
         potInfo.setLMinStacks(outs.pay_min);
@@ -328,29 +348,49 @@ public class InsuranceApi {
     return apiInfo.build();
   }
 
-  // 打印保险的操作日志，用于统计
-  public static void printInsuranceActionLog(InsuranceInfo info) {
+  // 打印保险的赔付日志，用于统计
+  public static void printInsuranceResultLog(InsuranceInfo info) {
+    long allBuyTotal = 0;
+    long allResultTotal = 0;
     for (Map.Entry<Long, List<OutsInfo>> entry : info.round_user_outs.entrySet()) {
       long uuid = entry.getKey();
       List<OutsInfo> userInfos = entry.getValue();
       // 计算这个用户这一次总共的够买量
       long buytotal = 0;
+      long resulttotal = 0;
       for (OutsInfo userInfo : userInfos) {
         buytotal += userInfo.buy;
+        resulttotal += userInfo.result;
       }
+      // 统计汇总
+      allBuyTotal += buytotal;
+      allResultTotal += resulttotal;
+      // 有购买行为
       if (buytotal > 0) {
         // 购买日志
-        StringBuilder loginfo = new StringBuilder();
-        loginfo.append(info.groupId);
-        loginfo.append(",");
-        loginfo.append(info.roomId);
-        loginfo.append(",");
-        loginfo.append(info.handId);
-        loginfo.append(",");
-        loginfo.append(uuid);
-        loginfo.append(",insbuy,");
-        loginfo.append(buytotal);
-        InsuranceApi.insuranceDebug(loginfo.toString());
+        StringBuilder loginfo1 = new StringBuilder();
+        loginfo1.append(info.groupId);
+        loginfo1.append(",");
+        loginfo1.append(info.roomId);
+        loginfo1.append(",");
+        loginfo1.append(info.handId);
+        loginfo1.append(",");
+        loginfo1.append(uuid);
+        loginfo1.append(",insbuy,");
+        loginfo1.append(buytotal);
+        InsuranceApi.insuranceDebug(loginfo1.toString());
+        // 赔付日志
+        StringBuilder loginfo2 = new StringBuilder();
+        loginfo2.append(info.groupId);
+        loginfo2.append(",");
+        loginfo2.append(info.roomId);
+        loginfo2.append(",");
+        loginfo2.append(info.handId);
+        loginfo2.append(",");
+        loginfo2.append(uuid);
+        loginfo2.append(",insresult,");
+        loginfo2.append(resulttotal);
+        InsuranceApi.insuranceDebug(loginfo2.toString());
       } else {
         // 放弃日志
         StringBuilder loginfo = new StringBuilder();
@@ -365,67 +405,20 @@ public class InsuranceApi {
         InsuranceApi.insuranceDebug(loginfo.toString());
       }
     }
-  }
-
-  // 打印保险的赔付日志，用于统计
-  public static void printInsuranceResultLog(InsuranceInfo info) {
-    for (Map.Entry<Long, List<OutsInfo>> entry : info.round_user_outs.entrySet()) {
-      long uuid = entry.getKey();
-      List<OutsInfo> userInfos = entry.getValue();
-      // 计算这个用户这一次总共的够买量
-      long buytotal = 0;
-      long resulttotal = 0;
-      for (OutsInfo userInfo : userInfos) {
-        buytotal += userInfo.buy;
-        resulttotal += userInfo.result;
-      }
-      // 有购买行为
-      if (buytotal > 0) {
-        // 购买日志
-        StringBuilder loginfo = new StringBuilder();
-        loginfo.append(info.groupId);
-        loginfo.append(",");
-        loginfo.append(info.roomId);
-        loginfo.append(",");
-        loginfo.append(info.handId);
-        loginfo.append(",");
-        loginfo.append(uuid);
-        loginfo.append(",insresult,");
-        loginfo.append(resulttotal);
-        InsuranceApi.insuranceDebug(loginfo.toString());
-      }
-    }
-  }
-
-  // 打印保险代理人的赔付日志，用于上一手
-  public static void printInsuranceProxyLog(InsuranceInfo info) {
-    // 写入用户买入账单
-    long userTotalBuys = 0;
-    for (ConcurrentMap<Long, Long> potsBuys : info.hand_user_buy_totals.values()) {
-      for (Long potBuy : potsBuys.values()) {
-        userTotalBuys += potBuy;
-      }
-    }
-    if (userTotalBuys > 0) {
+    // 打印这一轮的代理人日志
+    if (allBuyTotal > 0) {
       // 购买日志
-      StringBuilder loginfo = new StringBuilder();
-      loginfo.append(info.groupId);
-      loginfo.append(",");
-      loginfo.append(info.roomId);
-      loginfo.append(",");
-      loginfo.append(info.handId);
-      loginfo.append(",");
-      loginfo.append(1000);
-      loginfo.append(",insbuy,");
-      loginfo.append(userTotalBuys);
-      InsuranceApi.insuranceDebug(loginfo.toString());
-    }
-    // 写入用户赔付账单
-    long userTotalResult = 0;
-    for (Long result : info.hand_user_result_totals.values()) {
-      userTotalResult += result;
-    }
-    if (userTotalBuys > 0) {
+      StringBuilder loginfo1 = new StringBuilder();
+      loginfo1.append(info.groupId);
+      loginfo1.append(",");
+      loginfo1.append(info.roomId);
+      loginfo1.append(",");
+      loginfo1.append(info.handId);
+      loginfo1.append(",");
+      loginfo1.append(1000);
+      loginfo1.append(",insbuy,");
+      loginfo1.append(allBuyTotal);
+      InsuranceApi.insuranceDebug(loginfo1.toString());
       // 赔付日志
       StringBuilder loginfo = new StringBuilder();
       loginfo.append(info.groupId);
@@ -436,10 +429,11 @@ public class InsuranceApi {
       loginfo.append(",");
       loginfo.append(1000);
       loginfo.append(",insresult,");
-      loginfo.append(userTotalResult);
+      loginfo.append(allResultTotal);
       InsuranceApi.insuranceDebug(loginfo.toString());
+      logger.debug("roomId:" + info.roomId + ",handId:" + info.handId + ",1000,buytotal:" + allBuyTotal
+          + ",resulttotal:" + allResultTotal);
     }
-    logger.debug("roomId:" + info.roomId + ",handId:" + info.handId + ",1000,buytotal:" + userTotalBuys
-        + ",resulttotal:" + userTotalResult);
   }
+
 }
