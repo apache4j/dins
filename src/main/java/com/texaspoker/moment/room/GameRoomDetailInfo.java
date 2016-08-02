@@ -147,8 +147,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					if(stUserGameInfoBuilderTemp.getStUserInfo().getUuid() == uuid ){
 						System.out.println("(stUserGameInfoBuilderTemp.getStUserInfo().getUuid() 3: " + stUserGameInfoBuilderTemp.getEGameState());
 						if(stUserGameInfoBuilderTemp.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_WAIT
-								|| stUserGameInfoBuilderTemp.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_FOLD
-								|| stUserGameInfoBuilderTemp.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_STANDBY){
+								|| stUserGameInfoBuilderTemp.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD
+								|| stUserGameInfoBuilderTemp.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_STANDBY){
 							System.out.println("(stUserGameInfoBuilderTemp.getStUserInfo().getUuid() 4: ");
 							bPlaying = false;
 							break;
