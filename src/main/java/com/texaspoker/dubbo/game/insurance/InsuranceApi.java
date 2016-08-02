@@ -125,10 +125,6 @@ public class InsuranceApi {
   /*
    * 游戏方API接口，由游戏方提供实现
    */
-
-  /*
-   * 游戏方API接口，由游戏方提供实现
-   */
   //保险购买行为超时接口
   public static void gotoNextStep(long lGameRoomID) {
   	  GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
@@ -242,10 +238,10 @@ public class InsuranceApi {
     if (insInfo == null) {
       return null;
     }
-    if (insInfo.round_user_outs.isEmpty()) {
-      logger.error("no user outs!!!");
-      return null;
-    }
+    // if (insInfo.round_user_outs.isEmpty()) {
+    // logger.error("no user outs!!!");
+    // return null;
+    // }
     TexasPoker.InsuranceInfo.Builder apiInfo = TexasPoker.InsuranceInfo.newBuilder();
     for (Map.Entry<Long, List<OutsInfo>> userOuts : insInfo.round_user_outs.entrySet()) {
       Long userId = userOuts.getKey();
@@ -286,7 +282,7 @@ public class InsuranceApi {
         if (outs.fold)
           lTotalFold++;
         if (outs.result > 0)
-          lTotalGetStacks += outs.result;
+          lTotalGetStacks += (outs.result - outs.buy);
       }
       // 保险状态
       if (lTotalBuys > 0) {
@@ -322,7 +318,7 @@ public class InsuranceApi {
         userInfo.setBFirstInsurance(0);
       }
       // 加入用户保险信息队列
-      logger.debug("userinfo:" + userInfo);
+      // logger.debug("userinfo:" + userInfo);
       apiInfo.addVInsuranceUserInfos(userInfo);
     }
     logger.debug("insuranceinfo:" + apiInfo);
@@ -440,5 +436,7 @@ public class InsuranceApi {
       loginfo.append(userTotalResult);
       InsuranceApi.insuranceDebug(loginfo.toString());
     }
+    logger.debug("roomId:" + info.roomId + ",handId:" + info.handId + ",1000,buytotal:" + userTotalBuys
+        + ",resulttotal:" + userTotalResult);
   }
 }

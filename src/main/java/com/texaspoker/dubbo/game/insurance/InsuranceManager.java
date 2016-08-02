@@ -389,7 +389,7 @@ public class InsuranceManager {
       }
     }
     // API接口，保险实时赔付账单信息
-    InsuranceApi.setInsuranceGame(roomId, insuranceInfo.getShopTotal());
+    // InsuranceApi.setInsuranceGame(roomId, insuranceInfo.getShopTotal());
     // 返回所有保险结算结果
     return insuranceInfo;
   }

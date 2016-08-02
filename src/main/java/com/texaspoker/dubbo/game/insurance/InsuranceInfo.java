@@ -278,6 +278,7 @@ public class InsuranceInfo {
   }
 
   public long getShopTotal() {
+    logger.debug("roomId:" + roomId + ",handId:" + handId + ",proxy:" + proxy_shop);
     return this.proxy_shop;
   }
 

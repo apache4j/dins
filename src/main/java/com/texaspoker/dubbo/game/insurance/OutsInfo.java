@@ -22,8 +22,8 @@ public class OutsInfo {
   // outs数量在多少个内，才能买保险
   public static final int OUTS_LIMIT = 14;
   // outs赔率表，20个以上是0.8
-  public static final double[] OUTS_ODDS = new double[] {31, 16, 10, 8, 6, 5, 4, 3.5, 3, 2.5, 2.3, 2, 1.8, 1.6, 1.4,
-      1.3, 1.2, 1.1, 1.0, 0.8};
+  public static final double[] OUTS_ODDS = new double[] {31, 16, 10, 8, 6, 5, 4, 3.50, 3, 2.50, 2.30, 2, 1.80, 1.60,
+      1.40, 1.30, 1.20, 1.10, 1.00, 0.80};
   public static final int OUTS_NUMS = 20;
 
   // 边池pot
@@ -131,7 +131,7 @@ public class OutsInfo {
     return (long) payCoin;
   }
 
-  // 保险金额采用向下取整策略，不保证完全赔付
+  // 保险金额采用向上取整策略，不保证完全赔付
   private long getBuyPrice(double price) {
     long expectedPrice = (long) price;
     // 保证一定保险可买，最少买1
