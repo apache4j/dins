@@ -149,11 +149,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						if(stUserGameInfoBuilderTemp.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_WAIT
 								|| stUserGameInfoBuilderTemp.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_FOLD
 								|| stUserGameInfoBuilderTemp.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_STANDBY){
+							System.out.println("(stUserGameInfoBuilderTemp.getStUserInfo().getUuid() 4: ");
 							bPlaying = false;
 							break;
 						}
 					}
 				}
+				System.out.println("(stUserGameInfoBuilderTemp.getStUserInfo().getUuid(). : " + bPlaying);
 				
 				if(bPlaying){
 					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ALLOW_STANDUP;
