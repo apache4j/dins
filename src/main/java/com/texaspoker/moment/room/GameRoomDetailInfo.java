@@ -2877,15 +2877,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				stInsuranceInfo = InsuranceApi.setUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), 
 						stGameRoomInfo.getLGameHandID(),stGameRoomInfo.getEGameState(),uuid, true);
 			}
-			
-			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-			stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
-			stGameRoomInfo = stGameRoomInfoBuilder.build();
+			System.out.println("userInsuranceSetting kkkk : " + stInsuranceInfo);
 			
 			if(stInsuranceInfo==null){
-				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS; 
-			}else{
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SET_INSURANCE; 
+			}else{
+				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+				stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
+				stGameRoomInfo = stGameRoomInfoBuilder.build();
+				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS; 
 			}
 		}
 	}
