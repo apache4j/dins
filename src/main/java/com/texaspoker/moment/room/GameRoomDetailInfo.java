@@ -155,7 +155,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						}
 					}
 				}
-				System.out.println("(stUserGameInfoBuilderTemp.getStUserInfo().getUuid(). : " + bPlaying);
 				
 				if(bPlaying){
 					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ALLOW_STANDUP;
@@ -332,6 +331,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stGameRoomInfo = stGameRoomInfoBuilder.build();
 					bPause = true;
 					pushAllGameRoomUserMsgs(null,GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_PAUSE,stGameRoomInfoBuilder.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid());
+					InsuranceApi.setRoomPause(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 					
 					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS; 
 				}else{
@@ -366,6 +366,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
 					stGameRoomInfo = stGameRoomInfoBuilder.build();
 					bPause = false;
+					InsuranceApi.setRoomPlay(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 					pushAllGameRoomUserMsgs(null,GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_RESUME,0);
 					
 					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS; 
@@ -1865,9 +1866,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stUserGameInfoBuilder.setIDelayLong(0);
 					stUserGameInfoBuilder.setIDelaySingleTime(20);
 					
-//					mapPlayingUserGameInfos.put(userIndex,stUserGameInfoBuilder.getStUserInfo().getUuid());
-//					mLogPlays.error(LOG_TAG+" 22stGameRoomDetailInfo mapPlayingUserGameInfos.getCard add  pos : " + userIndex);
-//					mLogPlays.error(LOG_TAG+" 22stGameRoomDetailInfo mapPlayingUserGameInfos.getCard add uuid : " + stUserGameInfoBuilder.getStUserInfo().getUuid());
 					//设置用户的较色状态
 					if( 0 == userRole){
 						stUserGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_SMALL_BLIND);
@@ -2176,6 +2174,36 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
 		}
 	
+	}
+	
+	public int getDealyTimes(long uuid){
+		for(int i = 0 ; i < this.stGameRoomInfo.getVUserGameInfosCount() ; i++){
+			UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
+		
+			if(stUserGameInfoNet.getStUserInfo().getUuid() == uuid){
+				return stUserGameInfoNet.getIDelayTotalTimes();
+			}
+		}
+		return 0;
+	}
+	
+	public void setDealyTimes(long uuid,int times){
+		synchronized(this){
+			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+			
+			for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount() ; i++){
+				UserGameInfoNet stUserGameInfoNet = stGameRoomInfoBuilder.getVUserGameInfos(i);
+				if(stUserGameInfoNet!=null){
+					UserGameInfoNet.Builder stUserGameInfoNetBuilder = stUserGameInfoNet.toBuilder();
+					if(stUserGameInfoNetBuilder.getStUserInfo().getUuid() == uuid){
+						stUserGameInfoNetBuilder.setIDelayTotalTimes(times);
+						stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+					}	
+				}
+			}
+			
+			stGameRoomInfo = stGameRoomInfoBuilder.build();
+		}
 	}
 
 	public ERROR_CODE_TYPE useDelayItem(long uuid,long lBettingID){
@@ -2886,11 +2914,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		synchronized(this){
 			boolean bInsurance = false;
 			if(bDefaultInsurance > 0){
-				bInsurance = InsuranceApi.setUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), 
-						stGameRoomInfo.getLGameHandID(),stGameRoomInfo.getEGameState(),uuid, false);
+				bInsurance = InsuranceApi.setUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid, false);
 			}else{
-				bInsurance = InsuranceApi.setUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), 
-						stGameRoomInfo.getLGameHandID(),stGameRoomInfo.getEGameState(),uuid, true);
+				bInsurance = InsuranceApi.setUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid, true);
 			}
 			
 			if(bInsurance==false){

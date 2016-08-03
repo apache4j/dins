@@ -10,6 +10,7 @@ package com.texaspoker.dubbo.game.insurance;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -100,6 +101,7 @@ public class InsuranceManager {
       // 这一手用户的买入总计
       if (userTotalBuys > 0) {
         InsuranceApi.setInsuranceBuyin(roomId, uuid, userTotalBuys);
+        logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",totalbuys:" + userTotalBuys);
       }
     }
     // 写入用户赔付账单
@@ -108,6 +110,7 @@ public class InsuranceManager {
       long totals = resultEntry.getValue();
       if (totals > 0) {
         InsuranceApi.setInsuranceGetStack(roomId, uuid, totals);
+        logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",totalresult:" + totals);
       }
     }
     // 写入代理人账单
@@ -185,6 +188,8 @@ public class InsuranceManager {
         continue;
       }
       logger.debug("roomId:" + roomId + ",potId:" + allin_bets + ",outs size:" + outsList.size());
+      // 领先的用户列表
+      Set<Long> winnerList = OutsCheck.findWinnersInPlayer(allinUserInfos, handInfo);
       // 设置用户的保险购买信息
       for (OutsInfo outsInfo : outsList) {
         // 是否开启保险购买逻辑
@@ -209,7 +214,11 @@ public class InsuranceManager {
         insuranceInfo.setUserOuts(potId, outsInfo.winner, outsInfo);
         // 设置这个玩家的购买超时
         insurance_timer.setUserTimeout(roomId, outsInfo.winner, potId);
+        // 这个领先玩家有保险
+        winnerList.remove(outsInfo.winner);
       }
+      // 这个边池的领先却没有保险的玩家
+      insuranceInfo.setWinnerNoOuts(winnerList);
     }
     // 返回提示保险信息
     if (insuranceInfo.isOutsEmpty()) {
@@ -351,6 +360,21 @@ public class InsuranceManager {
     }
   }
 
+  // 获取玩家保险开关状态
+  public boolean getUserCloseStatus(long roomId, long uuid) {
+    return insurance_open.getUserCloseStatus(roomId, uuid);
+  }
+
+  // 暂停保险超时逻辑
+  public void setInsurancePause(long roomId) {
+    insurance_timer.onRoomPause(roomId);
+  }
+
+  // 恢复保险超时逻辑
+  public void setInsurancePlay(long roomId) {
+    insurance_timer.onRoomPlay(roomId);
+  }
+
   // 内部调用，结算购买的保险
   public InsuranceInfo settleInsurance(long roomId) {
     // 检查手数信息
@@ -398,10 +422,6 @@ public class InsuranceManager {
   // 主要用于最后一个人购买或者放弃时调用，用于解耦
   public void checkRoomTimeout(long roomId) {
     insurance_timer.checkRoomTimeout(roomId);
-  }
-
-  public boolean getUserCloseStatus(long roomId, long uuid) {
-    return insurance_open.getUserCloseStatus(roomId, uuid);
   }
 
   public InsuranceTimer.InsuranceTimeInfo getUserTimeout(long roomId, long uuid) {

@@ -54,7 +54,6 @@ public class InsuranceApi {
   // allin状态下开始计算保险接口
   public static TexasPoker.InsuranceInfo checkInsurance(long lGameRoomID, long lHandID,
       TexasPoker.GAME_ROOM_GAME_STATE eRoundState) {
-	  System.out.println("checkInsurancecheckInsurancecheckInsurancecheckInsurance!!!!!!!!!!!!!!!!!!!!!!! : " + lGameRoomID + "  " + eRoundState);
     // 检查保险
     int roundStatus = getRoundStatus(eRoundState);
     InsuranceInfo insuranceInfo = InsuranceManager.getInstance().checkInsurance(lGameRoomID, lHandID, roundStatus);
@@ -112,27 +111,39 @@ public class InsuranceApi {
   }
 
   // 房主控制开关接口
-  public static boolean setCreaterInsuranceClose(long lGameRoomID, long lHandID,
-      TexasPoker.GAME_ROOM_GAME_STATE eRoundState, long uuid, boolean close) {
+  public static boolean setCreaterInsuranceClose(long lGameRoomID, long uuid, boolean close) {
     InsuranceManager.getInstance().openInsuranceByCreater(lGameRoomID, uuid, close);
     return true;
   }
 
   // 用户控制开关接口
-  public static boolean setUserInsuranceClose(long lGameRoomID, long lHandID,
-      TexasPoker.GAME_ROOM_GAME_STATE eRoundState, long uuid, boolean close) {
+  public static boolean setUserInsuranceClose(long lGameRoomID, long uuid, boolean close) {
     return InsuranceManager.getInstance().openInsuranceByUser(lGameRoomID, uuid, close);
+  }
+
+  // 获取保险开关接口
+  public static boolean getUserInsuranceClose(long lGameRoomID, long uuid) {
+    return InsuranceManager.getInstance().getUserCloseStatus(lGameRoomID, uuid);
+  }
+
+  // 房主暂停牌局
+  public static void setRoomPause(long lGameRoomID) {
+    InsuranceManager.getInstance().setInsurancePause(lGameRoomID);
+  }
+
+  // 房主继续牌局
+  public static void setRoomPlay(long lGameRoomID) {
+    InsuranceManager.getInstance().setInsurancePlay(lGameRoomID);
   }
 
   /*
    * 游戏方API接口，由游戏方提供实现
    */
-
   // 保险购买行为超时接口
   public static void gotoNextStep(long lGameRoomID) {
      GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
      if(stGameRoomDetail!=null){
-    	 stGameRoomDetail.gotoNextStep();
+     stGameRoomDetail.gotoNextStep();
      }
   }
 
@@ -153,12 +164,30 @@ public class InsuranceApi {
   }
 
   // 保险扣钻石接口
-  public static boolean addUserCoin(Long uuid, long nums) {
+  public static boolean addUserCoin(long uuid, long nums) {
      UserManager.getInstance().addUserCoin(uuid, nums);
     return true;
   }
 
-  // 保险扣钻石接口
+  // 获取用户的延时操作次数
+  public static int getUserDelayOperation(long lGameRoomID, long uuid) {
+	     GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
+	     if(stGameRoomDetail!=null){
+	    	 return stGameRoomDetail.getDealyTimes(uuid);
+	     }else{
+	    	 return 0;
+	     }
+  }
+
+  // 设置用户的延时操作次数
+  public static void setUserDelayOperation(long lGameRoomID, long uuid, int nums) {
+	  GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
+     if(stGameRoomDetail!=null){
+    	 stGameRoomDetail.setDealyTimes(uuid, nums);
+     }
+  }
+
+  // 操作日志接口
   public static void insuranceDebug(String sLog) {
      TableLogService.getInstance().error(sLog);
   }
@@ -187,9 +216,9 @@ public class InsuranceApi {
   }
 
   public static void doInsuranceAutoBuy(InsuranceInfo insuranceInfo) {
-	  if (insuranceInfo == null) {
-	      return;
-	    }
+    if (insuranceInfo == null) {
+      return;
+    }
     // turn阶段超过14张out时，系统强制帮用户购买即可
     if (insuranceInfo.status == HandUtils.TURN) {
       for (Map.Entry<Long, List<OutsInfo>> userOuts : insuranceInfo.round_user_outs.entrySet()) {
@@ -253,9 +282,6 @@ public class InsuranceApi {
     // logger.debug("gameinfo:" + gameBuilder);
     return gameBuilder.build();
   }
-
-  // 查看是否需要自动购买保险
-
 
   // 结构体转换函数
   public static TexasPoker.InsuranceInfo getApiInfoFromInsuranceInfo(InsuranceInfo insInfo) {
@@ -335,15 +361,25 @@ public class InsuranceApi {
       int cost = InsuranceManager.getInstance().getUserDelayCost(insInfo.roomId, userId);
       userInfo.setIInsuranceDelayCost(cost);
       userInfo.setIInsuranceDelayLong(InsuranceTimer.INSURANCE_OPERATION_DELAY_SECONDS);
-      // 查看是否第一次触发
-      if (insInfo.checkFirstOcur(userId)) {
-        userInfo.setBFirstInsurance(1);
-      } else {
-        userInfo.setBFirstInsurance(0);
-      }
+      // 查看这个用户是否第一次触发
+      // if (insInfo.checkFirstOcur(userId)) {
+      // userInfo.setBFirstInsurance(1);
+      // } else {
+      // userInfo.setBFirstInsurance(0);
+      // }
       // 加入用户保险信息队列
       // logger.debug("userinfo:" + userInfo);
       apiInfo.addVInsuranceUserInfos(userInfo);
+    }
+    // 查看这一轮是否第一次触发
+    if (insInfo.checkRoundFirstOcur()) {
+      apiInfo.setIFirstInsurance(1);
+    } else {
+      apiInfo.setIFirstInsurance(0);
+    }
+    // 加入领先但是没有触发保险的用户
+    for (Long winner : insInfo.round_winner_no_outs) {
+      apiInfo.addVNoOutsUuids(winner);
     }
     logger.debug("insuranceinfo:" + apiInfo);
     return apiInfo.build();

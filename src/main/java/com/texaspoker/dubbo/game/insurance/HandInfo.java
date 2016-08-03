@@ -309,7 +309,15 @@ public class HandInfo {
         }
         // 有多少玩家的筹码量比这个allin大
         if (allinUser.getValue() >= roundAllinBet) {
-          allinUsers.put(allinUser.getKey(), roundAllinBet - preAllinBet);
+          // 记录这个allin边池的用户筹码量
+          if (roundInfo.allin_bets.isEmpty()) {
+            // 这一轮第一个边池时，需要查看以前几轮的筹码下注
+            int preUserBets = calcPreStateBets(status, allinUser.getKey());
+            allinUsers.put(allinUser.getKey(), roundAllinBet + preUserBets);
+          } else {
+            // 不是第一个边池，则扣除这一轮前面的边池
+            allinUsers.put(allinUser.getKey(), roundAllinBet - preAllinBet);
+          }
         }
       }
       // 这个allin边池的玩家
@@ -317,8 +325,14 @@ public class HandInfo {
       logger.debug("roomId:" + roomId + ",roundState:" + status + ",potId:" + allinBet.getKey() + ",alluser:"
           + allinUsers.keySet());
       // 这个allin的边池总量
-      int allinPool = (roundAllinBet - preAllinBet) * allinUsers.size() + roundflodBets + preStateBets;
-      roundInfo.allin_bets.put(allinBet.getKey(), allinPool);
+      int allinPool = 0;
+      if (roundInfo.allin_bets.isEmpty()) {
+        allinPool = (roundAllinBet - 0) * allinUsers.size() + roundflodBets + preStateBets;
+        roundInfo.allin_bets.put(allinBet.getKey(), allinPool);
+      } else {
+        allinPool = (roundAllinBet - preAllinBet) * allinUsers.size() + roundflodBets;
+        roundInfo.allin_bets.put(allinBet.getKey(), allinPool);
+      }
       logger.debug("roomId:" + roomId + ",roundState:" + status + ",potId:" + allinBet.getKey() + ",potBets:"
           + allinPool);
       // 记录这个potid信息，已便于边池索引
@@ -398,6 +412,28 @@ public class HandInfo {
     }
     logger.debug("roomId:" + roomId + ",handId:" + handId + ",totalStateBets:" + totalStateBets);
     return totalStateBets;
+  }
+
+  // 打印这一次allin轮以前这个用户能够收集的下注边池筹码
+  private int calcPreStateBets(int status, long uuid) {
+    logger.debug("roomId:" + roomId + ",handId:" + handId + ",status:" + status);
+    int UserStateBets = 0;
+    for (int roundState = status - 1; roundState >= HandUtils.PRE_FLOP; roundState--) {
+      HandRoundInfo roundInfo = roundInfos.get(roundState);
+      if (roundInfo == null) {
+        break;
+      }
+      // 这一轮也有allin玩家,那么就不用计算了
+      if (!roundInfo.user_allins.isEmpty()) {
+        break;
+      }
+      // 计算这一轮这个用户的下注量
+      if (roundInfo.user_bets.containsKey(uuid)) {
+        UserStateBets += roundInfo.user_bets.get(uuid);
+      }
+    }
+    logger.debug("roomId:" + roomId + ",handId:" + handId + ",totalStateBets:" + UserStateBets);
+    return UserStateBets;
   }
 
   // 判断这一手是否完全处于allin状态，没有动作了

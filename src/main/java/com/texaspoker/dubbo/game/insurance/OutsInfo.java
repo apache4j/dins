@@ -75,7 +75,7 @@ public class OutsInfo {
     }
     int outsNum = outs.length > OUTS_NUMS ? OUTS_NUMS : outs.length;
     this.odds_i = OUTS_ODDS[outsNum - 1];
-    this.odds_d = odds_i / 100;
+    this.odds_d = (double) odds_i / (double) 100.0;
 
     this.potId = potId;
     this.potIndex = potIndex;
@@ -97,6 +97,8 @@ public class OutsInfo {
       long pot_evens = bets - prebuys;
       pay_max = pay_max > pot_evens ? pot_evens : pay_max;
     }
+    // 最高限制的最低值保护
+    pay_max = pay_max < 1 ? 1 : pay_max;
     // 找出最小购买值，可为0，如果以前购买过，则至少为1
     pay_min = prebuys > 0 ? getBuyPrice(prebuys / odds_d) : 0;
     // 处理保本额度，不能比最大额度还大
@@ -143,7 +145,7 @@ public class OutsInfo {
     payCoin += buy;
     // 小于0.1的
     long expected = (long) payCoin;
-    if ((payCoin - (double) expected) < 0.1) {
+    if ((payCoin - (double) expected) < 0.01) {
       return expected;
     } else {
       return expected + 1;
@@ -157,7 +159,12 @@ public class OutsInfo {
     if (expected == 0) {
       return 1;
     }
-    return expected;
+    // 小于0.1的
+    if ((price - (double) expected) < 0.01) {
+      return expected;
+    } else {
+      return expected + 1;
+    }
   }
 
   @Override

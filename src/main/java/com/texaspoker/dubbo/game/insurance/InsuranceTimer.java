@@ -34,22 +34,50 @@ public class InsuranceTimer {
   public static final int INSURANCE_OPERATION_TIMEOUT_SECONDS = 30;
   public static final int INSURANCE_OPERATION_DELAY_SECONDS = 20;
 
+  private int insurance_timeout_seconds = 0;
+  private int insurance_delay_seconds = 0;
+
   // 用户保险超时信息
   public class InsuranceTimeInfo {
     long startTime;
     long endTime;
-    Set<Long> potIds;
+    Set<Long> potIds = new HashSet<>();;
+  }
+
+  // 房间超时信息
+  public class RoomTimeInfo {
+    long roomId;
+    long startTime;
+    long pauseTime;
+    long endTime;
+    ConcurrentMap<Long, InsuranceTimeInfo> userTimeInfos =
+        new ConcurrentHashMap<Long, InsuranceTimer.InsuranceTimeInfo>();;
   }
 
   // 所有房间的购买超时
-  public TimeoutMap<Long, ConcurrentMap<Long, InsuranceTimeInfo>> room_timer;
+  public TimeoutMap<Long, RoomTimeInfo> room_timer;
+
+  // 所有暂停的房间信息
+  public ConcurrentMap<Long, RoomTimeInfo> room_pause = new ConcurrentHashMap<Long, RoomTimeInfo>();
 
   // 定时器初始化
   public InsuranceTimer() {
+    InitTimer(INSURANCE_OPERATION_TIMEOUT_SECONDS, INSURANCE_OPERATION_DELAY_SECONDS);
+  }
+
+  // 自定义初始化
+  public InsuranceTimer(int insuranceTimeout, int insuranceDelayTime) {
+    InitTimer(insuranceTimeout, insuranceDelayTime);
+  }
+
+  // 支持自定义房间超时逻辑
+  private void InitTimer(int insuranceTimeout, int insuranceDelayTime) {
+    insurance_timeout_seconds = insuranceTimeout;
+    insurance_delay_seconds = insuranceDelayTime;
     room_timer =
-        TimeoutMap.builder().variableTimeout().timeout(30, TimeUnit.SECONDS)
-            .timeoutListener(new TimeoutListener<Long, ConcurrentMap<Long, InsuranceTimeInfo>>() {
-              public void expired(Long thekey, ConcurrentMap<Long, InsuranceTimeInfo> thevalue) {
+        TimeoutMap.builder().variableTimeout().timeout(insurance_timeout_seconds, TimeUnit.SECONDS)
+            .timeoutListener(new TimeoutListener<Long, RoomTimeInfo>() {
+              public void expired(Long thekey, RoomTimeInfo thevalue) {
                 InsuranceTimeoutHandler(thekey);
               }
             }).build();
@@ -73,6 +101,44 @@ public class InsuranceTimer {
     room_timer.remove(roomId);
   }
 
+  public void onRoomPause(long roomId) {
+    logger.debug("roomId:" + roomId + ",pause table");
+    RoomTimeInfo roomTimeInfo = room_timer.get(roomId);
+    if (roomTimeInfo == null) {
+      logger.error("roomId:" + roomId + ",pause room info null");
+      return;
+    }
+    // 设置暂停时刻
+    roomTimeInfo.pauseTime = System.currentTimeMillis();
+    // 迁移到暂停列表
+    room_pause.put(roomId, roomTimeInfo);
+    room_timer.remove(roomId);
+  }
+
+  public void onRoomPlay(long roomId) {
+    logger.debug("roomId:" + roomId + ",play table");
+    RoomTimeInfo roomTimeInfo = room_pause.get(roomId);
+    if (roomTimeInfo == null) {
+      logger.error("roomId:" + roomId + ",play room info null");
+      return;
+    }
+    // 计算剩余超时时间
+    long leftTime = roomTimeInfo.endTime - roomTimeInfo.pauseTime;
+    // 重新计算开始时刻
+    long pausePastedSpan = System.currentTimeMillis() - roomTimeInfo.pauseTime;
+    roomTimeInfo.startTime += pausePastedSpan;
+    roomTimeInfo.endTime += pausePastedSpan;
+    roomTimeInfo.pauseTime = 0;
+    // 所有玩家的超时都需要刷新时刻
+    for (InsuranceTimeInfo timeInfo : roomTimeInfo.userTimeInfos.values()) {
+      timeInfo.startTime += pausePastedSpan;
+      timeInfo.endTime += pausePastedSpan;
+    }
+    // 重新加时列表
+    room_timer.put(roomId, roomTimeInfo, leftTime, TimeUnit.MILLISECONDS);
+    room_pause.remove(roomId);
+  }
+
   // 清空房间的超时记录
   public void clearRoomTimeout(long roomId) {
     logger.debug("roomId:" + roomId + ",clean timeout");
@@ -90,19 +156,21 @@ public class InsuranceTimer {
 
   // 设置玩家超时
   public void setUserTimeout(long roomId, long uuid, long potId) {
-    ConcurrentMap<Long, InsuranceTimeInfo> userTimes = room_timer.get(roomId);
-    if (userTimes == null) {
-      userTimes = new ConcurrentHashMap<Long, InsuranceTimeInfo>();
-      room_timer.put(roomId, userTimes);
+    RoomTimeInfo roomTimeInfo = room_timer.get(roomId);
+    if (roomTimeInfo == null) {
+      roomTimeInfo = new RoomTimeInfo();
+      roomTimeInfo.roomId = roomId;
+      roomTimeInfo.startTime = System.currentTimeMillis();
+      roomTimeInfo.endTime = roomTimeInfo.startTime + insurance_timeout_seconds * 1000;
+      room_timer.put(roomId, roomTimeInfo);
     }
     // 是否设置过这个玩家的超时
-    InsuranceTimeInfo timeInfo = userTimes.get(uuid);
+    InsuranceTimeInfo timeInfo = roomTimeInfo.userTimeInfos.get(uuid);
     if (timeInfo == null) {
       timeInfo = new InsuranceTimeInfo();
-      timeInfo.startTime = System.currentTimeMillis();
-      timeInfo.endTime = timeInfo.startTime + INSURANCE_OPERATION_TIMEOUT_SECONDS * 1000;
-      timeInfo.potIds = new HashSet<>();
-      userTimes.put(uuid, timeInfo);
+      timeInfo.startTime = roomTimeInfo.startTime;
+      timeInfo.endTime = timeInfo.startTime + insurance_timeout_seconds * 1000;
+      roomTimeInfo.userTimeInfos.put(uuid, timeInfo);
     }
     // 增加这个用户的边池超时时间
     timeInfo.potIds.add(potId);
@@ -111,46 +179,46 @@ public class InsuranceTimer {
 
   // 玩家购买延时
   public void addUserTimeout(long roomId, long uuid) {
-    ConcurrentMap<Long, InsuranceTimeInfo> userTimes = room_timer.get(roomId);
-    if (userTimes == null) {
+    RoomTimeInfo roomTimeInfo = room_timer.get(roomId);
+    if (roomTimeInfo == null) {
       logger.error("roomId:" + roomId + ",no room info");
       return;
     }
-    InsuranceTimeInfo timeInfo = userTimes.get(uuid);
+    InsuranceTimeInfo timeInfo = roomTimeInfo.userTimeInfos.get(uuid);
     if (timeInfo == null) {
       logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",no user info");
       return;
     }
     // 增加这一个用户的超时时间
-    timeInfo.endTime += INSURANCE_OPERATION_DELAY_SECONDS * 1000;
+    timeInfo.endTime += insurance_delay_seconds * 1000;
     // 遍历所有玩家的超时时间，找出最大的那一个
-    long maxStartTime = 0;
     long maxEndTime = 0;
-    for (Map.Entry<Long, InsuranceTimeInfo> usertime : userTimes.entrySet()) {
+    for (Map.Entry<Long, InsuranceTimeInfo> usertime : roomTimeInfo.userTimeInfos.entrySet()) {
       if (usertime.getValue().endTime > maxEndTime) {
-        maxStartTime = usertime.getValue().startTime;
         maxEndTime = usertime.getValue().endTime;
       }
     }
-    // 找出当前这个超时的剩余时间
-    long newTimeSpan = maxEndTime - maxStartTime;
-    long oldTimeSpan = room_timer.getTimeout(roomId);
     // 是否超时时间延长了
-    if (newTimeSpan > oldTimeSpan) {
+    if (roomTimeInfo.endTime < maxEndTime) {
+      // 重新设定超时时刻
+      roomTimeInfo.endTime = maxEndTime;
+      // 重新设置超时时间
+      long newTimeSpan = roomTimeInfo.endTime - roomTimeInfo.startTime;
       logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",add timeout");
       room_timer.setTimeout(roomId, newTimeSpan, TimeUnit.MILLISECONDS);
     }
+
     // 返回这个用户的新延时总时长，单位s
     // return (timeInfo.endTime - timeInfo.startTime) / 1000;
   }
 
   // 玩家购买保险
   public void removeUserTimeout(long roomId, long uuid, long potId) {
-    ConcurrentMap<Long, InsuranceTimeInfo> userTimes = room_timer.get(roomId);
-    if (userTimes == null) {
+    RoomTimeInfo roomTimeInfo = room_timer.get(roomId);
+    if (roomTimeInfo == null) {
       return;
     }
-    InsuranceTimeInfo timeInfo = userTimes.get(uuid);
+    InsuranceTimeInfo timeInfo = roomTimeInfo.userTimeInfos.get(uuid);
     if (timeInfo == null) {
       return;
     }
@@ -163,9 +231,9 @@ public class InsuranceTimer {
       return;
     }
     // 所以边池已经清空，这次去除这个玩家时间信息
-    userTimes.remove(uuid);
+    roomTimeInfo.userTimeInfos.remove(uuid);
     // 是否所有玩家都已经购买了保险
-    if (userTimes.isEmpty()) {
+    if (roomTimeInfo.userTimeInfos.isEmpty()) {
       // 删除超时逻辑
       clearRoomTimeout(roomId);
       // （日，小心会产生嵌套调用！！！）通知游戏超时结束，开始一下轮发牌
@@ -176,7 +244,7 @@ public class InsuranceTimer {
     // 重新计算超时时间，遍历所有玩家的超时时间，找出剩下最大的那一个
     long maxStartTime = 0;
     long maxEndTime = 0;
-    for (Map.Entry<Long, InsuranceTimeInfo> usertime : userTimes.entrySet()) {
+    for (Map.Entry<Long, InsuranceTimeInfo> usertime : roomTimeInfo.userTimeInfos.entrySet()) {
       if (usertime.getValue().endTime > maxEndTime) {
         maxStartTime = usertime.getValue().startTime;
         maxEndTime = usertime.getValue().endTime;
@@ -193,11 +261,11 @@ public class InsuranceTimer {
   }
 
   public InsuranceTimeInfo getUserTimeout(long roomId, long uuid) {
-    ConcurrentMap<Long, InsuranceTimeInfo> userTimes = room_timer.get(roomId);
-    if (userTimes == null) {
+    RoomTimeInfo roomTimeInfo = room_timer.get(roomId);
+    if (roomTimeInfo == null) {
       logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",no timeout info!");
       return null;
     }
-    return userTimes.get(uuid);
+    return roomTimeInfo.userTimeInfos.get(uuid);
   }
 }

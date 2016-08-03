@@ -9,7 +9,9 @@ package com.texaspoker.dubbo.game.insurance;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -35,6 +37,9 @@ public class InsuranceInfo {
   // 当前游戏状态
   public int status;
 
+  // 本手第一次触发时状态
+  public int ocur_status;
+
   // 代理人赔付金额
   public long proxy_shop;
 
@@ -59,12 +64,16 @@ public class InsuranceInfo {
   // 用户的所有outs
   public ConcurrentMap<Long, List<OutsInfo>> round_user_outs = new ConcurrentHashMap<Long, List<OutsInfo>>();
 
+  // 找出所有领先，却没有保险的用户
+  public Set<Long> round_winner_no_outs = null;
+
   // 清除上一轮的保险信息
   public void refreshRoundState(long handId, int status) {
     logger.debug("handId:" + handId + ",status:" + status);
     if (this.handId != handId) {
       // 手数更新
       this.handId = handId;
+      this.ocur_status = HandUtils.PRE_FLOP;
       hand_user_buy_totals.clear();
       hand_user_result_totals.clear();
       hand_user_ocur_state.clear();
@@ -72,12 +81,14 @@ public class InsuranceInfo {
       this.status = status;
       round_pot_user_outs.clear();
       round_user_outs.clear();
+      round_winner_no_outs = null;
       logger.debug("roomId:" + roomId + ",handId:" + handId + ",refresh");
     } else if (this.status != status) {
       // 仅仅状态更新
       this.status = status;
       round_pot_user_outs.clear();
       round_user_outs.clear();
+      round_winner_no_outs = null;
       logger.debug("roomId:" + roomId + ",status:" + status + ",refresh");
     } else {
       logger.debug("roomId:" + roomId + ",handId:" + this.handId + ",status:" + this.status + ",init");
@@ -119,6 +130,8 @@ public class InsuranceInfo {
     outsInfos.add(info);
     // 记录用户触发信息
     setUserOcur(uuid);
+    // 记录保险触发信息i
+    setRoundOcur();
   }
 
   public OutsInfo getUserOuts(long potId, long uuid) {
@@ -284,7 +297,8 @@ public class InsuranceInfo {
 
   // 设置牌局的保险实时赔付情况
   public void setShopTotal(long buy, long result) {
-    logger.debug("roomId:" + roomId + ",handId:" + handId + ",buy:" + buy + ",result:" + result);
+    logger.debug("roomId:" + roomId + ",handId:" + handId + ",proxy:" + proxy_shop + ",buy:" + buy + ",result:"
+        + result);
     proxy_shop += buy;
     proxy_shop -= result;
   }
@@ -294,6 +308,20 @@ public class InsuranceInfo {
     return this.proxy_shop;
   }
 
+  // 设置本手第一次触发
+  public void setRoundOcur() {
+    logger.debug("roomId:" + roomId + ",handId:" + handId + ",status:" + status);
+    if (ocur_status == HandUtils.PRE_FLOP) {
+      ocur_status = status;
+    }
+  }
+
+  public boolean checkRoundFirstOcur() {
+    logger.debug("roomId:" + roomId + ",handId:" + handId + ",status:" + status + ",ocur_status:" + ocur_status);
+    return ocur_status == status;
+  }
+
+  // 设置这个用户第一次触发
   public void setUserOcur(long uuid) {
     if (hand_user_ocur_state.containsKey(uuid)) {
       return;
@@ -301,7 +329,7 @@ public class InsuranceInfo {
     hand_user_ocur_state.put(uuid, status);
   }
 
-  public boolean checkFirstOcur(long uuid) {
+  public boolean checkUserFirstOcur(long uuid) {
     Integer status = hand_user_ocur_state.get(uuid);
     if (status == null) {
       return true;
@@ -309,6 +337,18 @@ public class InsuranceInfo {
       return true;
     } else {
       return false;
+    }
+  }
+
+  // 设置领先但是没有触发保险的用户
+  public void setWinnerNoOuts(Set<Long> winners) {
+    if (round_winner_no_outs == null) {
+      // 第一个边池，用来初始化
+      round_winner_no_outs = new HashSet<Long>();
+      round_winner_no_outs.addAll(winners);
+    } else {
+      // 后面的边池，用来求交集
+      round_winner_no_outs.retainAll(winners);
     }
   }
 

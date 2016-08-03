@@ -9,7 +9,9 @@ package com.texaspoker.dubbo.game.insurance;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -94,6 +96,34 @@ public class OutsCheck {
       }
     }
     return results;
+  }
+
+  // 仅仅找出胜者
+  public static Set<Long> findWinnersInPlayer(List<HandUserInfo> playerCards, HandInfo handInfo) {
+    Set<Long> winnerList = new HashSet<Long>();
+    // 获取这一手当前的公共牌信息
+    int[] publicCards = handInfo.getTableCards();
+    logger.debug("tables:" + Arrays.toString(publicCards));
+    // 转换玩家信息
+    List<IPlayer> players = new ArrayList<IPlayer>();
+    for (HandUserInfo playerInfo : playerCards) {
+      players.add(OutsUtils.getPlayer(playerInfo));
+    }
+    // 转换公共牌信息
+    List<Card> tableCards = new ArrayList<Card>();
+    if (publicCards != null) {
+      for (int i = 0; i < publicCards.length; i++) {
+        tableCards.add(OutsUtils.getCardInfo(publicCards[i]));
+      }
+    }
+    // 找出胜者
+    List<IPlayer> winners = findWinnerInPlayers(players, tableCards);
+    if (winners != null) {
+      for (IPlayer player : winners) {
+        winnerList.add(player.getUuid());
+      }
+    }
+    return winnerList;
   }
 
   // 只找分钱outs
