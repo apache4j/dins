@@ -693,8 +693,23 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 			
 			GameRoomInfo stGameRoomInfo = stGameRoomDetailInfo.getStGameRoomInfo();
 			if(stGameRoomInfo!=null){
+				
+				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+			
+				if(request.getUuid() > 0){
+					
+					GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = stGameRoomInfoBuilder.getStGameRoomBaseInfoBuilder();
+					boolean bUsedInGame = stGameRoomDetailInfo.usedInGame(request.getUuid());
+					if(bUsedInGame){
+						stGameRoomBaseInfoBuilder.setBInGame(1);
+					}else{
+						stGameRoomBaseInfoBuilder.setBInGame(0);
+					}
+					stGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
+				}
+
 				stGetGameRoomInfoResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-				stGetGameRoomInfoResponseBuilder.setStGameRoomInfo(stGameRoomInfo);
+				stGetGameRoomInfoResponseBuilder.setStGameRoomInfo(stGameRoomInfoBuilder);
 			}else{
 				stGetGameRoomInfoResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
 			}

@@ -2394,6 +2394,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 
 	}
 	
+	public boolean usedInGame(long uuid){
+		return mapStandByUserGameInfos.containsKey(uuid);
+	}
+
 	private void gotoStartStatus(){
 		//每个选手发两张牌,并把游戏的状态设置为FirstRound		
 		GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
