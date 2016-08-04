@@ -2021,7 +2021,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 							, stUserGameInfoBuilder.getLRemainStacks());
 				}
 			}
-		}		
+		}
 	}
 
 	
@@ -2771,11 +2771,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				if(stLastPot.playerNotFoldList.size() == stBeforeLastPot.playerNotFoldList.size()){
 					//两个池子应该是一个池子
 					PotInfo stPotInfoNew = new PotInfo();
-					stPotInfo.potSize = stBeforeLastPot.potSize + stLastPot.potSize;
-					stPotInfo.allinSize = stBeforeLastPot.allinSize;
-					stPotInfo.playerList.addAll(stBeforeLastPot.playerList);
-					stPotInfo.playerListpos.addAll(stBeforeLastPot.playerListpos);
-					stPotInfo.playerNotFoldList.addAll(stBeforeLastPot.playerNotFoldList);
+					stPotInfoNew.potSize = stBeforeLastPot.potSize + stLastPot.potSize;
+					stPotInfoNew.allinSize = stBeforeLastPot.allinSize;
+					stPotInfoNew.playerList.addAll(stBeforeLastPot.playerList);
+					stPotInfoNew.playerListpos.addAll(stBeforeLastPot.playerListpos);
+					stPotInfoNew.playerNotFoldList.addAll(stBeforeLastPot.playerNotFoldList);
 					
 					mTempPotList.remove(mTempPotList.size() - 1);
 					mTempPotList.remove(mTempPotList.size() - 1);
