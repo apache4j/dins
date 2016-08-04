@@ -1235,9 +1235,8 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 			GetGameSettingRequest request) throws ServiceException {
 		// TODO Auto-generated method stub
 		GetGameSettingResponse.Builder  stGetGameSettingResponseBuilder = GetGameSettingResponse.newBuilder();
-
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
-	
+		System.out.println("getGameSetting : " + request.getLGameRoomID() + "  " + stGameRoomDetailInfo);
 		int bNotBuyInsurance = stGameRoomDetailInfo.getGameSetting(request.getUuid());
 
 		stGetGameSettingResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
