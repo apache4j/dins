@@ -142,14 +142,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				boolean bPlaying = true;
 				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount();i++){
 					UserGameInfoNet.Builder stUserGameInfoBuilderTemp = stGameRoomInfo.getVUserGameInfos(i).toBuilder();
-					System.out.println("(stUserGameInfoBuilderTemp.getStUserInfo().getUuid() 1: " + stUserGameInfoBuilderTemp.getStUserInfo().getUuid());
-					System.out.println("(stUserGameInfoBuilderTemp.getStUserInfo().getUuid() 2: " + uuid);
 					if(stUserGameInfoBuilderTemp.getStUserInfo().getUuid() == uuid ){
-						System.out.println("(stUserGameInfoBuilderTemp.getStUserInfo().getUuid() 3: " + stUserGameInfoBuilderTemp.getEGameState());
 						if(stUserGameInfoBuilderTemp.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_WAIT
 								|| stUserGameInfoBuilderTemp.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD
 								|| stUserGameInfoBuilderTemp.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_STANDBY){
-							System.out.println("(stUserGameInfoBuilderTemp.getStUserInfo().getUuid() 4: ");
 							bPlaying = false;
 							break;
 						}
@@ -2954,6 +2950,18 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	public void doInsuranceTimeout(){
 		synchronized(this){					
 			InsuranceApi.doInsuranceTimeout(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+		}
+	}
+	
+	/**
+	 * 获取保险状态
+	 */
+	public int getGameSetting(long uuid){
+		boolean bNotBuyInsurance = InsuranceApi.getUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),uuid);
+		if(bNotBuyInsurance == true){
+			return 1;
+		}else{
+			return 0;
 		}
 	}
 }

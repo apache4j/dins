@@ -39,6 +39,8 @@ import com.texaspoker.moment.TexasPokerGameService.GetAllBuyinControlsRequest;
 import com.texaspoker.moment.TexasPokerGameService.GetAllBuyinControlsResponse;
 import com.texaspoker.moment.TexasPokerGameService.GetGameRoomInfoRequest;
 import com.texaspoker.moment.TexasPokerGameService.GetGameRoomInfoResponse;
+import com.texaspoker.moment.TexasPokerGameService.GetGameSettingRequest;
+import com.texaspoker.moment.TexasPokerGameService.GetGameSettingResponse;
 import com.texaspoker.moment.TexasPokerGameService.GetLastHandIDRequest;
 import com.texaspoker.moment.TexasPokerGameService.GetLastHandIDResponse;
 import com.texaspoker.moment.TexasPokerGameService.GetQuickGameRoomInfoRequest;
@@ -1146,7 +1148,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 	}
 
 	@Override
-	public BuyInsuranceDelayResponse buyInsuranceDelayRequest(
+	public BuyInsuranceDelayResponse buyInsuranceDelay(
 			RpcController controller, BuyInsuranceDelayRequest request)
 			throws ServiceException {
 		// TODO Auto-generated method stub
@@ -1186,16 +1188,13 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 	}
 
 	@Override
-	public UserInsuranceSettingResponse userInsuranceSettingRequest(
+	public UserInsuranceSettingResponse userInsuranceSetting(
 			RpcController controller, UserInsuranceSettingRequest request)
 			throws ServiceException {
 		// TODO Auto-generated method stub
 		UserInsuranceSettingResponse.Builder  stUserInsuranceSettingResponseBuilder= UserInsuranceSettingResponse.newBuilder();
-		System.out.println("userInsuranceSettingRequest1");
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
-		System.out.println("userInsuranceSettingRequest2" + stGameRoomDetailInfo);
 		ERROR_CODE_TYPE eErrorCodeType = stGameRoomDetailInfo.userInsuranceSetting(request.getUuid(), request.getBDefaultInsurance());
-		System.out.println("userInsuranceSettingRequest3.");
 		stUserInsuranceSettingResponseBuilder.setEErrCode(eErrorCodeType);
 		return stUserInsuranceSettingResponseBuilder.build();
 	}
@@ -1208,7 +1207,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 	}
 
 	@Override
-	public void buyInsuranceDelayRequest(RpcController controller,
+	public void buyInsuranceDelay(RpcController controller,
 			BuyInsuranceDelayRequest request,
 			RpcCallback<BuyInsuranceDelayResponse> done) {
 		// TODO Auto-generated method stub
@@ -1224,9 +1223,32 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 	}
 
 	@Override
-	public void userInsuranceSettingRequest(RpcController controller,
+	public void userInsuranceSetting(RpcController controller,
 			UserInsuranceSettingRequest request,
 			RpcCallback<UserInsuranceSettingResponse> done) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public GetGameSettingResponse getGameSetting(RpcController controller,
+			GetGameSettingRequest request) throws ServiceException {
+		// TODO Auto-generated method stub
+		GetGameSettingResponse.Builder  stGetGameSettingResponseBuilder = GetGameSettingResponse.newBuilder();
+
+		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+	
+		int bNotBuyInsurance = stGameRoomDetailInfo.getGameSetting(request.getUuid());
+
+		stGetGameSettingResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+		stGetGameSettingResponseBuilder.setBNotBuyInsurance(bNotBuyInsurance);
+		return stGetGameSettingResponseBuilder.build();
+	}
+
+	@Override
+	public void getGameSetting(RpcController controller,
+			GetGameSettingRequest request,
+			RpcCallback<GetGameSettingResponse> done) {
 		// TODO Auto-generated method stub
 		
 	}
