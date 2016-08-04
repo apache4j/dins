@@ -139,22 +139,24 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
 				}
 			}else{
-				boolean bPlaying = true;
-				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount();i++){
-					UserGameInfoNet.Builder stUserGameInfoBuilderTemp = stGameRoomInfo.getVUserGameInfos(i).toBuilder();
-					if(stUserGameInfoBuilderTemp.getStUserInfo().getUuid() == uuid ){
-						if(stUserGameInfoBuilderTemp.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_WAIT
-								|| stUserGameInfoBuilderTemp.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD
-								|| stUserGameInfoBuilderTemp.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_STANDBY){
-							bPlaying = false;
-							break;
+				if(bAuto==false){
+					boolean bPlaying = true;
+					for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount();i++){
+						UserGameInfoNet.Builder stUserGameInfoBuilderTemp = stGameRoomInfo.getVUserGameInfos(i).toBuilder();
+						if(stUserGameInfoBuilderTemp.getStUserInfo().getUuid() == uuid ){
+							if(stUserGameInfoBuilderTemp.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_WAIT
+									|| stUserGameInfoBuilderTemp.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD
+									|| stUserGameInfoBuilderTemp.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_STANDBY){
+								bPlaying = false;
+								break;
+							}
 						}
 					}
-				}
-				
-				if(bPlaying){
-					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ALLOW_STANDUP;
-				}
+					
+					if(bPlaying){
+						return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ALLOW_STANDUP;
+					}
+				}	
 			}
 			
 			//站起用户的副本，push使用
