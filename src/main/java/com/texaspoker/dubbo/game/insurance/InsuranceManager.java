@@ -524,4 +524,19 @@ public class InsuranceManager {
     }
     return settleInsurance(handInfo);
   }
+
+  // 外部使用，获取当前手数的保险信息
+  public InsuranceInfo getInsurance(long roomId, long handId) {
+    InsuranceInfo info = insurances_map.get(roomId);
+    if (info == null) {
+      logger.error("roomId:" + roomId + ",handId:" + handId + ",info null");
+      return null;
+    }
+    // 检查手数状态是否正确
+    if (info.handId != handId) {
+      logger.error("roomId" + roomId + ",handId:" + handId + ",handId errors");
+      return null;
+    }
+    return info;
+  }
 }

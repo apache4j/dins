@@ -2021,7 +2021,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				}
 			}
 		}
-
+		
+		InsuranceApi.getInsuranceBill(stGameRoomInfo,stGameRoomInfo.getLGameHandID());
 	}
 
 	
@@ -3688,6 +3689,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				}
 			}
 		}
+		
+		InsuranceApi.getInsuranceBill(stGameRoomInfo,stGameRoomInfo.getLGameHandID());
 	}
 
 	@Override

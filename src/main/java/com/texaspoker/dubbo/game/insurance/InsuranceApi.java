@@ -73,6 +73,15 @@ public class InsuranceApi {
     return doInsuranceResult(insuranceInfo, stGameRoomInfo);
   }
 
+  // 每一手结账时调用保险结算接口
+  public static TexasPoker.GameRoomInfo getInsuranceBill(GameRoomInfo stGameRoomInfo, long lHandID) {
+    // 获取房间id
+    long lGameRoomID = stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId();
+    // 结算保险
+    InsuranceInfo insuranceInfo = InsuranceManager.getInstance().getInsurance(lGameRoomID, lHandID);
+    return doInsuranceBill(insuranceInfo, stGameRoomInfo);
+  }
+
   // 保险购买接口
   public static TexasPoker.InsuranceInfo doInsuranceAction(long lGameRoomID, long lHandID,
       TexasPoker.GAME_ROOM_GAME_STATE eRoundState, long uuid, List<BuyInsuranceInfo> stBuyInsuranceInfos) {
@@ -139,6 +148,7 @@ public class InsuranceApi {
   /*
    * 游戏方API接口，由游戏方提供实现
    */
+
   // 保险购买行为超时接口
   public static void gotoNextStep(long lGameRoomID) {
      GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
@@ -171,19 +181,21 @@ public class InsuranceApi {
 
   // 获取用户的延时操作次数
   public static int getUserDelayOperation(long lGameRoomID, long uuid) {
-	     GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
-	     if(stGameRoomDetail!=null){
-	    	 return stGameRoomDetail.getDealyTimes(uuid);
-	     }else{
-	    	 return 0;
-	     }
+     GameRoomDetailInfo stGameRoomDetail =
+     GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
+     if(stGameRoomDetail!=null){
+     return stGameRoomDetail.getDealyTimes(uuid);
+     }else{
+     return 0;
+     }
   }
 
   // 设置用户的延时操作次数
   public static void setUserDelayOperation(long lGameRoomID, long uuid, int nums) {
-	  GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
+     GameRoomDetailInfo stGameRoomDetail =
+     GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
      if(stGameRoomDetail!=null){
-    	 stGameRoomDetail.setDealyTimes(uuid, nums);
+     stGameRoomDetail.setDealyTimes(uuid, nums);
      }
   }
 
@@ -235,49 +247,44 @@ public class InsuranceApi {
 
   public static TexasPoker.GameRoomInfo doInsuranceResult(InsuranceInfo insuranceInfo, TexasPoker.GameRoomInfo info) {
     TexasPoker.GameRoomInfo.Builder gameBuilder = info.toBuilder();
-    // turn阶段不实时显示购买保险的当前筹码量信息，只有再river结算时，才显示
-    if (insuranceInfo.status == HandUtils.TURN) {
-      for (int i = 0; i < info.getVUserGameInfosCount(); i++) {
-        UserGameInfoNet userGameInfo = info.getVUserGameInfos(i);
-        long uuid = userGameInfo.getStUserInfo().getUuid();
-        if (uuid == 0) {
-          continue;
-        }
-        long remains = userGameInfo.getLRemainStacks();
-        // 计算这一轮的保险情况
-        // for (OutsInfo outsInfo : insuranceInfo.round_user_outs.get(uuid)) {
-        // if (outsInfo.result > 0) {
-        // remains += outsInfo.result;
-        // }
-        // if (outsInfo.buy > 0) {
-        // remains -= outsInfo.buy;
-        // }
-        // }
-        // 计算这一手的保险情况
-        logger.debug("uuid:" + uuid + "remains before:" + remains);
-        long buys = insuranceInfo.getUserAllBuyTotal(uuid);
-        remains -= buys;
-        logger.debug("uuid:" + uuid + "buytotal:" + buys);
-        long results = insuranceInfo.getUserAllResultTotal(uuid);
-        // 防止买保险的比赔付的还多，- -！
-        if (results > 0 && results < buys) {
-          logger.error("uuid:" + uuid + ",error,results:" + results + " more than buys:" + buys);
-          remains += buys;
-        } else if (results > 0) {
-          logger.debug("uuid:" + uuid + "resulttotal:" + results);
-          remains += results;
-        }
-        logger.debug("uuid:" + uuid + "remains after:" + remains);
-        TexasPoker.UserGameInfoNet.Builder userGameBuilder = userGameInfo.toBuilder();
-        userGameBuilder.setLRemainStacks(remains);
-        // logger.debug("userGameBuilder:" + userGameBuilder);
-        gameBuilder.setVUserGameInfos(i, userGameBuilder);
-      }
-    }
     // 每次都需要设置保险信息
     TexasPoker.InsuranceInfo insInfo = getApiInfoFromInsuranceInfo(insuranceInfo);
     if (insInfo != null) {
       gameBuilder.setVInsuranceInfos(insInfo);
+    }
+    // logger.debug("gameinfo:" + gameBuilder);
+    return gameBuilder.build();
+  }
+
+  public static TexasPoker.GameRoomInfo doInsuranceBill(InsuranceInfo insuranceInfo, TexasPoker.GameRoomInfo info) {
+    TexasPoker.GameRoomInfo.Builder gameBuilder = info.toBuilder();
+    // turn阶段不实时显示购买保险的当前筹码量信息，只有再river结算时，才显示
+    for (int i = 0; i < info.getVUserGameInfosCount(); i++) {
+      UserGameInfoNet userGameInfo = info.getVUserGameInfos(i);
+      long uuid = userGameInfo.getStUserInfo().getUuid();
+      if (uuid == 0) {
+        continue;
+      }
+      long remains = userGameInfo.getLRemainStacks();
+      // 计算这一手的保险情况
+      logger.debug("uuid:" + uuid + "remains before:" + remains);
+      long buys = insuranceInfo.getUserAllBuyTotal(uuid);
+      remains -= buys;
+      logger.debug("uuid:" + uuid + "buytotal:" + buys);
+      long results = insuranceInfo.getUserAllResultTotal(uuid);
+      // 防止买保险的比赔付的还多，- -！
+      if (results > 0 && results < buys) {
+        logger.error("uuid:" + uuid + ",error,results:" + results + " more than buys:" + buys);
+        remains += buys;
+      } else if (results > 0) {
+        logger.debug("uuid:" + uuid + "resulttotal:" + results);
+        remains += results;
+      }
+      logger.debug("uuid:" + uuid + "remains after:" + remains);
+      TexasPoker.UserGameInfoNet.Builder userGameBuilder = userGameInfo.toBuilder();
+      userGameBuilder.setLRemainStacks(remains);
+      // logger.debug("userGameBuilder:" + userGameBuilder);
+      gameBuilder.setVUserGameInfos(i, userGameBuilder);
     }
     // logger.debug("gameinfo:" + gameBuilder);
     return gameBuilder.build();
@@ -335,12 +342,12 @@ public class InsuranceApi {
           lTotalGetStacks += (outs.result - outs.buy);
       }
       // 保险状态
-      if (lTotalBuys > 0) {
-        userInfo.setEInsuranceBetStatus(INSURANCE_BET_STATUS.INSURANCE_BET_BETED);
+      if (lTotalBuys > 0 && lTotalBuys < userOuts.getValue().size() && lTotalFold == 0) {
+        userInfo.setEInsuranceBetStatus(INSURANCE_BET_STATUS.INSURANCE_BET_BETTING);
       } else if (lTotalBuys == 0 && lTotalFold > 0) {
         userInfo.setEInsuranceBetStatus(INSURANCE_BET_STATUS.INSURANCE_BET_FOLD);
       } else {
-        userInfo.setEInsuranceBetStatus(INSURANCE_BET_STATUS.INSURANCE_BET_BETTING);
+        userInfo.setEInsuranceBetStatus(INSURANCE_BET_STATUS.INSURANCE_BET_BETED);
       }
       // 所以保险的赔付金额
       userInfo.setLTotalGetStacks(lTotalGetStacks);

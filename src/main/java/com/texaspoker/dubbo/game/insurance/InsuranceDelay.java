@@ -24,43 +24,47 @@ public class InsuranceDelay {
       new ConcurrentHashMap<Long, ConcurrentMap<Long, Integer>>();
 
   public void onRoomOpen(long roomId) {
-    ConcurrentMap<Long, Integer> user_delays = new ConcurrentHashMap<Long, Integer>();
-    room_user_delays.put(roomId, user_delays);
+    // ConcurrentMap<Long, Integer> user_delays = new ConcurrentHashMap<Long, Integer>();
+    // room_user_delays.put(roomId, user_delays);
   }
 
   public void onRoomClose(long roomId) {
-    room_user_delays.remove(roomId);
+    // room_user_delays.remove(roomId);
   }
 
   public int getUserDelayCost(long roomId, long uuid) {
-    ConcurrentMap<Long, Integer> user_delays = room_user_delays.get(roomId);
-    if (user_delays == null) {
-      user_delays = new ConcurrentHashMap<Long, Integer>();
-      room_user_delays.put(roomId, user_delays);
-    }
-    int times = 0;
-    if (!user_delays.containsKey(uuid)) {
-      user_delays.put(uuid, 0);
-      return getDelayCost(0);
-    } else {
-      times = user_delays.get(uuid);
-      return getDelayCost(times);
-    }
+    // ConcurrentMap<Long, Integer> user_delays = room_user_delays.get(roomId);
+    // if (user_delays == null) {
+    // user_delays = new ConcurrentHashMap<Long, Integer>();
+    // room_user_delays.put(roomId, user_delays);
+    // }
+    // int times = 0;
+    // if (!user_delays.containsKey(uuid)) {
+    // user_delays.put(uuid, 0);
+    // return getDelayCost(0);
+    // } else {
+    // times = user_delays.get(uuid);
+    // return getDelayCost(times);
+    // }
+    int times = (int) InsuranceApi.getUserDelayOperation(roomId, uuid);
+    return getDelayCost(times);
   }
 
   public void addUserDelayTimes(long roomId, long uuid) {
-    ConcurrentMap<Long, Integer> user_delays = room_user_delays.get(roomId);
-    if (user_delays == null) {
-      user_delays = new ConcurrentHashMap<Long, Integer>();
-      room_user_delays.put(roomId, user_delays);
-    }
-    int times = 0;
-    if (!user_delays.containsKey(uuid)) {
-      user_delays.put(uuid, 1);
-    } else {
-      times = user_delays.get(uuid);
-      user_delays.put(uuid, times + 1);
-    }
+    // ConcurrentMap<Long, Integer> user_delays = room_user_delays.get(roomId);
+    // if (user_delays == null) {
+    // user_delays = new ConcurrentHashMap<Long, Integer>();
+    // room_user_delays.put(roomId, user_delays);
+    // }
+    // int times = 0;
+    // if (!user_delays.containsKey(uuid)) {
+    // user_delays.put(uuid, 1);
+    // } else {
+    // times = user_delays.get(uuid);
+    // user_delays.put(uuid, times + 1);
+    // }
+    int times = (int) InsuranceApi.getUserDelayOperation(roomId, uuid);
+    InsuranceApi.setUserDelayOperation(roomId, uuid, times + 1);
   }
 
   private static int getDelayCost(int times) {
