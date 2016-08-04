@@ -141,6 +141,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			}else{
 				if(bAuto==false && stGameRoomInfo.getStGameRoomBaseInfo().getBStarted() == 1){
 					boolean bPlaying = true;
+					long lRemainStacks = 0;
 					for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount();i++){
 						UserGameInfoNet.Builder stUserGameInfoBuilderTemp = stGameRoomInfo.getVUserGameInfos(i).toBuilder();
 						if(stUserGameInfoBuilderTemp.getStUserInfo().getUuid() == uuid ){
@@ -149,14 +150,22 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 									|| stUserGameInfoBuilderTemp.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_STANDBY){
 								bPlaying = false;
 								break;
+							}else{
+								lRemainStacks = stUserGameInfoBuilderTemp.getLRemainStacks();
 							}
 						}
 					}
 					
+					
+					
 					if(bPlaying){
-						return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ALLOW_STANDUP;
-					}
-				}	
+						if(checkAllAllin() == true)
+							return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ALLOW_STANDUP;
+						
+						if(lRemainStacks==0)
+							return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ALLOW_STANDUP;
+						}
+					}	
 			}
 			
 			//站起用户的副本，push使用
