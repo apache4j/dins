@@ -139,7 +139,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
 				}
 			}else{
-				if(bAuto==false){
+				if(bAuto==false && stGameRoomInfo.getStGameRoomBaseInfo().getBStarted() == 1){
 					boolean bPlaying = true;
 					for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount();i++){
 						UserGameInfoNet.Builder stUserGameInfoBuilderTemp = stGameRoomInfo.getVUserGameInfos(i).toBuilder();
