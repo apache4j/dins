@@ -2682,7 +2682,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		Map<Integer,UserGameInfoNet.Builder> mapExistUsers = new ConcurrentHashMap<Integer,UserGameInfoNet.Builder>();
 		ArrayList<PotInfo> mTempPotList = new ArrayList<PotInfo>();
 
-		//������������������������������������������������
 		long lOtherPosts=0;
 		
 		for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount();i++){
@@ -2693,7 +2692,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					(stUserGameInfoBuilder.getEGameState() !=  USER_GAME_STATE.USER_GAME_STATE_STANDBY 
 					&& stUserGameInfoBuilder.getEGameState() !=  USER_GAME_STATE.USER_GAME_STATE_WAIT ))
 					||stUserGameInfoBuilder.getEGameState() ==  USER_GAME_STATE.USER_GAME_STATE_FOLD){
-				//���������������������������������map���
 				mapExistUsers.put(i, stUserGameInfoBuilder);
 			}
 		}
@@ -2701,7 +2699,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		while(mapExistUsers.size() > 0){
 			int potPlayerSize=0;
 			long lMinStacks=0;
-			//������������������������������������������������
+
 			Iterator iter = mapExistUsers.entrySet().iterator(); 
 			while (iter.hasNext()) { 
 				Map.Entry entry = (Map.Entry) iter.next(); 
@@ -2716,7 +2714,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				if(lMinStacks==0&&stUserGameInfoBuilder.getLBetStacks()>0){
 					lMinStacks = stUserGameInfoBuilder.getLBetStacks();
 				}else if(lMinStacks > stUserGameInfoBuilder.getLBetStacks()&&stUserGameInfoBuilder.getLBetStacks()>0){
-					//���������������������������������������������������������������������������������������������������������
 					lMinStacks = stUserGameInfoBuilder.getLBetStacks();
 				}
 			}
@@ -2725,31 +2722,34 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				break;
 			}
 			
-			//������������������������������������������������			
-			//������������pot������
 			PotInfo stPotInfo = new PotInfo();
-			//������������������������������������������
+
 			stPotInfo.potSize = lMinStacks* potPlayerSize;
 			stPotInfo.allinSize = 0;
 			iter = mapExistUsers.entrySet().iterator(); 
-			//���������������������������������
+
 			while (iter.hasNext()) { 
 			    Map.Entry entry = (Map.Entry) iter.next(); 
 			    Integer pos = (Integer)entry.getKey(); 
 			    UserGameInfoNet.Builder stUserGameInfoBuilder = (UserGameInfoNet.Builder)entry.getValue(); 
 
-			    //���������������������
 			    stUserGameInfoBuilder.setLBetStacks(stUserGameInfoBuilder.getLBetStacks() - lMinStacks);
-			    
-			    //���������������������������������������  
 			    
 			    if(stUserGameInfoBuilder.getStUserInfo().getUuid() > 0){
 			    	stPotInfo.playerList.add(stUserGameInfoBuilder.getStUserInfo().getUuid());
 			    	stPotInfo.playerListpos.add(pos);
+			    	
+			    	if(stUserGameInfoBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_FOLD){
+			    		stPotInfo.playerNotFoldList.add(stUserGameInfoBuilder.getStUserInfo().getUuid());
+			    	}
 			    }else{
 			    	if(mHandPos.get(pos)!=null){
 			    		stPotInfo.playerList.add(mHandPos.get(pos));
 			    		stPotInfo.playerListpos.add(pos);
+			    	}
+			    	
+			    	if(stUserGameInfoBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_FOLD){
+			    		stPotInfo.playerNotFoldList.add(mHandPos.get(pos));
 			    	}
 			    }
 			    
@@ -2757,24 +2757,40 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			    	stPotInfo.allinSize ++;
 			    }
 			    
-			    //������������������������0���������������������������������������
 			    if(stUserGameInfoBuilder.getLBetStacks() == 0){
 			    	
 			    	iter.remove();
 			    }
 			} 
 			
-			//���������������
 			mTempPotList.add(stPotInfo);
+			
+			//如果有需要，合池子
+			if(mTempPotList.size() >= 2){
+				PotInfo stLastPot = mTempPotList.get(mTempPotList.size() - 1);
+				PotInfo stBeforeLastPot = mTempPotList.get(mTempPotList.size() - 2);
+				if(stLastPot.playerNotFoldList.size() == stBeforeLastPot.playerNotFoldList.size()){
+					//两个池子应该是一个池子
+					PotInfo stPotInfoNew = new PotInfo();
+					stPotInfo.potSize = stBeforeLastPot.potSize + stLastPot.potSize;
+					stPotInfo.allinSize = stBeforeLastPot.allinSize;
+					stPotInfo.playerList.addAll(stBeforeLastPot.playerList);
+					stPotInfo.playerListpos.addAll(stBeforeLastPot.playerListpos);
+					stPotInfo.playerNotFoldList.addAll(stBeforeLastPot.playerNotFoldList);
+					
+					mTempPotList.remove(mTempPotList.size() - 1);
+					mTempPotList.remove(mTempPotList.size() - 1);
+					mTempPotList.add(stPotInfoNew);
+				}	
+			}
 		}
-		//���������������������������������������������������
+
 		if(mTempPotList.size() > 0){
 			PotInfo stFristPot = mTempPotList.get(0);
 			stFristPot.potSize += lOtherPosts;
 		}else{
 			if(lOtherPosts > 0){
 				PotInfo stPotInfo = new PotInfo();
-				//������������������������������������������
 				stPotInfo.potSize = lOtherPosts;
 				stPotInfo.allinSize = 0;
 				
@@ -2784,12 +2800,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		
 		if(mTempPotList.size() > 0){
 			if(mPotList.size()==0){
-				//������������������������������������������������
-				//������������������������������������������������
 				mPotList=mTempPotList;
 			}
 			else{
-				//���������������������������
 					PotInfo tempPot = mTempPotList.get(0);
 					PotInfo stLastPot = mPotList.get(mPotList.size()-1);
 					
@@ -2832,7 +2845,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					(stUserGameInfoBuilder.getEGameState() !=  USER_GAME_STATE.USER_GAME_STATE_STANDBY 
 					&& stUserGameInfoBuilder.getEGameState() !=  USER_GAME_STATE.USER_GAME_STATE_WAIT ))
 					||stUserGameInfoBuilder.getEGameState() ==  USER_GAME_STATE.USER_GAME_STATE_FOLD){
-				//���������������������������������map���
 				mapExistUsers.put(i, stUserGameInfoBuilder);
 			}
 		}

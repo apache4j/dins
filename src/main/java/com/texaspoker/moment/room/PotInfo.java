@@ -7,4 +7,5 @@ public class PotInfo {
 	public long allinSize;			//allin的人数
 	public ArrayList<Long> playerList = new ArrayList<Long>();			//该彩池对应的玩家
 	public ArrayList<Integer> playerListpos = new ArrayList<Integer>();		//该玩家所在的位置	
+	public ArrayList<Long> playerNotFoldList = new ArrayList<Long>();			//该彩池对应的玩家
 }
