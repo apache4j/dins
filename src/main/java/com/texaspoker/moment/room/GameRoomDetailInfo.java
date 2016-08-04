@@ -2912,9 +2912,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		synchronized(this){
 			boolean bInsurance = false;
 			if(bDefaultInsurance > 0){
-				bInsurance = InsuranceApi.setUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid, false);
-			}else{
 				bInsurance = InsuranceApi.setUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid, true);
+			}else{
+				bInsurance = InsuranceApi.setUserInsuranceClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid, false);
 			}
 			
 			if(bInsurance==false){
