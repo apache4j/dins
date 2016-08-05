@@ -1398,7 +1398,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				stUserGameInfoNetBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_READY);
 				
 				//重置延时道具
-				if(this.isDelayPlayer(stUserGameInfoNetBuilder.getStUserInfoBuilder().getUuid())){
+				if(isDelayPlayer(stUserGameInfoNetBuilder.getStUserInfoBuilder().getUuid())){
 					stUserGameInfoNetBuilder.setIDelayTotalTimes(1);
 					stUserGameInfoNetBuilder.setIDelayCost(getDelayCost(stUserGameInfoNetBuilder.getIDelayTotalTimes()));
 				}else{
@@ -2204,13 +2204,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				if(stUserGameInfoNet!=null){
 					UserGameInfoNet.Builder stUserGameInfoNetBuilder = stUserGameInfoNet.toBuilder();
 					if(stUserGameInfoNetBuilder.getStUserInfo().getUuid() == uuid){
-						System.out.println("setDealyTimes 1: " + times);
 						stUserGameInfoNetBuilder.setIDelayTotalTimes(times);
 						stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+						addDelayPlayer(uuid);
 					}	
 				}
 			}
-			System.out.println("setDealyTimes 2: " + stGameRoomInfo);
+			
 			stGameRoomInfo = stGameRoomInfoBuilder.build();
 		}
 	}
