@@ -62,7 +62,6 @@ public class GameRoomMsgManager {
 	
 	public void sendGameRoomMsg(Long toUserId,GameRoomPushMsg stGameRoomPushMsg){
 		// TODO Auto-generated method stub
-		System.out.println("sendGameRoomMsg.");
 		GameRoomPushMsgRequest.Builder stGameRoomPushMsgBuilder = GameRoomPushMsgRequest.newBuilder(); 
 		stGameRoomPushMsgBuilder.setUuid(toUserId);
 		stGameRoomPushMsgBuilder.addVPushMsgs(stGameRoomPushMsg);

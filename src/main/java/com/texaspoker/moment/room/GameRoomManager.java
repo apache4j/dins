@@ -247,9 +247,7 @@ public class GameRoomManager  {
 						
 						BillManager.getInstance().buyStackInRoom(stUserBaseInfoNet.getUuid(),
 								stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId(),0);
-						
-//						stGameRoomDetailInfo.mapStandByUserGameInfos.put(stCreateUserBaseInfoBuilder.getUuid(), userSelfGameInfoBuilder);
-//						stGameRoomDetailInfo.addStandByUuid(stCreateUserBaseInfoBuilder.getUuid());
+
 						// 将被邀请的用户设置要被邀请的名单中,弄发送邀请通知
 						for (int i = 0; i < userList.size(); i++) {
 							UserBaseInfoNet stUserBaseInfo = userList.get(i);
@@ -387,16 +385,11 @@ public class GameRoomManager  {
 								ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(gameRoomBaseInfoBuilder.getLChatRoomID());
 								if(stClubInfoBuilder!=null){
 									// 如果是俱乐部开局，则对俱乐部里的每个人进行push操作
-									for (int i = 0; i < userList.size(); i++) {
-										UserBaseInfoNet stUserBaseInfo = userList.get(i);
-										if (stUserBaseInfo.getUuid() != uuid) {
-											// 发送APP Push
-											pushAppCreateMsg(stUserBaseInfo.getUuid(),stClubInfoBuilder.getStClubBaseInfo().getLClubID()
-													,gameRoomBaseInfoBuilder.getStrRoomName(),gameRoomBaseInfoBuilder.getLDuration()
-													,gameRoomBaseInfoBuilder.getLSmallBlinds()
-													,gameRoomBaseInfoBuilder.getIAnte());
-										}
-									}
+									// 发送APP Push
+									pushAppCreateMsg(0,stClubInfoBuilder.getStClubBaseInfo().getLClubID()
+											,gameRoomBaseInfoBuilder.getStrRoomName(),gameRoomBaseInfoBuilder.getLDuration()
+											,gameRoomBaseInfoBuilder.getLSmallBlinds()
+											,gameRoomBaseInfoBuilder.getIAnte());
 								}
 							}	
 							

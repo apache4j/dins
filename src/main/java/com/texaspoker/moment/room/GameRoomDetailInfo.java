@@ -2188,6 +2188,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
 		
 			if(stUserGameInfoNet.getStUserInfo().getUuid() == uuid){
+				System.out.println("getDealyTimes uuid : " + uuid + "   " +  stUserGameInfoNet.getIDelayTotalTimes());
 				return stUserGameInfoNet.getIDelayTotalTimes();
 			}
 		}
@@ -2208,7 +2209,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					}	
 				}
 			}
-			
+			System.out.println("setDealyTimes : " + stGameRoomInfo);
 			stGameRoomInfo = stGameRoomInfoBuilder.build();
 		}
 	}
@@ -2845,7 +2846,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				break;
 			case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Turn_VALUE: {
 				gotoRiverStatus(0,true);
-				System.out.println("gotoRiverStatusgotoRiverStatus3");
 			}
 				break;
 			case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_River_VALUE: {
@@ -2944,12 +2944,22 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		synchronized(this){					
 			InsuranceInfo stInsuranceInfo = InsuranceApi.delayInsuranceAction(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),lGameHandID,eGameRoomState, uuid);
 
-			for(InsuranceUserInfo stInsuranceUserInfo:stInsuranceInfo.getVInsuranceUserInfosList()){
+			if(stInsuranceInfo!=null){
+				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+				stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
+				stGameRoomInfo =  stGameRoomInfoBuilder.build();
+							
+				//push相关
+				pushAllGameRoomUserMsgs(null, GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_INSURANCE_DELAY);
+				
+				for(InsuranceUserInfo stInsuranceUserInfo:stInsuranceInfo.getVInsuranceUserInfosList()){
 
-				if(stInsuranceUserInfo.getUuid() == uuid){
-					return stInsuranceUserInfo; 
+					if(stInsuranceUserInfo.getUuid() == uuid){
+						return stInsuranceUserInfo; 
+					}
 				}
 			}
+			
 			return null;
 		}
 	}
