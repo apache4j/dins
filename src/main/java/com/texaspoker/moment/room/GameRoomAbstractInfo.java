@@ -86,7 +86,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	//用户在牌局的位置信息
 	protected ConcurrentHashMap<Long,Integer> mapUserPos = new ConcurrentHashMap<Long,Integer>();
 	
-	protected final static boolean NOT_DEBUG=true;
+	protected final static boolean NOT_DEBUG=false;
 
 	//是否所有人都allin状态
 	public boolean bAllAllin;
@@ -118,17 +118,17 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	public GameRoomAbstractInfo(){
 		mTimeoutGameUsers = new AdvancedTimeoutHashMap<Long,Long>();
 	
-		vTestHandCards1.add(35);
-		vTestHandCards1.add(22);
+		vTestHandCards1.add(13);
+		vTestHandCards1.add(23);
 		
-		vTestHandCards2.add(13);
-		vTestHandCards2.add(39);
+		vTestHandCards2.add(11);
+		vTestHandCards2.add(37);
 		
-		vTestTableCards.add(10);
-		vTestTableCards.add(23);
-		vTestTableCards.add(26);
-		vTestTableCards.add(49);
-		vTestTableCards.add(36);
+		vTestTableCards.add(17);
+		vTestTableCards.add(18);
+		vTestTableCards.add(6);
+		vTestTableCards.add(33);
+		vTestTableCards.add(8);
 	}
 	
 	@Override  
@@ -486,7 +486,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				card2 = getCard(0,1,true);
 				card3 = getCard(0,2,true);
 			}
-			System.out.println("111111111111111111111222222222222221");
 			
 			stGameRoomInfoBuilder.addVCurrentCards(card1);
 			stGameRoomInfoBuilder.addVCurrentCards(card2);
@@ -3278,7 +3277,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		if(bTable){
 			return vTestTableCards.get(time);
 		}else{
-			if(uuid==10278){
+			if(uuid==10260){
 				return vTestHandCards1.get(time);
 			}else{
 				return vTestHandCards2.get(time);
