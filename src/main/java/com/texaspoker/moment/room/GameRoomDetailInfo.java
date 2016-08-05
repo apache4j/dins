@@ -2204,12 +2204,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				if(stUserGameInfoNet!=null){
 					UserGameInfoNet.Builder stUserGameInfoNetBuilder = stUserGameInfoNet.toBuilder();
 					if(stUserGameInfoNetBuilder.getStUserInfo().getUuid() == uuid){
+						System.out.println("setDealyTimes 1: " + times);
 						stUserGameInfoNetBuilder.setIDelayTotalTimes(times);
 						stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
 					}	
 				}
 			}
-			System.out.println("setDealyTimes : " + stGameRoomInfo);
+			System.out.println("setDealyTimes 2: " + stGameRoomInfo);
 			stGameRoomInfo = stGameRoomInfoBuilder.build();
 		}
 	}

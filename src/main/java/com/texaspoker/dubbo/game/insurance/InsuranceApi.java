@@ -200,6 +200,7 @@ public class InsuranceApi {
      GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
      if(stGameRoomDetail!=null){
      stGameRoomDetail.setDealyTimes(uuid, nums);
+     System.out.println("setDealyTimes 3 : " +   nums +  "uuid : " + uuid);
      }
   }  
 
