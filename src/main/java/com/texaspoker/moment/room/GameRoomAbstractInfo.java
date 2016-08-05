@@ -128,7 +128,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		vTestTableCards.add(18);
 		vTestTableCards.add(32);
 		vTestTableCards.add(7);
-		vTestTableCards.add(8);
+		vTestTableCards.add(21);
 	}
 	
 	@Override  
