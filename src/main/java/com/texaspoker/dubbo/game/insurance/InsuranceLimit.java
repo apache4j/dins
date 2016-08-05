@@ -80,11 +80,14 @@ public class InsuranceLimit {
   public boolean getUserCloseStatus(long roomId, long uuid) {
     Set<Long> limitSet = room_user_limits.get(roomId);
     if (limitSet == null) {
+      logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",close:false");
       return false;
     }
     if (limitSet.contains(uuid)) {
+      logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",close:ture");
       return true;
     } else {
+      logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",close:false");
       return false;
     }
   }

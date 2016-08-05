@@ -47,12 +47,11 @@ public class HandInfo {
   // 每一轮下注情况
   public ConcurrentMap<Integer, HandRoundInfo> roundInfos = new ConcurrentHashMap<Integer, HandRoundInfo>();
 
-  // 本手的边池Id数组，用于客户端索引
-  public List<Long> potIdList = new ArrayList<>();
-
   /*
    * 检查状态的临时数据，无需线程安全
    */
+  // 这一手的边池Id数组，用于客户端索引
+  public List<Long> allin_potIdList = new ArrayList<>();
   // 这一手的所有边池信息
   public Map<Integer, Integer> allin_pots = new HashMap<Integer, Integer>();
   // 这一手的边池用户筹码情况
@@ -68,7 +67,7 @@ public class HandInfo {
     userInfoMap.clear();
     roundInfos.clear();
 
-    potIdList.clear();
+    allin_potIdList.clear();
 
     allin_pots.clear();
     allin_pots_user.clear();
@@ -175,8 +174,8 @@ public class HandInfo {
 
   // 获取边池id的顺序索引
   public int getPotIdIndex(long potId) {
-    for (int i = 0; i < potIdList.size(); i++) {
-      if (potIdList.get(i) == potId) {
+    for (int i = 0; i < allin_potIdList.size(); i++) {
+      if (allin_potIdList.get(i) == potId) {
         return i;
       }
     }
@@ -286,17 +285,21 @@ public class HandInfo {
           }
         }
       }
+      int roundAllinPotBets = roundAllinBet - preAllinBet;
       logger.debug("roomId:" + roomId + ",roundState:" + status + ",roundAllinBet:" + roundAllinBet);
+      logger.debug("roomId:" + roomId + ",roundState:" + status + ",roundAllinPotBets:" + roundAllinPotBets);
       // 这一个allin边池能吃到的flod筹码量
       int roundflodBets = 0;
       for (Map.Entry<Long, Integer> userFlodBetEntry : roundInfo.user_flods.entrySet()) {
         int userFlodBet = userFlodBetEntry.getValue();
-        if (userFlodBet <= roundAllinBet) {
+        logger.debug("roomId:" + roomId + ",roundState:" + status + ",uuid:" + userFlodBetEntry.getKey() + ",flodBet:"
+            + userFlodBet);
+        if (userFlodBet <= roundAllinPotBets) {
           roundflodBets += userFlodBet;
           userFlodBetEntry.setValue(0);
         } else {
-          roundflodBets += roundAllinBet;
-          userFlodBetEntry.setValue(userFlodBet - roundAllinBet);
+          roundflodBets += roundAllinPotBets;
+          userFlodBetEntry.setValue(userFlodBet - roundAllinPotBets);
         }
       }
       logger.debug("roomId:" + roomId + ",roundState:" + status + ",roundflodBets:" + roundflodBets);
@@ -304,7 +307,8 @@ public class HandInfo {
       Map<Long, Integer> allinUsers = new HashMap<Long, Integer>();
       for (Map.Entry<Long, Integer> allinUser : roundInfo.user_bets.entrySet()) {
         // fold玩家不在边池中，前面已经计算过
-        if (roundInfo.user_flods.containsKey(allinUser.getKey())) {
+        if (userInfoMap.get(allinUser.getKey()).fold) {
+          // if (roundInfo.user_flods.containsKey(allinUser.getKey())) {
           continue;
         }
         // 有多少玩家的筹码量比这个allin大
@@ -316,7 +320,7 @@ public class HandInfo {
             allinUsers.put(allinUser.getKey(), roundAllinBet + preUserBets);
           } else {
             // 不是第一个边池，则扣除这一轮前面的边池
-            allinUsers.put(allinUser.getKey(), roundAllinBet - preAllinBet);
+            allinUsers.put(allinUser.getKey(), roundAllinPotBets);
           }
         }
       }
@@ -327,17 +331,17 @@ public class HandInfo {
       // 这个allin的边池总量
       int allinPool = 0;
       if (roundInfo.allin_bets.isEmpty()) {
-        allinPool = (roundAllinBet - 0) * allinUsers.size() + roundflodBets + preStateBets;
+        allinPool = (roundAllinBet) * allinUsers.size() + roundflodBets + preStateBets;
         roundInfo.allin_bets.put(allinBet.getKey(), allinPool);
       } else {
-        allinPool = (roundAllinBet - preAllinBet) * allinUsers.size() + roundflodBets;
+        allinPool = (roundAllinPotBets) * allinUsers.size() + roundflodBets;
         roundInfo.allin_bets.put(allinBet.getKey(), allinPool);
       }
       logger.debug("roomId:" + roomId + ",roundState:" + status + ",potId:" + allinBet.getKey() + ",potBets:"
           + allinPool);
       // 记录这个potid信息，已便于边池索引
-      this.potIdList.add((long) allinBet.getKey());
-      logger.debug("roomId:" + roomId + ",handId:" + handId + ",potIdList:" + potIdList);
+      this.allin_potIdList.add((long) allinBet.getKey());
+      logger.debug("roomId:" + roomId + ",handId:" + handId + ",potIdList:" + allin_potIdList);
       // 定义第一个边池
       preAllinBet = roundAllinBet;
     }
@@ -376,12 +380,16 @@ public class HandInfo {
         if (userInfoMap.get(uuid).handChip == curTotalChip) {
           roundInfo.user_allins.put(uuid, curTotalChip);
         }
-        if (roundInfo.user_flods.containsKey(uuid)) {
-          roundInfo.flodsBets += betChip;
+        // 根据用户fold状态，重置fold前几轮的下注逻辑
+        if (userInfoMap.get(uuid).fold && !roundInfo.user_flods.containsKey(uuid)) {
+          roundInfo.user_flods.put(uuid, betChip);
+          // roundInfo.flodsBets += betChip;
         }
+
       } else if (betChip == 0 && status == HandUtils.PRE_FLOP) {
         // 没有下注，也没有flod，很可能是开局站起了，直接当作flod
         roundInfo.user_flods.put(uuid, betChip);
+        userInfoMap.get(uuid).fold = true;
       }
       roundInfo.poolBets = roundInfo.totalBets;
     }
@@ -416,7 +424,7 @@ public class HandInfo {
 
   // 打印这一次allin轮以前这个用户能够收集的下注边池筹码
   private int calcPreStateBets(int status, long uuid) {
-    logger.debug("roomId:" + roomId + ",handId:" + handId + ",status:" + status);
+    // logger.debug("roomId:" + roomId + ",handId:" + handId + ",status:" + status);
     int UserStateBets = 0;
     for (int roundState = status - 1; roundState >= HandUtils.PRE_FLOP; roundState--) {
       HandRoundInfo roundInfo = roundInfos.get(roundState);
@@ -432,7 +440,7 @@ public class HandInfo {
         UserStateBets += roundInfo.user_bets.get(uuid);
       }
     }
-    logger.debug("roomId:" + roomId + ",handId:" + handId + ",totalStateBets:" + UserStateBets);
+    logger.debug("roomId:" + roomId + ",handId:" + handId + ",uuid:" + uuid + ",totalStateBets:" + UserStateBets);
     return UserStateBets;
   }
 

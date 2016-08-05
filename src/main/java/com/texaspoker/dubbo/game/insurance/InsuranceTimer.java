@@ -41,7 +41,7 @@ public class InsuranceTimer {
   public class InsuranceTimeInfo {
     long startTime;
     long endTime;
-    Set<Long> potIds = new HashSet<>();;
+    Set<Long> potIds = new HashSet<>();
   }
 
   // 房间超时信息
@@ -137,6 +137,18 @@ public class InsuranceTimer {
     // 重新加时列表
     room_timer.put(roomId, roomTimeInfo, leftTime, TimeUnit.MILLISECONDS);
     room_pause.remove(roomId);
+  }
+
+  // 检查是否处于游戏暂停模式
+  public boolean checkRoomPause(long roomId) {
+    if (room_timer.containsKey(roomId)) {
+      logger.error("roomId:" + roomId + ",is not in pause!");
+      return false;
+    }
+    if (room_pause.containsKey(roomId)) {
+      return true;
+    }
+    return false;
   }
 
   // 清空房间的超时记录

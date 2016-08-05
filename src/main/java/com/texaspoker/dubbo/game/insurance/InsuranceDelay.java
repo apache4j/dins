@@ -10,6 +10,8 @@ package com.texaspoker.dubbo.game.insurance;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.apache.log4j.Logger;
+
 /**
  * 类名称:InsuranceDelay
  * 类描述:
@@ -19,6 +21,8 @@ import java.util.concurrent.ConcurrentMap;
  * 修改备注:
  */
 public class InsuranceDelay {
+
+  private static Logger logger = Logger.getLogger(InsuranceDelay.class);
 
   public final ConcurrentMap<Long, ConcurrentMap<Long, Integer>> room_user_delays =
       new ConcurrentHashMap<Long, ConcurrentMap<Long, Integer>>();
@@ -47,6 +51,7 @@ public class InsuranceDelay {
     // return getDelayCost(times);
     // }
     int times = (int) InsuranceApi.getUserDelayOperation(roomId, uuid);
+    logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",times:" + times);
     return getDelayCost(times);
   }
 
@@ -64,6 +69,7 @@ public class InsuranceDelay {
     // user_delays.put(uuid, times + 1);
     // }
     int times = (int) InsuranceApi.getUserDelayOperation(roomId, uuid);
+    logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",times:" + (times + 1));
     InsuranceApi.setUserDelayOperation(roomId, uuid, times + 1);
   }
 

@@ -343,8 +343,8 @@ public class InsuranceInfo {
   // 设置领先但是没有触发保险的用户
   public void setWinnerNoOuts(Set<Long> winners) {
     if (round_winner_no_outs == null) {
-      // 第一个边池，用来初始化
-      round_winner_no_outs = new HashSet<Long>();
+      // 第一个边池，用来初始化，保证线程安全
+      round_winner_no_outs = Collections.synchronizedSet(new HashSet<Long>());
       round_winner_no_outs.addAll(winners);
     } else {
       // 后面的边池，用来求交集

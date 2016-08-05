@@ -238,6 +238,11 @@ public class InsuranceManager {
       logger.error("roomId:" + roomId + ",insurance info null");
       return null;
     }
+    // 是否处于游戏暂停状态，否者购买行为无效
+    if (insurance_timer.checkRoomPause(roomId)) {
+      logger.debug("roomId:" + roomId + " pause,can not buy");
+      return null;
+    }
     // 能否扣币成功
     // if (!InsuranceApi.addUserPopularity(uuid, -buys)) {
     // logger.debug("roomId" + roomId + ",uuid:" + uuid + ",no enough popularitys");

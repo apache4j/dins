@@ -29,6 +29,8 @@ public class OutsInfo {
   // 边池pot
   public long potId = 0;
   public int potIndex = 0;
+
+  // 筹码量
   public long pots = 0;
   public long bets = 0;
 

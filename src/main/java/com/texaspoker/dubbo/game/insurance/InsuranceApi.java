@@ -12,23 +12,18 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.texaspoker.bill.BillManager;
-import com.texaspoker.logger.TableLogService;
 import com.texaspoker.moment.TexasPoker;
 import com.texaspoker.moment.TexasPoker.BuyInsuranceInfo;
 import com.texaspoker.moment.TexasPoker.GameRoomInfo;
 import com.texaspoker.moment.TexasPoker.INSURANCE_ACT;
 import com.texaspoker.moment.TexasPoker.INSURANCE_BET_STATUS;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
+
+import com.texaspoker.bill.BillManager;
+import com.texaspoker.logger.TableLogService;
 import com.texaspoker.moment.room.GameRoomDetailInfo;
 import com.texaspoker.moment.room.GameRoomManager;
 import com.texaspoker.user.UserManager;
-
-//import com.texaspoker.bill.BillManager;
-//import com.texaspoker.logger.TableLogService;
-//import com.texaspoker.moment.room.GameRoomDetailInfo;
-//import com.texaspoker.moment.room.GameRoomManager;
-//import com.texaspoker.user.UserManager;
 
 /**
  * 类名称:InsuranceApiProxy
@@ -68,9 +63,13 @@ public class InsuranceApi {
     long lGameRoomID = stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId();
     // 结算保险
     InsuranceInfo insuranceInfo = InsuranceManager.getInstance().settleInsurance(lGameRoomID, lHandID, tableCard);
+    // 返回保险结构体
+    TexasPoker.GameRoomInfo resultInfo = doInsuranceResult(insuranceInfo, stGameRoomInfo);
+    // 检查是否需要微调账单
+    doInsuranceResultAdjust(insuranceInfo);
     // 打印结算日志
     printInsuranceResultLog(insuranceInfo);
-    return doInsuranceResult(insuranceInfo, stGameRoomInfo);
+    return resultInfo;
   }
 
   // 每一手结账时调用保险结算接口
@@ -79,7 +78,11 @@ public class InsuranceApi {
     long lGameRoomID = stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId();
     // 结算保险
     InsuranceInfo insuranceInfo = InsuranceManager.getInstance().getInsurance(lGameRoomID, lHandID);
-    return doInsuranceBill(insuranceInfo, stGameRoomInfo);
+    if (insuranceInfo == null) {
+      return stGameRoomInfo;
+    } else {
+      return doInsuranceBill(insuranceInfo, stGameRoomInfo);
+    }
   }
 
   // 保险购买接口
@@ -151,7 +154,8 @@ public class InsuranceApi {
 
   // 保险购买行为超时接口
   public static void gotoNextStep(long lGameRoomID) {
-     GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
+     GameRoomDetailInfo stGameRoomDetail =
+     GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
      if(stGameRoomDetail!=null){
      stGameRoomDetail.gotoNextStep();
      }
@@ -180,14 +184,14 @@ public class InsuranceApi {
   }
 
   // 获取用户的延时操作次数
-  public static int getUserDelayOperation(long lGameRoomID, long uuid) {
+  public static long getUserDelayOperation(long lGameRoomID, long uuid) {
      GameRoomDetailInfo stGameRoomDetail =
      GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
      if(stGameRoomDetail!=null){
      return stGameRoomDetail.getDealyTimes(uuid);
      }else{
      return 0;
-     }
+    }
   }
 
   // 设置用户的延时操作次数
@@ -197,7 +201,7 @@ public class InsuranceApi {
      if(stGameRoomDetail!=null){
      stGameRoomDetail.setDealyTimes(uuid, nums);
      }
-  }
+  }  
 
   // 操作日志接口
   public static void insuranceDebug(String sLog) {
@@ -256,6 +260,21 @@ public class InsuranceApi {
     return gameBuilder.build();
   }
 
+  public static void doInsuranceResultAdjust(InsuranceInfo insuranceInfo) {
+    // 在river阶段，调整可能产生-1,-2的保险购买问题
+    if (insuranceInfo.status == HandUtils.TURN) {
+      for (Map.Entry<Long, List<OutsInfo>> userOuts : insuranceInfo.round_user_outs.entrySet()) {
+        for (OutsInfo outs : userOuts.getValue()) {
+          // pot池小于4，并且这一轮保险没有中，并且上一轮购买过保险没中
+          if (outs.pots < 4 && outs.result == 0 && outs.pay_min > 0 && outs.buy < 3) {
+            // 用户买了几个，系统赔付几个
+            outs.result = outs.buy;
+          }
+        }
+      }
+    }
+  }
+
   public static TexasPoker.GameRoomInfo doInsuranceBill(InsuranceInfo insuranceInfo, TexasPoker.GameRoomInfo info) {
     TexasPoker.GameRoomInfo.Builder gameBuilder = info.toBuilder();
     // turn阶段不实时显示购买保险的当前筹码量信息，只有再river结算时，才显示
@@ -267,20 +286,26 @@ public class InsuranceApi {
       }
       long remains = userGameInfo.getLRemainStacks();
       // 计算这一手的保险情况
-      logger.debug("uuid:" + uuid + "remains before:" + remains);
+      logger.debug("uuid:" + uuid + ",remains before:" + remains);
       long buys = insuranceInfo.getUserAllBuyTotal(uuid);
-      remains -= buys;
-      logger.debug("uuid:" + uuid + "buytotal:" + buys);
+      if (buys > 0) {
+        remains -= buys;
+        logger.debug("uuid:" + uuid + ",buytotal:" + buys);
+      }
       long results = insuranceInfo.getUserAllResultTotal(uuid);
       // 防止买保险的比赔付的还多，- -！
       if (results > 0 && results < buys) {
-        logger.error("uuid:" + uuid + ",error,results:" + results + " more than buys:" + buys);
         remains += buys;
+        logger.error("uuid:" + uuid + ",error,results:" + results + " more than buys:" + buys);
       } else if (results > 0) {
-        logger.debug("uuid:" + uuid + "resulttotal:" + results);
         remains += results;
+        logger.debug("uuid:" + uuid + ",result total:" + results);
       }
-      logger.debug("uuid:" + uuid + "remains after:" + remains);
+      // 没有变化则不用重置
+      if (remains == userGameInfo.getLRemainStacks()) {
+        continue;
+      }
+      logger.debug("uuid:" + uuid + ",remains after:" + remains);
       TexasPoker.UserGameInfoNet.Builder userGameBuilder = userGameInfo.toBuilder();
       userGameBuilder.setLRemainStacks(remains);
       // logger.debug("userGameBuilder:" + userGameBuilder);
@@ -343,9 +368,14 @@ public class InsuranceApi {
       }
       // 保险状态
       if (lTotalBuys > 0 && lTotalBuys < userOuts.getValue().size() && lTotalFold == 0) {
+        // 自动购买逻辑
         userInfo.setEInsuranceBetStatus(INSURANCE_BET_STATUS.INSURANCE_BET_BETTING);
       } else if (lTotalBuys == 0 && lTotalFold > 0) {
+        // 全部放弃逻辑
         userInfo.setEInsuranceBetStatus(INSURANCE_BET_STATUS.INSURANCE_BET_FOLD);
+      } else if (lTotalBuys == 0 && lTotalFold == 0) {
+        // 未购买逻辑
+        userInfo.setEInsuranceBetStatus(INSURANCE_BET_STATUS.INSURANCE_BET_BETTING);
       } else {
         userInfo.setEInsuranceBetStatus(INSURANCE_BET_STATUS.INSURANCE_BET_BETED);
       }
@@ -385,8 +415,10 @@ public class InsuranceApi {
       apiInfo.setIFirstInsurance(0);
     }
     // 加入领先但是没有触发保险的用户
-    for (Long winner : insInfo.round_winner_no_outs) {
-      apiInfo.addVNoOutsUuids(winner);
+    if (insInfo.round_winner_no_outs != null) {
+      for (Long winner : insInfo.round_winner_no_outs) {
+        apiInfo.addVNoOutsUuids(winner);
+      }
     }
     logger.debug("insuranceinfo:" + apiInfo);
     return apiInfo.build();

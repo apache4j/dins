@@ -113,7 +113,8 @@ public class HandsManager {
       logger.debug("roomId:" + roomId + ",handId:" + handInfo.handId + ",uuid:" + uuid + ",info null");
       return;
     }
-    userInfo.fold = false;
+    logger.debug("roomId:" + roomId + ",handId:" + handInfo.handId + ",uuid:" + uuid + ",fold");
+    userInfo.fold = true;
     // 记录玩家弃牌操作
     handInfo.setRoundUserFlod(uuid);
   }

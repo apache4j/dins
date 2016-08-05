@@ -50,7 +50,7 @@ public class HandRoundInfo {
   // 本轮分池筹码量
   public int poolBets = 0;
   // 本轮flod的筹码量
-  public int flodsBets = 0;
+  // public int flodsBets = 0;
 
   /*
    * 检查状态的临时数据，无需线程安全
