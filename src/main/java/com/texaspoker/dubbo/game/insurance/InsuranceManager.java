@@ -218,7 +218,7 @@ public class InsuranceManager {
         winnerList.remove(outsInfo.winner);
       }
       // 这个边池的领先却没有保险的玩家
-      insuranceInfo.setWinnerNoOuts(winnerList);
+      insuranceInfo.setWinnerNoOutsTip(winnerList);
     }
     // 返回提示保险信息
     if (insuranceInfo.isOutsEmpty()) {
@@ -283,6 +283,23 @@ public class InsuranceManager {
     }
   }
 
+  // 内部使用，这个用户购买超时后，开始结算
+  public void flodInsurance(long roomId, long uuid) {
+    // 检查保险信息
+    InsuranceInfo insuranceInfo = insurances_map.get(roomId);
+    if (insuranceInfo == null) {
+      logger.error("roomId" + roomId + ",insurance info null");
+      return;
+    }
+    for (OutsInfo outsInfo : insuranceInfo.getUserOuts(uuid)) {
+      if (outsInfo.fold || outsInfo.buy > 0) {
+        continue;
+      }
+      // 进行弃牌操作
+      foldInsurance(insuranceInfo, outsInfo.winner, outsInfo.potId);
+    }
+  }
+
   // 内部使用，放弃购买保险
   public InsuranceInfo foldInsurance(long roomId, long uuid, long potId) {
     // 检查保险信息
@@ -306,7 +323,7 @@ public class InsuranceManager {
     if (mustBuys > 0) {
       logger.debug("roomId:" + insuranceInfo.roomId + ",uuid:" + uuid + ",potId:" + potId + ",can't fold,must buy min");
       // 强制购买
-      insuranceInfo.setUserBuys(potId, uuid, mustBuys);
+      insuranceInfo.setSysBuy(potId, uuid, mustBuys);
       // 设置本手保险购买总额
       insuranceInfo.addUserBuyTotal(uuid, potId, mustBuys);
       // 写入账单
@@ -420,6 +437,8 @@ public class InsuranceManager {
     }
     // API接口，保险实时赔付账单信息
     // InsuranceApi.setInsuranceGame(roomId, insuranceInfo.getShopTotal());
+    // 清空用户的没谈保险提示
+    insuranceInfo.clearWinnerNoOutsTip();
     // 返回所有保险结算结果
     return insuranceInfo;
   }
@@ -429,6 +448,19 @@ public class InsuranceManager {
     insurance_timer.checkRoomTimeout(roomId);
   }
 
+  // 通知这个用户，购买超时了
+  public void notifyUserTimeout(long roomId, long uuid) {
+    // 检查保险信息
+    InsuranceInfo insuranceInfo = insurances_map.get(roomId);
+    if (insuranceInfo == null) {
+      logger.error("roomId" + roomId + ",insurance info null");
+      return;
+    }
+    // 调用游戏层
+    InsuranceApi.notifyUserBuyTimeout(roomId, uuid, insuranceInfo);
+  }
+
+  // 获取用户超时时间
   public InsuranceTimer.InsuranceTimeInfo getUserTimeout(long roomId, long uuid) {
     return insurance_timer.getUserTimeout(roomId, uuid);
   }

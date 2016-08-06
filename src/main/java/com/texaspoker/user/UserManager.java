@@ -556,12 +556,10 @@ public class UserManager {
 	    		return response.toBuilder();
 	    	} else {
 //	    		NormalLogService.getInstance().error("syn echo response null" + controller.errorText());
-//	    		System.out.println("1111111112222222222222ff : ");
 	    		return null;
 	    	}
 	    } catch (ServiceException e) {
 //	    	NormalLogService.getInstance().error("syn echo error:" + e.getMessage());
-//	    	System.out.println("1111111112222222222222 : " + e.getMessage());
 	      return null;
 	    }
 	}

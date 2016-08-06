@@ -12,18 +12,23 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.texaspoker.bill.BillManager;
+import com.texaspoker.logger.TableLogService;
 import com.texaspoker.moment.TexasPoker;
 import com.texaspoker.moment.TexasPoker.BuyInsuranceInfo;
+import com.texaspoker.moment.TexasPoker.GAME_ROOM_MESSAGE_TYPE;
 import com.texaspoker.moment.TexasPoker.GameRoomInfo;
 import com.texaspoker.moment.TexasPoker.INSURANCE_ACT;
 import com.texaspoker.moment.TexasPoker.INSURANCE_BET_STATUS;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
-
-import com.texaspoker.bill.BillManager;
-import com.texaspoker.logger.TableLogService;
 import com.texaspoker.moment.room.GameRoomDetailInfo;
 import com.texaspoker.moment.room.GameRoomManager;
-import com.texaspoker.user.UserManager;
+
+//import com.texaspoker.bill.BillManager;
+//import com.texaspoker.logger.TableLogService;
+//import com.texaspoker.moment.room.GameRoomDetailInfo;
+//import com.texaspoker.moment.room.GameRoomManager;
+//import com.texaspoker.user.UserManager;
 
 /**
  * 类名称:InsuranceApiProxy
@@ -179,7 +184,7 @@ public class InsuranceApi {
 
   // 保险扣钻石接口
   public static boolean addUserCoin(long uuid, long nums) {
-     UserManager.getInstance().addUserCoin(uuid, nums);
+    // UserManager.getInstance().addUserCoin(uuid, nums);
     return true;
   }
 
@@ -191,7 +196,7 @@ public class InsuranceApi {
      return stGameRoomDetail.getDealyTimes(uuid);
      }else{
      return 0;
-    }
+     }
   }
 
   // 设置用户的延时操作次数
@@ -200,9 +205,18 @@ public class InsuranceApi {
      GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
      if(stGameRoomDetail!=null){
      stGameRoomDetail.setDealyTimes(uuid, nums);
-     System.out.println("setDealyTimes 3 : " +   nums +  "uuid : " + uuid);
      }
-  }  
+  }
+
+  // 用户购买超时，调用接口
+  public static void notifyUserBuyTimeout(long lGameRoomID, long uuid, TexasPoker.InsuranceInfo info) {
+	     GameRoomDetailInfo stGameRoomDetail =
+	    	     GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
+	     
+	     if(stGameRoomDetail!=null){
+	         stGameRoomDetail.pushInsuranceTimeout(uuid, info);
+	     }
+  }
 
   // 操作日志接口
   public static void insuranceDebug(String sLog) {
@@ -232,6 +246,12 @@ public class InsuranceApi {
     return HandUtils.PRE_FLOP;
   }
 
+  // 超时通知接口层
+  public static void notifyUserBuyTimeout(long lGameRoomID, long uuid, InsuranceInfo info) {
+    TexasPoker.InsuranceInfo insInfo = getApiInfoFromInsuranceInfo(info);
+    notifyUserBuyTimeout(lGameRoomID, uuid, insInfo);
+  }
+
   public static void doInsuranceAutoBuy(InsuranceInfo insuranceInfo) {
     if (insuranceInfo == null) {
       return;
@@ -243,7 +263,7 @@ public class InsuranceApi {
         List<OutsInfo> outsInfos = userOuts.getValue();
         for (OutsInfo outsInfo : outsInfos) {
           if (outsInfo.outs.length > OutsInfo.OUTS_LIMIT && outsInfo.pay_min > 0) {
-            InsuranceManager.getInstance().buyInsurance(insuranceInfo.roomId, uuid, outsInfo.potId, outsInfo.pay_min);
+            insuranceInfo.setSysBuy(outsInfo.potId, uuid, outsInfo.pay_min);
           }
         }
       }
@@ -270,6 +290,11 @@ public class InsuranceApi {
           if (outs.pots < 4 && outs.result == 0 && outs.pay_min > 0 && outs.buy < 3) {
             // 用户买了几个，系统赔付几个
             outs.result = outs.buy;
+            // 维持实时账单平衡
+            insuranceInfo.setShopTotal(0, outs.result);
+            insuranceInfo.addUserResultTotal(outs.winner, outs.result);
+            logger.debug("roomId:" + insuranceInfo.roomId + ",handId:" + insuranceInfo.handId + ",result:"
+                + outs.result);
           }
         }
       }
@@ -294,11 +319,7 @@ public class InsuranceApi {
         logger.debug("uuid:" + uuid + ",buytotal:" + buys);
       }
       long results = insuranceInfo.getUserAllResultTotal(uuid);
-      // 防止买保险的比赔付的还多，- -！
-      if (results > 0 && results < buys) {
-        remains += buys;
-        logger.error("uuid:" + uuid + ",error,results:" + results + " more than buys:" + buys);
-      } else if (results > 0) {
+      if (results > 0) {
         remains += results;
         logger.debug("uuid:" + uuid + ",result total:" + results);
       }
@@ -353,6 +374,7 @@ public class InsuranceApi {
         potInfo.setLMinStacks(outs.pay_min);
         potInfo.setLMaxStacks(outs.pay_max);
         potInfo.setLBetStacks(outs.buy);
+        potInfo.setLSysStacks(outs.sys_buy);
         // 保险的赔付额显示需要扣住自己的购买金额
         if (outs.result > 0) {
           potInfo.setLGetStacks(outs.result - outs.buy);

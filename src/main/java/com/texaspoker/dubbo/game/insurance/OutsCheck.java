@@ -57,12 +57,17 @@ public class OutsCheck {
       // 没有胜者，没有保险
       return null;
     }
-    // 找出剩余的牌
-    List<IPlayer> allPlayers = new ArrayList<IPlayer>();
+    // 找出剩余的牌,
+    List<IPlayer> remainsPlayers = new ArrayList<IPlayer>();
     for (HandUserInfo playerInfo : handInfo.userInfoMap.values()) {
-      allPlayers.add(OutsUtils.getPlayer(playerInfo));
+      if (playerInfo.fold) {
+        // fold的玩家底牌也在outs的计算内
+        continue;
+      } else {
+        remainsPlayers.add(OutsUtils.getPlayer(playerInfo));
+      }
     }
-    List<Card> remainCards = findRemainCards(allPlayers, tableCards);
+    List<Card> remainCards = findRemainCards(remainsPlayers, tableCards);
     if (remainCards == null) {
       // 没有剩余牌？扯淡，肯定有问题了
       return null;

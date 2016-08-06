@@ -64,7 +64,7 @@ public class InsuranceInfo {
   // 用户的所有outs
   public ConcurrentMap<Long, List<OutsInfo>> round_user_outs = new ConcurrentHashMap<Long, List<OutsInfo>>();
 
-  // 找出所有领先，却没有保险的用户
+  // 本轮所有领先，却没有保险的用户，用于保险显示
   public Set<Long> round_winner_no_outs = null;
 
   // 清除上一轮的保险信息
@@ -142,8 +142,18 @@ public class InsuranceInfo {
     return userOuts.get(uuid);
   }
 
-  // 设置用户购买信息
+  // 正常购买保险
   public long setUserBuys(long potId, long uuid, long buys) {
+    return setUserBuys(potId, uuid, buys, false);
+  }
+
+  // 系统强制购买
+  public long setSysBuy(long potId, long uuid, long buys) {
+    return setUserBuys(potId, uuid, buys, true);
+  }
+
+  // 设置用户购买信息
+  public long setUserBuys(long potId, long uuid, long buys, boolean sysForce) {
     ConcurrentMap<Long, OutsInfo> userOuts = round_pot_user_outs.get(potId);
     if (userOuts == null) {
       logger.error("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",no potId outs info");
@@ -170,6 +180,10 @@ public class InsuranceInfo {
     }
     // 这是购买金额
     info.setBuy(finalBuys);
+    // 是否属于强制购买
+    if (sysForce) {
+      info.setSysBuy(finalBuys);
+    }
     logger.debug("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",buys:" + finalBuys);
     // 设置用户购买记录
     // ConcurrentMap<Long, List<OutsInfo>> roundUserBuys = hand_user_buys.get(status);
@@ -341,7 +355,7 @@ public class InsuranceInfo {
   }
 
   // 设置领先但是没有触发保险的用户
-  public void setWinnerNoOuts(Set<Long> winners) {
+  public void setWinnerNoOutsTip(Set<Long> winners) {
     if (round_winner_no_outs == null) {
       // 第一个边池，用来初始化，保证线程安全
       round_winner_no_outs = Collections.synchronizedSet(new HashSet<Long>());
@@ -349,6 +363,14 @@ public class InsuranceInfo {
     } else {
       // 后面的边池，用来求交集
       round_winner_no_outs.retainAll(winners);
+    }
+  }
+
+  // 保险结算以后，清空用户的提示
+  public void clearWinnerNoOutsTip() {
+    if (round_winner_no_outs != null) {
+      round_winner_no_outs.clear();
+      round_winner_no_outs = null;
     }
   }
 
@@ -368,6 +390,13 @@ public class InsuranceInfo {
       }
     }
     return buyInfos;
+  }
+
+  // 获取这个用户的保险信息
+  public List<OutsInfo> getUserOuts(long uuid) {
+    List<OutsInfo> allInfos = new ArrayList<OutsInfo>();
+    allInfos.addAll(round_user_outs.get(uuid));
+    return allInfos;
   }
 
   // 获取所有保险信息

@@ -64,6 +64,9 @@ public class OutsInfo {
   // 购买金额
   public long buy = 0;
 
+  // 系统强制购买
+  public long sys_buy = 0;
+
   // 是否放弃
   public boolean fold = false;
 
@@ -117,6 +120,10 @@ public class OutsInfo {
 
   public long getBuy() {
     return this.buy;
+  }
+
+  public void setSysBuy(long buys) {
+    this.sys_buy = buys;
   }
 
   public void setFold() {

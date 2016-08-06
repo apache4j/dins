@@ -164,7 +164,6 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 					stEnterGameRoomResponseBuilder.setEErrCode(eErrorCodeType);
 				}
 			}else{
-				System.out.println("1111111111222222222222222 : " + request.getLGameRoomID());
 				stEnterGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
 			}
 			

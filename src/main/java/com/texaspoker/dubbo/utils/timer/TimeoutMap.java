@@ -41,10 +41,10 @@ public class TimeoutMap<K, V> implements ConcurrentMap<K, V> {
 
   private static AtomicLong timeoutEventIndex = new AtomicLong();
 
-  static final ScheduledExecutorService expirer =
-      Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("TimeoutMap-Expirer"));
-  static final ThreadPoolExecutor listenerService =
-      (ThreadPoolExecutor) Executors.newCachedThreadPool(new NamedThreadFactory("TimeoutMap-Listener-%s"));
+  static final ScheduledExecutorService expirer = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory(
+      "TimeoutMap-Expirer"));
+  static final ThreadPoolExecutor listenerService = (ThreadPoolExecutor) Executors
+      .newCachedThreadPool(new NamedThreadFactory("TimeoutMap-Listener-%s"));
 
   /** 超时触发执行同步或异步调用的阈值 */
   private static final long LISTENER_EXECUTION_THRESHOLD = TimeUnit.MILLISECONDS.toNanos(100);
@@ -138,8 +138,7 @@ public class TimeoutMap<K, V> implements ConcurrentMap<K, V> {
      *         if {@code listener} is null
      */
     @SuppressWarnings("unchecked")
-    public <K1 extends K, V1 extends V> Builder<K1, V1> timeoutListener(
-        TimeoutListener<? super K1, ? super V1> listener) {
+    public <K1 extends K, V1 extends V> Builder<K1, V1> timeoutListener(TimeoutListener<? super K1, ? super V1> listener) {
       Assert.notNull(listener, "listener");
       if (timeoutListeners == null)
         timeoutListeners = new ArrayList<TimeoutListenerConfig<K, V>>();
@@ -336,8 +335,7 @@ public class TimeoutMap<K, V> implements ConcurrentMap<K, V> {
   }
 
   /** Entry LinkedHashMap implementation. */
-  private static class EntryLinkedHashMap<K, V> extends LinkedHashMap<K, TimeoutEntry<K, V>>
-      implements EntryMap<K, V> {
+  private static class EntryLinkedHashMap<K, V> extends LinkedHashMap<K, TimeoutEntry<K, V>> implements EntryMap<K, V> {
     private static final long serialVersionUID = 1L;
 
     @Override
@@ -394,8 +392,7 @@ public class TimeoutMap<K, V> implements ConcurrentMap<K, V> {
   }
 
   /** Entry TreeHashMap implementation. */
-  private static class EntryTreeHashMap<K, V> extends HashMap<K, TimeoutEntry<K, V>>
-      implements EntryMap<K, V> {
+  private static class EntryTreeHashMap<K, V> extends HashMap<K, TimeoutEntry<K, V>> implements EntryMap<K, V> {
     private static final long serialVersionUID = 1L;
     SortedSet<TimeoutEntry<K, V>> sortedSet = new TreeSet<TimeoutEntry<K, V>>();
 
@@ -674,8 +671,7 @@ public class TimeoutMap<K, V> implements ConcurrentMap<K, V> {
 
       @Override
       public Iterator<K> iterator() {
-        return (entries instanceof EntryLinkedHashMap)
-            ? ((EntryLinkedHashMap<K, V>) entries).new KeyIterator()
+        return (entries instanceof EntryLinkedHashMap) ? ((EntryLinkedHashMap<K, V>) entries).new KeyIterator()
             : ((EntryTreeHashMap<K, V>) entries).new KeyIterator();
       }
 
@@ -709,8 +705,7 @@ public class TimeoutMap<K, V> implements ConcurrentMap<K, V> {
 
       @Override
       public Iterator<Map.Entry<K, V>> iterator() {
-        return (entries instanceof EntryLinkedHashMap)
-            ? ((EntryLinkedHashMap<K, V>) entries).new EntryIterator()
+        return (entries instanceof EntryLinkedHashMap) ? ((EntryLinkedHashMap<K, V>) entries).new EntryIterator()
             : ((EntryTreeHashMap<K, V>) entries).new EntryIterator();
       }
 
@@ -745,8 +740,7 @@ public class TimeoutMap<K, V> implements ConcurrentMap<K, V> {
 
       @Override
       public Iterator<V> iterator() {
-        return (entries instanceof EntryLinkedHashMap)
-            ? ((EntryLinkedHashMap<K, V>) entries).new ValueIterator()
+        return (entries instanceof EntryLinkedHashMap) ? ((EntryLinkedHashMap<K, V>) entries).new ValueIterator()
             : ((EntryTreeHashMap<K, V>) entries).new ValueIterator();
       }
 
@@ -1196,9 +1190,9 @@ public class TimeoutMap<K, V> implements ConcurrentMap<K, V> {
       V oldValue = null;
 
       if (entry == null) {
-        entry = new TimeoutEntry<K, V>(key, value,
-            variableTimeout ? new AtomicReference<TimeoutPolicy>(timeoutPolicy) : this.timeoutPolicy,
-            variableTimeout ? new AtomicLong(timeoutNanos) : this.timeoutNanos);
+        entry =
+            new TimeoutEntry<K, V>(key, value, variableTimeout ? new AtomicReference<TimeoutPolicy>(timeoutPolicy)
+                : this.timeoutPolicy, variableTimeout ? new AtomicLong(timeoutNanos) : this.timeoutNanos);
         entries.put(key, entry);
         if (entries.size() == 1 || entries.first().equals(entry))
           scheduleEntry(entry);

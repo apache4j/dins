@@ -7,13 +7,13 @@
  */
 package com.texaspoker.dubbo.game.insurance;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.log4j.Logger;
 
@@ -51,7 +51,7 @@ public class HandInfo {
    * 检查状态的临时数据，无需线程安全
    */
   // 这一手的边池Id数组，用于客户端索引
-  public List<Long> allin_potIdList = new ArrayList<>();
+  public List<Long> allin_potIdList = new CopyOnWriteArrayList<Long>();
   // 这一手的所有边池信息
   public Map<Integer, Integer> allin_pots = new HashMap<Integer, Integer>();
   // 这一手的边池用户筹码情况

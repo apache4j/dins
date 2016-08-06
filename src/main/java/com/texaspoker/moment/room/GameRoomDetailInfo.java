@@ -2908,7 +2908,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 				stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
 				stGameRoomInfo =  stGameRoomInfoBuilder.build();
-							
+						
+				UserGameInfoNet stUserGameInfoNet=null;
+				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
+					if(stUserGameInfoNet.getStUserInfo().getUuid() > 0 && stUserGameInfoNet.getStUserInfo().getUuid() == uuid){			
+						stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
+					}
+				}
 				//push相关
 				pushAllGameRoomUserMsgs(null, GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_BUY_INSURANCE);
 				
@@ -2986,9 +2992,16 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 				stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
 				stGameRoomInfo =  stGameRoomInfoBuilder.build();
+				
+				UserGameInfoNet stUserGameInfoNet=null;
+				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
+					if(stUserGameInfoNet.getStUserInfo().getUuid() > 0 && stUserGameInfoNet.getStUserInfo().getUuid() == uuid){			
+						stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
+					}
+				}
 							
 				//push相关
-				pushAllGameRoomUserMsgs(null, GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_INSURANCE_DELAY);
+				pushAllGameRoomUserMsgs(stUserGameInfoNet, GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_INSURANCE_DELAY);
 				
 				for(InsuranceUserInfo stInsuranceUserInfo:stInsuranceInfo.getVInsuranceUserInfosList()){
 
@@ -3101,4 +3114,17 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		stGameRoomInfo = stGameRoomInfoBuilder.build();
 	}
 	
+	public void pushInsuranceTimeout(long uuid,InsuranceInfo stInsuranceInfo){
+		GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+		stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
+		stGameRoomInfo = stGameRoomInfoBuilder.build();
+		
+		for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
+			UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
+
+			if(stUserGameInfoNet.getStUserInfo().getUuid() > 0 && stUserGameInfoNet.getStUserInfo().getUuid() == uuid){			
+				pushGameRoomUserMsgs(stUserGameInfoNet,uuid,GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_INSURANCE_TIMEOUT,i);
+			}
+		}
+	}
 }
