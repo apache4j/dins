@@ -16,7 +16,6 @@ import com.texaspoker.bill.BillManager;
 import com.texaspoker.logger.TableLogService;
 import com.texaspoker.moment.TexasPoker;
 import com.texaspoker.moment.TexasPoker.BuyInsuranceInfo;
-import com.texaspoker.moment.TexasPoker.GAME_ROOM_MESSAGE_TYPE;
 import com.texaspoker.moment.TexasPoker.GameRoomInfo;
 import com.texaspoker.moment.TexasPoker.INSURANCE_ACT;
 import com.texaspoker.moment.TexasPoker.INSURANCE_BET_STATUS;
