@@ -2911,12 +2911,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						
 				UserGameInfoNet stUserGameInfoNet=null;
 				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
-					if(stUserGameInfoNet.getStUserInfo().getUuid() > 0 && stUserGameInfoNet.getStUserInfo().getUuid() == uuid){			
-						stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
+					UserGameInfoNet stTempUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
+					if(stTempUserGameInfoNet.getStUserInfo().getUuid() > 0 && stTempUserGameInfoNet.getStUserInfo().getUuid() == uuid){			
+						stUserGameInfoNet = stTempUserGameInfoNet;
 					}
 				}
 				//push相关
-				pushAllGameRoomUserMsgs(null, GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_BUY_INSURANCE);
+				pushAllGameRoomUserMsgs(stUserGameInfoNet, GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_BUY_INSURANCE);
 				
 				return stGameRoomInfo;
 			}else{
@@ -2995,8 +2996,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				
 				UserGameInfoNet stUserGameInfoNet=null;
 				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
-					if(stUserGameInfoNet.getStUserInfo().getUuid() > 0 && stUserGameInfoNet.getStUserInfo().getUuid() == uuid){			
-						stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
+					UserGameInfoNet stTempUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
+					if(stTempUserGameInfoNet.getStUserInfo().getUuid() > 0 && stTempUserGameInfoNet.getStUserInfo().getUuid() == uuid){			
+						stUserGameInfoNet = stTempUserGameInfoNet;
 					}
 				}
 							
