@@ -1091,8 +1091,53 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			if(pos >=0){
 				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
 					UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
-					
 					if(stUserGameInfoNet.getStUserInfo().getUuid() > 0 && stUserGameInfoNet.getStUserInfo().getUuid() != stFromUserGamenfo.getStUserInfo().getUuid()){
+						//给在牌桌上的人发push
+						pushGameRoomUserMsgs(stFromUserGamenfo,stUserGameInfoNet.getStUserInfo().getUuid(),
+								eGameRoomMessageType,pos);
+					}
+				}
+				
+				//给旁观的push
+				for (long standUuid  : getStandByUuids()) {
+					if(standUuid > 0){
+						pushGameRoomUserMsgs(stFromUserGamenfo,standUuid,
+								eGameRoomMessageType,pos);
+					}
+				}
+			}
+		}else{
+			for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
+				UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
+				pushGameRoomUserMsgs(stFromUserGamenfo,stUserGameInfoNet.getStUserInfo().getUuid(),
+							eGameRoomMessageType,0);
+			}
+			
+			//给旁观的push
+			for (long standUuid  : getStandByUuids()) {
+				if(standUuid > 0){
+					pushGameRoomUserMsgs(stFromUserGamenfo,standUuid,
+							eGameRoomMessageType,0);
+				}
+			}
+		}
+	}
+	
+	@Override
+	public void pushAllGameRoomUserMsgsIncludeSelf(UserGameInfoNet stFromUserGamenfo,GAME_ROOM_MESSAGE_TYPE eGameRoomMessageType){
+		if(stFromUserGamenfo!=null){
+			int pos=-1;
+			for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
+				UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
+				if(stUserGameInfoNet.getStUserInfo().getUuid() == stFromUserGamenfo.getStUserInfo().getUuid()){
+					pos = i;
+				}
+			}
+			
+			if(pos >=0){
+				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
+					UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
+					if(stUserGameInfoNet.getStUserInfo().getUuid() > 0){
 						//给在牌桌上的人发push
 						pushGameRoomUserMsgs(stFromUserGamenfo,stUserGameInfoNet.getStUserInfo().getUuid(),
 								eGameRoomMessageType,pos);

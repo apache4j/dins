@@ -2917,7 +2917,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					}
 				}
 				//push相关
-				pushAllGameRoomUserMsgs(stUserGameInfoNet, GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_BUY_INSURANCE);
+				pushAllGameRoomUserMsgsIncludeSelf(stUserGameInfoNet, GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_BUY_INSURANCE);
 				
 				return stGameRoomInfo;
 			}else{
@@ -3003,7 +3003,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				}
 							
 				//push相关
-				pushAllGameRoomUserMsgs(stUserGameInfoNet, GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_INSURANCE_DELAY);
+				pushAllGameRoomUserMsgsIncludeSelf(stUserGameInfoNet, GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_INSURANCE_DELAY);
 				
 				for(InsuranceUserInfo stInsuranceUserInfo:stInsuranceInfo.getVInsuranceUserInfosList()){
 
