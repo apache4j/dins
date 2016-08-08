@@ -2701,10 +2701,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 							|| (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)){
 						if(stUserGameInfoNetBuilder.getEGameState()==USER_GAME_STATE.USER_GAME_STATE_FOLD){
 							stUserGameInfoNetBuilder.clearVCurrentHands();
-						}else{
-							if(stUserGameInfoNetBuilder.getBShowCardOne()==0&&stUserGameInfoNetBuilder.getBShowCardTwo()==0){
-								stUserGameInfoNetBuilder.clearVCurrentHands();
-							}
 						}
 					}else{
 						stUserGameInfoNetBuilder.clearVCurrentHands();
