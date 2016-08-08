@@ -46,6 +46,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	//结束的位置
 	protected int mEndPos;
 	
+	private boolean bFlodResult = false;
+	
 	//初始筹码数量
 	protected ArrayList<Long> vOriginalStacks = new ArrayList<Long>();
 	protected ArrayList<Integer> vTestHandCards1 = new ArrayList<Integer>();
@@ -2065,6 +2067,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				}
 			}
 		}
+		
+		bFlodResult = false;
 	}
 
 	
@@ -2674,7 +2678,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	public boolean sendGameStateChange(long toUuid,SCGameRoomStateChange stGameStateChange){
 		if(stGameStateChange!=null){
 
-			System.out.println("sendGameStateChangesendGameStateChangesendGameStateChange1111111111111 begin");
 			SCGameRoomStateChange.Builder stSCGameRoomStateChangeBuilder = stGameStateChange.toBuilder();
 			GameRoomInfo.Builder stGameRoomInfoBuilder = stSCGameRoomStateChangeBuilder.getStGameRoomInfo().toBuilder();
 			for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount() ; i ++){
@@ -2694,8 +2697,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					if(stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN  && bAllAllin == true){
 						continue;
 					}
-					System.out.println("sendGameStateChangesendGameStateChangesendGameStateChange : " + stUserGameInfoNetBuilder.getBShowCardOne());
-					System.out.println("sendGameStateChangesendGameStateChangesendGameStateChange : " + stUserGameInfoNetBuilder.getBShowCardTwo());
+
 					if(stUserGameInfoNetBuilder.getBShowCardOne()==1||stUserGameInfoNetBuilder.getBShowCardTwo()==1){
 						continue;
 					}
@@ -2703,7 +2705,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					if(stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
 							|| (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)){
 						if(stUserGameInfoNetBuilder.getEGameState()==USER_GAME_STATE.USER_GAME_STATE_FOLD){
-							stUserGameInfoNetBuilder.clearVCurrentHands();
+								stUserGameInfoNetBuilder.clearVCurrentHands();
+						}else{
+							if(bFlodResult==true){
+								stUserGameInfoNetBuilder.clearVCurrentHands();
+							}
 						}
 					}else{
 						stUserGameInfoNetBuilder.clearVCurrentHands();
@@ -3747,6 +3753,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				}
 			}
 		}
+		
+		bFlodResult = true;
 	}
 
 	@Override
