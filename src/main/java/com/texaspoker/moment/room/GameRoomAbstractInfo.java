@@ -2674,6 +2674,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	public boolean sendGameStateChange(long toUuid,SCGameRoomStateChange stGameStateChange){
 		if(stGameStateChange!=null){
 
+			System.out.println("sendGameStateChangesendGameStateChangesendGameStateChange1111111111111 begin");
 			SCGameRoomStateChange.Builder stSCGameRoomStateChangeBuilder = stGameStateChange.toBuilder();
 			GameRoomInfo.Builder stGameRoomInfoBuilder = stSCGameRoomStateChangeBuilder.getStGameRoomInfo().toBuilder();
 			for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount() ; i ++){
@@ -2693,6 +2694,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					if(stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN  && bAllAllin == true){
 						continue;
 					}
+					System.out.println("sendGameStateChangesendGameStateChangesendGameStateChange : " + stUserGameInfoNetBuilder.getBShowCardOne());
+					System.out.println("sendGameStateChangesendGameStateChangesendGameStateChange : " + stUserGameInfoNetBuilder.getBShowCardTwo());
 					if(stUserGameInfoNetBuilder.getBShowCardOne()==1||stUserGameInfoNetBuilder.getBShowCardTwo()==1){
 						continue;
 					}
@@ -2713,6 +2716,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			stSCGameRoomStateChangeBuilder.setStGameRoomInfo(stGameRoomInfoBuilder);
 			
 			GameRoomMsgManager.getInstance().sendGameRoomStateChangeMsg(toUuid, stSCGameRoomStateChangeBuilder.build());
+			System.out.println("sendGameStateChangesendGameStateChangesendGameStateChange1111111111111 end");
 			return true;
 		}else{
 			return false;
