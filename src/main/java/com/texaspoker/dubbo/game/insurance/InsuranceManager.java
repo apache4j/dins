@@ -181,6 +181,9 @@ public class InsuranceManager {
         allinUserInfos.add(handInfo.getUser(uuid));
         logger.debug("roomId:" + roomId + ",potId:" + allin_bets + ",user:" + uuid);
       }
+      // 这个边池的领先却没有保险的玩家
+      Set<Long> winnerList = OutsCheck.findWinnersInPlayer(allinUserInfos, handInfo);
+      insuranceInfo.setWinnerNoOutsTip(winnerList);
       // 找出这个边池玩家的out保险
       List<OutsInfo> outsList = OutsCheck.findOutsInPlayers(allinUserInfos, handInfo, checkEvenOuts);
       if (outsList == null || outsList.size() == 0) {
@@ -188,8 +191,6 @@ public class InsuranceManager {
         continue;
       }
       logger.debug("roomId:" + roomId + ",potId:" + allin_bets + ",outs size:" + outsList.size());
-      // 领先的用户列表
-      Set<Long> winnerList = OutsCheck.findWinnersInPlayer(allinUserInfos, handInfo);
       // 设置用户的保险购买信息
       for (OutsInfo outsInfo : outsList) {
         // 是否开启保险购买逻辑
@@ -215,19 +216,17 @@ public class InsuranceManager {
         // 设置这个玩家的购买超时
         insurance_timer.setUserTimeout(roomId, outsInfo.winner, potId);
         // 这个领先玩家有保险
-        winnerList.remove(outsInfo.winner);
+        insuranceInfo.subWinnerNoOutsTips(outsInfo.winner);
       }
-      // 这个边池的领先却没有保险的玩家
-      insuranceInfo.setWinnerNoOutsTip(winnerList);
     }
     // 返回提示保险信息
-    if (insuranceInfo.isOutsEmpty()) {
-      logger.debug("roomdId:" + roomId + ",outs null");
-      return null;
-    } else {
-      logger.debug("roomdId:" + roomId + ",outs size:" + insuranceInfo.getAllOuts().size());
-      return insuranceInfo;
-    }
+    // if (insuranceInfo.isOutsEmpty()) {
+    // logger.debug("roomdId:" + roomId + ",outs null");
+    // return null;
+    // } else {
+    logger.debug("roomdId:" + roomId + ",outs size:" + insuranceInfo.getAllOuts().size());
+    return insuranceInfo;
+    // }
   }
 
   // 内部使用
@@ -329,6 +328,16 @@ public class InsuranceManager {
       // 写入账单
       // InsuranceApi.addInsuranceBuyin(roomId, uuid, mustBuys);
     }
+  }
+
+  // 自动强制背保险
+  public void forceInsurance(InsuranceInfo insuranceInfo, long uuid, long potId, long buys) {
+    // 去掉这个玩家的购买超时
+    insurance_timer.removeUserTimeout(insuranceInfo.roomId, uuid, potId);
+    // 强制购买
+    insuranceInfo.setSysBuy(potId, uuid, buys);
+    // 设置本手保险购买总额
+    insuranceInfo.addUserBuyTotal(uuid, potId, buys);
   }
 
   public void delayInsurance(long roomId, long uuid) {

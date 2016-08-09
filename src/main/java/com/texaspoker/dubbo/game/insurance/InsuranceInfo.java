@@ -9,7 +9,6 @@ package com.texaspoker.dubbo.game.insurance;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -65,7 +64,7 @@ public class InsuranceInfo {
   public ConcurrentMap<Long, List<OutsInfo>> round_user_outs = new ConcurrentHashMap<Long, List<OutsInfo>>();
 
   // 本轮所有领先，却没有保险的用户，用于保险显示
-  public Set<Long> round_winner_no_outs = null;
+  public ConcurrentMap<Long, Boolean> round_winner_no_outs = new ConcurrentHashMap<Long, Boolean>();
 
   // 清除上一轮的保险信息
   public void refreshRoundState(long handId, int status) {
@@ -81,14 +80,14 @@ public class InsuranceInfo {
       this.status = status;
       round_pot_user_outs.clear();
       round_user_outs.clear();
-      round_winner_no_outs = null;
+      round_winner_no_outs.clear();;
       logger.debug("roomId:" + roomId + ",handId:" + handId + ",refresh");
     } else if (this.status != status) {
       // 仅仅状态更新
       this.status = status;
       round_pot_user_outs.clear();
       round_user_outs.clear();
-      round_winner_no_outs = null;
+      round_winner_no_outs.clear();;
       logger.debug("roomId:" + roomId + ",status:" + status + ",refresh");
     } else {
       logger.debug("roomId:" + roomId + ",handId:" + this.handId + ",status:" + this.status + ",init");
@@ -356,13 +355,35 @@ public class InsuranceInfo {
 
   // 设置领先但是没有触发保险的用户
   public void setWinnerNoOutsTip(Set<Long> winners) {
-    if (round_winner_no_outs == null) {
-      // 第一个边池，用来初始化，保证线程安全
-      round_winner_no_outs = Collections.synchronizedSet(new HashSet<Long>());
-      round_winner_no_outs.addAll(winners);
+    logger.debug("roomId:" + roomId + ",winners:" + winners);
+    for (Long winner : winners) {
+      Boolean hasTips = round_winner_no_outs.get(winner);
+      if (hasTips == null) {
+        round_winner_no_outs.put(winner, true);
+        logger.debug("roomId:" + roomId + ",winnerNoOuts:" + round_winner_no_outs);
+        continue;
+      }
+      if (hasTips) {
+        // 不需要重复操作
+      } else {
+        // 有保险了，不用赋值了
+      }
+    }
+  }
+
+  // 有保险的领先玩家，不需要提示了
+  public void subWinnerNoOutsTips(long uuid) {
+    logger.debug("roomId:" + roomId + ",winners:" + uuid);
+    Boolean hasTips = round_winner_no_outs.get(uuid);
+    if (hasTips == null) {
+      logger.error("roomId:" + roomId + ",winner " + uuid + " is null");
+      return;
+    }
+    if (hasTips) {
+      // 有保险，不用提示了
+      round_winner_no_outs.put(uuid, false);
     } else {
-      // 后面的边池，用来求交集
-      round_winner_no_outs.retainAll(winners);
+      // 有保险了，不用赋值了
     }
   }
 
