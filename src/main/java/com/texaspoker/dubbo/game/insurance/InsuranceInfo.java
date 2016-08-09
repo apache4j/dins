@@ -230,10 +230,13 @@ public class InsuranceInfo {
     }
     // 是否需要强制购买保险
     OutsInfo info = userOuts.get(uuid);
+    if (info == null) {
+      return 0;
+    }
+    info.setFold();
+    // 是否需要强制购买
     if (info.pay_min > 0) {
       return info.pay_min;
-    } else {
-      info.setFold();
     }
     return 0;
   }
