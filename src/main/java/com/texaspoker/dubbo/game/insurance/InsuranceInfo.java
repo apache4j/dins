@@ -234,6 +234,10 @@ public class InsuranceInfo {
       return 0;
     }
     info.setFold();
+    // 是否已经购买过，防止重复
+    if (info.getBuy() > 0) {
+      return 0;
+    }
     // 是否需要强制购买
     if (info.pay_min > 0) {
       return info.pay_min;

@@ -111,17 +111,19 @@ public class InsuranceTimer {
     // 清理用户超时的购买逻辑
     long roomId = getUserTimeoutRoomID(key);
     long uuid = getUserTimeoutUUID(key);
-    InsuranceManager.getInstance().flodInsurance(roomId, uuid);
-    // 清理房间超时的map信息
+    // 检查是否房间的超时逻辑还在，不然不需要超时了
     RoomTimeInfo roomTimeInfo = room_timer.get(roomId);
     if (roomTimeInfo == null) {
       return;
     }
+    // 清理房间超时的map信息
     InsuranceTimeInfo timeInfo = roomTimeInfo.userTimeInfos.get(uuid);
     if (timeInfo == null) {
       return;
     }
     roomTimeInfo.userTimeInfos.remove(uuid);
+    // 这个用户自动弃牌
+    InsuranceManager.getInstance().flodInsurance(roomId, uuid);
     // 通知超时
     InsuranceManager.getInstance().notifyUserTimeout(roomId, uuid);
   }
