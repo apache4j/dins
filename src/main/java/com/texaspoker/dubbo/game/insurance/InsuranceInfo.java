@@ -356,6 +356,9 @@ public class InsuranceInfo {
   // 设置领先但是没有触发保险的用户
   public void setWinnerNoOutsTip(Set<Long> winners) {
     logger.debug("roomId:" + roomId + ",winners:" + winners);
+    if (winners == null) {
+      return;
+    }
     for (Long winner : winners) {
       Boolean hasTips = round_winner_no_outs.get(winner);
       if (hasTips == null) {
@@ -389,10 +392,7 @@ public class InsuranceInfo {
 
   // 保险结算以后，清空用户的提示
   public void clearWinnerNoOutsTip() {
-    if (round_winner_no_outs != null) {
-      round_winner_no_outs.clear();
-      round_winner_no_outs = null;
-    }
+    round_winner_no_outs.clear();
   }
 
   /*
