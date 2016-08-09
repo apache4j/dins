@@ -272,6 +272,10 @@ public class InsuranceApi {
       return;
     }
     for (OutsInfo outsInfo : userOutsInfos) {
+      // fold玩家不用清理自动购买信息
+      if (outsInfo.fold) {
+        continue;
+      }
       if (outsInfo.sys_buy > 0) {
         logger.debug("roomId:" + insuranceInfo.roomId + ",uuid:" + uuid + ",clear sys:" + outsInfo.sys_buy);
         outsInfo.sys_buy = 0;
