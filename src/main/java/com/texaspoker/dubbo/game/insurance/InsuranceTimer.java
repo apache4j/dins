@@ -84,21 +84,28 @@ public class InsuranceTimer {
         TimeoutMap.builder().variableTimeout().timeout(insurance_timeout_seconds, TimeUnit.SECONDS)
             .timeoutListener(new TimeoutListener<Long, RoomTimeInfo>() {
               public void expired(Long thekey, RoomTimeInfo thevalue) {
-                InsuranceRoomTimeoutHandler(thekey);
+                InsuranceRoomTimeoutHandler(thekey, thevalue);
               }
             }).build();
     user_timer =
         TimeoutMap.builder().variableTimeout().timeout(insurance_timeout_seconds, TimeUnit.SECONDS)
             .timeoutListener(new TimeoutListener<String, InsuranceTimeInfo>() {
               public void expired(String thekey, InsuranceTimeInfo thevalue) {
-                InsuranceUserTimeoutHandler(thekey);
+                InsuranceUserTimeoutHandler(thekey, thevalue);
               }
             }).build();
   }
 
   // 超时处理响应，这个牌桌保险时间超时，需要进行后续操作
-  public void InsuranceRoomTimeoutHandler(Long roomId) {
+  public void InsuranceRoomTimeoutHandler(Long roomId, RoomTimeInfo info) {
     logger.debug("roomId:" + roomId + ",has been timeout");
+    for (Map.Entry<Long, InsuranceTimeInfo> entry : info.userTimeInfos.entrySet()) {
+      // 先删除用户的超时，避免重复
+      String key = getUserTimeoutKey(roomId, entry.getKey());
+      user_timer.remove(key);
+      // 这个用户自动弃牌
+      InsuranceUserTimeoutHandler(key, entry.getValue());
+    }
     // 清理房间超时的购买逻辑
     InsuranceManager.getInstance().foldInsurance(roomId);
     // API接口，通知这个房间保险超时
@@ -106,7 +113,7 @@ public class InsuranceTimer {
   }
 
   // 超时处理响应，这个牌桌保险时间超时，需要进行后续操作
-  public void InsuranceUserTimeoutHandler(String key) {
+  public void InsuranceUserTimeoutHandler(String key, InsuranceTimeInfo info) {
     logger.debug("key:" + key + ",has been timeout");
     // 清理用户超时的购买逻辑
     long roomId = getUserTimeoutRoomID(key);
@@ -211,9 +218,10 @@ public class InsuranceTimer {
   // 查询房间是否需要超时操作,只限于主动购买或者放弃时需要调用，破解嵌套调用
   public void checkRoomTimeout(long roomId) {
     logger.debug("roomId:" + roomId + ",check timeout");
-    if (!room_timer.containsKey(roomId)) {
+    RoomTimeInfo roomInfo = room_timer.get(roomId);
+    if (roomInfo != null) {
       // 房间超时信息突然没有了，这哥们的操作应该是最后一个人的，所以可以调用超时操作
-      InsuranceRoomTimeoutHandler(roomId);
+      InsuranceRoomTimeoutHandler(roomId, roomInfo);
     }
   }
 
