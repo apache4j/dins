@@ -3119,7 +3119,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 		stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
 		stGameRoomInfo = stGameRoomInfoBuilder.build();
-		System.out.println("pushInsuranceTimeout.");
+		System.out.println("pushInsuranceTimeout gameroomid : " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 		for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
 			UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
 
