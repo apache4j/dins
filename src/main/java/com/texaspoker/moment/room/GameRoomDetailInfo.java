@@ -1252,7 +1252,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				reCalculateCouldPlayNum();
 			
 				if(iCouldPlayNum >=2){
-					
 					TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
 							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
 							+"," + stGameRoomInfo.getLGameHandID()
@@ -3125,7 +3124,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
 
 			if(stUserGameInfoNet.getStUserInfo().getUuid() > 0 && stUserGameInfoNet.getStUserInfo().getUuid() == uuid){			
-				pushGameRoomUserMsgs(stUserGameInfoNet,uuid,GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_INSURANCE_TIMEOUT,i);
+				pushGameRoomUserMsgs(stUserGameInfoNet,uuid,GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_BUY_INSURANCE,i);
 			}
 		}
 	}
