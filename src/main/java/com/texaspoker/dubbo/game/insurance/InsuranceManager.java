@@ -196,6 +196,8 @@ public class InsuranceManager {
         // 是否开启保险购买逻辑
         if (insurance_open.checkUserCloseInsurance(roomId, outsInfo.winner)) {
           logger.debug("roomId:" + roomId + ",uuid:" + outsInfo.winner + ",outs close");
+          // 关闭了保险的人，不需要领先购买保险提示
+          insuranceInfo.subWinnerNoOutsTips(outsInfo.winner);
           continue;
         }
         logger.debug("roomId:" + roomId + ",outs info:" + outsInfo);

@@ -170,11 +170,11 @@ public class InsuranceInfo {
     }
     long finalBuys = buys;
     if (buys < info.pay_min) {
-      logger.error("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",must>min_pay:" + info.pay_min);
+      logger.debug("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",must>min_pay:" + info.pay_min);
       finalBuys = info.pay_min;
     }
     if (buys > info.pay_max) {
-      logger.error("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",must<max_pay:" + info.pay_max);
+      logger.debug("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",must<max_pay:" + info.pay_max);
       finalBuys = info.pay_max;
     }
     // 这是购买金额
