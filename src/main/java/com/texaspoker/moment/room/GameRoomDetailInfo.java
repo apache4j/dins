@@ -3119,11 +3119,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 		stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
 		stGameRoomInfo = stGameRoomInfoBuilder.build();
-		
+		System.out.println("pushInsuranceTimeout.");
 		for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
 			UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
 
-			if(stUserGameInfoNet.getStUserInfo().getUuid() > 0 && stUserGameInfoNet.getStUserInfo().getUuid() == uuid){			
+			if(stUserGameInfoNet.getStUserInfo().getUuid() > 0 && stUserGameInfoNet.getStUserInfo().getUuid() == uuid){		
+				System.out.println("GAME_ROOM_MESSAGE_BUY_INSURANCE : " + uuid);
 				pushGameRoomUserMsgs(stUserGameInfoNet,uuid,GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_BUY_INSURANCE,i);
 			}
 		}
