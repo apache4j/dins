@@ -887,8 +887,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			
 			//首先获取用户的基本信息
 			UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
-			
+			System.out.println("linkgao buyBuyinbuyBuyin1." );
 			if(stUserBaseInfoNetBuilder!=null && stUserBaseInfoNetBuilder.getLPopularity() >= popularity){
+				System.out.println("linkgao buyBuyinbuyBuyin2." );
 				eErrorCodeType = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 				//获取要增加筹码的用户
 				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
@@ -957,10 +958,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						break;
 					}
 				} 
-				
+				System.out.println("linkgao buyBuyinbuyBuyin3." );
 				if(bSetted==false){
 					//查看所有在旁观队列
-					if(getStandByUuids().contains(uuid)){
 						UserGameInfoNet.Builder stUserGameInfoBuilder = mapStandByUserGameInfos.get(uuid);
 						if(stUserGameInfoBuilder!=null){
 							stUserMyGameInfoNetBuilder = stUserGameInfoBuilder;
@@ -997,10 +997,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								eErrorCodeType =  ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYIN_MAX_STACKS;
 							}
 						}
-					}
+					
 					
 				}
-				
+				System.out.println("linkgao buyBuyinbuyBuyin4." );
 				//如果房间没有坐下的话，会push消息
 				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
 					UserGameInfoNet stUserGameInfoSendNet = stGameRoomInfo.getVUserGameInfos(i);
@@ -1012,15 +1012,17 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						break;
 					}
 				}
-					
+				System.out.println("linkgao buyBuyinbuyBuyin5." );
 				if(mapStandByUserGameInfos.get(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid())!=null){
 					//首先找到离开房间的用户基本信息	
 					pushGameRoomUserMsgs(stUserMyGameInfoNetBuilder.build(),stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(),
 							GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_BUYIN,iPos);
 				}
+				System.out.println("linkgao buyBuyinbuyBuyin6." );
 			}else{
 				eErrorCodeType = ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY;
 			}
+			System.out.println("linkgao buyBuyinbuyBuyin7." );
 			return eErrorCodeType;
 		}
 	}
