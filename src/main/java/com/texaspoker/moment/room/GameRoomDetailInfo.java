@@ -940,6 +940,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 									resetGameRoom();
 									stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
 								}
+								bSetted = true;
 							}else{
 								eErrorCodeType =  ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYIN_MAX_STACKS;
 							}
@@ -958,7 +959,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						break;
 					}
 				} 
-				System.out.println("linkgao buyBuyinbuyBuyin3." );
+				System.out.println("linkgao buyBuyinbuyBuyin3. : " +  bSetted);
 				if(bSetted==false){
 					//查看所有在旁观队列
 						UserGameInfoNet.Builder stUserGameInfoBuilder = mapStandByUserGameInfos.get(uuid);
