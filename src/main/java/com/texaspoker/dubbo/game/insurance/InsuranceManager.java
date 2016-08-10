@@ -181,9 +181,6 @@ public class InsuranceManager {
         allinUserInfos.add(handInfo.getUser(uuid));
         logger.debug("roomId:" + roomId + ",potId:" + allin_bets + ",user:" + uuid);
       }
-      // 这个边池的领先却没有保险的玩家
-      Set<Long> winnerList = OutsCheck.findWinnersInPlayer(allinUserInfos, handInfo);
-      insuranceInfo.setWinnerNoOutsTip(winnerList);
       // 找出这个边池玩家的out保险
       List<OutsInfo> outsList = OutsCheck.findOutsInPlayers(allinUserInfos, handInfo, checkEvenOuts);
       if (outsList == null || outsList.size() == 0) {
@@ -191,6 +188,9 @@ public class InsuranceManager {
         continue;
       }
       logger.debug("roomId:" + roomId + ",potId:" + allin_bets + ",outs size:" + outsList.size());
+      // 这个边池的领先却没有保险的玩家
+      Set<Long> winnerList = OutsCheck.findWinnersInPlayer(allinUserInfos, handInfo);
+      insuranceInfo.setWinnerNoOutsTip(winnerList);
       // 设置用户的保险购买信息
       for (OutsInfo outsInfo : outsList) {
         // 是否开启保险购买逻辑
