@@ -515,6 +515,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			System.out.println("linkgao buyinControlActionAccept1 : " +  mBuyinControlInfo);
 			//如果不存在请求，则显示错误
 			if(!mBuyinControlInfo.containsKey(uuid)){
+				System.out.println("linkgao buyinControlActionAccept1 11111111111122222 : " + mBuyinControlInfo.containsKey(uuid));
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_INVITE_BUYIN;
 			}
 			
