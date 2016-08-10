@@ -463,6 +463,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								, stBuyinControlMsgBuilder.build());
 						
 						pushAppPushBuyinInvite(uuid);
+						System.out.println("linkgao buyBuyinControl1 uuid : " + uuid  + " lStacks : " + lStacks + " mBuyinControlInfo size : " + mBuyinControlInfo.size());
+						System.out.println("linkgao buyBuyinControl1 : " +  mBuyinControlInfo);
 						return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 					}
 				}
@@ -493,6 +495,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 				}
 				
+				System.out.println("linkgao buyBuyinControl2 uuid : " + uuid  + " lStacks : " + lStacks + " mBuyinControlInfo size : " + mBuyinControlInfo.size());
+				System.out.println("linkgao buyBuyinControl2 : " +  mBuyinControlInfo);
 
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_USER_IN_GAME;
 			}else{
@@ -507,8 +511,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
 			}
 			
+			System.out.println("linkgao buyinControlActionAccept1 uuid : " + uuid  + " mBuyinControlInfo size : " + mBuyinControlInfo.size());
+			System.out.println("linkgao buyinControlActionAccept1 : " +  mBuyinControlInfo);
 			//如果不存在请求，则显示错误
 			if(!mBuyinControlInfo.containsKey(uuid)){
+				System.out.println("linkgao buyinControlActionAccept1 11111111111122222 : " + mBuyinControlInfo.containsKey(uuid));
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_INVITE_BUYIN;
 			}
 			
@@ -569,19 +576,23 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								, stBuyinControlMsgBuilder.build());
 					}
 					
-
+					System.out.println("linkgao buyinControlActionAccept1 uuid : " + uuid  + " lStacks : " + lStacks + " mBuyinControlInfo size : " + mBuyinControlInfo.size());
+					System.out.println("linkgao buyinControlActionAccept1 : " +  mBuyinControlInfo);
 					return eErrorCodeType;
 				}
 			}
 			UserGameInfoNet.Builder stUserGameInfoBuilder = mapStandByUserGameInfos.get(uuid);	
+			
+			
+			
 			if(stUserGameInfoBuilder!=null){
 				long lCreateTime = System.currentTimeMillis();
 				stUserGameInfoBuilder.setBWaitingBuyinConfirmation(0);
 				stUserGameInfoBuilder.setLBuyinTime(0);
 				mapStandByUserGameInfos.put(stUserGameInfoBuilder.getStUserInfo().getUuid(), stUserGameInfoBuilder);
-				
+				System.out.println("linkgao buyinControlActionAcceptk 11111111111122222 : " + stUserGameInfoBuilder);
 				ERROR_CODE_TYPE eErrorCodeType = buyBuyin(uuid, lStacks);
-				
+				System.out.println("linkgao buyinControlActionAcceptk 11111111111122223 : " + stUserGameInfoBuilder);
 				if(eErrorCodeType  == ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY
 						||eErrorCodeType  == ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYIN_MAX_STACKS){
 					eErrorCodeType = ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYINCONTROL_NO_MONEY;
@@ -613,6 +624,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					GameRoomMsgManager.getInstance().sendBuyinControlMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
 							, stBuyinControlMsgBuilder.build());
 				}
+				
+				System.out.println("linkgao buyinControlActionAccept2 uuid : " + uuid  + " lStacks : " + lStacks + " mBuyinControlInfo size : " + mBuyinControlInfo.size());
+				System.out.println("linkgao buyinControlActionAccept2 : " +  mBuyinControlInfo);
 				
 				return eErrorCodeType;
 			}		
@@ -669,7 +683,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							||stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_READY)){
 						this.doStandUpAction(uuid, true);
 					}
-					
+					System.out.println("linkgao buyinControlActionDeny uuid1 : " + uuid  + " lStacks : " + lStacks + " mBuyinControlInfo size : " + mBuyinControlInfo.size());
+					System.out.println("linkgao buyinControlActionDeny1 : " +  mBuyinControlInfo);
 					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 				}
 			}
@@ -696,7 +711,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				//给房主发push消息
 				GameRoomMsgManager.getInstance().sendBuyinControlMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
 						, stBuyinControlMsgBuilder.build());
-				
+				System.out.println("linkgao buyinControlActionDeny uuid1 : " + uuid  + " lStacks : " + lStacks + " mBuyinControlInfo size : " + mBuyinControlInfo.size());
+				System.out.println("linkgao buyinControlActionDeny1 : " +  mBuyinControlInfo);
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 			}else{
 				if(auto){
@@ -717,7 +733,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					
 				}
 			}
-
+			System.out.println("linkgao buyinControlActionDeny uuid1 : " + uuid  + " lStacks : " + lStacks + " mBuyinControlInfo size : " + mBuyinControlInfo.size());
+			System.out.println("linkgao buyinControlActionDeny1 : " +  mBuyinControlInfo);
 			return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_USER_IN_GAME;
 		}
 	}
@@ -870,8 +887,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			
 			//首先获取用户的基本信息
 			UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
-			
+			System.out.println("linkgao buyBuyinbuyBuyin1." );
 			if(stUserBaseInfoNetBuilder!=null && stUserBaseInfoNetBuilder.getLPopularity() >= popularity){
+				System.out.println("linkgao buyBuyinbuyBuyin2." );
 				eErrorCodeType = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 				//获取要增加筹码的用户
 				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
@@ -940,10 +958,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						break;
 					}
 				} 
-				
+				System.out.println("linkgao buyBuyinbuyBuyin3." );
 				if(bSetted==false){
 					//查看所有在旁观队列
-					if(getStandByUuids().contains(uuid)){
 						UserGameInfoNet.Builder stUserGameInfoBuilder = mapStandByUserGameInfos.get(uuid);
 						if(stUserGameInfoBuilder!=null){
 							stUserMyGameInfoNetBuilder = stUserGameInfoBuilder;
@@ -980,10 +997,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								eErrorCodeType =  ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYIN_MAX_STACKS;
 							}
 						}
-					}
+					
 					
 				}
-				
+				System.out.println("linkgao buyBuyinbuyBuyin4." );
 				//如果房间没有坐下的话，会push消息
 				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
 					UserGameInfoNet stUserGameInfoSendNet = stGameRoomInfo.getVUserGameInfos(i);
@@ -995,15 +1012,17 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						break;
 					}
 				}
-					
+				System.out.println("linkgao buyBuyinbuyBuyin5." );
 				if(mapStandByUserGameInfos.get(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid())!=null){
 					//首先找到离开房间的用户基本信息	
 					pushGameRoomUserMsgs(stUserMyGameInfoNetBuilder.build(),stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(),
 							GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_BUYIN,iPos);
 				}
+				System.out.println("linkgao buyBuyinbuyBuyin6." );
 			}else{
 				eErrorCodeType = ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY;
 			}
+			System.out.println("linkgao buyBuyinbuyBuyin7." );
 			return eErrorCodeType;
 		}
 	}
@@ -1252,7 +1271,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				reCalculateCouldPlayNum();
 			
 				if(iCouldPlayNum >=2){
-					
 					TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
 							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
 							+"," + stGameRoomInfo.getLGameHandID()
@@ -3120,12 +3138,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 		stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
 		stGameRoomInfo = stGameRoomInfoBuilder.build();
-		
+		System.out.println("pushInsuranceTimeout gameroomid : " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 		for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
 			UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
 
-			if(stUserGameInfoNet.getStUserInfo().getUuid() > 0 && stUserGameInfoNet.getStUserInfo().getUuid() == uuid){			
-				pushGameRoomUserMsgs(stUserGameInfoNet,uuid,GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_INSURANCE_TIMEOUT,i);
+			if(stUserGameInfoNet.getStUserInfo().getUuid() > 0 && stUserGameInfoNet.getStUserInfo().getUuid() == uuid){		
+				System.out.println("GAME_ROOM_MESSAGE_BUY_INSURANCE : " + uuid);
+				pushGameRoomUserMsgs(stUserGameInfoNet,uuid,GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_BUY_INSURANCE,i);
 			}
 		}
 	}

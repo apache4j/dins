@@ -204,6 +204,7 @@ public class InsuranceApi {
 
   // 用户购买超时，调用接口
   public static void notifyUserBuyTimeout(long lGameRoomID, long uuid, TexasPoker.InsuranceInfo info) {
+	 System.out.println("notifyUserBuyTimeout : " + lGameRoomID + " uuid : " + uuid);
     GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
     if (stGameRoomDetail != null) {
       stGameRoomDetail.pushInsuranceTimeout(uuid, info);
