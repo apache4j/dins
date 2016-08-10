@@ -463,6 +463,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								, stBuyinControlMsgBuilder.build());
 						
 						pushAppPushBuyinInvite(uuid);
+						System.out.println("linkgao buyBuyinControl1 uuid : " + uuid  + " lStacks : " + lStacks + " mBuyinControlInfo size : " + mBuyinControlInfo.size());
+						System.out.println("linkgao buyBuyinControl1 : " +  mBuyinControlInfo);
 						return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 					}
 				}
@@ -493,6 +495,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 				}
 				
+				System.out.println("linkgao buyBuyinControl2 uuid : " + uuid  + " lStacks : " + lStacks + " mBuyinControlInfo size : " + mBuyinControlInfo.size());
+				System.out.println("linkgao buyBuyinControl2 : " +  mBuyinControlInfo);
 
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_USER_IN_GAME;
 			}else{
@@ -569,7 +573,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								, stBuyinControlMsgBuilder.build());
 					}
 					
-
+					System.out.println("linkgao buyinControlActionAccept1 uuid : " + uuid  + " lStacks : " + lStacks + " mBuyinControlInfo size : " + mBuyinControlInfo.size());
+					System.out.println("linkgao buyinControlActionAccept1 : " +  mBuyinControlInfo);
 					return eErrorCodeType;
 				}
 			}
@@ -613,6 +618,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					GameRoomMsgManager.getInstance().sendBuyinControlMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
 							, stBuyinControlMsgBuilder.build());
 				}
+				
+				System.out.println("linkgao buyinControlActionAccept2 uuid : " + uuid  + " lStacks : " + lStacks + " mBuyinControlInfo size : " + mBuyinControlInfo.size());
+				System.out.println("linkgao buyinControlActionAccept2 : " +  mBuyinControlInfo);
 				
 				return eErrorCodeType;
 			}		
@@ -669,7 +677,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							||stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_READY)){
 						this.doStandUpAction(uuid, true);
 					}
-					
+					System.out.println("linkgao buyinControlActionDeny uuid1 : " + uuid  + " lStacks : " + lStacks + " mBuyinControlInfo size : " + mBuyinControlInfo.size());
+					System.out.println("linkgao buyinControlActionDeny1 : " +  mBuyinControlInfo);
 					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 				}
 			}
@@ -696,7 +705,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				//给房主发push消息
 				GameRoomMsgManager.getInstance().sendBuyinControlMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
 						, stBuyinControlMsgBuilder.build());
-				
+				System.out.println("linkgao buyinControlActionDeny uuid1 : " + uuid  + " lStacks : " + lStacks + " mBuyinControlInfo size : " + mBuyinControlInfo.size());
+				System.out.println("linkgao buyinControlActionDeny1 : " +  mBuyinControlInfo);
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 			}else{
 				if(auto){
@@ -717,7 +727,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					
 				}
 			}
-
+			System.out.println("linkgao buyinControlActionDeny uuid1 : " + uuid  + " lStacks : " + lStacks + " mBuyinControlInfo size : " + mBuyinControlInfo.size());
+			System.out.println("linkgao buyinControlActionDeny1 : " +  mBuyinControlInfo);
 			return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_USER_IN_GAME;
 		}
 	}
