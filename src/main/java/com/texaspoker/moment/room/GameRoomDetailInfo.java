@@ -511,6 +511,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
 			}
 			
+			System.out.println("linkgao buyinControlActionAccept1 uuid : " + uuid  + " mBuyinControlInfo size : " + mBuyinControlInfo.size());
+			System.out.println("linkgao buyinControlActionAccept1 : " +  mBuyinControlInfo);
 			//如果不存在请求，则显示错误
 			if(!mBuyinControlInfo.containsKey(uuid)){
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_INVITE_BUYIN;
