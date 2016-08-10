@@ -582,6 +582,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				}
 			}
 			UserGameInfoNet.Builder stUserGameInfoBuilder = mapStandByUserGameInfos.get(uuid);	
+			
+			
+			System.out.println("linkgao buyinControlActionAcceptk 11111111111122222 : " + mapStandByUserGameInfos);
 			if(stUserGameInfoBuilder!=null){
 				long lCreateTime = System.currentTimeMillis();
 				stUserGameInfoBuilder.setBWaitingBuyinConfirmation(0);
