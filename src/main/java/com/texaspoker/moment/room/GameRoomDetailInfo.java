@@ -584,15 +584,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			UserGameInfoNet.Builder stUserGameInfoBuilder = mapStandByUserGameInfos.get(uuid);	
 			
 			
-			System.out.println("linkgao buyinControlActionAcceptk 11111111111122222 : " + mapStandByUserGameInfos);
+			
 			if(stUserGameInfoBuilder!=null){
 				long lCreateTime = System.currentTimeMillis();
 				stUserGameInfoBuilder.setBWaitingBuyinConfirmation(0);
 				stUserGameInfoBuilder.setLBuyinTime(0);
 				mapStandByUserGameInfos.put(stUserGameInfoBuilder.getStUserInfo().getUuid(), stUserGameInfoBuilder);
-				
+				System.out.println("linkgao buyinControlActionAcceptk 11111111111122222 : " + stUserGameInfoBuilder);
 				ERROR_CODE_TYPE eErrorCodeType = buyBuyin(uuid, lStacks);
-				
+				System.out.println("linkgao buyinControlActionAcceptk 11111111111122223 : " + eErrorCodeType);
 				if(eErrorCodeType  == ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY
 						||eErrorCodeType  == ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYIN_MAX_STACKS){
 					eErrorCodeType = ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYINCONTROL_NO_MONEY;
@@ -618,7 +618,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
 					stBuyinControlMsgBuilder.setLActionUuid(uuid);
 					
-					GameRoomMsgManager.getInstance().sendBuyinControlMsg(uuid
+					GameRoomMsgManager.getInsta
+					nce().sendBuyinControlMsg(uuid
 							, stBuyinControlMsgBuilder.build());
 					
 					GameRoomMsgManager.getInstance().sendBuyinControlMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
