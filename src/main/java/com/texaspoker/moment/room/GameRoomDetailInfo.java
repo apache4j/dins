@@ -511,11 +511,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
 			}
 			
-			System.out.println("linkgao buyinControlActionAccept1 uuid : " + uuid  + " mBuyinControlInfo size : " + mBuyinControlInfo.size());
-			System.out.println("linkgao buyinControlActionAccept1 : " +  mBuyinControlInfo);
+
 			//如果不存在请求，则显示错误
 			if(!mBuyinControlInfo.containsKey(uuid)){
-				System.out.println("linkgao buyinControlActionAccept1 11111111111122222 : " + mBuyinControlInfo.containsKey(uuid));
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_INVITE_BUYIN;
 			}
 			
@@ -2222,7 +2220,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					//APP push
 					if(stGameRoomInfo!=null && stGameRoomInfo.getStGameRoomBaseInfo()!=null 
 							&& stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo()!=null){
-						pushAppPushEnterGame(stGameRoomInfoBuilder.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid());
+						pushAppPushEnterGame(uuid);
 					}
 					
 					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
