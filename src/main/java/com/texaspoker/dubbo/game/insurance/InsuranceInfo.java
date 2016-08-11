@@ -328,6 +328,15 @@ public class InsuranceInfo {
     return this.proxy_shop;
   }
 
+  // 检查本手是否已经触发保险
+  public boolean checkHandOcur() {
+    logger.debug("roomId:" + roomId + ",handId:" + handId + ",status:" + status);
+    if (ocur_status == HandUtils.PRE_FLOP) {
+      return false;
+    }
+    return true;
+  }
+
   // 设置本手第一次触发
   public void setRoundOcur() {
     logger.debug("roomId:" + roomId + ",handId:" + handId + ",status:" + status);
@@ -336,6 +345,7 @@ public class InsuranceInfo {
     }
   }
 
+  // 检查本手是否第一次触发
   public boolean checkRoundFirstOcur() {
     logger.debug("roomId:" + roomId + ",handId:" + handId + ",status:" + status + ",ocur_status:" + ocur_status);
     return ocur_status == status;

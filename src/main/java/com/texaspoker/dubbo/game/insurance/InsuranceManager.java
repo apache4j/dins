@@ -181,6 +181,15 @@ public class InsuranceManager {
         allinUserInfos.add(handInfo.getUser(uuid));
         logger.debug("roomId:" + roomId + ",potId:" + allin_bets + ",user:" + uuid);
       }
+      // 这个边池的领先却没有保险的玩家
+      Set<Long> winnerList = OutsCheck.findWinnersInPlayer(allinUserInfos, handInfo);
+      insuranceInfo.setWinnerNoOutsTip(winnerList);
+      for (Long winner : winnerList) {
+        if (insurance_open.checkUserCloseInsurance(roomId, winner)) {
+          // 关闭了保险的人，不需要领先购买保险提示
+          insuranceInfo.subWinnerNoOutsTips(winner);
+        }
+      }
       // 找出这个边池玩家的out保险
       List<OutsInfo> outsList = OutsCheck.findOutsInPlayers(allinUserInfos, handInfo, checkEvenOuts);
       if (outsList == null || outsList.size() == 0) {
@@ -188,16 +197,11 @@ public class InsuranceManager {
         continue;
       }
       logger.debug("roomId:" + roomId + ",potId:" + allin_bets + ",outs size:" + outsList.size());
-      // 这个边池的领先却没有保险的玩家
-      Set<Long> winnerList = OutsCheck.findWinnersInPlayer(allinUserInfos, handInfo);
-      insuranceInfo.setWinnerNoOutsTip(winnerList);
       // 设置用户的保险购买信息
       for (OutsInfo outsInfo : outsList) {
         // 是否开启保险购买逻辑
         if (insurance_open.checkUserCloseInsurance(roomId, outsInfo.winner)) {
           logger.debug("roomId:" + roomId + ",uuid:" + outsInfo.winner + ",outs close");
-          // 关闭了保险的人，不需要领先购买保险提示
-          insuranceInfo.subWinnerNoOutsTips(outsInfo.winner);
           continue;
         }
         logger.debug("roomId:" + roomId + ",outs info:" + outsInfo);
@@ -380,7 +384,9 @@ public class InsuranceManager {
     // 检查这一手是否有保险买入
     if (close) {
       // 买入则不让关闭保险
-      if (insuranceInfo.getUserAllBuyTotal(uuid) > 0) {
+      // insuranceInfo.getUserAllBuyTotal(uuid) > 0
+      // 只要本手触发保险就不准关闭了
+      if (insuranceInfo.checkHandOcur()) {
         return false;
       } else {
         insurance_open.setUserOpenStatus(roomId, uuid, close);
