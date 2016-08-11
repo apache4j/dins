@@ -88,7 +88,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	//用户在牌局的位置信息
 	protected ConcurrentHashMap<Long,Integer> mapUserPos = new ConcurrentHashMap<Long,Integer>();
 	
-	protected final static boolean NOT_DEBUG=true;
+	protected final static boolean NOT_DEBUG=false;
 
 	//是否所有人都allin状态
 	public boolean bAllAllin;
@@ -120,17 +120,17 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	public GameRoomAbstractInfo(){
 		mTimeoutGameUsers = new AdvancedTimeoutHashMap<Long,Long>();
 
-		vTestHandCards1.add(0);
-		vTestHandCards1.add(11);
+		vTestHandCards1.add(10);
+		vTestHandCards1.add(35);
 		
 		vTestHandCards2.add(26);
-		vTestHandCards2.add(37);
+		vTestHandCards2.add(36);
 		
-		vTestTableCards.add(4);
-		vTestTableCards.add(5);
-		vTestTableCards.add(30);
-		vTestTableCards.add(31);
-		vTestTableCards.add(32);
+		vTestTableCards.add(21);
+		vTestTableCards.add(48);
+		vTestTableCards.add(51);
+		vTestTableCards.add(38);
+		vTestTableCards.add(50);
 	}
 	
 	@Override  
