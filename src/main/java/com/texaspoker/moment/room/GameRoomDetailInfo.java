@@ -64,54 +64,54 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	
 		
 	/****************************牌局操作函数*******************************/
-	public ERROR_CODE_TYPE startGame(long uuid){
-		synchronized(this){
-			if(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == uuid){
-	
-				//赋初值
-				bPause = false;
-				bStarted = true;
-				lFromRoomID=stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
-				lGameRoomID=stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId();
-				iGameRoomUserMaxNums = stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums();
-
-				
-				if(stGameRoomInfo.getStGameRoomBaseInfo().getBStarted()== 0){
-					TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
-							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() 
-							+"," + "open" 
-							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds() + "/" + stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds()
-							+"," + stGameRoomInfo.getEGameRoomType().getNumber()
-							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName());
-					
-					
-					TableLogService.getInstance().error(lFromRoomID
-							+"," + lGameRoomID
-							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() 
-							+"," + "opentype" 
-							+"," + 0
-							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums());
-				}
-
-				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-
-				GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = stGameRoomInfo.getStGameRoomBaseInfo().toBuilder();
-		
-				stGameRoomBaseInfoBuilder.setBStarted(1);
-				stGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
-
-				stGameRoomInfo = stGameRoomInfoBuilder.build();
-				iGameRoomUserMaxNums = stGameRoomBaseInfoBuilder.getIGameRoomUserMaxNums();
-				
-
-				pushAppPushStartGame();
-				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
-			}else{
-				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_AUTH_START_GAMEROOM;
-			}
-		}
-	}
+//	public ERROR_CODE_TYPE startGame(long uuid){
+//		synchronized(this){
+//			if(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == uuid){
+//	
+//				//赋初值
+//				bPause = false;
+//				bStarted = true;
+//				lFromRoomID=stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+//				lGameRoomID=stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId();
+//				iGameRoomUserMaxNums = stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums();
+//
+//				
+//				if(stGameRoomInfo.getStGameRoomBaseInfo().getBStarted()== 0){
+//					TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
+//							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+//							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() 
+//							+"," + "open" 
+//							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds() + "/" + stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds()
+//							+"," + stGameRoomInfo.getEGameRoomType().getNumber()
+//							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName());
+//					
+//					
+//					TableLogService.getInstance().error(lFromRoomID
+//							+"," + lGameRoomID
+//							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() 
+//							+"," + "opentype" 
+//							+"," + 0
+//							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums());
+//				}
+//
+//				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+//
+//				GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = stGameRoomInfo.getStGameRoomBaseInfo().toBuilder();
+//		
+//				stGameRoomBaseInfoBuilder.setBStarted(1);
+//				stGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
+//
+//				stGameRoomInfo = stGameRoomInfoBuilder.build();
+//				iGameRoomUserMaxNums = stGameRoomBaseInfoBuilder.getIGameRoomUserMaxNums();
+//				
+//
+//				pushAppPushStartGame();
+//				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
+//			}else{
+//				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_AUTH_START_GAMEROOM;
+//			}
+//		}
+//	}
 	
 	/***
 	 * 站起操作
