@@ -100,6 +100,7 @@ public class InsuranceInfo {
     // 清空最后一轮数据
     round_pot_user_outs.clear();
     round_user_outs.clear();
+    round_winner_no_outs.clear();
     // 清空这一手数据
     hand_user_buy_totals.clear();
     hand_user_result_totals.clear();
