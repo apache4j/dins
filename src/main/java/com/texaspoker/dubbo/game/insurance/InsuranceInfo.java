@@ -80,7 +80,7 @@ public class InsuranceInfo {
       this.status = status;
       round_pot_user_outs.clear();
       round_user_outs.clear();
-      round_winner_no_outs.clear();;
+      round_winner_no_outs.clear();
       logger.debug("roomId:" + roomId + ",handId:" + handId + ",refresh");
     } else if (this.status != status) {
       // 仅仅状态更新
@@ -104,6 +104,8 @@ public class InsuranceInfo {
     hand_user_buy_totals.clear();
     hand_user_result_totals.clear();
     hand_user_ocur_state.clear();
+    // 清空这一手的触发状态
+    ocur_status = HandUtils.PRE_FLOP;
   }
 
   // 设置边池信息
@@ -330,7 +332,7 @@ public class InsuranceInfo {
 
   // 检查本手是否已经触发保险
   public boolean checkHandOcur() {
-    logger.debug("roomId:" + roomId + ",handId:" + handId + ",status:" + status);
+    logger.debug("roomId:" + roomId + ",handId:" + handId + ",status:" + status + ",ocur_status:" + ocur_status);
     if (ocur_status == HandUtils.PRE_FLOP) {
       return false;
     }
@@ -339,7 +341,7 @@ public class InsuranceInfo {
 
   // 设置本手第一次触发
   public void setRoundOcur() {
-    logger.debug("roomId:" + roomId + ",handId:" + handId + ",status:" + status);
+    logger.debug("roomId:" + roomId + ",handId:" + handId + ",status:" + ocur_status);
     if (ocur_status == HandUtils.PRE_FLOP) {
       ocur_status = status;
     }
