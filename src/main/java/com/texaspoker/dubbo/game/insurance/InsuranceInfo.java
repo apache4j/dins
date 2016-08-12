@@ -170,11 +170,11 @@ public class InsuranceInfo {
     }
     long finalBuys = buys;
     if (buys < info.pay_min) {
-      logger.error("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",must>min_pay:" + info.pay_min);
+      logger.debug("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",must>min_pay:" + info.pay_min);
       finalBuys = info.pay_min;
     }
     if (buys > info.pay_max) {
-      logger.error("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",must<max_pay:" + info.pay_max);
+      logger.debug("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",must<max_pay:" + info.pay_max);
       finalBuys = info.pay_max;
     }
     // 这是购买金额
@@ -328,6 +328,15 @@ public class InsuranceInfo {
     return this.proxy_shop;
   }
 
+  // 检查本手是否已经触发保险
+  public boolean checkHandOcur() {
+    logger.debug("roomId:" + roomId + ",handId:" + handId + ",status:" + status);
+    if (ocur_status == HandUtils.PRE_FLOP) {
+      return false;
+    }
+    return true;
+  }
+
   // 设置本手第一次触发
   public void setRoundOcur() {
     logger.debug("roomId:" + roomId + ",handId:" + handId + ",status:" + status);
@@ -336,6 +345,7 @@ public class InsuranceInfo {
     }
   }
 
+  // 检查本手是否第一次触发
   public boolean checkRoundFirstOcur() {
     logger.debug("roomId:" + roomId + ",handId:" + handId + ",status:" + status + ",ocur_status:" + ocur_status);
     return ocur_status == status;
