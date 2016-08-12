@@ -20,6 +20,7 @@ import com.texaspoker.moment.TexasPoker.GameRoomInfo;
 import com.texaspoker.moment.TexasPoker.INSURANCE_ACT;
 import com.texaspoker.moment.TexasPoker.INSURANCE_BET_STATUS;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
+import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
 import com.texaspoker.moment.room.GameRoomDetailInfo;
 import com.texaspoker.moment.room.GameRoomManager;
 import com.texaspoker.user.UserManager;
@@ -179,9 +180,15 @@ public class InsuranceApi {
   }
 
   // 保险扣钻石接口
-  public static boolean addUserCoin(long uuid, long nums) {
-    UserManager.getInstance().addUserCoin(uuid, nums);
-    return true;
+  public static boolean subUserCoin(long uuid, long nums) {
+    UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
+    if (stUserBaseInfoNetBuilder != null && stUserBaseInfoNetBuilder.getLCoin() > nums) {
+      // 可以扣币，扣币值必须为负的
+      UserManager.getInstance().addUserCoin(uuid, -nums);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   // 获取用户的延时操作次数
@@ -204,7 +211,7 @@ public class InsuranceApi {
 
   // 用户购买超时，调用接口
   public static void notifyUserBuyTimeout(long lGameRoomID, long uuid, TexasPoker.InsuranceInfo info) {
-	 System.out.println("notifyUserBuyTimeout : " + lGameRoomID + " uuid : " + uuid);
+    System.out.println("notifyUserBuyTimeout : " + lGameRoomID + " uuid : " + uuid);
     GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
     if (stGameRoomDetail != null) {
       stGameRoomDetail.pushInsuranceTimeout(uuid, info);
@@ -360,7 +367,7 @@ public class InsuranceApi {
     }
     TexasPoker.InsuranceInfo.Builder apiInfo = TexasPoker.InsuranceInfo.newBuilder();
     // 加入领先但是没有触发保险的用户
-    if (insInfo.round_winner_no_outs != null) {
+    if (insInfo.round_winner_no_outs.size() > 0) {
       for (Map.Entry<Long, Boolean> entry : insInfo.round_winner_no_outs.entrySet()) {
         if (entry.getValue()) {
           apiInfo.addVNoOutsUuids(entry.getKey());
