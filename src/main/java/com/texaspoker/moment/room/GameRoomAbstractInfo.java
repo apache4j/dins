@@ -646,11 +646,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			}
 			
 			stGameRoomInfoBuilder.addVCurrentCards(card1);
-			
-			stGameRoomInfoBuilder.setEGameState(TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Turn);	
-			System.out.println("gotoTurnStatus");
-			stGameRoomInfoBuilder.setBStateChange(1);
-			
+			System.out.println("gotoTurnStatus card");
 			TableLogService.getInstance().error(lFromRoomID
 					+"," + lGameRoomID
 					+"," + stGameRoomInfo.getLGameHandID()
@@ -658,26 +654,26 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					+"," + "turn" 
 					+"," + card1);
 			
-			if(bInsurance){
-				stGameRoomInfo = stGameRoomInfoBuilder.build();
-				stGameRoomInfo = InsuranceApi.getInsuranceResult(stGameRoomInfo , stGameRoomInfo.getLGameHandID() ,card1);
-				stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-				stGameRoomInfoBuilder.setEInsuranceStatus(INSURANCE_STATUS.INSURANCE_STATUS_RESULT);
-			}
-			
-			stGameRoomInfo = stGameRoomInfoBuilder.build();
-			
 			cards.add(card1);
 		}
+		
+		stGameRoomInfoBuilder.setEGameState(TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Turn);	
+		System.out.println("gotoTurnStatus");
+		stGameRoomInfoBuilder.setBStateChange(1);
+		
+		if(bInsurance){
+			stGameRoomInfo = stGameRoomInfoBuilder.build();
+			stGameRoomInfo = InsuranceApi.getInsuranceResult(stGameRoomInfo , stGameRoomInfo.getLGameHandID() ,card1);
+			stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+			stGameRoomInfoBuilder.setEInsuranceStatus(INSURANCE_STATUS.INSURANCE_STATUS_RESULT);
+		}
+		
+		stGameRoomInfo = stGameRoomInfoBuilder.build();
 
 		sendAllGameStateChange(uuid,cards);
 		
 		stGameRoomInfoBuilder.setEInsuranceStatus(INSURANCE_STATUS.INSURANCE_STATUS_NO);
 		stGameRoomInfo = stGameRoomInfoBuilder.build();
-		
-//		if(checkAllAllin() == true){
-//			checkGotoRiverStatus(uuid);
-//		}
 		
 	}
 	
@@ -715,23 +711,29 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 		
 		int card1 = 0;
-		if(NOT_DEBUG){
-			card1 = getCard();
-		}else{
-			card1 = getCard(0,4,true);
+		ArrayList<Integer> cards = new ArrayList<Integer>();
+		if(stGameRoomInfo.getVCurrentCardsCount() <= 4){
+			if(NOT_DEBUG){
+				card1 = getCard();
+			}else{
+				card1 = getCard(0,4,true);
+			}	
+			
+			stGameRoomInfoBuilder.addVCurrentCards(card1);
+			
+			TableLogService.getInstance().error(lFromRoomID
+					+"," + lGameRoomID
+					+"," + stGameRoomInfo.getLGameHandID()
+					+"," + 0
+					+"," + "river" 
+					+"," + card1);
+			
+			cards.add(card1);
 		}
-		
-		stGameRoomInfoBuilder.addVCurrentCards(card1);										
+								
 		stGameRoomInfoBuilder.setEGameState(TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_River);	
 		System.out.println("gotoRiverStatus");
 		stGameRoomInfoBuilder.setBStateChange(1);
-		
-		TableLogService.getInstance().error(lFromRoomID
-				+"," + lGameRoomID
-				+"," + stGameRoomInfo.getLGameHandID()
-				+"," + 0
-				+"," + "river" 
-				+"," + card1);
 		
 		if(bInsurance){
 			stGameRoomInfo = stGameRoomInfoBuilder.build();
@@ -742,8 +744,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		
 		stGameRoomInfo = stGameRoomInfoBuilder.build();
 		
-		ArrayList<Integer> cards = new ArrayList<Integer>();
-		cards.add(card1);
 		
 		if(checkAllAllin() == true){
 			stGameRoomInfoBuilder.setBAllAllin(1);
