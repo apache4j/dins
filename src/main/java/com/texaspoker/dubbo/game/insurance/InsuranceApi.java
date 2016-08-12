@@ -180,12 +180,15 @@ public class InsuranceApi {
   }
 
   // 保险扣钻石接口
-  public static boolean addUserCoin(long uuid, long nums) {
-    UserBaseInfoNet.Builder baseinfo = UserManager.getInstance().addUserCoin(uuid, nums);
-    if (baseinfo == null) {
+  public static boolean subUserCoin(long uuid, long nums) {
+    UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
+    if (stUserBaseInfoNetBuilder != null && stUserBaseInfoNetBuilder.getLCoin() > nums) {
+      // 可以扣币，扣币值必须为负的
+      UserManager.getInstance().addUserCoin(uuid, -nums);
+      return true;
+    } else {
       return false;
     }
-    return true;
   }
 
   // 获取用户的延时操作次数

@@ -355,7 +355,7 @@ public class InsuranceManager {
     // 能否扣币成功
     long needBuy = insurance_delay.getUserDelayCost(roomId, uuid);
     // 扣币必须是负数！！！
-    if (!InsuranceApi.addUserCoin(uuid, -needBuy)) {
+    if (!InsuranceApi.subUserCoin(uuid, needBuy)) {
       logger.debug("roomId" + roomId + ",uuid:" + uuid + ",no enough coins");
       return;
     }
