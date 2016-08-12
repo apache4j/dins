@@ -2074,7 +2074,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	}
 	
 	//牌局进入push
-	void pushAppPushEnterGame(long fromuuid){
+	void pushAppPushEnterGame(long fromuuid,int iGameRoomUsers){
 		UserBaseInfoNet.Builder stFromUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(fromuuid);		
 		//获取push相关信息
         UserTokenInfoNet stUserTokenInfoNet = UserManager.getInstance().getUserTokenInfo(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid());
@@ -2084,6 +2084,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
         			, stUserTokenInfoNet.getStrAPNToken()
         			, stFromUserBaseInfoNetBuilder.getStrNick()
         			, getStGameRoomInfo().getStGameRoomBaseInfo().getStrRoomName()
+        			, iGameRoomUsers
         			, 1);
         }
 	}
@@ -2221,7 +2222,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						//APP push
 						if(stGameRoomInfo!=null && stGameRoomInfo.getStGameRoomBaseInfo()!=null 
 								&& stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo()!=null){
-							pushAppPushEnterGame(uuid);
+							int iTotal = 0;
+							for(int k = 0 ; k < stGameRoomInfo.getVUserGameInfosCount();k++){
+								UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(k);
+								if(stUserGameInfoNet.getStUserInfo().getUuid() > 0)
+									iTotal++;
+							}
+							pushAppPushEnterGame(uuid,iTotal);
 						}
 						
 						return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
