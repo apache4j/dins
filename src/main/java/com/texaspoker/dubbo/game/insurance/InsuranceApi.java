@@ -295,10 +295,15 @@ public class InsuranceApi {
 
   public static TexasPoker.GameRoomInfo doInsuranceResult(InsuranceInfo insuranceInfo, TexasPoker.GameRoomInfo info) {
     TexasPoker.GameRoomInfo.Builder gameBuilder = info.toBuilder();
+    // 出结果的时候，清空提示缓存
+
     // 每次都需要设置保险信息
     TexasPoker.InsuranceInfo insInfo = getApiInfoFromInsuranceInfo(insuranceInfo);
     if (insInfo != null) {
       gameBuilder.setVInsuranceInfos(insInfo);
+    } else {
+      // 没有有效info信息，主动设置为空
+      gameBuilder.clearVInsuranceInfos();
     }
     // logger.debug("gameinfo:" + gameBuilder);
     return gameBuilder.build();
