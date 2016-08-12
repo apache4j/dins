@@ -3723,7 +3723,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		}
 		
 		stGameRoomInfo = stGameRoomInfoBuilder.build();	
-		stGameRoomInfo = InsuranceApi.getInsuranceBill(stGameRoomInfo,stGameRoomInfo.getLGameHandID());
+//		stGameRoomInfo = InsuranceApi.getInsuranceBill(stGameRoomInfo,stGameRoomInfo.getLGameHandID());
 		ArrayList<Long> vSitdownUsers = new ArrayList<Long>();
 		//设置结果,实时账单信息
 		for(int index = 0 ; index < stGameRoomInfo.getVUserGameInfosCount();index++){
