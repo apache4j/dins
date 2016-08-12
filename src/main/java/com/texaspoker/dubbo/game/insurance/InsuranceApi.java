@@ -20,6 +20,7 @@ import com.texaspoker.moment.TexasPoker.GameRoomInfo;
 import com.texaspoker.moment.TexasPoker.INSURANCE_ACT;
 import com.texaspoker.moment.TexasPoker.INSURANCE_BET_STATUS;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
+import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
 import com.texaspoker.moment.room.GameRoomDetailInfo;
 import com.texaspoker.moment.room.GameRoomManager;
 import com.texaspoker.user.UserManager;
@@ -180,7 +181,10 @@ public class InsuranceApi {
 
   // 保险扣钻石接口
   public static boolean addUserCoin(long uuid, long nums) {
-    UserManager.getInstance().addUserCoin(uuid, nums);
+    UserBaseInfoNet.Builder baseinfo = UserManager.getInstance().addUserCoin(uuid, nums);
+    if (baseinfo == null) {
+      return false;
+    }
     return true;
   }
 
