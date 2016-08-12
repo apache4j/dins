@@ -1237,7 +1237,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							
 						List<Long> vPushUsers = BillManager.getInstance().getBillInfoUsers(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 						for(long uuid:vPushUsers){
-							pushAppPushGameFinish(uuid);
+//							pushAppPushGameFinish(uuid);
 						}
 					}
 
