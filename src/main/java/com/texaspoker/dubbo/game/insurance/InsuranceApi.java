@@ -367,7 +367,7 @@ public class InsuranceApi {
     }
     TexasPoker.InsuranceInfo.Builder apiInfo = TexasPoker.InsuranceInfo.newBuilder();
     // 加入领先但是没有触发保险的用户
-    if (insInfo.round_winner_no_outs.isEmpty()) {
+    if (insInfo.round_winner_no_outs.size() > 0) {
       for (Map.Entry<Long, Boolean> entry : insInfo.round_winner_no_outs.entrySet()) {
         if (entry.getValue()) {
           apiInfo.addVNoOutsUuids(entry.getKey());
