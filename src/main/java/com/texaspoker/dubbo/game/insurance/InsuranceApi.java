@@ -182,7 +182,7 @@ public class InsuranceApi {
   // 保险扣钻石接口
   public static boolean subUserCoin(long uuid, long nums) {
     UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
-    if (stUserBaseInfoNetBuilder != null && stUserBaseInfoNetBuilder.getLCoin() > nums) {
+    if (stUserBaseInfoNetBuilder != null && stUserBaseInfoNetBuilder.getLCoin() >= nums) {
       // 可以扣币，扣币值必须为负的
       UserManager.getInstance().addUserCoin(uuid, -nums);
       return true;
