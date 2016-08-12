@@ -204,7 +204,7 @@ public class InsuranceApi {
 
   // 用户购买超时，调用接口
   public static void notifyUserBuyTimeout(long lGameRoomID, long uuid, TexasPoker.InsuranceInfo info) {
-	 System.out.println("notifyUserBuyTimeout : " + lGameRoomID + " uuid : " + uuid);
+    System.out.println("notifyUserBuyTimeout : " + lGameRoomID + " uuid : " + uuid);
     GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
     if (stGameRoomDetail != null) {
       stGameRoomDetail.pushInsuranceTimeout(uuid, info);
@@ -360,7 +360,7 @@ public class InsuranceApi {
     }
     TexasPoker.InsuranceInfo.Builder apiInfo = TexasPoker.InsuranceInfo.newBuilder();
     // 加入领先但是没有触发保险的用户
-    if (insInfo.round_winner_no_outs != null) {
+    if (insInfo.round_winner_no_outs.isEmpty()) {
       for (Map.Entry<Long, Boolean> entry : insInfo.round_winner_no_outs.entrySet()) {
         if (entry.getValue()) {
           apiInfo.addVNoOutsUuids(entry.getKey());
