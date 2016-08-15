@@ -97,8 +97,9 @@ public class QuickGameRoomManager {
 		UserManager.getInstance().setUserQuickGameRoom(uuid, lQuickGameRoomID);
 	}
 	
-	public void removeUserCreateQuickGameRoom(long uuid){
+	public void removeUserCreateQuickGameRoom(long uuid,long lQuickGameRoomID){
 		UserManager.getInstance().removeUserQuickGameRoom(uuid);
+		UserManager.getInstance().removeUserCreateGameRooms(uuid,lQuickGameRoomID);
 	}
 	
 	public Long getUserCreateQuickGameRoom(long uuid){
@@ -147,7 +148,7 @@ public class QuickGameRoomManager {
 
 			ConnectDatabase.getInstance().insertQuickRoomInfo(stQuickGameRoomInfoBuilder.build());
 			//消除牌局开局
-			removeUserCreateQuickGameRoom(stQuickGameRoomInfoBuilder.getStChatRoomInfo().getStChatRoomBaseInfo().getLCreateUser());
+			removeUserCreateQuickGameRoom(stQuickGameRoomInfoBuilder.getStChatRoomInfo().getStChatRoomBaseInfo().getLCreateUser(),lQuickGameRoomID);
 			//发送房间结束的push
 			for(int i = 0 ; i < stQuickGameRoomInfoBuilder.getStChatRoomInfo().getVUserBaseInfosCount();i++){
 				UserBaseInfoNet stUserBaseInfoNet = stQuickGameRoomInfoBuilder.getStChatRoomInfo().getVUserBaseInfos(i);
@@ -180,8 +181,8 @@ public class QuickGameRoomManager {
 		
 		if(stFromUserBuilder !=null){
 			//先检测是否已经创建过快速牌局
-			if(QuickGameRoomManager.getInstance().getUserCreateQuickGameRoom(uuid)==null
-				||	QuickGameRoomManager.getInstance().getUserCreateQuickGameRoom(uuid)==0){
+//			if(QuickGameRoomManager.getInstance().getUserCreateQuickGameRoom(uuid)==null
+//				||	QuickGameRoomManager.getInstance().getUserCreateQuickGameRoom(uuid)==0){
 				
 				// 获取该用户已经开的牌局数量
 				UserGameRooms stUserCreateGames = UserManager.getInstance().getUserCreateGameRooms(uuid);
@@ -255,6 +256,9 @@ public class QuickGameRoomManager {
 							stQuickGameRoomInfoBuilder.setStChatRoomInfo(stChatRoomInfoBuilder);
 							stQuickGameRoomInfoBuilder.setEQuickGameRoomStatus(QUICK_GAME_ROOM_STATUS.QUICK_GAME_ROOM_NOTSTART);
 							
+							// 把房间放到房主的房间列表里面
+							UserManager.getInstance().addUserCreateGameRooms(uuid,lRoomID);
+							
 							//生成
 							String sCode = RoomIDManager.getInstance().getRandomCode();
 							stQuickGameRoomInfoBuilder.setSCryptCode(sCode);
@@ -309,6 +313,9 @@ public class QuickGameRoomManager {
 								
 								//设置房间的用户		
 								stChatRoomInfoBuilder.addVUserBaseInfos(stFromUserBuilder);
+								
+								// 把房间放到房主的房间列表里面
+								UserManager.getInstance().addUserCreateGameRooms(uuid,lRoomID);
 											
 								//加入每个人的房间列表
 								QuickGameRoomManager.getInstance().setUserQuickGameRoomInfos(stFromUserBuilder.getUuid(), lRoomID);
@@ -371,10 +378,10 @@ public class QuickGameRoomManager {
 						}
 					}	
 				}		
-			}else{
-				stQuickGameRoomResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_CREATE_QUICK_GAMEROOM_ALREADY);
-				return stQuickGameRoomResultInfo;
-			}
+//			}else{
+//				stQuickGameRoomResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_CREATE_QUICK_GAMEROOM_ALREADY);
+//				return stQuickGameRoomResultInfo;
+//			}
 		}
 		else{
 			stQuickGameRoomResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_USER);
@@ -762,7 +769,7 @@ public class QuickGameRoomManager {
 							//最后删除快速房间
 							QuickGameRoomManager.getInstance().removeQuickGameRoomInfos(lQuickGameRoomID);
 							QuickGameRoomManager.getInstance().removeUserQuickGameRoomInfos(uuid, lQuickGameRoomID);
-							QuickGameRoomManager.getInstance().removeUserCreateQuickGameRoom(uuid);
+							QuickGameRoomManager.getInstance().removeUserCreateQuickGameRoom(uuid,lQuickGameRoomID);
 
 							stQuickGameRoomResultInfo.setStQuickGameRoomInfo(stQuickGameRoomInfoBuilder.build());
 							stQuickGameRoomResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);	
