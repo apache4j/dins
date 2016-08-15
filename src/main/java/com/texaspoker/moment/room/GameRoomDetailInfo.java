@@ -1431,6 +1431,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			stUserGameInfoNetBuilder.setIDelayLong(0);
 			stUserGameInfoNetBuilder.setIDelaySingleTime(20);
 			
+			//用户筹码非0保护
+			if(stUserGameInfoNetBuilder.getLRemainStacks() < 0){
+				stUserGameInfoNetBuilder.setLRemainStacks(0);
+			}
+			
 			if(stUserGameInfoNetBuilder.getStUserInfoBuilder().getUuid() == -1){
 				UserBaseInfoNet.Builder stUserBaseInfoBuilder = stUserGameInfoNetBuilder.getStUserInfoBuilder();
 				stUserBaseInfoBuilder.setUuid(0);
