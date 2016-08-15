@@ -412,6 +412,7 @@ public class InsuranceInfo {
 
   // 保险结算以后，清空用户的提示
   public void clearWinnerNoOutsTip() {
+    logger.debug("roomId:" + roomId);
     round_winner_no_outs.clear();
   }
 
