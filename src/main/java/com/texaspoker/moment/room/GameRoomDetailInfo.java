@@ -2380,14 +2380,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						if((stUserGameInfoSendNet.getStUserInfo().getUuid() > 0) &&
 								(stUserGameInfoSendNet.getStUserInfo().getUuid() != stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid())){
 							//首先找到离开房间的用户基本信息				
-							pushGameRoomUserMsgs(stGameRoomInfoBuilder,null,stUserGameInfoSendNet.getStUserInfo().getUuid(),
+							pushGameRoomUserMsgs(null,stUserGameInfoSendNet.getStUserInfo().getUuid(),
 									GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_RESET_BUYIN_RATIO);
 						}
 					}
 					
 					if(mapStandByUserGameInfos.get(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid())!=null){
 						//首先找到离开房间的用户基本信息	
-						pushGameRoomUserMsgs(stGameRoomInfoBuilder,null,stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(),
+						pushGameRoomUserMsgs(null,stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(),
 								GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_RESET_BUYIN_RATIO);
 					}
 					

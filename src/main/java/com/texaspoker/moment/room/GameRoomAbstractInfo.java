@@ -1009,14 +1009,20 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					if(stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN && bAllAllin == true){
 						continue;
 					}
-					if(stUserGameInfoNetBuilder.getBShowCardOne()==1||stUserGameInfoNetBuilder.getBShowCardTwo()==1){
-						continue;
-					}
+
 					
 					if(stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
 							|| (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)){
+						if(stUserGameInfoNetBuilder.getBShowCardOne()==1||stUserGameInfoNetBuilder.getBShowCardTwo()==1){
+							continue;
+						}
+						
 						if(stUserGameInfoNetBuilder.getEGameState()==USER_GAME_STATE.USER_GAME_STATE_FOLD){
 							stUserGameInfoNetBuilder.clearVCurrentHands();
+						}else{
+							if(bFlodResult==true){
+								stUserGameInfoNetBuilder.clearVCurrentHands();
+							}
 						}
 					}else{
 						stUserGameInfoNetBuilder.clearVCurrentHands();
@@ -1040,7 +1046,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	}
 	
 	@Override
-	public void pushGameRoomUserMsgs(GameRoomInfo.Builder stGameRoomInfoBuilder ,UserGameInfoNet stFromUserGamenfo,
+	public void pushGameRoomUserMsgs(UserGameInfoNet stFromUserGamenfo,
 			long stToUserUuid,GAME_ROOM_MESSAGE_TYPE eGameRoomMessageType){
 		//给被邀请用户发通知
 		TexasPoker.GameRoomPushMsg.Builder stGameRoomPushMsgBuilder = TexasPoker.GameRoomPushMsg.newBuilder() ;
@@ -1066,8 +1072,41 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		// 设置 好友类型
 		stGameRoomPushMsgBuilder.setEGameMessageType(eGameRoomMessageType);
 		
-		if(stGameRoomInfoBuilder!=null)
+		checkAllAllin();
+		
+		if(stGameRoomInfo!=null){
+			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+			for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount() ; i ++){
+				UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+				if(stUserGameInfoNetBuilder.getStUserInfo().getUuid()!=stToUserUuid){
+					
+					if(stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN && bAllAllin == true){
+						continue;
+					}
+
+					
+					if(stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
+							|| (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)){
+						if(stUserGameInfoNetBuilder.getBShowCardOne()==1||stUserGameInfoNetBuilder.getBShowCardTwo()==1){
+							continue;
+						}
+						
+						if(stUserGameInfoNetBuilder.getEGameState()==USER_GAME_STATE.USER_GAME_STATE_FOLD){
+							stUserGameInfoNetBuilder.clearVCurrentHands();
+						}else{
+							if(bFlodResult==true){
+								stUserGameInfoNetBuilder.clearVCurrentHands();
+							}
+						}
+					}else{
+						stUserGameInfoNetBuilder.clearVCurrentHands();
+					}
+				}
+				stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+			}
+			
 			stGameRoomPushMsgBuilder.setStGameRoomInfo(stGameRoomInfoBuilder);
+		}
 		
 		TexasPoker.GameRoomPushMsg stGameRoomPushMsg = stGameRoomPushMsgBuilder
 				.build();
@@ -2697,13 +2736,14 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					if(stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN  && bAllAllin == true){
 						continue;
 					}
-
-					if(stUserGameInfoNetBuilder.getBShowCardOne()==1||stUserGameInfoNetBuilder.getBShowCardTwo()==1){
-						continue;
-					}
 					
 					if(stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
 							|| (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)){
+
+						if(stUserGameInfoNetBuilder.getBShowCardOne()==1||stUserGameInfoNetBuilder.getBShowCardTwo()==1){
+							continue;
+						}
+						
 						if(stUserGameInfoNetBuilder.getEGameState()==USER_GAME_STATE.USER_GAME_STATE_FOLD){
 								stUserGameInfoNetBuilder.clearVCurrentHands();
 						}else{
@@ -2722,7 +2762,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			stSCGameRoomStateChangeBuilder.setStGameRoomInfo(stGameRoomInfoBuilder);
 			
 			GameRoomMsgManager.getInstance().sendGameRoomStateChangeMsg(toUuid, stSCGameRoomStateChangeBuilder.build());
-			System.out.println("sendGameStateChangesendGameStateChangesendGameStateChange1111111111111 end");
 			return true;
 		}else{
 			return false;

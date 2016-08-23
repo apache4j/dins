@@ -171,7 +171,7 @@ public interface GameRoomAbstractInterface {
 	void pushGameRoomUserMsgs(UserGameInfoNet stFromUserGamenfo,
 			long stToUserUuid,GAME_ROOM_MESSAGE_TYPE eGameRoomMessageType ,int pos);
 	
-	void pushGameRoomUserMsgs(GameRoomInfo.Builder stGameRoomInfoBuilder ,UserGameInfoNet stFromUserGamenfo,
+	void pushGameRoomUserMsgs(UserGameInfoNet stFromUserGamenfo,
 			long stToUserUuid,GAME_ROOM_MESSAGE_TYPE eGameRoomMessageType);
 	
 	void pushAllGameRoomUserMsgs(UserGameInfoNet stFromUserGamenfo,GAME_ROOM_MESSAGE_TYPE eGameRoomMessageType);
