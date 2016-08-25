@@ -9,7 +9,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -94,13 +93,11 @@ public class ConnectDatabase {
     public void loadAllGameRooms(TimeoutHashMap<Long,GameRoomDetailInfo> mapGameRoomInfoMap){
    	 Connection stConnection = null;
 			Statement statement;
-			Statement statement2;
 			try {
 				stConnection = mDatabasePool.getConnection();
 				statement = stConnection.createStatement();
-				statement2 = stConnection.createStatement();
 				
-				String loadGameRoomSql="select roomid,roomname,smallblinds,bigblinds,buyin,starttime,duration,createuser,privateroom,chatroomid,createroomtype,gameroomtype,gameroomseniortype,maxbuyinratio,minbuyinratio,buyincontrol,ante,insurance from t_game_room";
+				String loadGameRoomSql="select roomid,roomname,smallblinds,bigblinds,buyin,starttime,duration,createuser,privateroom,chatroomid,createroomtype,gameroomtype,gameroomseniortype,maxbuyinratio,minbuyinratio,buyincontrol,ante,insurance from t_game_room where gameroomtype='GAME_ROOM_NORMAL_INSURANCE'";
 				ResultSet gameRoomRS=null;
 				
 				gameRoomRS=statement.executeQuery(loadGameRoomSql);
@@ -122,10 +119,12 @@ public class ConnectDatabase {
 	            	 stGameRoomBaseInfo.setLDuration(gameRoomRS.getLong("duration"));
 	            	 stGameRoomBaseInfo.setECreateRoomType(CREATE_ROOM_TYPE.valueOf(gameRoomRS.getString("createroomtype")));
 	            	 stGameRoomBaseInfo.setBBuyinControl(gameRoomRS.getInt("buyincontrol"));
+	            	 stGameRoomBaseInfo.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 	            	 long createUuid = gameRoomRS.getLong("createuser");
 	            	 if(GetUserByID(createUuid,stConnection)==null){
 	            		 continue;          		
 	  				 }
+	            	 	
 	            	 stGameRoomBaseInfo.setStCreateUserBaseInfo(GetUserByID(createUuid,stConnection));
 	            	 stGameRoomBaseInfo.setBPrivateRoom(gameRoomRS.getInt("privateroom"));
 	            	 stGameRoomBaseInfo.setLChatRoomID(gameRoomRS.getInt("chatroomid"));
@@ -138,7 +137,7 @@ public class ConnectDatabase {
 	            	 stGameRoomBaseInfo.setBBuyIn(1);
 	            	 
 	            	 stGameRoomInfoBuild.setStGameRoomBaseInfo(stGameRoomBaseInfo.build());
-	            	 stGameRoomInfoBuild.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL);
+	            	 stGameRoomInfoBuild.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 	            	 stGameRoomInfoBuild.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Over);	
 	            	 
 	            	 //设置聊天室和牌局之间的关系

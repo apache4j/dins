@@ -284,8 +284,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 							break;
 						}
 					}else if(stUserGameInfoBuilder.getStUserInfo().getUuid() != 0){
-						System.out.println("doCheckActiondoCheckAction 1 ： " + userIndex);
-						System.out.println("doCheckActiondoCheckAction 2 ： " + mEndPos);
 						
 						if (userIndex == mEndPos) {
 							// ������������������������������������
@@ -620,7 +618,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					stGameRoomInfo = stGameRoomInfoBuilder.build();		
 					
 					InsuranceApi.doInsuranceTimeout(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
-//					System.out.println("checkGotoTurnStatus 4 : " + stGameRoomInfo);
 				}else{
 					gotoTurnStatus(uuid,false);
 				}
@@ -646,7 +643,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			}
 			
 			stGameRoomInfoBuilder.addVCurrentCards(card1);
-			System.out.println("gotoTurnStatus card");
 			TableLogService.getInstance().error(lFromRoomID
 					+"," + lGameRoomID
 					+"," + stGameRoomInfo.getLGameHandID()
@@ -658,7 +654,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		}
 		
 		stGameRoomInfoBuilder.setEGameState(TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Turn);	
-		System.out.println("gotoTurnStatus");
 		stGameRoomInfoBuilder.setBStateChange(1);
 		
 		if(bInsurance){
@@ -697,12 +692,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					InsuranceApi.doInsuranceTimeout(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 				}else{
 					gotoRiverStatus(uuid,false);
-					System.out.println("gotoRiverStatusgotoRiverStatus1");
 				}
 			}
 		}else{
 			gotoRiverStatus(uuid,false);
-			System.out.println("gotoRiverStatusgotoRiverStatus2");
 		}
 		
 	}
@@ -732,7 +725,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		}
 								
 		stGameRoomInfoBuilder.setEGameState(TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_River);	
-		System.out.println("gotoRiverStatus");
 		stGameRoomInfoBuilder.setBStateChange(1);
 		
 		if(bInsurance){
@@ -1009,10 +1001,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					if(stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN && bAllAllin == true){
 						continue;
 					}
-
 					
 					if(stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
 							|| (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)){
+						
 						if(stUserGameInfoNetBuilder.getBShowCardOne()==1||stUserGameInfoNetBuilder.getBShowCardTwo()==1){
 							continue;
 						}
@@ -1083,10 +1075,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					if(stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN && bAllAllin == true){
 						continue;
 					}
-
 					
 					if(stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
 							|| (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)){
+						
 						if(stUserGameInfoNetBuilder.getBShowCardOne()==1||stUserGameInfoNetBuilder.getBShowCardTwo()==1){
 							continue;
 						}
@@ -1488,7 +1480,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 							switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
 								case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
 									gotoFlopAllStatus(uuid);
-									System.out.println("gotoFlopAllStatusgotoFlopAllStatus3");
 								}
 								break;
 								case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
@@ -1714,7 +1705,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
 								//Flop发牌操作
 								gotoFlopAllStatus(uuid);
-								System.out.println("gotoFlopAllStatusgotoFlopAllStatus4");
 							}
 							break;
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
@@ -1801,7 +1791,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 								switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
 									case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
 										gotoFlopAllStatus(uuid);
-										System.out.println("gotoFlopAllStatusgotoFlopAllStatus5");
 									}
 									break;
 									case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
@@ -2739,7 +2728,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					
 					if(stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
 							|| (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)){
-
 						if(stUserGameInfoNetBuilder.getBShowCardOne()==1||stUserGameInfoNetBuilder.getBShowCardTwo()==1){
 							continue;
 						}

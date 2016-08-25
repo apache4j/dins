@@ -127,6 +127,7 @@ public class GameRoomManager  {
 						gameRoomBaseInfoBuilder.setLCreateTime(System.currentTimeMillis());
 						gameRoomBaseInfoBuilder.setIMaxBuyinRatio(40);
 						gameRoomBaseInfoBuilder.setIMinBuyinRatio(10);
+						gameRoomBaseInfoBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 					
 						// 设置房主vip信息
 						gameRoomBaseInfoBuilder.setStCreateUserBaseInfo(UserManager.getInstance().getUserBaseInfo(uuid));
