@@ -123,8 +123,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		vTestHandCards1.add(6);
 		vTestHandCards1.add(19);
 		
+		vTestHandCards2.add(48);
 		vTestHandCards2.add(49);
-		vTestHandCards2.add(50);
 		
 		vTestTableCards.add(47);
 		vTestTableCards.add(33);
