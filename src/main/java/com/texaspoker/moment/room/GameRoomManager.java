@@ -103,10 +103,10 @@ public class GameRoomManager  {
 			userPlaysNumber = stUserCreateGames.mRoomMap.size();
 		}
 		
-		if(QuickGameRoomManager.getInstance().getUserCreateQuickGameRoom(uuid)!=null 
-				&& QuickGameRoomManager.getInstance().getUserCreateQuickGameRoom(uuid)!=0){
-			userPlaysNumber++;
-		}
+//		if(QuickGameRoomManager.getInstance().getUserCreateQuickGameRoom(uuid)!=null 
+//				&& QuickGameRoomManager.getInstance().getUserCreateQuickGameRoom(uuid)!=0){
+//			userPlaysNumber++;
+//		}
 		
 		// 获取创建牌局的用户的vip类型
 		UserBaseInfoNet.Builder stUserBaseInfoNet = UserManager.getInstance().getUserBaseInfo(uuid);
