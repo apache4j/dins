@@ -167,7 +167,7 @@ public class APNManager  {
 			stCreateGameRoomPushRequestBuilder.setLSmallBlind(lSmallBlinds);
 			stCreateGameRoomPushRequestBuilder.setIAnte(iAnte);
 			stCreateGameRoomPushRequestBuilder.setSGameRoomName(strGameRoomName);
-
+			stCreateGameRoomPushRequestBuilder.setSGameRoomType("普通保险");
 			apnService.createGameRoomPush(controller, stCreateGameRoomPushRequestBuilder.build(),null);
 
 		}catch(Exception e){
