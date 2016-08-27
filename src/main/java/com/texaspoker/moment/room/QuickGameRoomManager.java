@@ -115,6 +115,7 @@ public class QuickGameRoomManager {
 	}
 	
 	public void setUserQuickGameRoomInfos(long uuid,long lQuickGameRoomID){
+		System.out.println("");
 		HashSet<Long> vQuickGameRoomIDs = mUserQuickGameRooms.get(uuid);
 		if(vQuickGameRoomIDs == null){
 			vQuickGameRoomIDs = new HashSet<Long>();

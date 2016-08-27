@@ -372,7 +372,7 @@ public class ConnectDatabase {
    	 try {
    		 stConnection = mDatabasePool.getConnection();
    		 statement = stConnection.createStatement();
-   		 String loadQuickGameRoomSql="select * from t_quick_game_info where roomstate!=3";
+   		 String loadQuickGameRoomSql="select * from t_quick_game_info where roomstate!=3 and gameroomtype="+GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE_VALUE;
    		 ResultSet gameRoomRS=null;
    		 gameRoomRS=statement.executeQuery(loadQuickGameRoomSql);
    		 
@@ -419,10 +419,11 @@ public class ConnectDatabase {
        				 stGameRoomBaseInfoBuilder.setLDuration(gameRoomRS.getLong("duration"));
        				 stGameRoomBaseInfoBuilder.setLGameRoomId(0);
        				 stGameRoomBaseInfoBuilder.setBPrivateRoom(0);
+       				 stGameRoomBaseInfoBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
        				 
        				 stGameRoomBaseInfoBuilder.setIMaxBuyinRatio(gameRoomRS.getInt("maxbuyinratio"));
        				 stGameRoomBaseInfoBuilder.setIMinBuyinRatio(gameRoomRS.getInt("minbuyinratio"));
-       				 stGameRoomBaseInfoBuilder.setIMinBuyinRatio(gameRoomRS.getInt("insurance"));
+       				 stGameRoomBaseInfoBuilder.setBInsurance(gameRoomRS.getInt("insurance"));
        				 stGameRoomBaseInfoBuilder.setEGameRoomSeniorType(GAME_ROOM_SENIOR_TYPE.valueOf(gameRoomRS.getInt("gameroomseniortype")));
 		            	 
        				 stGameRoomBaseInfoBuilder.setLCreateTime(gameRoomRS.getLong("createtime"));
@@ -529,94 +530,101 @@ public class ConnectDatabase {
     }
     
     public boolean insertQuickRoomInfo(QuickGameRoomInfo stQuickGameRoomInfo){
-   	 Connection stConnection = null;
-     	try{                 		
-     		long lGameRoomID = 0;
-     		if(stQuickGameRoomInfo.getEQuickGameRoomStatus() == QUICK_GAME_ROOM_STATUS.QUICK_GAME_ROOM_START
-     				||stQuickGameRoomInfo.getEQuickGameRoomStatus() == QUICK_GAME_ROOM_STATUS.QUICK_GAME_ROOM_FINISH){
-     			lGameRoomID = stQuickGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId();
-     		}
-     		
-	        String insertTransactionInfo="insert into t_quick_game_info set roomid=?"
-	        		+",gameroomid=?"
-	        		+",roomstate=?"
-	        		+",code=?"
-	        		+",roomname=?"
-	        		+",smallbliand=?"
-	        		+",bigbliand=?"
-	        		+",lbuyin=?"
-	        		+",bbuyin=?"
-	        		+",duration=?"
-	        		+",createtime=?"
-	        		+",gameroomseniortype=?"
-	        		+",maxbuyinratio=?"
-	        		+",minbuyinratio=?"
-	        		+ " on duplicate key update gameroomid=?"
-	        		+",roomstate=?"
-	        		+",code=?"
-	        		+",roomname=?"
-	        		+",smallbliand=?"
-	        		+",bigbliand=?"
-	        		+",lbuyin=?"
-	        		+",bbuyin=?"
-	        		+",duration=?"
-	        		+",createtime=?"
-	        		+",gameroomseniortype=?"
-	        		+",maxbuyinratio=?"
-	        		+",minbuyinratio=?"
-	        		+",ante=?"
-	        		+",insurance=?";
-	        
-//	        System.out.println("database : " + insertTransactionInfo);
-	        stConnection = mDatabasePool.getConnection();
-	        PreparedStatement ps=stConnection.prepareStatement(insertTransactionInfo);
-	        
-	        ps.setLong(1, stQuickGameRoomInfo.getStChatRoomInfo().getStChatRoomBaseInfo().getLChatRoomId());
-	        ps.setLong(2, lGameRoomID);
-	        ps.setInt(3, stQuickGameRoomInfo.getEQuickGameRoomStatus().getNumber());
-	        ps.setString(4, stQuickGameRoomInfo.getSCryptCode());
-	        ps.setString(5, stQuickGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName());
-	        ps.setLong(6, stQuickGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds());
-	        ps.setLong(7, stQuickGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds());
-	        ps.setLong(8, stQuickGameRoomInfo.getStGameRoomBaseInfo().getLBuyIn());  
-	        ps.setInt(9, stQuickGameRoomInfo.getStGameRoomBaseInfo().getBBuyIn());
-	        ps.setLong(10, stQuickGameRoomInfo.getStGameRoomBaseInfo().getLDuration());
-	        ps.setLong(11, stQuickGameRoomInfo.getStGameRoomBaseInfo().getLCreateTime());
-	        ps.setInt(12, stQuickGameRoomInfo.getStGameRoomBaseInfo().getEGameRoomSeniorType().getNumber());
-	        ps.setInt(13, stQuickGameRoomInfo.getStGameRoomBaseInfo().getIMaxBuyinRatio());
-	        ps.setInt(14, stQuickGameRoomInfo.getStGameRoomBaseInfo().getIMinBuyinRatio());
-	        ps.setLong(15, lGameRoomID);
-	        ps.setInt(16, stQuickGameRoomInfo.getEQuickGameRoomStatus().getNumber());
-	        ps.setString(17, stQuickGameRoomInfo.getSCryptCode());
-	        ps.setString(18, stQuickGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName());
-	        ps.setLong(19, stQuickGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds());
-	        ps.setLong(20, stQuickGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds());
-	        ps.setLong(21, stQuickGameRoomInfo.getStGameRoomBaseInfo().getLBuyIn());  
-	        ps.setInt(22, stQuickGameRoomInfo.getStGameRoomBaseInfo().getBBuyIn());
-	        ps.setLong(23, stQuickGameRoomInfo.getStGameRoomBaseInfo().getLDuration());
-	        ps.setLong(24, stQuickGameRoomInfo.getStGameRoomBaseInfo().getLCreateTime());
-	        ps.setInt(25, stQuickGameRoomInfo.getStGameRoomBaseInfo().getEGameRoomSeniorType().getNumber());
-	        ps.setInt(26, stQuickGameRoomInfo.getStGameRoomBaseInfo().getIMaxBuyinRatio());
-	        ps.setInt(27, stQuickGameRoomInfo.getStGameRoomBaseInfo().getIMinBuyinRatio());
-	        ps.setInt(28, stQuickGameRoomInfo.getStGameRoomBaseInfo().getIAnte());
-	        ps.setInt(29, stQuickGameRoomInfo.getStGameRoomBaseInfo().getBInsurance());
-	        
-           ps.executeUpdate();
-          
-           stConnection.close();
-           return true;
-     	}catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-         	try {
-            	 stConnection.close();
-       			} catch (SQLException e1) {
-       				// TODO Auto-generated catch block
-       				e1.printStackTrace();
-       			}
-			return false;
-		}
-    }
+      	 Connection stConnection = null;
+        	try{                 		
+        		long lGameRoomID = 0;
+        		if(stQuickGameRoomInfo.getEQuickGameRoomStatus() == QUICK_GAME_ROOM_STATUS.QUICK_GAME_ROOM_START
+        				||stQuickGameRoomInfo.getEQuickGameRoomStatus() == QUICK_GAME_ROOM_STATUS.QUICK_GAME_ROOM_FINISH){
+        			lGameRoomID = stQuickGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId();
+        		}
+        		
+   	        String insertTransactionInfo="insert into t_quick_game_info set roomid=?"
+   	        		+",gameroomid=?"
+   	        		+",roomstate=?"
+   	        		+",code=?"
+   	        		+",roomname=?"
+   	        		+",smallbliand=?"
+   	        		+",bigbliand=?"
+   	        		+",lbuyin=?"
+   	        		+",bbuyin=?"
+   	        		+",duration=?"
+   	        		+",createtime=?"
+   	        		+",gameroomseniortype=?"
+   	        		+",maxbuyinratio=?"
+   	        		+",minbuyinratio=?"
+   	        		+",ante=?"
+   	        		+",insurance=?"
+   	        		+",gameroomtype=?"
+   	        		+ " on duplicate key update gameroomid=?"
+   	        		+",roomstate=?"
+   	        		+",code=?"
+   	        		+",roomname=?"
+   	        		+",smallbliand=?"
+   	        		+",bigbliand=?"
+   	        		+",lbuyin=?"
+   	        		+",bbuyin=?"
+   	        		+",duration=?"
+   	        		+",createtime=?"
+   	        		+",gameroomseniortype=?"
+   	        		+",maxbuyinratio=?"
+   	        		+",minbuyinratio=?"
+   	        		+",ante=?"
+   	        		+",insurance=?"
+   	        		+",gameroomtype=?";
+   	        
+   	        stConnection = mDatabasePool.getConnection();
+   	        PreparedStatement ps=stConnection.prepareStatement(insertTransactionInfo);
+   	        
+   	        ps.setLong(1, stQuickGameRoomInfo.getStChatRoomInfo().getStChatRoomBaseInfo().getLChatRoomId());
+   	        ps.setLong(2, lGameRoomID);
+   	        ps.setInt(3, stQuickGameRoomInfo.getEQuickGameRoomStatus().getNumber());
+   	        ps.setString(4, stQuickGameRoomInfo.getSCryptCode());
+   	        ps.setString(5, stQuickGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName());
+   	        ps.setLong(6, stQuickGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds());
+   	        ps.setLong(7, stQuickGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds());
+   	        ps.setLong(8, stQuickGameRoomInfo.getStGameRoomBaseInfo().getLBuyIn());  
+   	        ps.setInt(9, stQuickGameRoomInfo.getStGameRoomBaseInfo().getBBuyIn());
+   	        ps.setLong(10, stQuickGameRoomInfo.getStGameRoomBaseInfo().getLDuration());
+   	        ps.setLong(11, stQuickGameRoomInfo.getStGameRoomBaseInfo().getLCreateTime());
+   	        ps.setInt(12, stQuickGameRoomInfo.getStGameRoomBaseInfo().getEGameRoomSeniorType().getNumber());
+   	        ps.setInt(13, stQuickGameRoomInfo.getStGameRoomBaseInfo().getIMaxBuyinRatio());
+   	        ps.setInt(14, stQuickGameRoomInfo.getStGameRoomBaseInfo().getIMinBuyinRatio());
+   	        ps.setInt(15, stQuickGameRoomInfo.getStGameRoomBaseInfo().getIAnte());
+   	        ps.setInt(16, stQuickGameRoomInfo.getStGameRoomBaseInfo().getBInsurance());
+   	        ps.setInt(17, stQuickGameRoomInfo.getStGameRoomBaseInfo().getEGameRoomType().getNumber());
+   	        ps.setLong(18, lGameRoomID);
+   	        ps.setInt(19, stQuickGameRoomInfo.getEQuickGameRoomStatus().getNumber());
+   	        ps.setString(20, stQuickGameRoomInfo.getSCryptCode());
+   	        ps.setString(21, stQuickGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName());
+   	        ps.setLong(22, stQuickGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds());
+   	        ps.setLong(23, stQuickGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds());
+   	        ps.setLong(24, stQuickGameRoomInfo.getStGameRoomBaseInfo().getLBuyIn());  
+   	        ps.setInt(25, stQuickGameRoomInfo.getStGameRoomBaseInfo().getBBuyIn());
+   	        ps.setLong(26, stQuickGameRoomInfo.getStGameRoomBaseInfo().getLDuration());
+   	        ps.setLong(27, stQuickGameRoomInfo.getStGameRoomBaseInfo().getLCreateTime());
+   	        ps.setInt(28, stQuickGameRoomInfo.getStGameRoomBaseInfo().getEGameRoomSeniorType().getNumber());
+   	        ps.setInt(29, stQuickGameRoomInfo.getStGameRoomBaseInfo().getIMaxBuyinRatio());
+   	        ps.setInt(30, stQuickGameRoomInfo.getStGameRoomBaseInfo().getIMinBuyinRatio());
+   	        ps.setInt(31, stQuickGameRoomInfo.getStGameRoomBaseInfo().getIAnte());
+   	        ps.setInt(32, stQuickGameRoomInfo.getStGameRoomBaseInfo().getBInsurance());
+   	        ps.setInt(33, stQuickGameRoomInfo.getStGameRoomBaseInfo().getEGameRoomType().getNumber());
+   	        
+              ps.executeUpdate();
+             
+              stConnection.close();
+              return true;
+        	}catch (SQLException e) {
+   			// TODO Auto-generated catch block
+   			e.printStackTrace();
+            	try {
+               	 stConnection.close();
+          			} catch (SQLException e1) {
+          				// TODO Auto-generated catch block
+          				e1.printStackTrace();
+          			}
+   			return false;
+   		}
+       }
     
     //游戏房间信息落地
     public boolean insertGameRoomInfo(GameRoomDetailInfo stGameRoomDetailInfo){
