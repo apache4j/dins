@@ -133,6 +133,7 @@ public class QuickGameRoomManager {
 	}
 
 	public HashSet<Long> getUserQuickGameRoomInfos(long uuid){
+		System.out.println("getUserQuickGameRoomInfos : " + uuid);
 		return mUserQuickGameRooms.get(uuid);
 	}
 	

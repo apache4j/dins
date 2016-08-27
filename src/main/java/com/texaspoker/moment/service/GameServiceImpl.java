@@ -857,6 +857,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 			RpcController controller, GetUserQuickGameRoomInfosRequest request)
 			throws ServiceException {
 		// TODO Auto-generated method stub
+		System.out.println("getUserQuickGameRoomInfos uuid : " + request.getUuid());
 		GetUserQuickGameRoomInfosResponse.Builder  stGetUserQuickGameRoomInfosResponseBuilder = GetUserQuickGameRoomInfosResponse.newBuilder();
 		Set<Long>  vQuickRooms = QuickGameRoomManager.getInstance().getUserQuickGameRoomInfos(request.getUuid());
 		if(vQuickRooms!=null){
