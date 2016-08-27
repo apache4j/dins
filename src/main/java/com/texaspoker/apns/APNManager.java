@@ -184,6 +184,8 @@ public class APNManager  {
 			stEmptyGameRoomPushRequestBuilder.setSHour(sHour);
 			stEmptyGameRoomPushRequestBuilder.setLSmallBlind(lSmallBlinds);
 			stEmptyGameRoomPushRequestBuilder.setIAnte(iAnte);
+			stEmptyGameRoomPushRequestBuilder.setSGameRoomName(strGameRoomName);
+			stEmptyGameRoomPushRequestBuilder.setSGameRoomType("普通保险");
 
 			apnService.emptyGameRoomPush(controller, stEmptyGameRoomPushRequestBuilder.build(),null);
 
