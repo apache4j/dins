@@ -22,8 +22,7 @@ public class OutsInfo {
   // outs数量在多少个内，才能买保险
   public static final int OUTS_LIMIT = 14;
   // outs赔率表，20个以上是0.8
-  public static final int[] OUTS_ODDS = new int[] {3100, 1600, 1000, 800, 600, 500, 400, 350, 300, 250, 230, 200, 180,
-      160, 140, 130, 120, 110, 100, 80};
+  public static final int[] OUTS_ODDS = new int[] {3100, 1600, 1000, 800, 600, 500, 400, 350, 300, 250, 230, 200, 180, 160, 140, 130, 120, 110, 100, 80};
   public static final int OUTS_NUMS = 20;
 
   // 边池pot
@@ -61,6 +60,9 @@ public class OutsInfo {
   // 保险金额-最大
   public long pay_max = 0;
 
+  // 本手上一轮购买金额
+  public long pre_buy = 0;
+
   // 购买金额
   public long buy = 0;
 
@@ -85,6 +87,7 @@ public class OutsInfo {
     this.potId = potId;
     this.potIndex = potIndex;
     this.pots = pots;
+    this.pre_buy = prebuys;
     this.bets = bets;
     // 根据状态判断最大值的比例
     double potMaxRaito = 0;
@@ -139,6 +142,14 @@ public class OutsInfo {
     for (int i = 0; i < outs.length; i++) {
       if (tableCard == outs[i]) {
         this.result = getPayCoin();
+        // 检查turn轮强制购买保险时，保险中了，是否有保险亏的情况
+        if (this.pre_buy > 0 && this.pay_min > 0) {
+          long buy_total = pre_buy + buy;
+          if (buy_total > result) {
+            // 保险买入 居然 大于保险赔付
+            result = buy_total;
+          }
+        }
         return true;
       }
     }
@@ -178,8 +189,7 @@ public class OutsInfo {
 
   @Override
   public String toString() {
-    return "outsinfo,uuid:" + winner + ",potId," + potId + ",odds:" + odds_d + ",pots:" + pots + ",pay_loss:"
-        + pay_loss + ",pay_pots:" + pay_pots + ",pay_min:" + pay_min + ",pay_max:" + pay_max + ",buy:" + buy + ",fold:"
-        + fold + ",result:" + result + ",outs:" + Arrays.toString(outs);
+    return "outsinfo,uuid:" + winner + ",potId," + potId + ",odds:" + odds_d + ",pots:" + pots + ",pay_loss:" + pay_loss + ",pay_pots:" + pay_pots + ",pay_min:" + pay_min
+        + ",pay_max:" + pay_max + ",buy:" + buy + ",fold:" + fold + ",result:" + result + ",outs:" + Arrays.toString(outs);
   }
 }

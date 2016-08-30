@@ -2894,24 +2894,30 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	 */
 	public GameRoomInfo buyInsurance(long uuid,long lGameHandID,GAME_ROOM_GAME_STATE eGameRoomStatus,List<BuyInsuranceInfo> vBuyInsuranceInfo){
 		synchronized(this){
-			InsuranceInfo stInsuranceInfo = InsuranceApi.doInsuranceAction(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),lGameHandID,eGameRoomStatus,uuid,vBuyInsuranceInfo);
-			if(stInsuranceInfo!=null){
-				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-				stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
-				stGameRoomInfo =  stGameRoomInfoBuilder.build();
-						
-				UserGameInfoNet stUserGameInfoNet=null;
-				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
-					UserGameInfoNet stTempUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
-					if(stTempUserGameInfoNet.getStUserInfo().getUuid() > 0 && stTempUserGameInfoNet.getStUserInfo().getUuid() == uuid){			
-						stUserGameInfoNet = stTempUserGameInfoNet;
+			try{
+				InsuranceInfo stInsuranceInfo = InsuranceApi.doInsuranceAction(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),lGameHandID,eGameRoomStatus,uuid,vBuyInsuranceInfo);
+				if(stInsuranceInfo!=null){
+					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+					stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
+					stGameRoomInfo =  stGameRoomInfoBuilder.build();
+							
+					UserGameInfoNet stUserGameInfoNet=null;
+					for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
+						UserGameInfoNet stTempUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
+						if(stTempUserGameInfoNet.getStUserInfo().getUuid() > 0 && stTempUserGameInfoNet.getStUserInfo().getUuid() == uuid){			
+							stUserGameInfoNet = stTempUserGameInfoNet;
+						}
 					}
+					//push相关
+					pushAllGameRoomUserMsgsIncludeSelf(stUserGameInfoNet, GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_BUY_INSURANCE);
+					
+					return stGameRoomInfo;
+				}else{
+					return null;
 				}
-				//push相关
-				pushAllGameRoomUserMsgsIncludeSelf(stUserGameInfoNet, GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_BUY_INSURANCE);
-				
-				return stGameRoomInfo;
-			}else{
+			}
+			catch(Exception e){
+				e.printStackTrace();
 				return null;
 			}
 		}
