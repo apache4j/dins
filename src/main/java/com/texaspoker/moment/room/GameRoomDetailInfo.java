@@ -575,8 +575,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			}
 			UserGameInfoNet.Builder stUserGameInfoBuilder = mapStandByUserGameInfos.get(uuid);	
 			
-			
-			
 			if(stUserGameInfoBuilder!=null){
 				long lCreateTime = System.currentTimeMillis();
 				stUserGameInfoBuilder.setBWaitingBuyinConfirmation(0);

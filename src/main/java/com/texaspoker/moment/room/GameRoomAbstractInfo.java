@@ -52,6 +52,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	protected ArrayList<Long> vOriginalStacks = new ArrayList<Long>();
 	protected ArrayList<Integer> vTestHandCards1 = new ArrayList<Integer>();
 	protected ArrayList<Integer> vTestHandCards2 = new ArrayList<Integer>();
+	protected ArrayList<Integer> vTestHandCards3 = new ArrayList<Integer>();
 	protected ArrayList<Integer> vTestTableCards = new ArrayList<Integer>();
 	
 	protected Map<Long,Long> mOriginalStacks = new HashMap<Long,Long>();
@@ -88,7 +89,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	//用户在牌局的位置信息
 	protected ConcurrentHashMap<Long,Integer> mapUserPos = new ConcurrentHashMap<Long,Integer>();
 	
-	protected final static boolean NOT_DEBUG=true;
+	protected final static boolean NOT_DEBUG=false;
 
 	//是否所有人都allin状态
 	public boolean bAllAllin;
@@ -125,6 +126,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		
 		vTestHandCards2.add(48);
 		vTestHandCards2.add(49);
+		
+		vTestHandCards3.add(48);
+		vTestHandCards3.add(49);
 		
 		vTestTableCards.add(47);
 		vTestTableCards.add(33);
@@ -3359,10 +3363,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		if(bTable){
 			return vTestTableCards.get(time);
 		}else{
-			if(uuid==161092){
+			if(uuid==40732){
 				return vTestHandCards1.get(time);
-			}else{
+			}else if(uuid==35116){
 				return vTestHandCards2.get(time);
+			}else{
+				return vTestHandCards3.get(time);
 			}
 		}
 	}
