@@ -121,20 +121,20 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	public GameRoomAbstractInfo(){
 		mTimeoutGameUsers = new AdvancedTimeoutHashMap<Long,Long>();
 
-		vTestHandCards1.add(6);
-		vTestHandCards1.add(19);
+		vTestHandCards1.add(10);
+		vTestHandCards1.add(35);
 		
-		vTestHandCards2.add(48);
-		vTestHandCards2.add(49);
+		vTestHandCards2.add(19);
+		vTestHandCards2.add(46);
 		
-		vTestHandCards3.add(48);
-		vTestHandCards3.add(49);
+		vTestHandCards3.add(30);
+		vTestHandCards3.add(41);
 		
-		vTestTableCards.add(47);
-		vTestTableCards.add(33);
-		vTestTableCards.add(12);
-		vTestTableCards.add(46);
-		vTestTableCards.add(22);
+		vTestTableCards.add(21);
+		vTestTableCards.add(20);
+		vTestTableCards.add(29);
+		vTestTableCards.add(0);
+		vTestTableCards.add(40);
 	}
 	
 	@Override  
