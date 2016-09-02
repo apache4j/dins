@@ -168,7 +168,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 			}
 			
 		}catch(Exception e){
-			System.out.println("out1gService throw unexpected exception, : " + request.getUuid());
+//			System.out.println("out1gService throw unexpected exception, : " + request.getUuid());
 			e.printStackTrace();
 		}
 		
@@ -365,7 +365,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		StartGameResponse.Builder  stStartGameResponseBuilder = StartGameResponse.newBuilder();
 
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLRoomID());
-		System.out.println("startgame roomid : " + request.getLRoomID() + " uuid " + request.getUuid());
+//		System.out.println("startgame roomid : " + request.getLRoomID() + " uuid " + request.getUuid());
 		if(stGameRoomDetailInfo!=null){
 			stGameRoomDetailInfo.startGame(request.getUuid());
 			
@@ -857,7 +857,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 			RpcController controller, GetUserQuickGameRoomInfosRequest request)
 			throws ServiceException {
 		// TODO Auto-generated method stub
-		System.out.println("getUserQuickGameRoomInfos uuid : " + request.getUuid());
+//		System.out.println("getUserQuickGameRoomInfos uuid : " + request.getUuid());
 		GetUserQuickGameRoomInfosResponse.Builder  stGetUserQuickGameRoomInfosResponseBuilder = GetUserQuickGameRoomInfosResponse.newBuilder();
 		Set<Long>  vQuickRooms = QuickGameRoomManager.getInstance().getUserQuickGameRoomInfos(request.getUuid());
 		if(vQuickRooms!=null){
@@ -1142,7 +1142,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 			stBuyInsuranceResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
 			stBuyInsuranceResponseBuilder.setStGameRoomInfo(stGameRoomInfo);
 		}else{
-			System.out.println("buyInsurance roomid : " + request.getLGameRoomID() + " handid : " + request.getLGameHandID() + " uuid : " + request.getUuid());
+//			System.out.println("buyInsurance roomid : " + request.getLGameRoomID() + " handid : " + request.getLGameHandID() + " uuid : " + request.getUuid());
 			stBuyInsuranceResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);	
 		}
 		stGameRoomDetailInfo.doInsuranceTimeout();
@@ -1238,7 +1238,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		// TODO Auto-generated method stub
 		GetGameSettingResponse.Builder  stGetGameSettingResponseBuilder = GetGameSettingResponse.newBuilder();
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
-		System.out.println("getGameSetting : " + request.getLGameRoomID() + "  " + stGameRoomDetailInfo);
+//		System.out.println("getGameSetting : " + request.getLGameRoomID() + "  " + stGameRoomDetailInfo);
 		int bNotBuyInsurance = stGameRoomDetailInfo.getGameSetting(request.getUuid());
 
 		stGetGameSettingResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);

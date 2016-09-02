@@ -78,8 +78,8 @@ public class RoomIDManager {
 		GetQuickGameRoomCodeResponse stResponse= null;
 		try {
 			stResponse = blockingUserService.getQuickGameRoomCode(controller, stGetQuickGameRoomCodeBuilder.build());
-			System.out.println("getNewRoomIDgetNewRoomID : " + stResponse.getIErrorCode());
-			System.out.println("getNewRoomIDgetNewRoomID : " + stResponse.getSCode());
+//			System.out.println("getNewRoomIDgetNewRoomID : " + stResponse.getIErrorCode());
+//			System.out.println("getNewRoomIDgetNewRoomID : " + stResponse.getSCode());
 		} catch (ServiceException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -142,7 +142,7 @@ public class APNManager  {
 	public void gameOverPush(long uuid,String strToken,String strGameRoomName,int badge){
 		try{
 			
-			System.out.println("gameOverPushgameOverPushgameOverPush!!!!!!!!!!~~~~~~~~~~~~~~~~~~~~");
+//			System.out.println("gameOverPushgameOverPushgameOverPush!!!!!!!!!!~~~~~~~~~~~~~~~~~~~~");
 			GameOverPushRequest.Builder stGameOverPushRequestBuilder = GameOverPushRequest.newBuilder();
 			stGameOverPushRequestBuilder.setUuid(uuid);
 			stGameOverPushRequestBuilder.setSToken(strToken);

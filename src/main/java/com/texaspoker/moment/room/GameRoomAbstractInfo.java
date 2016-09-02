@@ -89,7 +89,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	//用户在牌局的位置信息
 	protected ConcurrentHashMap<Long,Integer> mapUserPos = new ConcurrentHashMap<Long,Integer>();
 	
-	protected final static boolean NOT_DEBUG=true;
+	protected final static boolean NOT_DEBUG=false;
 
 	//是否所有人都allin状态
 	public boolean bAllAllin;

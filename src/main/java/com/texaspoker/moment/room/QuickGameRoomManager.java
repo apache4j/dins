@@ -93,7 +93,7 @@ public class QuickGameRoomManager {
 	}
 	
 	public void addUserCreateQuickGameRoom(long uuid,long lQuickGameRoomID){
-		System.out.println("addUserCreateQuickGameRoom : " + lQuickGameRoomID);
+//		System.out.println("addUserCreateQuickGameRoom : " + lQuickGameRoomID);
 		UserManager.getInstance().setUserQuickGameRoom(uuid, lQuickGameRoomID);
 	}
 	
@@ -115,7 +115,6 @@ public class QuickGameRoomManager {
 	}
 	
 	public void setUserQuickGameRoomInfos(long uuid,long lQuickGameRoomID){
-		System.out.println("");
 		HashSet<Long> vQuickGameRoomIDs = mUserQuickGameRooms.get(uuid);
 		if(vQuickGameRoomIDs == null){
 			vQuickGameRoomIDs = new HashSet<Long>();
@@ -134,7 +133,7 @@ public class QuickGameRoomManager {
 	}
 
 	public HashSet<Long> getUserQuickGameRoomInfos(long uuid){
-		System.out.println("getUserQuickGameRoomInfos : " + uuid);
+//		System.out.println("getUserQuickGameRoomInfos : " + uuid);
 		return mUserQuickGameRooms.get(uuid);
 	}
 	
@@ -196,7 +195,7 @@ public class QuickGameRoomManager {
 					stQuickGameRoomResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_GAMEROOM_OVERFLOW);
 					return stQuickGameRoomResultInfo;
 				}else{
-					System.out.println("createQuickGameRoom 1 : " + stGameRoomBaseInfo.getEGameRoomSeniorType());
+//					System.out.println("createQuickGameRoom 1 : " + stGameRoomBaseInfo.getEGameRoomSeniorType());
 					if(stGameRoomBaseInfo.getEGameRoomSeniorType() == GAME_ROOM_SENIOR_TYPE.GAME_ROOM_SENIOR_TYPE_NO){
 						synchronized(RoomIDManager.class){
 							

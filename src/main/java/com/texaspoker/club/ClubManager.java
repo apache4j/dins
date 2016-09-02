@@ -132,8 +132,8 @@ public class ClubManager {
 		stClubGameRequestBuilder.setLGameRoomID(gameroomid);
 	    
 	    try {
-			System.out.println("addGameRoomsaddGameRoomsaddGameRooms     clubID." + clubID);
-			System.out.println("addGameRoomsaddGameRoomsaddGameRooms gameroomid." + gameroomid);
+//			System.out.println("addGameRoomsaddGameRoomsaddGameRooms     clubID." + clubID);
+//			System.out.println("addGameRoomsaddGameRoomsaddGameRooms gameroomid." + gameroomid);
 			blockingClubService.addClubGameRooms(controller, stClubGameRequestBuilder.build());
 	    } catch (ServiceException e) {
 	    	NormalLogService.getInstance().error("syn echo error:" + e.getMessage());

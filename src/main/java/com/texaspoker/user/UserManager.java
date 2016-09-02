@@ -781,8 +781,8 @@ public class UserManager {
 		stSetUserQuickRoomsRequestBuilder.setLQuickGameRooms(lQuickGameRoom);
 		
 		try {
-			System.out.println("setUserQuickGameRoomsetUserQuickGameRoom 1 : " + uuid);
-			System.out.println("setUserQuickGameRoomsetUserQuickGameRoom 2 : " + lQuickGameRoom);
+//			System.out.println("setUserQuickGameRoomsetUserQuickGameRoom 1 : " + uuid);
+//			System.out.println("setUserQuickGameRoomsetUserQuickGameRoom 2 : " + lQuickGameRoom);
 			blockingUserService.setUserQuickRooms(controller, stSetUserQuickRoomsRequestBuilder.build());
 		} catch (ServiceException e) {
 			// TODO Auto-generated catch block
