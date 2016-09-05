@@ -502,7 +502,6 @@ public class QuickGameRoomManager {
 									userSelfGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_NORMAL);
 									userSelfGameInfoBuilder.setBGameDealer(0);
 									userSelfGameInfoBuilder.setIDelaySingleTime(20);
-//									stGameRoomDetailInfo.mapStandByUserGameInfos.put(stCreateUserBaseInfoBuilder.getUuid(), userSelfGameInfoBuilder);
 									
 									// 放入GameManager中
 									GameRoomManager.getInstance().setGameRoomDetailInfo(stGameRoomDetailInfo);
@@ -512,9 +511,7 @@ public class QuickGameRoomManager {
 									
 									BillManager.getInstance().createBillInfo(0,gameRoomBaseInfoBuilder.build());
 									
-									BillManager.getInstance().buyStackInRoom(
-												stUserBaseInfoNet.getUuid(),
-												stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId(),0);
+									stGameRoomDetailInfo.buyStakcsInRoom(stUserBaseInfoNet.getUuid(),0);
 									
 									//设置快速聊天室对应的牌局ID
 									stSettingGameRoomBaseInfoBuilder.setLGameRoomId(gameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId());

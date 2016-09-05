@@ -90,7 +90,7 @@ public class BillManager {
 		}
 	}
 
-	//改变某个房间的某个用户的购买筹码的值
+//	//改变某个房间的某个用户的购买筹码的值
 	public void buyStackInRoom(long uuid , long roomid , long changeStacks){
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(roomid);
 		

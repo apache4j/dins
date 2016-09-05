@@ -246,8 +246,7 @@ public class GameRoomManager  {
 						userSelfGameInfoBuilder.setBGameDealer(0);
 						userSelfGameInfoBuilder.setIDelaySingleTime(20);
 						
-						BillManager.getInstance().buyStackInRoom(stUserBaseInfoNet.getUuid(),
-								stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId(),0);
+						stGameRoomDetailInfo.buyStakcsInRoom(stUserBaseInfoNet.getUuid(),0);
 
 						// 将被邀请的用户设置要被邀请的名单中,弄发送邀请通知
 						for (int i = 0; i < userList.size(); i++) {
@@ -374,8 +373,7 @@ public class GameRoomManager  {
 							// 把房间放到房主的房间列表里面
 							UserManager.getInstance().addUserCreateGameRooms(uuid,gameRoomBaseInfoBuilder.getLGameRoomId());
 							
-							BillManager.getInstance().buyStackInRoom(stUserBaseInfoNet.getUuid(),
-									stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId(),0);
+							stGameRoomDetailInfo.buyStakcsInRoom(stUserBaseInfoNet.getUuid(),0);
 
 							// 生成回包
 							mLog.error(stUserBaseInfoNet.getUuid() + " " + gameRoomBaseInfoBuilder.getLGameRoomId() + " " + 110001 + " " + gameRoomBaseInfoBuilder.getLDuration()

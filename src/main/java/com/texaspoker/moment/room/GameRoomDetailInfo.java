@@ -51,6 +51,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	private Map<Long,Long> mBuyinControlTimes = new ConcurrentHashMap<Long,Long>();
 	private TimeoutHashMap<Long,Long> mBuyinControlTimeOut; //房间相关的数据
 	
+	private Map<Long,Long> mUserBuyinStacks = new ConcurrentHashMap<Long,Long>();
+	
+	
 	//是否已经结算用户数据结构
 	private ConcurrentHashMap<Long,Long> mapUserNoCharge = new ConcurrentHashMap<Long,Long>();
 	
@@ -890,9 +893,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								long buyStacks = lStacks;
 								stUserGameInfoBuilder.setLRemainStacks(buyStacks+ stUserGameInfoBuilder.getLRemainStacks());
 								stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoBuilder);
-								//修改账单信息
-								BillManager.getInstance().buyStackInRoom(stUserGameInfoBuilder.getStUserInfo().getUuid(),
-										stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId(), buyStacks);
+								
+								buyStakcsInRoom(uuid, buyStacks);
 								
 								if(stUserGameInfoBuilder!=null){
 									BillManager.getInstance().setCurrentStacksInRoom(stUserGameInfoBuilder.getStUserInfo().getUuid(), 
@@ -948,9 +950,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								stUserGameInfoBuilder.setLRemainStacks(buyStacks + stUserGameInfoBuilder.getLRemainStacks());
 								stUserGameInfoBuilder.setBWaitingBuyinConfirmation(0);
 
-								//修改账单信息
-								BillManager.getInstance().buyStackInRoom(stUserGameInfoBuilder.getStUserInfo().getUuid(),
-										stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId(), buyStacks);
+								buyStakcsInRoom(uuid, buyStacks);
 								
 								if(stUserGameInfoBuilder!=null){
 									BillManager.getInstance().setCurrentStacksInRoom(stUserGameInfoBuilder.getStUserInfo().getUuid(), 
@@ -1446,8 +1446,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								stUserGameInfoNetBuilder.setLRemainStacks(stUserGameInfoNetBuilder.getLRemainStacks()+buyStacks);
 								
 								//������������������
-								BillManager.getInstance().buyStackInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),
-										stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId(), buyStacks);
+								buyStakcsInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), buyStacks);
 								
 								if(stUserGameInfoNetBuilder!=null){
 									BillManager.getInstance().setCurrentStacksInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), 
@@ -1489,6 +1488,19 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		//������������������������
 		stGameRoomInfo = stGameRoomInfoBuilder.build();
 		
+	}
+	
+	public void buyStakcsInRoom(long uuid,long lBuyStacks){
+		Long lBuyinStacks = mUserBuyinStacks.get(uuid);
+		if(lBuyinStacks==null){
+			lBuyinStacks=(long)0;
+		}
+		
+		lBuyinStacks += lBuyStacks;
+		//修改账单信息
+		BillManager.getInstance().buyStackInRoom(uuid,stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), lBuyStacks);
+		
+		mUserBuyinStacks.put(uuid, lBuyinStacks);
 	}
 	
 	private void resetStepStatus(){
