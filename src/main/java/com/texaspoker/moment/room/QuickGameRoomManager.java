@@ -24,6 +24,7 @@ import com.texaspoker.moment.TexasPoker.QuickGameRoomPushMsg;
 import com.texaspoker.moment.TexasPoker.USER_GAME_ROLE;
 import com.texaspoker.moment.TexasPoker.USER_GAME_STATE;
 import com.texaspoker.moment.TexasPokerCommon.CREATE_ROOM_TYPE;
+import com.texaspoker.moment.TexasPokerCommon.DEVICE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.GAME_ROOM_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.ID_TYPE;
@@ -182,8 +183,6 @@ public class QuickGameRoomManager {
 		
 		if(stFromUserBuilder !=null){
 			//先检测是否已经创建过快速牌局
-//			if(QuickGameRoomManager.getInstance().getUserCreateQuickGameRoom(uuid)==null
-//				||	QuickGameRoomManager.getInstance().getUserCreateQuickGameRoom(uuid)==0){
 				
 				// 获取该用户已经开的牌局数量
 				UserGameRooms stUserCreateGames = UserManager.getInstance().getUserCreateGameRooms(uuid);
@@ -195,7 +194,6 @@ public class QuickGameRoomManager {
 					stQuickGameRoomResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_GAMEROOM_OVERFLOW);
 					return stQuickGameRoomResultInfo;
 				}else{
-//					System.out.println("createQuickGameRoom 1 : " + stGameRoomBaseInfo.getEGameRoomSeniorType());
 					if(stGameRoomBaseInfo.getEGameRoomSeniorType() == GAME_ROOM_SENIOR_TYPE.GAME_ROOM_SENIOR_TYPE_NO){
 						synchronized(RoomIDManager.class){
 							
@@ -274,22 +272,14 @@ public class QuickGameRoomManager {
 							return stQuickGameRoomResultInfo;
 						}
 					}else if(stGameRoomBaseInfo.getEGameRoomSeniorType() == GAME_ROOM_SENIOR_TYPE.GAME_ROOM_SENIOR_TYPE_NORMAL){
-						if(stFromUserBuilder.getLCoin() >= 200){
+						long lNewCoin = 0;
+						if(stFromUserBuilder.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
+							lNewCoin = stFromUserBuilder.getLAndroidCoin();
+						}else{
+							lNewCoin = stFromUserBuilder.getLCoin();
+						}
+						if(lNewCoin >= 200){
 							synchronized(RoomIDManager.class){
-//								Long oldRoomID = UserManager.getInstance().getUserInTable(uuid);
-//								if (oldRoomID != null) {
-//									// 说明玩家在别的屋子中，首先需要进行玩家离开房间的操作
-//									GameRoomDetailInfo stOldGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(oldRoomID);
-//									
-//									if (stOldGameRoomDetailInfo != null) {
-//										if(stOldGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBGamePause() == 1){
-//											stQuickGameRoomResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED);
-//											return stQuickGameRoomResultInfo;
-//										}
-//										
-//										stOldGameRoomDetailInfo.leaveGameRoom(uuid);
-//									}
-//								}
 								
 								//生成一个新的快速开局房间
 								QuickGameRoomInfo.Builder stQuickGameRoomInfoBuilder = QuickGameRoomInfo.newBuilder();
@@ -368,7 +358,7 @@ public class QuickGameRoomManager {
 								
 								mLog.error(uuid + " " + lRoomID + " " + 110001 + " " + stGameRoomBaseInfoBuilder.getLDuration()
 										+ " " + stGameRoomBaseInfoBuilder.getIMinBuyinRatio() 
-										+ " " + stGameRoomBaseInfoBuilder.getIMaxBuyinRatio() + " 200 "  + (stFromUserBuilder.getLCoin()-200));
+										+ " " + stGameRoomBaseInfoBuilder.getIMaxBuyinRatio() + " 200 "  + (lNewCoin-200));
 								
 								//组织回包
 								stQuickGameRoomResultInfo.setStQuickGameRoomInfo(stQuickGameRoomInfoBuilder.build());
@@ -381,10 +371,6 @@ public class QuickGameRoomManager {
 						}
 					}	
 				}		
-//			}else{
-//				stQuickGameRoomResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_CREATE_QUICK_GAMEROOM_ALREADY);
-//				return stQuickGameRoomResultInfo;
-//			}
 		}
 		else{
 			stQuickGameRoomResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_USER);

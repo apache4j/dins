@@ -25,6 +25,7 @@ import com.texaspoker.moment.TexasPoker.USER_GAME_ROLE;
 import com.texaspoker.moment.TexasPoker.USER_GAME_STATE;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
 import com.texaspoker.moment.TexasPokerCommon.CREATE_ROOM_TYPE;
+import com.texaspoker.moment.TexasPokerCommon.DEVICE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.GAME_ROOM_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.ID_TYPE;
@@ -102,11 +103,6 @@ public class GameRoomManager  {
 		if (stUserCreateGames != null && stUserCreateGames.mRoomMap!=null) {
 			userPlaysNumber = stUserCreateGames.mRoomMap.size();
 		}
-		
-//		if(QuickGameRoomManager.getInstance().getUserCreateQuickGameRoom(uuid)!=null 
-//				&& QuickGameRoomManager.getInstance().getUserCreateQuickGameRoom(uuid)!=0){
-//			userPlaysNumber++;
-//		}
 		
 		// 获取创建牌局的用户的vip类型
 		UserBaseInfoNet.Builder stUserBaseInfoNet = UserManager.getInstance().getUserBaseInfo(uuid);
@@ -267,7 +263,13 @@ public class GameRoomManager  {
 						return stGameRoomIDResultInfo;
 					}		
 				}else if(stGameRoomBaseInfo.getEGameRoomSeniorType() == GAME_ROOM_SENIOR_TYPE.GAME_ROOM_SENIOR_TYPE_NORMAL){
-					if(stUserBaseInfoNet.getLCoin() >= 200){
+					long lNewCoin = 0;
+					if(stUserBaseInfoNet.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
+						lNewCoin = stUserBaseInfoNet.getLAndroidCoin();
+					}else{
+						lNewCoin = stUserBaseInfoNet.getLCoin();
+					}
+					if(lNewCoin >= 200){
 						synchronized(RoomIDManager.class){
 							TexasPoker.GameRoomBaseInfo.Builder gameRoomBaseInfoBuilder = stGameRoomBaseInfo.toBuilder();
 							gameRoomBaseInfoBuilder.setLGameRoomId(RoomIDManager.getInstance().getNewRoomID(stUserBaseInfoNet.getUuid()));
@@ -283,10 +285,6 @@ public class GameRoomManager  {
 							// 修改用户的popularity
 							// 修改UserBaseInfo				
 							Log   mLog   =  LogFactory.getLog("fortransaction");
-//							String sLog = uuid + " " + 0 + " " + 110000 + " " + gameRoomBaseInfoBuilder.getLGameRoomId() 
-//									+ " 0 " + " 0 " + gameRoomBaseInfoBuilder.getLBigBlinds()*100 + " " + stUserBaseInfoNet.getLPopularity() +" " + gameRoomBaseInfoBuilder.getLChatRoomID();;
-//							mLog.error(sLog);
-//							TranscationLogService.getInstance().error(sLog);
 											
 							// 保存设置
 							stUserBaseInfoNet = UserManager.getInstance().addUserCoin(stUserBaseInfoNet.getUuid(),  - 200);
@@ -378,7 +376,7 @@ public class GameRoomManager  {
 							// 生成回包
 							mLog.error(stUserBaseInfoNet.getUuid() + " " + gameRoomBaseInfoBuilder.getLGameRoomId() + " " + 110001 + " " + gameRoomBaseInfoBuilder.getLDuration()
 												+ " " + gameRoomBaseInfoBuilder.getIMinBuyinRatio() 
-												+ " " + gameRoomBaseInfoBuilder.getIMaxBuyinRatio() + " 200 "  + stUserBaseInfoNet.getLCoin());
+												+ " " + gameRoomBaseInfoBuilder.getIMaxBuyinRatio() + " 200 "  + (lNewCoin - 200));
 										
 							if(gameRoomBaseInfoBuilder.getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
 								ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(gameRoomBaseInfoBuilder.getLChatRoomID());
@@ -405,8 +403,6 @@ public class GameRoomManager  {
 							userSelfGameInfoBuilder.setBGameDealer(0);
 							userSelfGameInfoBuilder.setIDelaySingleTime(20);
 							
-//							stGameRoomDetailInfo.mapStandByUserGameInfos.put(stCreateUserBaseInfoBuilder.getUuid(), userSelfGameInfoBuilder);
-//							stGameRoomDetailInfo.addStandByUuid(stCreateUserBaseInfoBuilder.getUuid());
 							// 将被邀请的用户设置要被邀请的名单中,弄发送邀请通知
 							for (int i = 0; i < userList.size(); i++) {
 								UserBaseInfoNet stUserBaseInfo = userList.get(i);
