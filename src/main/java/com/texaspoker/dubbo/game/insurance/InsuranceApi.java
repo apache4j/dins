@@ -20,6 +20,7 @@ import com.texaspoker.moment.TexasPoker.GameRoomInfo;
 import com.texaspoker.moment.TexasPoker.INSURANCE_ACT;
 import com.texaspoker.moment.TexasPoker.INSURANCE_BET_STATUS;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
+import com.texaspoker.moment.TexasPokerCommon.DEVICE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
 import com.texaspoker.moment.room.GameRoomDetailInfo;
 import com.texaspoker.moment.room.GameRoomManager;
@@ -182,12 +183,24 @@ public class InsuranceApi {
   // 保险扣钻石接口
   public static boolean subUserCoin(long uuid, long nums) {
     UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
-    if (stUserBaseInfoNetBuilder != null && stUserBaseInfoNetBuilder.getLCoin() >= nums) {
-      // 可以扣币，扣币值必须为负的
-      UserManager.getInstance().addUserCoin(uuid, -nums);
-      return true;
+	
+    if (stUserBaseInfoNetBuilder != null ) {
+    	long lNewCoin = 0;
+    	if(stUserBaseInfoNetBuilder.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
+    		lNewCoin = stUserBaseInfoNetBuilder.getLAndroidCoin();
+    	}else{
+    		lNewCoin = stUserBaseInfoNetBuilder.getLCoin();
+    	}
+    	
+    	if(lNewCoin >= nums){
+    	      // 可以扣币，扣币值必须为负的
+    	      UserManager.getInstance().addUserCoin(uuid, -nums);
+    	      return true;
+    	}else{
+    		return false;
+    	}    	
     } else {
-      return false;
+    	return false;
     }
   }
 
