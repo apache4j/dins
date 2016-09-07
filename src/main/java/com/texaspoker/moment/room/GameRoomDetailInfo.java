@@ -32,6 +32,7 @@ import com.texaspoker.moment.TexasPoker.USER_GAME_ROLE;
 import com.texaspoker.moment.TexasPoker.USER_GAME_STATE;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
 import com.texaspoker.moment.TexasPokerCommon.CREATE_ROOM_TYPE;
+import com.texaspoker.moment.TexasPokerCommon.DEVICE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.GAME_ROOM_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
@@ -2305,7 +2306,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					}else{
 						UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
 						if(stUserBaseInfoNetBuilder!=null){
-							if(stUserBaseInfoNetBuilder.getLCoin() >= stUserGameInfoNet.getIDelayCost()){
+							long lNewCoin = 0;
+							if(stUserBaseInfoNetBuilder.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
+								lNewCoin = stUserBaseInfoNetBuilder.getLAndroidCoin();
+							}else{
+								lNewCoin = stUserBaseInfoNetBuilder.getLCoin();
+							}
+							if(lNewCoin >= stUserGameInfoNet.getIDelayCost()){
 								//延时功能
 								if(delayTimeout(stUserGameInfoNet.getStUserInfo().getUuid(),20)){								
 									//首先设置回包
@@ -2322,7 +2329,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 									
 									//打印日志
 									Log   mLog   =   LogFactory.getLog("fortransaction");
-									mLog.error(uuid + " " + 0 + " " + 430003 + " " + 1 + " 0 " + "0 "+ stUserGameInfoNet.getIDelayCost() +" "  + stUserBaseInfoNetBuilder.getLCoin());
+									mLog.error(uuid + " " + 0 + " " + 430003 + " " + 1 + " 0 " + "0 "+ stUserGameInfoNet.getIDelayCost() +" "  + (lNewCoin -  stUserGameInfoNet.getIDelayCost()));
 									
 									addDelayPlayer(uuid);
 									

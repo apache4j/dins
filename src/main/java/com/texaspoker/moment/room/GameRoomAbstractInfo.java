@@ -30,6 +30,7 @@ import com.texaspoker.moment.TexasPoker.SCGameRoomStateChange;
 import com.texaspoker.moment.TexasPoker.USER_GAME_STATE;
 import com.texaspoker.moment.TexasPoker.UseItemPushMsg;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
+import com.texaspoker.moment.TexasPokerCommon.DEVICE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
 import com.texaspoker.msg.GameRoomMsgManager;
@@ -3905,7 +3906,13 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY;
 				}
 			case 20001:
-				if(stUserBaseInfoNetBuilder.getLCoin() >= 6){
+				long lNewCoin = 0;
+				if(stUserBaseInfoNetBuilder.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
+					lNewCoin = stUserBaseInfoNetBuilder.getLAndroidCoin();
+				}else{
+					lNewCoin = stUserBaseInfoNetBuilder.getLCoin();
+				}
+				if(lNewCoin >= 6){
 					//组织push包
 					UseItemPushMsg.Builder stUseItemPushMsgBuilder = UseItemPushMsg.newBuilder();
 					stUseItemPushMsgBuilder.setLItemID(itemID);
@@ -3916,7 +3923,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					stUseItemPushMsgBuilder.setSExtra(sExtra);
 					
 					Log   mLog   =   LogFactory.getLog("fortransaction");
-					mLog.error(stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 430002 + " " + sExtra + " 0 " + "0 6 "  + stUserBaseInfoNetBuilder.getLCoin());
+					mLog.error(stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 430002 + " " + sExtra + " 0 " + "0 6 "  +(lNewCoin - 6));
 					
 					stUserBaseInfoNetBuilder = UserManager.getInstance().addUserCoin(stUserBaseInfoNetBuilder.getUuid(), - 6);
 					
