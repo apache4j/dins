@@ -269,6 +269,7 @@ public class GameRoomManager  {
 							gameRoomBaseInfoBuilder.setLGameRoomId(RoomIDManager.getInstance().getNewRoomID(stUserBaseInfoNet.getUuid()));
 							gameRoomBaseInfoBuilder.setBBuyIn(1);
 							gameRoomBaseInfoBuilder.setLCreateTime(System.currentTimeMillis());
+							gameRoomBaseInfoBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 											
 							// 设置房主vip信息
 							gameRoomBaseInfoBuilder.setStCreateUserBaseInfo(UserManager.getInstance().getUserBaseInfo(uuid));
