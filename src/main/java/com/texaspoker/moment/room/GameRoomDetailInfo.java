@@ -1160,6 +1160,24 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		}
 	}
 	
+	//检查牌局是否结束
+	private boolean checkGameOver(){
+		if((bStarted == true) &&
+				(System.currentTimeMillis() - stGameRoomInfo.getStGameRoomBaseInfo().getLStartTime() > stGameRoomInfo.getStGameRoomBaseInfo().getLDuration()*1000)){
+			System.out.println("game ove started 1 : " + (System.currentTimeMillis() - stGameRoomInfo.getStGameRoomBaseInfo().getLStartTime()));
+			System.out.println("game ove started 2 : " + stGameRoomInfo.getStGameRoomBaseInfo().getLDuration()*1000);
+			System.out.println("game ove started 3 : " + stGameRoomInfo.getStGameRoomBaseInfo().getLStartTime());
+			return true;
+		}
+		if((bStarted == false) && System.currentTimeMillis() - stGameRoomInfo.getStGameRoomBaseInfo().getLCreateTime() > 7200*1000){
+			System.out.println("game ove not started 1 : " + (System.currentTimeMillis() - stGameRoomInfo.getStGameRoomBaseInfo().getLCreateTime()));
+			System.out.println("game ove not started 2 : " + 7200*1000);
+			System.out.println("game ove not started 3 : " + stGameRoomInfo.getStGameRoomBaseInfo().getLCreateTime());
+			return true;
+		}
+		return false;
+	}
+	
 	public void gameRoomTimeoutHandle(TimeoutHashMap<Long,GameRoomDetailInfo> mGameRoomDetailInfos){
 		synchronized(this){			
 			if(stGameRoomInfo.getStGameRoomBaseInfo().getBGamePause() == 1){
@@ -1181,7 +1199,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			{
 				long interval = System.currentTimeMillis() - stGameRoomInfo.getStGameRoomBaseInfo().getLCreateTime();
 
-				if(System.currentTimeMillis() - stGameRoomInfo.getStGameRoomBaseInfo().getLCreateTime() > stGameRoomInfo.getStGameRoomBaseInfo().getLDuration()*1000){
+				boolean bGameOver = checkGameOver();
+				if(bGameOver){
 					if(bOver == true){
 						bOver = true;
 						mGameRoomDetailInfos.removeKey(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
