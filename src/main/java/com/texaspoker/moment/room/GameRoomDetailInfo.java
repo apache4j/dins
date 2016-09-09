@@ -103,6 +103,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = stGameRoomInfo.getStGameRoomBaseInfo().toBuilder();
 		
 				stGameRoomBaseInfoBuilder.setBStarted(1);
+				stGameRoomBaseInfoBuilder.setLStartTime(System.currentTimeMillis());
 				stGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
 
 				stGameRoomInfo = stGameRoomInfoBuilder.build();
