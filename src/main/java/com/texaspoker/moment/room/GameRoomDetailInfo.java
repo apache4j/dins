@@ -438,10 +438,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			long popularity = (100+GameRoomDetailInfo.getServiceFeeRat((int)stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds()))*lStacks/100;
 			
 			//首先获取用户的基本信息
-			UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
-
-			
-			if(stUserBaseInfoNetBuilder!=null && stUserBaseInfoNetBuilder.getLPopularity() >= popularity){
+			if(UserManager.getInstance().checkUserPopularity(uuid, popularity) ){
 				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 				
 				for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount();i++){
@@ -872,7 +869,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			
 			//首先获取用户的基本信息
 			UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
-			if(stUserBaseInfoNetBuilder!=null && stUserBaseInfoNetBuilder.getLPopularity() >= popularity){
+			if(UserManager.getInstance().checkUserPopularity(uuid, popularity)){
 				eErrorCodeType = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 				//获取要增加筹码的用户
 				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
@@ -904,9 +901,16 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 											, stUserGameInfoBuilder.getLRemainStacks());
 								}
 								//减去用户的银币
-								stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), -popularity);							
-								String sLog = uuid + " " + 0 + " " + 110000 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
-								+ " 0 " + " 0 " + lStacks + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+								String sLog = null;
+								stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), -popularity);	
+								if(stUserBaseInfoNetBuilder.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
+									sLog = uuid + " " + 0 + " " + 110000 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
+											+ " 0 " + " 0 " + lStacks + " " + stUserBaseInfoNetBuilder.getLAndroidPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+								}else{
+									sLog = uuid + " " + 0 + " " + 110000 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
+											+ " 0 " + " 0 " + lStacks + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+								}
+
 //								mLog.error(sLog);
 								TranscationLogService.getInstance().error(sLog);
 								ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLChatRoomID());
@@ -933,7 +937,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoBuilder);
 							stGameRoomInfo = stGameRoomInfoBuilder.build();
 							if(stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result ){
-//								resetGameRoom();
 								stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
 							}
 							bSetted = true;
@@ -962,9 +965,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								
 								//减去用户的银币
 								stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), -popularity);
-								
-								String sLog = uuid + " " + 0 + " " + 110000 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
-										+ " 0 " + " 0 " + lStacks + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+								String sLog = null;
+								if(stUserBaseInfoNetBuilder.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
+									sLog = uuid + " " + 0 + " " + 110000 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
+											+ " 0 " + " 0 " + lStacks + " " + stUserBaseInfoNetBuilder.getLAndroidPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+								}else{
+									sLog = uuid + " " + 0 + " " + 110000 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
+											+ " 0 " + " 0 " + lStacks + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+								}
+
 								TranscationLogService.getInstance().error(sLog);
 								
 								ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLChatRoomID());
@@ -1460,35 +1469,46 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						
 						popularity = (100+GameRoomDetailInfo.getServiceFeeRat((int)stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds()))*stUserGameInfoNetBuilder.getLBuyinStacks()/100;
 						
-						if(stUserBaseInfoNetBuilder!= null && stUserBaseInfoNetBuilder.getLPopularity() >= popularity){
-							long buyStacks = stUserGameInfoNetBuilder.getLBuyinStacks();
-							
-							if(stUserGameInfoNetBuilder.getLRemainStacks() + buyStacks < (this.stGameRoomInfo.getStGameRoomBaseInfo().getIMaxBuyinRatio()/10+1)*stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBuyIn()){
-								stUserGameInfoNetBuilder.setLRemainStacks(stUserGameInfoNetBuilder.getLRemainStacks()+buyStacks);
+						if(stUserBaseInfoNetBuilder!= null){
+							if(UserManager.getInstance().checkUserPopularity(stUserBaseInfoNetBuilder.getUuid(), popularity)){
+								long buyStacks = stUserGameInfoNetBuilder.getLBuyinStacks();
 								
-								//������������������
-								buyStakcsInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), buyStacks);
-								
-								if(stUserGameInfoNetBuilder!=null){
-									BillManager.getInstance().setCurrentStacksInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), 
-											stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId()
-											, stUserGameInfoNetBuilder.getLRemainStacks());
-								}
-								
-								//���������������������
-								stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), - popularity);
-								
-								String sLog = stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 110000 + " " 
-								+ stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " 0 " + " 0 " 
-										+ buyStacks + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
-								TranscationLogService.getInstance().error(sLog);
-								ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID());
-								if(stClubInfoBuilder!=null && stClubInfoBuilder.getStClubBaseInfo().getLClubID() > 0){
-									//添加俱乐部积分
-									stClubInfoBuilder = ClubManager.getInstance()
-											.addClubScore(stClubInfoBuilder.getStClubBaseInfo().getLClubID(), 5);
+								if(stUserGameInfoNetBuilder.getLRemainStacks() + buyStacks < (this.stGameRoomInfo.getStGameRoomBaseInfo().getIMaxBuyinRatio()/10+1)*stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBuyIn()){
+									stUserGameInfoNetBuilder.setLRemainStacks(stUserGameInfoNetBuilder.getLRemainStacks()+buyStacks);
+									
+									//������������������
+									buyStakcsInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), buyStacks);
+									
+									if(stUserGameInfoNetBuilder!=null){
+										BillManager.getInstance().setCurrentStacksInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), 
+												stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId()
+												, stUserGameInfoNetBuilder.getLRemainStacks());
+									}
+									
+									//扣除用户德扑币
+									stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), - popularity);
+									//打印日志
+									String sLog  = null;
+									if(stUserBaseInfoNetBuilder.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
+										sLog = stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 110000 + " " 
+												+ stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " 0 " + " 0 " 
+														+ buyStacks + " " + stUserBaseInfoNetBuilder.getLAndroidPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+									}else{
+										sLog = stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 110000 + " " 
+												+ stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " 0 " + " 0 " 
+														+ buyStacks + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+									}
+									TranscationLogService.getInstance().error(sLog);
+									
+									ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID());
+									if(stClubInfoBuilder!=null && stClubInfoBuilder.getStClubBaseInfo().getLClubID() > 0){
+										//添加俱乐部积分
+										stClubInfoBuilder = ClubManager.getInstance()
+												.addClubScore(stClubInfoBuilder.getStClubBaseInfo().getLClubID(), 5);
+									}
 								}
 							}
+							
 						}
 					
 					stUserGameInfoNetBuilder.setBBuyin(0);					
@@ -2303,7 +2323,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
 							if(stUserBaseInfoNetBuilder!=null){
 								Log   mLog   =   LogFactory.getLog("fortransaction");
-								mLog.error(uuid + " " + 0 + " " + 430003 + " " + 1 + " 0 " + "0 0 "  + stUserBaseInfoNetBuilder.getLPopularity());
+								if(stUserBaseInfoNetBuilder.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
+									mLog.error(uuid + " " + 0 + " " + 430003 + " " + 1 + " 0 " + "0 0 "  + stUserBaseInfoNetBuilder.getLAndroidCoin());
+								}else{
+									mLog.error(uuid + " " + 0 + " " + 430003 + " " + 1 + " 0 " + "0 0 "  + stUserBaseInfoNetBuilder.getLCoin());
+								}
 							}
 							
 							//首先设置回包
@@ -2326,13 +2350,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					}else{
 						UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
 						if(stUserBaseInfoNetBuilder!=null){
-							long lNewCoin = 0;
-							if(stUserBaseInfoNetBuilder.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
-								lNewCoin = stUserBaseInfoNetBuilder.getLAndroidCoin();
-							}else{
-								lNewCoin = stUserBaseInfoNetBuilder.getLCoin();
-							}
-							if(lNewCoin >= stUserGameInfoNet.getIDelayCost()){
+							if(UserManager.getInstance().checkUserCoin(stUserBaseInfoNetBuilder.getUuid(), stUserGameInfoNet.getIDelayCost())){
 								//延时功能
 								if(delayTimeout(stUserGameInfoNet.getStUserInfo().getUuid(),20)){								
 									//首先设置回包
@@ -2349,7 +2367,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 									
 									//打印日志
 									Log   mLog   =   LogFactory.getLog("fortransaction");
-									mLog.error(uuid + " " + 0 + " " + 430003 + " " + 1 + " 0 " + "0 "+ stUserGameInfoNet.getIDelayCost() +" "  + (lNewCoin -  stUserGameInfoNet.getIDelayCost()));
+									if(stUserBaseInfoNetBuilder.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
+										mLog.error(uuid + " " + 0 + " " + 430003 + " " + 1 + " 0 " + "0 "+ stUserGameInfoNet.getIDelayCost() +" "  + stUserBaseInfoNetBuilder.getLAndroidCoin());
+									}else{
+										mLog.error(uuid + " " + 0 + " " + 430003 + " " + 1 + " 0 " + "0 "+ stUserGameInfoNet.getIDelayCost() +" "  + stUserBaseInfoNetBuilder.getLCoin());
+									}
+									
 									
 									addDelayPlayer(uuid);
 									

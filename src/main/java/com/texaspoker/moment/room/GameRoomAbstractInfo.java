@@ -3871,7 +3871,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		if(stUserBaseInfoNetBuilder!=null){
 			switch(itemID){
 			case 10010:
-				if(stUserBaseInfoNetBuilder.getLPopularity() >= 10){
+				if(UserManager.getInstance().checkUserPopularity(stUserBaseInfoNetBuilder.getUuid(), 100)){
 					//组织push包
 					UseItemPushMsg.Builder stUseItemPushMsgBuilder = UseItemPushMsg.newBuilder();
 					stUseItemPushMsgBuilder.setLItemID(itemID);
@@ -3881,10 +3881,15 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					stUseItemPushMsgBuilder.setLRoomID(lGameRoomID);
 					stUseItemPushMsgBuilder.setSExtra(sExtra);
 					
-					Log   mLog   =   LogFactory.getLog("fortransaction");
-					mLog.error(stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 430001 + " " + sExtra + " 0 " + "0 10 "  + stUserBaseInfoNetBuilder.getLPopularity());
-					
+
 					stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), - 10);
+					Log   mLog   =   LogFactory.getLog("fortransaction");
+					if(stUserBaseInfoNetBuilder.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
+						mLog.error(stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 430001 + " " + sExtra + " 0 " + "0 10 "  + stUserBaseInfoNetBuilder.getLAndroidPopularity());
+					}else{
+						mLog.error(stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 430001 + " " + sExtra + " 0 " + "0 10 "  + stUserBaseInfoNetBuilder.getLPopularity());
+					}
+					
 					
 					for(int i = 0; i < stGameRoomInfo.getVUserGameInfosCount();i++){
 						UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
@@ -3906,13 +3911,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY;
 				}
 			case 20001:
-				long lNewCoin = 0;
-				if(stUserBaseInfoNetBuilder.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
-					lNewCoin = stUserBaseInfoNetBuilder.getLAndroidCoin();
-				}else{
-					lNewCoin = stUserBaseInfoNetBuilder.getLCoin();
-				}
-				if(lNewCoin >= 6){
+				if(UserManager.getInstance().checkUserCoin(stUserBaseInfoNetBuilder.getUuid(),6)){
 					//组织push包
 					UseItemPushMsg.Builder stUseItemPushMsgBuilder = UseItemPushMsg.newBuilder();
 					stUseItemPushMsgBuilder.setLItemID(itemID);
@@ -3922,10 +3921,16 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					stUseItemPushMsgBuilder.setLRoomID(lGameRoomID);
 					stUseItemPushMsgBuilder.setSExtra(sExtra);
 					
-					Log   mLog   =   LogFactory.getLog("fortransaction");
-					mLog.error(stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 430002 + " " + sExtra + " 0 " + "0 6 "  +(lNewCoin - 6));
-					
+
 					stUserBaseInfoNetBuilder = UserManager.getInstance().addUserCoin(stUserBaseInfoNetBuilder.getUuid(), - 6);
+					
+					Log   mLog   =   LogFactory.getLog("fortransaction");
+					if(stUserBaseInfoNetBuilder.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
+						mLog.error(stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 430002 + " " + sExtra + " 0 " + "0 6 "  + stUserBaseInfoNetBuilder.getLAndroidCoin());
+					}else{
+						mLog.error(stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 430002 + " " + sExtra + " 0 " + "0 6 "  + stUserBaseInfoNetBuilder.getLCoin());
+					}
+					
 					
 					for(int i = 0; i < stGameRoomInfo.getVUserGameInfosCount();i++){
 						UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);

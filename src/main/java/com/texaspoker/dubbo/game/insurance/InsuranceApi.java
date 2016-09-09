@@ -185,14 +185,8 @@ public class InsuranceApi {
     UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
 	
     if (stUserBaseInfoNetBuilder != null ) {
-    	long lNewCoin = 0;
-    	if(stUserBaseInfoNetBuilder.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
-    		lNewCoin = stUserBaseInfoNetBuilder.getLAndroidCoin();
-    	}else{
-    		lNewCoin = stUserBaseInfoNetBuilder.getLCoin();
-    	}
     	
-    	if(lNewCoin >= nums){
+    	if(UserManager.getInstance().checkUserCoin(uuid,nums)){
     	      // 可以扣币，扣币值必须为负的
     	      UserManager.getInstance().addUserCoin(uuid, -nums);
     	      return true;

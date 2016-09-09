@@ -12,6 +12,10 @@ import com.texaspoker.moment.TexasPokerUserService.AddNewUserBaseInfoRequest;
 import com.texaspoker.moment.TexasPokerUserService.AddNewUserBaseInfoResponse;
 import com.texaspoker.moment.TexasPokerUserService.AddUserChatRoomsRequest;
 import com.texaspoker.moment.TexasPokerUserService.AddUserCreateGameRoomsRequest;
+import com.texaspoker.moment.TexasPokerUserService.CheckUserCoinRequest;
+import com.texaspoker.moment.TexasPokerUserService.CheckUserCoinResponse;
+import com.texaspoker.moment.TexasPokerUserService.CheckUserPopularityRequest;
+import com.texaspoker.moment.TexasPokerUserService.CheckUserPopularityResponse;
 import com.texaspoker.moment.TexasPokerUserService.ClearAPNTokenInfoRequest;
 import com.texaspoker.moment.TexasPokerUserService.ClearAPNTokenInfoResponse;
 import com.texaspoker.moment.TexasPokerUserService.DeleteUserCoverRequest;
@@ -883,5 +887,45 @@ public class UserManager {
 			e.printStackTrace();
 		}
 		return (long) 0;
+	}
+	
+	public boolean checkUserPopularity(long uuid,long lCheckPopularity){
+		TexasPokerUserService.UserService.BlockingInterface blockingUserService =   TexasPokerUserService.UserService.newBlockingStub(channel);
+		
+		CheckUserPopularityRequest.Builder stcheckUserPopularityBuilder = CheckUserPopularityRequest.newBuilder();
+		stcheckUserPopularityBuilder.setUuid(uuid);
+		stcheckUserPopularityBuilder.setLCheckPopularity(lCheckPopularity);
+		try {
+			CheckUserPopularityResponse stCheckUserPopularityResponse = blockingUserService.checkUserPopularity(controller, stcheckUserPopularityBuilder.build());
+			if(stCheckUserPopularityResponse!=null && stCheckUserPopularityResponse.getIErrorCode() == 0){
+				return true;
+			}else{
+				return false;
+			} 
+		} catch (ServiceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public boolean checkUserCoin(long uuid,long lCheckCoin){
+		TexasPokerUserService.UserService.BlockingInterface blockingUserService =   TexasPokerUserService.UserService.newBlockingStub(channel);
+		
+		CheckUserCoinRequest.Builder stcheckUserCoinBuilder = CheckUserCoinRequest.newBuilder();
+		stcheckUserCoinBuilder.setUuid(uuid);
+		stcheckUserCoinBuilder.setLCheckCoin(lCheckCoin);
+		try {
+			CheckUserCoinResponse stCheckUserCoinResponse = blockingUserService.checkUserCoin(controller, stcheckUserCoinBuilder.build());
+			if(stCheckUserCoinResponse!=null && stCheckUserCoinResponse.getIErrorCode() == 0){
+				return true;
+			}else{
+				return false;
+			} 
+		} catch (ServiceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
 	}
 }

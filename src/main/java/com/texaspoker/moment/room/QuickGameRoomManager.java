@@ -272,13 +272,7 @@ public class QuickGameRoomManager {
 							return stQuickGameRoomResultInfo;
 						}
 					}else if(stGameRoomBaseInfo.getEGameRoomSeniorType() == GAME_ROOM_SENIOR_TYPE.GAME_ROOM_SENIOR_TYPE_NORMAL){
-						long lNewCoin = 0;
-						if(stFromUserBuilder.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
-							lNewCoin = stFromUserBuilder.getLAndroidCoin();
-						}else{
-							lNewCoin = stFromUserBuilder.getLCoin();
-						}
-						if(lNewCoin >= 200){
+						if(UserManager.getInstance().checkUserCoin(stFromUserBuilder.getUuid(), 200)){
 							synchronized(RoomIDManager.class){
 								
 								//生成一个新的快速开局房间
@@ -356,9 +350,15 @@ public class QuickGameRoomManager {
 										
 								QuickGameRoomManager.getInstance().addUserCreateQuickGameRoom(stFromUserBuilder.getUuid(), lRoomID);
 								
-								mLog.error(uuid + " " + lRoomID + " " + 110001 + " " + stGameRoomBaseInfoBuilder.getLDuration()
-										+ " " + stGameRoomBaseInfoBuilder.getIMinBuyinRatio() 
-										+ " " + stGameRoomBaseInfoBuilder.getIMaxBuyinRatio() + " 200 "  + (lNewCoin-200));
+								if(stFromUserBuilder.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
+									mLog.error(uuid + " " + lRoomID + " " + 110001 + " " + stGameRoomBaseInfoBuilder.getLDuration()
+											+ " " + stGameRoomBaseInfoBuilder.getIMinBuyinRatio() 
+											+ " " + stGameRoomBaseInfoBuilder.getIMaxBuyinRatio() + " 200 "  + stFromUserBuilder.getLAndroidCoin());
+								}else{
+									mLog.error(uuid + " " + lRoomID + " " + 110001 + " " + stGameRoomBaseInfoBuilder.getLDuration()
+											+ " " + stGameRoomBaseInfoBuilder.getIMinBuyinRatio() 
+											+ " " + stGameRoomBaseInfoBuilder.getIMaxBuyinRatio() + " 200 "  +stFromUserBuilder.getLCoin());
+								}
 								
 								//组织回包
 								stQuickGameRoomResultInfo.setStQuickGameRoomInfo(stQuickGameRoomInfoBuilder.build());
