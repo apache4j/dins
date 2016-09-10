@@ -1539,7 +1539,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		
 		lBuyinStacks += lBuyStacks;
 		//修改账单信息
-		BillManager.getInstance().buyStackInRoom(uuid,stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), lBuyStacks);
+		BillManager.getInstance().buyStackInRoom(uuid,stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), lBuyinStacks);
 		
 		mUserBuyinStacks.put(uuid, lBuyinStacks);
 	}
