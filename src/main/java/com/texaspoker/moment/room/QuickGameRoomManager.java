@@ -166,10 +166,10 @@ public class QuickGameRoomManager {
 				GameRoomMsgManager.getInstance().sendQuickGameRoomMsg(stUserBaseInfoNet.getUuid(), stQuickGameRoomPushMsgBuilder.build());
 			}
 			
-
-			if(stQuickGameRoomInfoBuilder.getStGameRoomBaseInfo().getEGameRoomSeniorType() == GAME_ROOM_SENIOR_TYPE.GAME_ROOM_SENIOR_TYPE_NORMAL){
-				UserManager.getInstance().addUserCoin(stQuickGameRoomInfoBuilder.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(), 200);
-			}
+//
+//			if(stQuickGameRoomInfoBuilder.getStGameRoomBaseInfo().getEGameRoomSeniorType() == GAME_ROOM_SENIOR_TYPE.GAME_ROOM_SENIOR_TYPE_NORMAL){
+//				UserManager.getInstance().addUserCoin(stQuickGameRoomInfoBuilder.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(), 200);
+//			}
 		}
 	}
 	
