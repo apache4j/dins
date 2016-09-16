@@ -2532,7 +2532,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	}
 	
 	public boolean usedInGame(long uuid){
-		return mapStandByUserGameInfos.containsKey(uuid);
+		UserGameInfoNet.Builder stUserGameInfoNetBuilder = mapStandByUserGameInfos.get(uuid);
+		if(stUserGameInfoNetBuilder!=null && stUserGameInfoNetBuilder.getStUserInfo().getUuid()==uuid){
+			long lBuyinStacks = mUserBuyinStacks.get(uuid);
+			if(lBuyinStacks>0){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void gotoStartStatus(){
