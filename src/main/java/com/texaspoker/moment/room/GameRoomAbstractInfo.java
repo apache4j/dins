@@ -2691,17 +2691,19 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			//������������������������������
 			for (long uuid  : getStandByUuids()) {
 				if(uuid > 0){
-					SCGameRoomStateChange.Builder stGameStateChangeBuilder = SCGameRoomStateChange.newBuilder();
-					stGameStateChangeBuilder.setStGameRoomInfo(stGameRoomInfo);
-					stGameStateChangeBuilder.setUuid(fromUuid);
-					if(cards!=null){
-						for(int cardIndex = 0 ; cardIndex < cards.size();cardIndex++){
-							int cardNum = cards.get(cardIndex);
-							stGameStateChangeBuilder.addVGivenCards(cardNum);
+					if(!mPlayers.contains(uuid)){
+						SCGameRoomStateChange.Builder stGameStateChangeBuilder = SCGameRoomStateChange.newBuilder();
+						stGameStateChangeBuilder.setStGameRoomInfo(stGameRoomInfo);
+						stGameStateChangeBuilder.setUuid(fromUuid);
+						if(cards!=null){
+							for(int cardIndex = 0 ; cardIndex < cards.size();cardIndex++){
+								int cardNum = cards.get(cardIndex);
+								stGameStateChangeBuilder.addVGivenCards(cardNum);
+							}
 						}
+						
+						sendGameStateChange(uuid,stGameStateChangeBuilder.build());
 					}
-					
-					sendGameStateChange(uuid,stGameStateChangeBuilder.build());
 				}
 			}
 		}

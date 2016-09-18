@@ -2534,8 +2534,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	public boolean usedInGame(long uuid){
 		UserGameInfoNet.Builder stUserGameInfoNetBuilder = mapStandByUserGameInfos.get(uuid);
 		if(stUserGameInfoNetBuilder!=null && stUserGameInfoNetBuilder.getStUserInfo().getUuid()==uuid){
-			long lBuyinStacks = mUserBuyinStacks.get(uuid);
-			if(lBuyinStacks>0){
+			Long lBuyinStacks = mUserBuyinStacks.get(uuid);
+			if(lBuyinStacks!=null && lBuyinStacks>0){
 				return true;
 			}
 		}
