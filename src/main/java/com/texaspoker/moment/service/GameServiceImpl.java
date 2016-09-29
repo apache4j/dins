@@ -692,24 +692,27 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
 		if(stGameRoomDetailInfo!=null){
-			
+			System.out.println("getGameRoomInfo1111111111111");
 			GameRoomInfo stGameRoomInfo = stGameRoomDetailInfo.getStGameRoomInfo();
 			if(stGameRoomInfo!=null){
-				
+				System.out.println("getGameRoomInfo1111111111112");
 				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-			
+				System.out.println("getGameRoomInfo1111111111113");
 				if(request.getUuid() > 0){
-					
+					System.out.println("getGameRoomInfo1111111111114");
 					GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = stGameRoomInfoBuilder.getStGameRoomBaseInfoBuilder();
+					System.out.println("getGameRoomInfo1111111111115");
 					boolean bUsedInGame = stGameRoomDetailInfo.usedInGame(request.getUuid());
+					System.out.println("getGameRoomInfo1111111111116");
 					if(bUsedInGame){
 						stGameRoomBaseInfoBuilder.setBInGame(1);
 					}else{
 						stGameRoomBaseInfoBuilder.setBInGame(0);
 					}
+					System.out.println("getGameRoomInfo1111111111117");
 					stGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
 				}
-
+				System.out.println("getGameRoomInfo1111111111118");
 				stGetGameRoomInfoResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
 				stGetGameRoomInfoResponseBuilder.setStGameRoomInfo(stGameRoomInfoBuilder);
 			}else{
