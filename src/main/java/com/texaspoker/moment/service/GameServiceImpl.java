@@ -55,6 +55,8 @@ import com.texaspoker.moment.TexasPokerGameService.GiveMoneyRequest;
 import com.texaspoker.moment.TexasPokerGameService.GiveMoneyResponse;
 import com.texaspoker.moment.TexasPokerGameService.HelloGameRequest;
 import com.texaspoker.moment.TexasPokerGameService.HelloGameResponse;
+import com.texaspoker.moment.TexasPokerGameService.KickUserGameRoomRequest;
+import com.texaspoker.moment.TexasPokerGameService.KickUserGameRoomResponse;
 import com.texaspoker.moment.TexasPokerGameService.LeaveGameRoomRequest;
 import com.texaspoker.moment.TexasPokerGameService.LeaveGameRoomResponse;
 import com.texaspoker.moment.TexasPokerGameService.PauseGameRequest;
@@ -87,6 +89,8 @@ import com.texaspoker.moment.TexasPokerGameService.UseDelayItemRequest;
 import com.texaspoker.moment.TexasPokerGameService.UseDelayItemResponse;
 import com.texaspoker.moment.TexasPokerGameService.UseItemRequest;
 import com.texaspoker.moment.TexasPokerGameService.UseItemResponse;
+import com.texaspoker.moment.TexasPokerGameService.UserDelegateRequest;
+import com.texaspoker.moment.TexasPokerGameService.UserDelegateResponse;
 import com.texaspoker.moment.TexasPokerGameService.UserInsuranceSettingRequest;
 import com.texaspoker.moment.TexasPokerGameService.UserInsuranceSettingResponse;
 import com.texaspoker.moment.room.GameRoomDetailInfo;
@@ -318,15 +322,8 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLRoomID());
 		if(stGameRoomDetailInfo!=null){
-			ERROR_CODE_TYPE rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
-			UserGameInfoNet stUserGameInfoNet = stGameRoomDetailInfo.leaveGameRoom(request.getUuid());
-			
-			if(stUserGameInfoNet != null){
-				stLeaveGameRoomResponseBuilderBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-				stLeaveGameRoomResponseBuilderBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
-			}else{
-				stLeaveGameRoomResponseBuilderBuilder.setEErrCode(rst);
-			}
+			stGameRoomDetailInfo.leaveGameRoom(request.getUuid());
+			stLeaveGameRoomResponseBuilderBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
 		}else{
 			stLeaveGameRoomResponseBuilderBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);
 		}
@@ -692,27 +689,21 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
 		if(stGameRoomDetailInfo!=null){
-			System.out.println("getGameRoomInfo1111111111111");
 			GameRoomInfo stGameRoomInfo = stGameRoomDetailInfo.getStGameRoomInfo();
 			if(stGameRoomInfo!=null){
-				System.out.println("getGameRoomInfo1111111111112");
 				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-				System.out.println("getGameRoomInfo1111111111113");
+
 				if(request.getUuid() > 0){
-					System.out.println("getGameRoomInfo1111111111114");
 					GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = stGameRoomInfoBuilder.getStGameRoomBaseInfoBuilder();
-					System.out.println("getGameRoomInfo1111111111115");
 					boolean bUsedInGame = stGameRoomDetailInfo.usedInGame(request.getUuid());
-					System.out.println("getGameRoomInfo1111111111116");
+
 					if(bUsedInGame){
 						stGameRoomBaseInfoBuilder.setBInGame(1);
 					}else{
 						stGameRoomBaseInfoBuilder.setBInGame(0);
 					}
-					System.out.println("getGameRoomInfo1111111111117");
 					stGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
 				}
-				System.out.println("getGameRoomInfo1111111111118");
 				stGetGameRoomInfoResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
 				stGetGameRoomInfoResponseBuilder.setStGameRoomInfo(stGameRoomInfoBuilder);
 			}else{
@@ -787,10 +778,17 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
 		if(stGameRoomDetailInfo!=null&&stGameRoomDetailInfo.getStGameRoomInfo()!=null){
-			ArrayList<Long> vUuids = new ArrayList<Long>(stGameRoomDetailInfo.getStandByUuids());
-			if(vUuids!=null){
-				stGetStandByUuidsResponseBuilder.addAllVStandByUuids(vUuids);
+			ArrayList<Long> vStandingByUuids = new ArrayList<Long>(stGameRoomDetailInfo.getStandByUuids());
+			if(vStandingByUuids!=null){
+				stGetStandByUuidsResponseBuilder.addAllVStandingByUuids(vStandingByUuids);
 			}
+			
+			ArrayList<Long> vAllUuids = new ArrayList<Long>(stGameRoomDetailInfo.getAllStandByUuids());
+			for(long lUuid:vAllUuids){
+				if(!vStandingByUuids.contains(lUuid)){
+					stGetStandByUuidsResponseBuilder.addVStandByUuids(lUuid);
+				}
+			}			
 			stGetStandByUuidsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
 				
 		}else{
@@ -1253,6 +1251,47 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 	public void getGameSetting(RpcController controller,
 			GetGameSettingRequest request,
 			RpcCallback<GetGameSettingResponse> done) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public KickUserGameRoomResponse kickUserGameRoom(RpcController arg0,
+			KickUserGameRoomRequest arg1) throws ServiceException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public UserDelegateResponse userDelegate(RpcController arg0,
+			UserDelegateRequest request) throws ServiceException {
+		// TODO Auto-generated method stub
+		UserDelegateResponse.Builder  stUserDelegateResponseBuilder = UserDelegateResponse.newBuilder();
+		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+		if(stGameRoomDetailInfo!=null){
+			
+			if(request.getBDelegate() == 1){
+				stGameRoomDetailInfo.userDelegate(request.getUuid());
+			}else{
+				stGameRoomDetailInfo.userReturnGame(request.getUuid());
+			}
+		}
+		stUserDelegateResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);	
+		
+		return stUserDelegateResponseBuilder.build();
+	}
+
+	@Override
+	public void kickUserGameRoom(RpcController arg0,
+			KickUserGameRoomRequest arg1,
+			RpcCallback<KickUserGameRoomResponse> arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void userDelegate(RpcController arg0, UserDelegateRequest arg1,
+			RpcCallback<UserDelegateResponse> arg2) {
 		// TODO Auto-generated method stub
 		
 	}

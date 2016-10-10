@@ -18,6 +18,8 @@ public interface GameRoomAbstractInterface {
 	
 	Set<Long> getStandByUuids();
 	
+	Set<Long> getAllStandByUuids();
+	
 	void addStandByUuid(long uuid);
 	
 	/**
@@ -148,6 +150,8 @@ public interface GameRoomAbstractInterface {
 	void removeUserPos(long uuid);
 	
 	void removeStandByUuid(long uuid);
+	
+	void removeAllStandByStatusUuid(long uuid);
 	
 	boolean containUser(long uuid);
 	

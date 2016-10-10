@@ -67,7 +67,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	protected GameRoomInfo stGameRoomInfo;
 	
 	//旁观用户列表
-	private Set<Long>  mStandBys = new HashSet<Long>(); 
+	protected Set<Long>  mStandBys = new HashSet<Long>(); 
+	//所有旁观用户列表
+	protected Set<Long>  mStandingBys = new HashSet<Long>(); 
 	public TimeoutHashMap<Long,Long> mStandByTimeOut; //房间相关的数据
 	
 	//在桌上的用户列表
@@ -150,18 +152,24 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	
 	@Override  
 	public Set<Long> getStandByUuids(){
-		return mStandBys;
+		return mStandingBys;
 	}
 	
+	
+	@Override  
+	public Set<Long> getAllStandByUuids(){
+		return mStandBys;
+	}
 	@Override  
 	public void addStandByUuid(long uuid){
 		mStandBys.add(uuid);
+		mStandingBys.add(uuid);
 		mStandByTimeOut.setCurrent(uuid,uuid);
 	}
 	
 	@Override  
 	public void removeStandByUuid(long uuid){
-		mStandBys.remove(uuid);
+		mStandingBys.remove(uuid);
 		mStandByTimeOut.removeKey(uuid);
 	}
 	
@@ -172,6 +180,13 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		}else{
 			return 0;
 		}
+	}
+	
+	@Override  
+	public void removeAllStandByStatusUuid(long uuid){
+		mStandingBys.remove(uuid);
+		mStandBys.remove(uuid);
+		mStandByTimeOut.removeKey(uuid);
 	}
 	
 	@Override
@@ -3978,5 +3993,83 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 
 	public void setiGameRoomUserMaxNums(int iGameRoomUserMaxNums) {
 		this.iGameRoomUserMaxNums = iGameRoomUserMaxNums;
+	}
+	
+	//代理操作
+	public void userDelegate(long uuid){
+		for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount() ; i++){
+			UserGameInfoNet stUserGameInfo = stGameRoomInfo.getVUserGameInfos(i);
+
+			//找到离开房间的用户
+			if(stUserGameInfo.getStUserInfo().getUuid() == uuid){
+				//获取牌局对象
+				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+				
+				//获取托管用户信息
+				TexasPoker.UserGameInfoNet.Builder userGameInfoBuilder = stUserGameInfo.toBuilder();
+				
+				//设置为托管状态
+				userGameInfoBuilder.setBDelegate(1);
+				
+				//将用户设置回房间
+				stGameRoomInfoBuilder.setVUserGameInfos(i, userGameInfoBuilder);	
+				
+				stGameRoomInfo = stGameRoomInfoBuilder.build();
+			
+				userGameInfoBuilder.clearVCurrentHands();
+				
+				//给牌桌上其他用户push托管信息
+				for(int j = 0 ; j < stGameRoomInfo.getVUserGameInfosCount(); j++){
+					UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(j);
+					
+					if(stUserGameInfoNet.getStUserInfo().getUuid() > 0){		
+						pushGameRoomUserMsgs(userGameInfoBuilder.build(),stUserGameInfoNet.getStUserInfo().getUuid(),
+								GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_DELEGATE,i);
+					}
+				}
+					
+				//给旁观的人发送托管消息
+				for (long push_uuid  : mStandBys) {
+					pushGameRoomUserMsgs(userGameInfoBuilder.build(),push_uuid,GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_DELEGATE,i);
+				}
+			}
+		}
+	}
+	
+	//取消代理
+	public void userReturnGame(long uuid){
+		for(int i = 0 ; i < this.stGameRoomInfo.getVUserGameInfosCount();i++){
+			//获取炮狙用户信息
+			UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
+			
+			//找到要取消托管状态的用户
+			if(stUserGameInfoNet!=null 
+					&& stUserGameInfoNet.getStUserInfo().getUuid()>0
+					&& stUserGameInfoNet.getStUserInfo().getUuid() == uuid
+					&& stUserGameInfoNet.getBDelegate() == 1){
+				//重新设置用户的托管信息
+				UserGameInfoNet.Builder stUserGameInfoNetBuilder = stUserGameInfoNet.toBuilder();
+				stUserGameInfoNetBuilder.setBDelegate(0);
+				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+				stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+				stGameRoomInfo = stGameRoomInfoBuilder.build();
+				stUserGameInfoNetBuilder.clearVCurrentHands();
+				
+				//给牌桌上的用户发送返回牌桌的消息
+				for(int j = 0 ; j < stGameRoomInfo.getVUserGameInfosCount(); j++){
+					UserGameInfoNet stUserGameInfoNetIn = stGameRoomInfo.getVUserGameInfos(j);
+					
+					if(stUserGameInfoNetIn.getStUserInfo().getUuid() > 0){			
+						pushGameRoomUserMsgs(stUserGameInfoNetBuilder.build(),stUserGameInfoNetIn.getStUserInfo().getUuid(),
+								GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_RETURNGAME,i);
+					}
+				}
+				//给旁观的人发返回牌桌消息
+				for (long push_uuid : mStandBys) {
+					pushGameRoomUserMsgs(stUserGameInfoNetBuilder.build(),push_uuid,GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_RETURNGAME,i);
+				}
+				break;
+			}
+		}
 	}
 }
