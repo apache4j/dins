@@ -198,6 +198,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				
 						removeUserPos(uuid);
 						addStandByUuid(uuid);
+						stUserGameInfoBuilder.setBDelegate(0);
 						mapStandByUserGameInfos.put(uuid, stUserGameInfoBuilder.clone());
 						mPlayers.remove(uuid);
 						
