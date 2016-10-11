@@ -1257,9 +1257,16 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 
 	@Override
 	public KickUserGameRoomResponse kickUserGameRoom(RpcController arg0,
-			KickUserGameRoomRequest arg1) throws ServiceException {
+			KickUserGameRoomRequest request) throws ServiceException {
 		// TODO Auto-generated method stub
-		return null;
+		KickUserGameRoomResponse.Builder  stKickUserGameRoomResponseBuilder = KickUserGameRoomResponse.newBuilder();
+		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+		if(stGameRoomDetailInfo!=null){
+			stGameRoomDetailInfo.kickUserInGame(request.getLKickUuid());
+		}
+		stKickUserGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);	
+		
+		return stKickUserGameRoomResponseBuilder.build();
 	}
 
 	@Override
