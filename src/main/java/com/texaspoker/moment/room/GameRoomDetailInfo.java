@@ -3290,6 +3290,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	
 	//踢人接口
 	public void kickUserPush(UserGameInfoNet.Builder stUserGameInfoNetBuilder,int pos,int bKickedInGame){		
+		//加入牌局黑名单
+		addBlackList(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
+		
 		//给牌桌上的用户发送返回牌桌的消息
 		stUserGameInfoNetBuilder.clearVCurrentHands();
 		stUserGameInfoNetBuilder.setBKickedInGame(bKickedInGame);
@@ -3309,9 +3312,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		
 		//从旁观列表里面删除(保险起见)
 		removeStandByUuid(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
-		
-		//加入牌局黑名单
-		addBlackList(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
 		
 		//把人从踢人列表里面删除
 		mUserKickingUser.remove(stUserGameInfoNetBuilder.getStUserInfo().getUuid());

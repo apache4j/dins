@@ -1012,6 +1012,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		
 		checkAllAllin();
 			
+		
 		if(stGameRoomInfo!=null){
 			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 			for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount() ; i ++){
@@ -1045,7 +1046,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			
 			stGameRoomPushMsgBuilder.setStGameRoomInfo(stGameRoomInfoBuilder);
 		}
-			
+		
 		
 		TexasPoker.GameRoomPushMsg stGameRoomPushMsg = stGameRoomPushMsgBuilder
 				.build();
