@@ -73,13 +73,13 @@ public class APNManager  {
 		return instance;  
 	}  
 
-	public void pushAPNMsg(long uuid,String strToken,String msg,int badge){
+	public void pushAPNMsg(long uuid,long lToUuid,String msg,int badge){
 		try{
 			
 			APNMsgRequest.Builder stAPNMsgRequestBuilder = APNMsgRequest.newBuilder();
 			stAPNMsgRequestBuilder.setUuid(uuid);
 			stAPNMsgRequestBuilder.setSMsg(msg);
-			stAPNMsgRequestBuilder.setSToken(strToken);
+			stAPNMsgRequestBuilder.setLToUuid(lToUuid);
 			stAPNMsgRequestBuilder.setIBadge(""+badge);
 
 			apnService.pushFriendMsg(controller, stAPNMsgRequestBuilder.build(), done);
@@ -89,12 +89,12 @@ public class APNManager  {
 		}
 	}
 	
-	public void enterGameRoomPush(long uuid,String strToken,String strNick,String strGameRoomName,int iGameRoomUsers,int badge){
+	public void enterGameRoomPush(long uuid,long lToUuid,String strNick,String strGameRoomName,int iGameRoomUsers,int badge){
 		try{
 			
 			EnterGameRoomPushRequest.Builder stEnterGameRoomPushRequestBuilder = EnterGameRoomPushRequest.newBuilder();
 			stEnterGameRoomPushRequestBuilder.setUuid(uuid);
-			stEnterGameRoomPushRequestBuilder.setSToken(strToken);
+			stEnterGameRoomPushRequestBuilder.setLToUuid(lToUuid);
 			stEnterGameRoomPushRequestBuilder.setStrNick(strNick);
 			stEnterGameRoomPushRequestBuilder.setIBadge(""+badge);
 			stEnterGameRoomPushRequestBuilder.setStrRoomName(strGameRoomName);
@@ -107,12 +107,12 @@ public class APNManager  {
 		}
 	}
 	
-	public void buyinPush(long uuid,String strToken,String strNick,String strGameRoomName,int badge){
+	public void buyinPush(long uuid,long lToUuid,String strNick,String strGameRoomName,int badge){
 		try{
 			
 			BuyinPushRequest.Builder stBuyinPushRequestBuilder = BuyinPushRequest.newBuilder();
 			stBuyinPushRequestBuilder.setUuid(uuid);
-			stBuyinPushRequestBuilder.setSToken(strToken);
+			stBuyinPushRequestBuilder.setLToUuid(lToUuid);
 			stBuyinPushRequestBuilder.setStrNick(strNick);
 			stBuyinPushRequestBuilder.setIBadge(""+badge);
 			stBuyinPushRequestBuilder.setStrRoomName(strGameRoomName);
@@ -124,12 +124,12 @@ public class APNManager  {
 		}
 	}
 	
-	public void StartGameRoomPush(long uuid,String strToken,String strGameRoomName,int badge){
+	public void StartGameRoomPush(long uuid,long lToUuid,String strGameRoomName,int badge){
 		try{
 			
 			StartGameRoomPushRequest.Builder stStartGameRoomPushRequestBuilder = StartGameRoomPushRequest.newBuilder();
 			stStartGameRoomPushRequestBuilder.setUuid(uuid);
-			stStartGameRoomPushRequestBuilder.setSToken(strToken);
+			stStartGameRoomPushRequestBuilder.setLToUuid(lToUuid);
 			stStartGameRoomPushRequestBuilder.setSGameRoomName(strGameRoomName);
 
 			apnService.startGameRoomPush(controller, stStartGameRoomPushRequestBuilder.build(),null);
@@ -139,13 +139,13 @@ public class APNManager  {
 		}
 	} 
 	
-	public void gameOverPush(long uuid,String strToken,String strGameRoomName,int badge){
+	public void gameOverPush(long uuid,long lToUuid,String strGameRoomName,int badge){
 		try{
 			
 //			System.out.println("gameOverPushgameOverPushgameOverPush!!!!!!!!!!~~~~~~~~~~~~~~~~~~~~");
 			GameOverPushRequest.Builder stGameOverPushRequestBuilder = GameOverPushRequest.newBuilder();
 			stGameOverPushRequestBuilder.setUuid(uuid);
-			stGameOverPushRequestBuilder.setSToken(strToken);
+			stGameOverPushRequestBuilder.setLToUuid(lToUuid);
 			stGameOverPushRequestBuilder.setIBadge(""+badge);
 			stGameOverPushRequestBuilder.setStrRoomName(strGameRoomName);
 

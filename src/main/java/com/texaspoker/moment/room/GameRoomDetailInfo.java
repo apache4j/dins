@@ -36,7 +36,6 @@ import com.texaspoker.moment.TexasPokerCommon.DEVICE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.GAME_ROOM_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
-import com.texaspoker.moment.TexasPokerCommon.UserTokenInfoNet;
 import com.texaspoker.moment.TexasPokerHttpClub.ClubInfo;
 import com.texaspoker.moment.TexasPokerHttpClub.ClubUserInfo;
 import com.texaspoker.msg.GameRoomMsgManager;
@@ -1473,11 +1472,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			else if(stUserGameInfoNetBuilder.getStUserInfoBuilder().getUuid() > 0){
 				//如果用户被踢
 				if(mUserKickingUser.containsKey(stUserGameInfoNetBuilder.getStUserInfoBuilder().getUuid())){
+					stGameRoomInfo  = stGameRoomInfoBuilder.build();
+					
 					//踢人逻辑，首先把用户站起
 					doStandUpAction(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),true);
 					
 					//踢人消息
 					kickUserPush(stUserGameInfoNetBuilder,i,1);	
+					
+					stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 				}else{
 					stUserGameInfoNetBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_READY);
 					
@@ -2119,20 +2122,17 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	void pushAppPushGameFinish(long touuid){
 		UserBaseInfoNet.Builder stFromUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(touuid);		
 		//获取push相关信息
-		UserTokenInfoNet stUserTokenInfoNet = UserManager.getInstance().getUserTokenInfo(touuid);
-
-		if(stUserTokenInfoNet!=null && stFromUserBaseInfoNetBuilder!=null){
-			APNManager.getInstance().gameOverPush(touuid, stUserTokenInfoNet.getStrAPNToken(), stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(), 1);
+		if(stFromUserBaseInfoNetBuilder!=null){
+			APNManager.getInstance().gameOverPush(touuid, touuid , stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(), 1);
 		}
 	}
 	
 	void pushAppPushBuyinInvite(long touuid){
 		UserBaseInfoNet.Builder stFromUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(touuid);		
-		UserTokenInfoNet stUserTokenInfoNet = UserManager.getInstance().getUserTokenInfo(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid());
 
-        if(stUserTokenInfoNet!=null && stFromUserBaseInfoNetBuilder!=null){
+        if(stFromUserBaseInfoNetBuilder!=null){
         	APNManager.getInstance().buyinPush(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
-        			, stUserTokenInfoNet.getStrAPNToken()
+        			, stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
         			, stFromUserBaseInfoNetBuilder.getStrNick()
         			, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName()
         			, 1);
@@ -2143,11 +2143,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	void pushAppPushEnterGame(long fromuuid,int iGameRoomUsers){
 		UserBaseInfoNet.Builder stFromUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(fromuuid);		
 		//获取push相关信息
-        UserTokenInfoNet stUserTokenInfoNet = UserManager.getInstance().getUserTokenInfo(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid());
-
-        if(stUserTokenInfoNet!=null && stFromUserBaseInfoNetBuilder!=null){
+        if(stFromUserBaseInfoNetBuilder!=null){
         	APNManager.getInstance().enterGameRoomPush(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
-        			, stUserTokenInfoNet.getStrAPNToken()
+        			, stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
         			, stFromUserBaseInfoNetBuilder.getStrNick()
         			, getStGameRoomInfo().getStGameRoomBaseInfo().getStrRoomName()
         			, iGameRoomUsers
@@ -2160,10 +2158,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
 			if(stUserGameInfoNet.getStUserInfo().getUuid() > 0){
 				UserBaseInfoNet.Builder stFromUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(stUserGameInfoNet.getStUserInfo().getUuid());	
-				UserTokenInfoNet stUserTokenInfoNet = UserManager.getInstance().getUserTokenInfo(stUserGameInfoNet.getStUserInfo().getUuid());
-				if(stFromUserBaseInfoNetBuilder!=null && stUserTokenInfoNet!=null){
+				if(stFromUserBaseInfoNetBuilder!=null){
 					APNManager.getInstance().StartGameRoomPush(stUserGameInfoNet.getStUserInfo().getUuid()
-							, stUserTokenInfoNet.getStrAPNToken()
+							, stUserGameInfoNet.getStUserInfo().getUuid()
 							, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName()
 							, 1);
 				}
@@ -2173,10 +2170,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		for (long standUuid  : getStandByUuids()) {
 			if(standUuid > 0){
 				UserBaseInfoNet.Builder stFromUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(standUuid);	
-				UserTokenInfoNet stUserTokenInfoNet = UserManager.getInstance().getUserTokenInfo(standUuid);
-				if(stFromUserBaseInfoNetBuilder!=null && stUserTokenInfoNet!=null){
+				if(stFromUserBaseInfoNetBuilder!=null){
 					APNManager.getInstance().StartGameRoomPush(stFromUserBaseInfoNetBuilder.getUuid()
-							, stUserTokenInfoNet.getStrAPNToken()
+							, standUuid
 							, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName()
 							, 1);
 				}
