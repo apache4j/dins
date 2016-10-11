@@ -3504,7 +3504,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	/****************************牌局用户位置辅助函数*******************************/
 	@Override
 	public int getUserPos(long uuid){
-		return mapUserPos.get(uuid);
+		Integer iPos = mapUserPos.get(uuid);
+		if(iPos!=null){
+			return iPos;
+		}else{
+			return 0;
+		}
 	}
 	
 	@Override
