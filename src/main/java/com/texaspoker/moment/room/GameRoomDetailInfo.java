@@ -1546,20 +1546,28 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 										}
 									}
 								}
-								
 							}
 						
-						stUserGameInfoNetBuilder.setBBuyin(0);					
+						stUserGameInfoNetBuilder.setBBuyin(0);		
+						stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
 					}else if(stUserGameInfoNetBuilder.getLRemainStacks() == 0){
-						stUserGameInfoNetBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_WAIT);
+						if(stUserGameInfoNetBuilder.getBDelegate() == 1){
+							stGameRoomInfo  = stGameRoomInfoBuilder.build();
+							//踢人逻辑，首先把用户站起
+							doStandUpAction(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),true);
+							
+							stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+						}else{
+							stUserGameInfoNetBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_WAIT);
+							stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+						}
 					}else{
 						iCouldPlayNum++;
+						stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
 					}
-					stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+					
 				}
-			}
-			
-			
+			}			
 		}
 		
 		stGameRoomInfoBuilder.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait);
