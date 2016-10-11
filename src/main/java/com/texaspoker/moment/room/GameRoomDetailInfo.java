@@ -1555,10 +1555,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					}else{
 						iCouldPlayNum++;
 					}
+					stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
 				}
 			}
 			
-			stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+			
 		}
 		
 		stGameRoomInfoBuilder.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait);
