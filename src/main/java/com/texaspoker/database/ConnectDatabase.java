@@ -300,10 +300,8 @@ public class ConnectDatabase {
  	void pushAppPush(long touuid,String sRoomName){
 		UserBaseInfoNet.Builder stFromUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(touuid);		
 		//获取push相关信息
-        UserTokenInfoNet stUserTokenInfoNet = UserManager.getInstance().getUserTokenInfo(touuid);
-
-        if(stUserTokenInfoNet!=null && stFromUserBaseInfoNetBuilder!=null){
-        	APNManager.getInstance().gameOverPush(touuid, stUserTokenInfoNet.getStrAPNToken(), sRoomName, 1);
+        if(stFromUserBaseInfoNetBuilder!=null){
+        	APNManager.getInstance().gameOverPush(touuid, touuid, sRoomName, 1);
         }
 	}
     //用来查看用户的用户名和密码是否匹配
