@@ -1571,6 +1571,17 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			}			
 		}
 		
+		//踢出其站起的用户
+		ArrayList<Long> vKickingUuids = new ArrayList<Long>(mUserKickingUser.keySet());
+		for(long uuid:vKickingUuids){
+			UserGameInfoNet.Builder stUserGameInfoNetBuilder = mapStandByUserGameInfos.get(uuid);
+			if(stUserGameInfoNetBuilder!=null){
+				//踢人消息
+				kickUserPush(stUserGameInfoNetBuilder,0,0);
+				return;
+			}
+		}
+	
 		stGameRoomInfoBuilder.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait);
 		
 		mPotList.clear();
