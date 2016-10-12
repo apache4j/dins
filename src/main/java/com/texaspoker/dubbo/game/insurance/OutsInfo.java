@@ -9,6 +9,8 @@ package com.texaspoker.dubbo.game.insurance;
 
 import java.util.Arrays;
 
+import org.apache.log4j.Logger;
+
 /**
  * 类名称:OutsResult
  * 类描述:
@@ -18,6 +20,8 @@ import java.util.Arrays;
  * 修改备注:
  */
 public class OutsInfo {
+
+  private static Logger logger = Logger.getLogger(OutsInfo.class);
 
   // outs数量在多少个内，才能买保险
   public static final int OUTS_LIMIT = 14;
@@ -109,6 +113,8 @@ public class OutsInfo {
     pay_max = pay_max < 1 ? 1 : pay_max;
     // 找出最小购买值，可为0，如果以前购买过，则至少为1
     pay_min = prebuys > 0 ? getBuyPrice(prebuys / odds_d) : 0;
+    // 不能比最大值大
+    pay_min = pay_min < pay_max ? pay_min : pay_max;
     // 处理保本额度，不能比最大额度还大
     long temp_noloss = getBuyPrice((prebuys + bets) / odds_d);
     pay_loss = temp_noloss > pay_max ? pay_max : temp_noloss;
