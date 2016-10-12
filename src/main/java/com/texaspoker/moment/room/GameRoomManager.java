@@ -220,7 +220,7 @@ public class GameRoomManager  {
 							ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(gameRoomBaseInfoBuilder.getLChatRoomID());
 							if(stClubInfoBuilder!=null){
 								// 发送APP Push
-								pushAppCreateMsg(0,stClubInfoBuilder.getStClubBaseInfo().getLClubID()
+								pushAppCreateMsg(stClubInfoBuilder.getStClubBaseInfo().getLClubID()
 										,gameRoomBaseInfoBuilder.getStrRoomName()
 										,gameRoomBaseInfoBuilder.getLDuration()
 										,gameRoomBaseInfoBuilder.getLSmallBlinds()
@@ -386,7 +386,7 @@ public class GameRoomManager  {
 								if(stClubInfoBuilder!=null){
 									// 如果是俱乐部开局，则对俱乐部里的每个人进行push操作
 									// 发送APP Push
-									pushAppCreateMsg(0,stClubInfoBuilder.getStClubBaseInfo().getLClubID()
+									pushAppCreateMsg(stClubInfoBuilder.getStClubBaseInfo().getLClubID()
 											,gameRoomBaseInfoBuilder.getStrRoomName(),gameRoomBaseInfoBuilder.getLDuration()
 											,gameRoomBaseInfoBuilder.getLSmallBlinds()
 											,gameRoomBaseInfoBuilder.getIAnte());
@@ -435,10 +435,10 @@ public class GameRoomManager  {
 	}
 
 	
-	public void pushAppCreateMsg(long uuid,long lClubID,String sGameName,long lDuration,long sb,int ante){
+	public void pushAppCreateMsg(long lClubID,String sGameName,long lDuration,long sb,int ante){
 		//获取push相关信息
     	float fHour =  (float)lDuration/(float)3600;
-    	APNManager.getInstance().createGameRoomPush(uuid, lClubID, sGameName, ""+fHour, sb, ante, 1);  
+    	APNManager.getInstance().createGameRoomPush(lClubID, sGameName, ""+fHour, sb, ante, 1);  
 	}
 	
 	void pushGametRoomUserMsgs(UserGameInfoNet stFromUserGamenfo/* 邀请人 */,

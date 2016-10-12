@@ -466,7 +466,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						GameRoomMsgManager.getInstance().sendBuyinControlMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
 								, stBuyinControlMsgBuilder.build());
 						
-						pushAppPushBuyinInvite(uuid);
+						pushAppPushBuyinInvite(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(),stUserGameInfoBuilder.getStUserInfo().getStrNick());
 
 						return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 					}
@@ -494,7 +494,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							, stBuyinControlMsgBuilder.build());
 					
 					
-					pushAppPushBuyinInvite(uuid);
+					pushAppPushBuyinInvite(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(),stUserGameInfoBuilder.getStUserInfo().getStrNick());
 					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 				}
 
@@ -2130,23 +2130,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	
 	//牌局结束push
 	void pushAppPushGameFinish(long touuid){
-		UserBaseInfoNet.Builder stFromUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(touuid);		
-		//获取push相关信息
-		if(stFromUserBaseInfoNetBuilder!=null){
-			APNManager.getInstance().gameOverPush(touuid, touuid , stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(), 1);
-		}
+		APNManager.getInstance().gameOverPush(touuid , stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(), 1);	
 	}
 	
-	void pushAppPushBuyinInvite(long touuid){
-		UserBaseInfoNet.Builder stFromUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(touuid);		
-
-        if(stFromUserBaseInfoNetBuilder!=null){
-        	APNManager.getInstance().buyinPush(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
-        			, stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
-        			, stFromUserBaseInfoNetBuilder.getStrNick()
-        			, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName()
-        			, 1);
-        }
+	void pushAppPushBuyinInvite(long touuid,String strNickname){
+		APNManager.getInstance().buyinPush(touuid , strNickname, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(), 1);
 	}
 	
 	//牌局进入push
@@ -2155,7 +2143,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		//获取push相关信息
         if(stFromUserBaseInfoNetBuilder!=null){
         	APNManager.getInstance().enterGameRoomPush(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
-        			, stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
         			, stFromUserBaseInfoNetBuilder.getStrNick()
         			, getStGameRoomInfo().getStGameRoomBaseInfo().getStrRoomName()
         			, iGameRoomUsers
@@ -2167,26 +2154,18 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount() ; i ++){
 			UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
 			if(stUserGameInfoNet.getStUserInfo().getUuid() > 0){
-				UserBaseInfoNet.Builder stFromUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(stUserGameInfoNet.getStUserInfo().getUuid());	
-				if(stFromUserBaseInfoNetBuilder!=null){
-					APNManager.getInstance().StartGameRoomPush(stUserGameInfoNet.getStUserInfo().getUuid()
-							, stUserGameInfoNet.getStUserInfo().getUuid()
-							, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName()
-							, 1);
-				}
+				APNManager.getInstance().StartGameRoomPush(stUserGameInfoNet.getStUserInfo().getUuid()
+						, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName()
+						, 1);
+				
 			}
 		}
 		
 		for (long standUuid  : getStandByUuids()) {
 			if(standUuid > 0){
-				UserBaseInfoNet.Builder stFromUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(standUuid);	
-				if(stFromUserBaseInfoNetBuilder!=null){
-					APNManager.getInstance().StartGameRoomPush(stFromUserBaseInfoNetBuilder.getUuid()
-							, standUuid
-							, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName()
-							, 1);
-				}
-
+				APNManager.getInstance().StartGameRoomPush(standUuid
+						, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName()
+						, 1);
 			}
 		}
 	}
@@ -2196,8 +2175,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			long sb = stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds();
 			int ante = stGameRoomInfo.getStGameRoomBaseInfo().getIAnte();
 			float fHour =  (float)stGameRoomInfo.getStGameRoomBaseInfo().getLDuration()/(float)3600;
-			 APNManager.getInstance().emptyGameRoomPush(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
-					 , stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
+			 APNManager.getInstance().emptyGameRoomPush(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
 					 , stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName()
 					 , ""+fHour , sb, ante, 1);  
 		}

@@ -36,7 +36,6 @@ import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
 import com.texaspoker.moment.TexasPokerCommon.ID_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.SNG_ROOM_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
-import com.texaspoker.moment.TexasPokerCommon.UserTokenInfoNet;
 import com.texaspoker.moment.TexasPokerCommon.GAME_ROOM_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.CREATE_ROOM_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.VIP_TYPE;
@@ -301,7 +300,7 @@ public class ConnectDatabase {
 		UserBaseInfoNet.Builder stFromUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(touuid);		
 		//获取push相关信息
         if(stFromUserBaseInfoNetBuilder!=null){
-        	APNManager.getInstance().gameOverPush(touuid, touuid, sRoomName, 1);
+        	APNManager.getInstance().gameOverPush(touuid, sRoomName, 1);
         }
 	}
     //用来查看用户的用户名和密码是否匹配
