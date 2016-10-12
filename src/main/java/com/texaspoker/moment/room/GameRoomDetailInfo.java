@@ -198,7 +198,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				
 						removeUserPos(uuid);
 						addStandByUuid(uuid);
+						
+						//通知保险用户进入代理状态
+						InsuranceApi.doGameDelegateClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid);
+						
+						//解除用户代理状态
 						stUserGameInfoBuilder.setBDelegate(0);
+						
 						mapStandByUserGameInfos.put(uuid, stUserGameInfoBuilder.clone());
 						mPlayers.remove(uuid);
 						

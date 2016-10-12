@@ -9,9 +9,7 @@ package com.texaspoker.dubbo.game.insurance;
 
 import java.util.List;
 import java.util.Map;
-
 import org.apache.log4j.Logger;
-
 import com.texaspoker.bill.BillManager;
 import com.texaspoker.logger.TableLogService;
 import com.texaspoker.moment.TexasPoker;
@@ -20,7 +18,6 @@ import com.texaspoker.moment.TexasPoker.GameRoomInfo;
 import com.texaspoker.moment.TexasPoker.INSURANCE_ACT;
 import com.texaspoker.moment.TexasPoker.INSURANCE_BET_STATUS;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
-import com.texaspoker.moment.TexasPokerCommon.DEVICE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
 import com.texaspoker.moment.room.GameRoomDetailInfo;
 import com.texaspoker.moment.room.GameRoomManager;
@@ -118,7 +115,17 @@ public class InsuranceApi {
     // 本次操作执行完毕以后，再来查看是否需要超时继续往下走
     InsuranceManager.getInstance().checkRoomTimeout(lGameRoomID);
   }
+  
+  // 开启代理模式
+  public static void doGameDelegateOpen(long lGameRoomID,long uuid) {
 
+  }
+  
+  // 关闭代理模式
+  public static void doGameDelegateClose(long lGameRoomID,long uuid) {
+
+  }
+  
   // 延时购买接口
   public static TexasPoker.InsuranceInfo delayInsuranceAction(long lGameRoomID, long lHandID,
       TexasPoker.GAME_ROOM_GAME_STATE eRoundState, long uuid) {

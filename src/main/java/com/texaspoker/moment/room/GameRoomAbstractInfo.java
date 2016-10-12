@@ -4020,6 +4020,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				//将用户设置回房间
 				stGameRoomInfoBuilder.setVUserGameInfos(i, userGameInfoBuilder);	
 				
+				//通知保险用户进入代理状态
+				InsuranceApi.doGameDelegateOpen(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid);
+				
 				stGameRoomInfo = stGameRoomInfoBuilder.build();
 			
 				userGameInfoBuilder.clearVCurrentHands();
@@ -4055,7 +4058,13 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					&& stUserGameInfoNet.getBDelegate() == 1){
 				//重新设置用户的托管信息
 				UserGameInfoNet.Builder stUserGameInfoNetBuilder = stUserGameInfoNet.toBuilder();
+				
+				//通知保险用户进入代理状态
+				InsuranceApi.doGameDelegateClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid);
+				
+				//解除用户代理状态
 				stUserGameInfoNetBuilder.setBDelegate(0);
+				
 				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 				stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
 				stGameRoomInfo = stGameRoomInfoBuilder.build();
