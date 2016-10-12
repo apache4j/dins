@@ -36,6 +36,9 @@ public class InsuranceLimit {
   // 房间的屏蔽列表
   private ConcurrentMap<Long, Set<Long>> room_limits = new ConcurrentHashMap<Long, Set<Long>>();
 
+  // 房间的用户托管状态
+  private ConcurrentMap<Long, Set<Long>> room_delegates = new ConcurrentHashMap<Long, Set<Long>>();
+
   public void onRoomOpen(long roomId) {
     logger.debug("roomId:" + roomId + ",open table");
   }
@@ -45,6 +48,7 @@ public class InsuranceLimit {
     room_creater_limits.remove(roomId);
     room_user_limits.remove(roomId);
     room_limits.remove(roomId);
+    room_delegates.remove(roomId);
   }
 
   // 检查是否关闭这个用户的保险购买信息
@@ -144,5 +148,47 @@ public class InsuranceLimit {
       // 去掉这个屏蔽
       roomStatus.remove(uuid);
     }
+  }
+
+  // 获取用户的托管状态
+  public boolean checkUserDelegateState(long roomId, long uuid) {
+    Set<Long> limitSet = room_delegates.get(roomId);
+    if (limitSet == null) {
+      return false;
+    }
+    if (limitSet.contains(uuid)) {
+      logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",close:ture");
+      return true;
+    } else {
+      logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",close:false");
+      return false;
+    }
+  }
+
+  // 设置用户托管状态
+  public void openUserDelegate(long roomId, long uuid) {
+    Set<Long> roomStatus = room_delegates.get(roomId);
+    // 是否这个房间没有关闭过保险
+    if (roomStatus == null) {
+      roomStatus = Collections.synchronizedSet(new HashSet<Long>());
+      room_delegates.put(roomId, roomStatus);
+    }
+    // 这个用户是否已经关闭过保险
+    if (roomStatus.contains(uuid)) {
+      return;
+    }
+    // 加入屏蔽集合
+    roomStatus.add(uuid);
+  }
+
+  // 取消用户托管状态
+  public void closeUserDelegate(long roomId, long uuid) {
+    Set<Long> roomStatus = room_delegates.get(roomId);
+    // 没有这个保险屏蔽信息，直接返回成功
+    if (roomStatus == null) {
+      return;
+    }
+    // 去掉这个屏蔽
+    roomStatus.remove(uuid);
   }
 }

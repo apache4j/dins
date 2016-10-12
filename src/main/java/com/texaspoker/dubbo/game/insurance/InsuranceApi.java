@@ -9,7 +9,9 @@ package com.texaspoker.dubbo.game.insurance;
 
 import java.util.List;
 import java.util.Map;
+
 import org.apache.log4j.Logger;
+
 import com.texaspoker.bill.BillManager;
 import com.texaspoker.logger.TableLogService;
 import com.texaspoker.moment.TexasPoker;
@@ -46,8 +48,7 @@ public class InsuranceApi {
   }
 
   // allin状态下开始计算保险接口
-  public static TexasPoker.InsuranceInfo checkInsurance(long lGameRoomID, long lHandID,
-      TexasPoker.GAME_ROOM_GAME_STATE eRoundState) {
+  public static TexasPoker.InsuranceInfo checkInsurance(long lGameRoomID, long lHandID, TexasPoker.GAME_ROOM_GAME_STATE eRoundState) {
     // 检查保险
     int roundStatus = getRoundStatus(eRoundState);
     InsuranceInfo insuranceInfo = InsuranceManager.getInstance().checkInsurance(lGameRoomID, lHandID, roundStatus);
@@ -85,21 +86,17 @@ public class InsuranceApi {
   }
 
   // 保险购买接口
-  public static TexasPoker.InsuranceInfo doInsuranceAction(long lGameRoomID, long lHandID,
-      TexasPoker.GAME_ROOM_GAME_STATE eRoundState, long uuid, List<BuyInsuranceInfo> stBuyInsuranceInfos) {
+  public static TexasPoker.InsuranceInfo doInsuranceAction(long lGameRoomID, long lHandID, TexasPoker.GAME_ROOM_GAME_STATE eRoundState, long uuid,
+      List<BuyInsuranceInfo> stBuyInsuranceInfos) {
     int roundStatus = getRoundStatus(eRoundState);
     InsuranceInfo insuranceInfo = null;
     for (BuyInsuranceInfo buyInfo : stBuyInsuranceInfos) {
       if (buyInfo.getEInsuranceAct().equals(INSURANCE_ACT.INSURANCE_ACT_BET)) {
-        insuranceInfo =
-            InsuranceManager.getInstance().buyInsurance(lGameRoomID, lHandID, roundStatus, uuid, buyInfo.getLPotID(),
-                buyInfo.getLBetStacks());
+        insuranceInfo = InsuranceManager.getInstance().buyInsurance(lGameRoomID, lHandID, roundStatus, uuid, buyInfo.getLPotID(), buyInfo.getLBetStacks());
       } else if (buyInfo.getEInsuranceAct().equals(INSURANCE_ACT.INSURANCE_ACT_FOLD)) {
-        insuranceInfo =
-            InsuranceManager.getInstance().foldInsurance(lGameRoomID, lHandID, roundStatus, uuid, buyInfo.getLPotID());
+        insuranceInfo = InsuranceManager.getInstance().foldInsurance(lGameRoomID, lHandID, roundStatus, uuid, buyInfo.getLPotID());
       } else {
-        logger.error("roomId:" + lGameRoomID + ",handId:" + lHandID + ",eRoundState" + eRoundState + ",buy info:"
-            + buyInfo);
+        logger.error("roomId:" + lGameRoomID + ",handId:" + lHandID + ",eRoundState" + eRoundState + ",buy info:" + buyInfo);
       }
     }
     // 先清理之前的系统自动强制购买信息,防止二次显示
@@ -115,20 +112,19 @@ public class InsuranceApi {
     // 本次操作执行完毕以后，再来查看是否需要超时继续往下走
     InsuranceManager.getInstance().checkRoomTimeout(lGameRoomID);
   }
-  
+
   // 开启代理模式
-  public static void doGameDelegateOpen(long lGameRoomID,long uuid) {
-
+  public static void doGameDelegateOpen(long lGameRoomID, long uuid) {
+    InsuranceManager.getInstance().setUserDelegateStatus(lGameRoomID, uuid, true);
   }
-  
+
   // 关闭代理模式
-  public static void doGameDelegateClose(long lGameRoomID,long uuid) {
-
+  public static void doGameDelegateClose(long lGameRoomID, long uuid) {
+    InsuranceManager.getInstance().setUserDelegateStatus(lGameRoomID, uuid, false);
   }
-  
+
   // 延时购买接口
-  public static TexasPoker.InsuranceInfo delayInsuranceAction(long lGameRoomID, long lHandID,
-      TexasPoker.GAME_ROOM_GAME_STATE eRoundState, long uuid) {
+  public static TexasPoker.InsuranceInfo delayInsuranceAction(long lGameRoomID, long lHandID, TexasPoker.GAME_ROOM_GAME_STATE eRoundState, long uuid) {
     InsuranceManager.getInstance().delayInsurance(lGameRoomID, lHandID, getRoundStatus(eRoundState), uuid);
     return getApiInfoFromInsuranceInfo(InsuranceManager.getInstance().getInsurance(lGameRoomID));
   }
@@ -190,18 +186,18 @@ public class InsuranceApi {
   // 保险扣钻石接口
   public static boolean subUserCoin(long uuid, long nums) {
     UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
-	
-    if (stUserBaseInfoNetBuilder != null ) {
-    	
-    	if(UserManager.getInstance().checkUserCoin(uuid,nums)){
-    	      // 可以扣币，扣币值必须为负的
-    	      UserManager.getInstance().addUserCoin(uuid, -nums);
-    	      return true;
-    	}else{
-    		return false;
-    	}    	
+
+    if (stUserBaseInfoNetBuilder != null) {
+
+      if (UserManager.getInstance().checkUserCoin(uuid, nums)) {
+        // 可以扣币，扣币值必须为负的
+        UserManager.getInstance().addUserCoin(uuid, -nums);
+        return true;
+      } else {
+        return false;
+      }
     } else {
-    	return false;
+      return false;
     }
   }
 
@@ -225,7 +221,7 @@ public class InsuranceApi {
 
   // 用户购买超时，调用接口
   public static void notifyUserBuyTimeout(long lGameRoomID, long uuid, TexasPoker.InsuranceInfo info) {
-//    System.out.println("notifyUserBuyTimeout : " + lGameRoomID + " uuid : " + uuid);
+    // System.out.println("notifyUserBuyTimeout : " + lGameRoomID + " uuid : " + uuid);
     GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
     if (stGameRoomDetail != null) {
       stGameRoomDetail.pushInsuranceTimeout(uuid, info);
@@ -335,8 +331,7 @@ public class InsuranceApi {
             // 维持实时账单平衡
             insuranceInfo.setShopTotal(0, outs.result);
             insuranceInfo.addUserResultTotal(outs.winner, outs.result);
-            logger.debug("roomId:" + insuranceInfo.roomId + ",handId:" + insuranceInfo.handId + ",result:"
-                + outs.result);
+            logger.debug("roomId:" + insuranceInfo.roomId + ",handId:" + insuranceInfo.handId + ",result:" + outs.result);
           }
         }
       }
@@ -575,8 +570,7 @@ public class InsuranceApi {
       loginfo.append(",insresult,");
       loginfo.append(allResultTotal);
       InsuranceApi.insuranceDebug(loginfo.toString());
-      logger.debug("roomId:" + info.roomId + ",handId:" + info.handId + ",1000,buytotal:" + allBuyTotal
-          + ",resulttotal:" + allResultTotal);
+      logger.debug("roomId:" + info.roomId + ",handId:" + info.handId + ",1000,buytotal:" + allBuyTotal + ",resulttotal:" + allResultTotal);
     }
   }
 

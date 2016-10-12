@@ -204,6 +204,11 @@ public class InsuranceManager {
           logger.debug("roomId:" + roomId + ",uuid:" + outsInfo.winner + ",outs close");
           continue;
         }
+        // 是否开启托管状态
+        if (insurance_open.checkUserDelegateState(roomId, outsInfo.winner)) {
+          logger.debug("roomId:" + roomId + ",uuid:" + outsInfo.winner + ",delegate close");
+          continue;
+        }
         logger.debug("roomId:" + roomId + ",outs info:" + outsInfo);
         long potId = allin_bets;
         long potBets = allinUsersMap.get(outsInfo.winner);
@@ -405,6 +410,15 @@ public class InsuranceManager {
     return insurance_open.getUserCloseStatus(roomId, uuid);
   }
 
+  // 控制玩家托管状态
+  public void setUserDelegateStatus(long roomId, long uuid, boolean open) {
+    if (open) {
+      insurance_open.openUserDelegate(roomId, uuid);
+    } else {
+      insurance_open.closeUserDelegate(roomId, uuid);
+    }
+  }
+
   // 暂停保险超时逻辑
   public void setInsurancePause(long roomId) {
     insurance_timer.onRoomPause(roomId);
@@ -501,8 +515,7 @@ public class InsuranceManager {
     }
     // 检查手数状态是否正确
     if (handInfo.handId != handId || handInfo.gameStatus != roundStatus) {
-      logger.error("roomId" + roomId + ",handId:" + handId + ",roundstatus:" + roundStatus + ",gamestatus:"
-          + handInfo.gameStatus + ",state error");
+      logger.error("roomId" + roomId + ",handId:" + handId + ",roundstatus:" + roundStatus + ",gamestatus:" + handInfo.gameStatus + ",state error");
       return null;
     }
     return checkInsurance(handInfo);
@@ -518,8 +531,7 @@ public class InsuranceManager {
     }
     // 检查手数状态是否正确
     if (handInfo.handId != handId || handInfo.gameStatus != roundStatus) {
-      logger.error("roomId" + roomId + ",handId:" + handId + ",roundstatus:" + roundStatus + ",gamestatus:"
-          + handInfo.gameStatus + ",state error");
+      logger.error("roomId" + roomId + ",handId:" + handId + ",roundstatus:" + roundStatus + ",gamestatus:" + handInfo.gameStatus + ",state error");
       return null;
     }
     return buyInsurance(roomId, uuid, potId, buys);
@@ -535,8 +547,7 @@ public class InsuranceManager {
     }
     // 检查手数状态是否正确
     if (handInfo.handId != handId || handInfo.gameStatus != roundStatus) {
-      logger.error("roomId" + roomId + ",handId:" + handId + ",roundstatus:" + roundStatus + ",gamestatus:"
-          + handInfo.gameStatus + ",state error");
+      logger.error("roomId" + roomId + ",handId:" + handId + ",roundstatus:" + roundStatus + ",gamestatus:" + handInfo.gameStatus + ",state error");
       return null;
     }
     return foldInsurance(roomId, uuid, potId);
@@ -552,8 +563,7 @@ public class InsuranceManager {
     }
     // 检查手数状态是否正确
     if (handInfo.handId != handId || handInfo.gameStatus != roundStatus) {
-      logger.error("roomId" + roomId + ",handId:" + handId + ",roundstatus:" + roundStatus + ",gamestatus:"
-          + handInfo.gameStatus + ",state error");
+      logger.error("roomId" + roomId + ",handId:" + handId + ",roundstatus:" + roundStatus + ",gamestatus:" + handInfo.gameStatus + ",state error");
       return;
     }
     delayInsurance(roomId, uuid);
