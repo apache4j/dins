@@ -185,7 +185,7 @@ public class InsuranceManager {
       Set<Long> winnerList = OutsCheck.findWinnersInPlayer(allinUserInfos, handInfo);
       insuranceInfo.setWinnerNoOutsTip(winnerList);
       for (Long winner : winnerList) {
-        if (insurance_open.checkUserCloseInsurance(roomId, winner)) {
+        if (insurance_open.checkUserCloseInsurance(roomId, winner) || insurance_open.checkUserDelegateState(roomId, winner)) {
           // 关闭了保险的人，不需要领先购买保险提示
           insuranceInfo.subWinnerNoOutsTips(winner);
         }
