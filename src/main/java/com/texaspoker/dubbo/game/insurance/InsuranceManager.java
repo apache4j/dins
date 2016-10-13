@@ -412,11 +412,11 @@ public class InsuranceManager {
 
   // 控制玩家托管状态
   public void setUserDelegateStatus(long roomId, long uuid, boolean open) {
-    if (open) {
-      insurance_open.openUserDelegate(roomId, uuid);
-    } else {
-      insurance_open.closeUserDelegate(roomId, uuid);
-    }
+    // if (open) {
+    // insurance_open.openUserDelegate(roomId, uuid);
+    // } else {
+    // insurance_open.closeUserDelegate(roomId, uuid);
+    // }
   }
 
   // 暂停保险超时逻辑
