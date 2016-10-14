@@ -162,7 +162,7 @@ public class APNManager  {
 			stCreateGameRoomPushRequestBuilder.setLSmallBlind(lSmallBlinds);
 			stCreateGameRoomPushRequestBuilder.setIAnte(iAnte);
 			stCreateGameRoomPushRequestBuilder.setSGameRoomName(strGameRoomName);
-			stCreateGameRoomPushRequestBuilder.setSGameRoomType("普通");
+			stCreateGameRoomPushRequestBuilder.setSGameRoomType("保险");
 			
 			apnService.createGameRoomPush(controller, stCreateGameRoomPushRequestBuilder.build(),null);
 
@@ -180,7 +180,7 @@ public class APNManager  {
 			stEmptyGameRoomPushRequestBuilder.setSHour(sHour);
 			stEmptyGameRoomPushRequestBuilder.setLSmallBlind(lSmallBlinds);
 			stEmptyGameRoomPushRequestBuilder.setIAnte(iAnte);
-			stEmptyGameRoomPushRequestBuilder.setSGameRoomType("普通");
+			stEmptyGameRoomPushRequestBuilder.setSGameRoomType("保险");
 			stEmptyGameRoomPushRequestBuilder.setSGameRoomName(strGameRoomName);
 
 			apnService.emptyGameRoomPush(controller, stEmptyGameRoomPushRequestBuilder.build(),null);
