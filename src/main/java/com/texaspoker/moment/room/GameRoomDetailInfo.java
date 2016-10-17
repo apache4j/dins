@@ -3236,41 +3236,43 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	
 	//踢人功能
 	public void kickUserInGame(long uuid){
-		for(int i = 0 ; i < this.stGameRoomInfo.getVUserGameInfosCount();i++){
-			//获取炮狙用户信息
-			UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
-			
-			//找到要取消托管状态的用户
-			if(stUserGameInfoNet!=null 
-					&& stUserGameInfoNet.getStUserInfo().getUuid()>0
-					&& stUserGameInfoNet.getStUserInfo().getUuid() == uuid){
+		synchronized(this){
+			for(int i = 0 ; i < this.stGameRoomInfo.getVUserGameInfosCount();i++){
+				//获取炮狙用户信息
+				UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
 				
-				//获取牌局中玩家的信息
-				UserGameInfoNet.Builder stUserGameInfoNetBuilder = stUserGameInfoNet.toBuilder();
-				
-				//判断踢出状态
-				if(stUserGameInfoNet.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_WAIT
-						|| stUserGameInfoNet.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_STANDBY){
-					//没在打牌中，直接踢出,相当于用户离开房间
-					doStandUpAction(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),true);
+				//找到要取消托管状态的用户
+				if(stUserGameInfoNet!=null 
+						&& stUserGameInfoNet.getStUserInfo().getUuid()>0
+						&& stUserGameInfoNet.getStUserInfo().getUuid() == uuid){
 					
-					//踢人消息
-					kickUserPush(stUserGameInfoNetBuilder,i,1);
-				}else{
-					//这个时间，不能踢人，先记录，然后等到牌局结束再踢人
-					mUserKickingUser.put(uuid, uuid);
-					return;
+					//获取牌局中玩家的信息
+					UserGameInfoNet.Builder stUserGameInfoNetBuilder = stUserGameInfoNet.toBuilder();
+					
+					//判断踢出状态
+					if(stUserGameInfoNet.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_WAIT
+							|| stUserGameInfoNet.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_STANDBY){
+						//没在打牌中，直接踢出,相当于用户离开房间
+						doStandUpAction(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),true);
+						
+						//踢人消息
+						kickUserPush(stUserGameInfoNetBuilder,i,1);
+					}else{
+						//这个时间，不能踢人，先记录，然后等到牌局结束再踢人
+						mUserKickingUser.put(uuid, uuid);
+						return;
+					}
 				}
 			}
-		}
-		
-		//如果被踢的人在旁观队列，踢出用户
-		if(mStandBys.contains(uuid)){
-			UserGameInfoNet.Builder stUserGameInfoNetBuilder = mapStandByUserGameInfos.get(uuid);
-			if(stUserGameInfoNetBuilder!=null){
-				//踢人消息
-				kickUserPush(stUserGameInfoNetBuilder,0,0);
-				return;
+			
+			//如果被踢的人在旁观队列，踢出用户
+			if(mStandBys.contains(uuid)){
+				UserGameInfoNet.Builder stUserGameInfoNetBuilder = mapStandByUserGameInfos.get(uuid);
+				if(stUserGameInfoNetBuilder!=null){
+					//踢人消息
+					kickUserPush(stUserGameInfoNetBuilder,0,0);
+					return;
+				}
 			}
 		}
 	}

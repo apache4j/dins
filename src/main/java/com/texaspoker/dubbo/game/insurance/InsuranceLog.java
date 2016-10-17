@@ -210,7 +210,7 @@ public class InsuranceLog {
 
   public static void main(String[] args) {
     if (args.length < 1) {
-      System.out.println("TableLogReader args size error");
+//      System.out.println("TableLogReader args size error");
       return;
     }
     String logfilepath = args[0];
