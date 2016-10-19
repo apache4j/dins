@@ -411,12 +411,36 @@ public class InsuranceManager {
   }
 
   // 控制玩家托管状态
-  public void setUserDelegateStatus(long roomId, long uuid, boolean open) {
-    // if (open) {
-    // insurance_open.openUserDelegate(roomId, uuid);
-    // } else {
-    // insurance_open.closeUserDelegate(roomId, uuid);
-    // }
+  public boolean setUserDelegateStatus(long roomId, long uuid, boolean open) {
+    logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",open:" + open);
+    // 检查保险信息
+    InsuranceInfo insuranceInfo = insurances_map.get(roomId);
+    if (insuranceInfo == null) {
+      logger.debug("roomId:" + roomId + ",no insurance info");
+      // 第一手信息初始化问题
+      if (open) {
+        insurance_open.openUserDelegate(roomId, uuid);
+      } else {
+        insurance_open.closeUserDelegate(roomId, uuid);
+      }
+      return true;
+    }
+    // 检查这一手是否有保险
+    if (open) {
+      // 买入则不让关闭保险
+      // insuranceInfo.getUserAllBuyTotal(uuid) > 0
+      // 只要本手触发保险就不准关闭了
+      if (insuranceInfo.checkHandOcur()) {
+        return false;
+      } else {
+        insurance_open.openUserDelegate(roomId, uuid);
+        return true;
+      }
+    } else {
+      // 恢复保险没有限制
+      insurance_open.closeUserDelegate(roomId, uuid);
+      return true;
+    }
   }
 
   // 暂停保险超时逻辑

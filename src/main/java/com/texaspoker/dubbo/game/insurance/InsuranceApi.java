@@ -114,8 +114,8 @@ public class InsuranceApi {
   }
 
   // 开启代理模式
-  public static void doGameDelegateOpen(long lGameRoomID, long uuid) {
-    InsuranceManager.getInstance().setUserDelegateStatus(lGameRoomID, uuid, true);
+  public static boolean doGameDelegateOpen(long lGameRoomID, long uuid) {
+    return InsuranceManager.getInstance().setUserDelegateStatus(lGameRoomID, uuid, true);
   }
 
   // 关闭代理模式
