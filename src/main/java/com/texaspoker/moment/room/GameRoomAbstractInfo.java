@@ -58,6 +58,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	
 	protected Map<Long,Long> mOriginalStacks = new HashMap<Long,Long>();
 	
+	protected boolean bGameCanceled = false;
+	
 	protected Map<Long,UserGameInfoNet.Builder> mapStandByUserGameInfos = new ConcurrentHashMap<Long,UserGameInfoNet.Builder>();
 	
 	//目前的手牌ID

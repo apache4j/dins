@@ -111,6 +111,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				stGameRoomInfo = stGameRoomInfoBuilder.build();
 				iGameRoomUserMaxNums = stGameRoomBaseInfoBuilder.getIGameRoomUserMaxNums();
 				
+				mDealPos = iGameRoomUserMaxNums-2;
+				
 				pushAppPushStartGame();
 				pushAllGameRoomUserMsgs(null,GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_START,stGameRoomInfoBuilder.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid());
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
@@ -937,6 +939,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								bSetted = true;
 							}else{
 								eErrorCodeType =  ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYIN_MAX_STACKS;
+								bSetted = true;
 							}
 						}else{
 							//把好友状态从游戏玩家列表中删除
@@ -1204,17 +1207,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	
 	//检查牌局是否结束
 	private boolean checkGameOver(){
+		if(bGameCanceled == true){
+			return true;
+		}
+		
 		if((bStarted == true) &&
 				(System.currentTimeMillis() - stGameRoomInfo.getStGameRoomBaseInfo().getLStartTime() > stGameRoomInfo.getStGameRoomBaseInfo().getLDuration()*1000)){
-//			System.out.println("game ove started 1 : " + (System.currentTimeMillis() - stGameRoomInfo.getStGameRoomBaseInfo().getLStartTime()));
-//			System.out.println("game ove started 2 : " + stGameRoomInfo.getStGameRoomBaseInfo().getLDuration()*1000);
-//			System.out.println("game ove started 3 : " + stGameRoomInfo.getStGameRoomBaseInfo().getLStartTime());
 			return true;
 		}
 		if((bStarted == false) && System.currentTimeMillis() - stGameRoomInfo.getStGameRoomBaseInfo().getLCreateTime() > 7200*1000){
-//			System.out.println("game ove not started 1 : " + (System.currentTimeMillis() - stGameRoomInfo.getStGameRoomBaseInfo().getLCreateTime()));
-//			System.out.println("game ove not started 2 : " + 7200*1000);
-//			System.out.println("game ove not started 3 : " + stGameRoomInfo.getStGameRoomBaseInfo().getLCreateTime());
 			return true;
 		}
 		return false;
@@ -2094,10 +2095,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		case 1:
 		case 5:
 		case 10:
+		case 20:
 			return 10;
 		case 25:
 		case 50:
 		case 100:
+		case 200:
 		case 500:
 			return 7;
 		case 5000:
@@ -3314,6 +3317,31 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		
 		//把人从踢人列表里面删除
 		mUserKickingUser.remove(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
+	}
+	
+	//游戏强制结束接口
+	public void cancelGame(){	
+		//加入牌局黑名单
+		bGameCanceled = true;
+		
+		//发送push，通知牌局要结束
+		pushCancelGame();
+	}
+	
+	private void pushCancelGame(){
+		for(int j = 0 ; j < stGameRoomInfo.getVUserGameInfosCount(); j++){
+			UserGameInfoNet stUserGameInfoNetIn = stGameRoomInfo.getVUserGameInfos(j);
+			
+			if(stUserGameInfoNetIn.getStUserInfo().getUuid() > 0){			
+				pushGameRoomUserMsgs(null,stUserGameInfoNetIn.getStUserInfo().getUuid(),
+						GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_FORCE_CANCEL,0);
+			}
+		}
+			
+		//给旁观的人发返回牌桌消息
+		for (long push_uuid : mStandBys) {
+			pushGameRoomUserMsgs(null,push_uuid,GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_FORCE_CANCEL,0);
+		}
 	}
 	
 }

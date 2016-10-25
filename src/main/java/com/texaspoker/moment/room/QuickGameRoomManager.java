@@ -247,6 +247,8 @@ public class QuickGameRoomManager {
 							stGameRoomBaseInfoBuilder.setIAnte(stGameRoomBaseInfo.getIAnte());
 							stGameRoomBaseInfoBuilder.setBInsurance(stGameRoomBaseInfo.getBInsurance());
 							stGameRoomBaseInfoBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
+							stGameRoomBaseInfoBuilder.setBIPLimit(stGameRoomBaseInfo.getBIPLimit());
+							stGameRoomBaseInfoBuilder.setBGPSLimit(stGameRoomBaseInfo.getBGPSLimit());
 							
 							stQuickGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
 							stQuickGameRoomInfoBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
@@ -332,7 +334,8 @@ public class QuickGameRoomManager {
 								stGameRoomBaseInfoBuilder.setIAnte(stGameRoomBaseInfo.getIAnte());
 								stGameRoomBaseInfoBuilder.setBInsurance(stGameRoomBaseInfo.getBInsurance());
 								stGameRoomBaseInfoBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
-								
+								stGameRoomBaseInfoBuilder.setBGPSLimit(stGameRoomBaseInfo.getBGPSLimit());
+								stGameRoomBaseInfoBuilder.setBIPLimit(stGameRoomBaseInfo.getBIPLimit());
 								stQuickGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
 								
 								ChatRoomManager.getInstance().setChatRoomInfo(lRoomID, stChatRoomInfoBuilder.build());
@@ -420,6 +423,9 @@ public class QuickGameRoomManager {
 									gameRoomBaseInfoBuilder.setIAnte(stSettingGameRoomBaseInfoBuilder.getIAnte());
 									gameRoomBaseInfoBuilder.setBInsurance(stSettingGameRoomBaseInfoBuilder.getBInsurance());
 									gameRoomBaseInfoBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
+									gameRoomBaseInfoBuilder.setBIPLimit(stSettingGameRoomBaseInfoBuilder.getBIPLimit());
+									gameRoomBaseInfoBuilder.setBGPSLimit(stSettingGameRoomBaseInfoBuilder.getBGPSLimit());
+									
 									// 设置房主vip信息
 									gameRoomBaseInfoBuilder.setStCreateUserBaseInfo(UserManager.getInstance().getUserBaseInfo(uuid));
 									gameRoomBaseInfoBuilder.setLChatRoomID(lQuickGameRoomID);

@@ -23,6 +23,8 @@ import com.texaspoker.moment.TexasPokerGameService.BuyInsuranceRequest;
 import com.texaspoker.moment.TexasPokerGameService.BuyInsuranceResponse;
 import com.texaspoker.moment.TexasPokerGameService.BuyinActionRequest;
 import com.texaspoker.moment.TexasPokerGameService.BuyinActionResponse;
+import com.texaspoker.moment.TexasPokerGameService.CancelGameRequest;
+import com.texaspoker.moment.TexasPokerGameService.CancelGameResponse;
 import com.texaspoker.moment.TexasPokerGameService.CreateGameRoomRequest;
 import com.texaspoker.moment.TexasPokerGameService.CreateGameRoomResponse;
 import com.texaspoker.moment.TexasPokerGameService.CreateQuickGameRoomRequest;
@@ -130,6 +132,9 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		stGameRoomBaseInfoBuilder.setStCreateUserBaseInfo(UserManager.getInstance().getUserBaseInfo(request.getUuid()));
 		stGameRoomBaseInfoBuilder.setIAnte(request.getStGameRoomBaseInfo().getIAnte());
 		stGameRoomBaseInfoBuilder.setBInsurance(1);
+		stGameRoomBaseInfoBuilder.setBIPLimit(request.getStGameRoomBaseInfo().getBIPLimit());
+		stGameRoomBaseInfoBuilder.setBGPSLimit(request.getStGameRoomBaseInfo().getBGPSLimit());
+		
 		GameRoomIDResultInfo stGameRoomIDResultInfo = GameRoomManager.getInstance().createGameRoom(request.getUuid()
 				,stGameRoomBaseInfoBuilder.build());
 		if(stGameRoomIDResultInfo.geteErrorCodeType() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
@@ -1299,6 +1304,27 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 	@Override
 	public void userDelegate(RpcController arg0, UserDelegateRequest arg1,
 			RpcCallback<UserDelegateResponse> arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public CancelGameResponse cancelGame(RpcController arg0,
+			CancelGameRequest request) throws ServiceException {
+		// TODO Auto-generated method stub
+		CancelGameResponse.Builder  stCancelGameResponseBuilder = CancelGameResponse.newBuilder();
+		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+		if(stGameRoomDetailInfo!=null){
+			stGameRoomDetailInfo.cancelGame();
+		}
+		stCancelGameResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);	
+		
+		return stCancelGameResponseBuilder.build();
+	}
+
+	@Override
+	public void cancelGame(RpcController arg0, CancelGameRequest arg1,
+			RpcCallback<CancelGameResponse> arg2) {
 		// TODO Auto-generated method stub
 		
 	}

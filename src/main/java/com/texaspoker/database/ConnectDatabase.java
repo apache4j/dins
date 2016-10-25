@@ -96,7 +96,7 @@ public class ConnectDatabase {
 				stConnection = mDatabasePool.getConnection();
 				statement = stConnection.createStatement();
 				
-				String loadGameRoomSql="select roomid,roomname,smallblinds,bigblinds,buyin,starttime,duration,createuser,privateroom,chatroomid,createroomtype,gameroomtype,gameroomseniortype,maxbuyinratio,minbuyinratio,buyincontrol,ante,insurance from t_game_room where gameroomtype='GAME_ROOM_NORMAL_INSURANCE'";
+				String loadGameRoomSql="select * from t_game_room where gameroomtype='GAME_ROOM_NORMAL_INSURANCE'";
 				ResultSet gameRoomRS=null;
 				
 				gameRoomRS=statement.executeQuery(loadGameRoomSql);
@@ -129,7 +129,8 @@ public class ConnectDatabase {
 	            	 stGameRoomBaseInfo.setLChatRoomID(gameRoomRS.getInt("chatroomid"));
 	            	 stGameRoomBaseInfo.setIAnte(gameRoomRS.getInt("ante"));
 	            	 stGameRoomBaseInfo.setBInsurance(gameRoomRS.getInt("insurance"));
-	            	 
+	            	 stGameRoomBaseInfo.setBIPLimit(gameRoomRS.getInt("iplimit"));
+	            	 stGameRoomBaseInfo.setBGPSLimit(gameRoomRS.getInt("gpslimit"));
 	            	 stGameRoomBaseInfo.setIMaxBuyinRatio(gameRoomRS.getInt("maxbuyinratio"));
 	            	 stGameRoomBaseInfo.setIMinBuyinRatio(gameRoomRS.getInt("minbuyinratio"));
 	            	 stGameRoomBaseInfo.setEGameRoomSeniorType(GAME_ROOM_SENIOR_TYPE.valueOf(gameRoomRS.getInt("gameroomseniortype")));
@@ -646,7 +647,10 @@ public class ConnectDatabase {
      				+",minbuyinratio=?"
      				+",buyincontrol=?"
      				+",ante=?"
-     				+",insurance=?";
+     				+",insurance=?"
+     				+",gpslimit=?"
+     				+",iplimit=?";
+     				
            //上面的方法比下面的方法有优势，一方面是安全性，另一方面我忘记了……
            PreparedStatement ps=stConnection.prepareStatement(insql);
            ps.setLong(1, stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
@@ -667,6 +671,8 @@ public class ConnectDatabase {
            ps.setInt(16,stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBBuyinControl());
            ps.setInt(17,stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getIAnte());
            ps.setInt(18,stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBInsurance());
+           ps.setInt(19,stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBGPSLimit());
+           ps.setInt(20,stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBIPLimit());
            
            //保存链接 
            int result=ps.executeUpdate();
