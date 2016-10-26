@@ -2193,14 +2193,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	}
 	
 	void pushAppPushGameSeatEmpty(){
-		if(stGameRoomInfo.getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
-			long sb = stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds();
-			int ante = stGameRoomInfo.getStGameRoomBaseInfo().getIAnte();
-			float fHour =  (float)stGameRoomInfo.getStGameRoomBaseInfo().getLDuration()/(float)3600;
-			 APNManager.getInstance().emptyGameRoomPush(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
-					 , stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName()
-					 , ""+fHour , sb, ante, 1);  
-		}
+//		if(stGameRoomInfo.getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
+//			long sb = stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds();
+//			int ante = stGameRoomInfo.getStGameRoomBaseInfo().getIAnte();
+//			float fHour =  (float)stGameRoomInfo.getStGameRoomBaseInfo().getLDuration()/(float)3600;
+//			 APNManager.getInstance().emptyGameRoomPush(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
+//					 , stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName()
+//					 , ""+fHour , sb, ante, 1);  
+//		}
 	}
 
 	public ArrayList<BuyinControl> getAllBuyinControls(){
