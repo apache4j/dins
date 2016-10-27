@@ -24,6 +24,9 @@ public class ConfigaturationManager {
 	public static String sNormalGameServiceHost;
 	public static int iNormalGameServicePost;
 	
+	public static String sLBSServiceHost;
+	public static int iLBSServicePost;
+	
 	public static String sSNGGameServiceHost;
 	public static int iSNGGameServicePost;
 	
@@ -73,6 +76,9 @@ public class ConfigaturationManager {
 		
 		sSNGGameServiceHost = stConfigaturation.getValue("snggame_service_host");
 		iSNGGameServicePost = Integer.parseInt(stConfigaturation.getValue("snggame_service_post"));
+		
+		sLBSServiceHost = stConfigaturation.getValue("lbs_service_host");
+		iLBSServicePost = Integer.parseInt(stConfigaturation.getValue("lbs_service_post"));
 		
 		sBillGameServiceHost = stConfigaturation.getValue("bill_service_host");
 		iBillGameServicePost = Integer.parseInt(stConfigaturation.getValue("bill_service_post"));

@@ -14,6 +14,7 @@ import com.texaspoker.comm.AdvancedTimeoutHashMap;
 import com.texaspoker.comm.TimeoutHashMap;
 import com.texaspoker.database.ConnectDatabase;
 import com.texaspoker.dubbo.game.insurance.InsuranceApi;
+import com.texaspoker.lbs.LBSManager;
 import com.texaspoker.logger.TableLogService;
 import com.texaspoker.logger.TranscationLogService;
 import com.texaspoker.moment.TexasPoker;
@@ -31,7 +32,6 @@ import com.texaspoker.moment.TexasPoker.InsuranceUserInfo;
 import com.texaspoker.moment.TexasPoker.USER_GAME_ROLE;
 import com.texaspoker.moment.TexasPoker.USER_GAME_STATE;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
-import com.texaspoker.moment.TexasPokerCommon.CREATE_ROOM_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.DEVICE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.GAME_ROOM_TYPE;
@@ -1023,6 +1023,51 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		}
 	}
 	
+	public ERROR_CODE_TYPE checkLBSInfo(long uuid,int bIPLimit, int bGPSLimit){
+		System.out.println("checkLBSInfocheckLBSInfo111");
+		ArrayList<Long> vOtherUuids = new ArrayList<Long>();
+		for(int i = 0;i < stGameRoomInfo.getVUserGameInfosCount();i++){
+			UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
+			System.out.println("checkLBSInfocheckLBSInfo113");
+			if(stUserGameInfoNet != null && stUserGameInfoNet.getStUserInfo().getUuid() > 0){
+				vOtherUuids.add(stUserGameInfoNet.getStUserInfo().getUuid());
+			}
+			System.out.println("checkLBSInfocheckLBSInfo114");
+		}
+		System.out.println("checkLBSInfocheckLBSInfo112");
+		
+		boolean bPass = true;
+		//IP检测
+		if(bIPLimit!=0){
+			bPass = checkIPLimit(uuid,vOtherUuids);
+		}
+		
+		//如果IP检测不通过，直接返回不通过
+		if(bPass == false){
+			return ERROR_CODE_TYPE.ERROR_CODE_TYPE_IP_CHECK_ERROR;
+		}
+		
+		//GPS检测
+		if(bGPSLimit!=0){
+			bPass = checkGPSLimit(uuid,vOtherUuids);
+		}
+		
+		//如果GPS检测不通过，直接返回不通过
+		if(bPass == false){
+			return ERROR_CODE_TYPE.ERROR_CODE_TYPE_GPS_CHECK_ERROR;
+		}
+		
+		return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
+	}
+	
+	public boolean checkIPLimit(long uuid,ArrayList<Long> vOtherUuids){
+		return LBSManager.getInstance().verifyIPInfoToOthers(uuid, vOtherUuids,getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
+	}
+	
+	public boolean checkGPSLimit(long uuid,ArrayList<Long> vOtherUuids){
+		return LBSManager.getInstance().verifyLocationToOthers(uuid, vOtherUuids,getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
+	}
+	
 	public ERROR_CODE_TYPE  sitdown(long uuid,int iPos){
 		synchronized(this){
 			if(this.stGameRoomInfo.getStGameRoomBaseInfo().getBGamePause() == 1){
@@ -1034,7 +1079,18 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
 			}
 			
-			ERROR_CODE_TYPE eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM;
+			//定义errorcode变量
+			ERROR_CODE_TYPE eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
+			
+			//检测LBS信息
+			eErrorCode = checkLBSInfo(uuid,stGameRoomInfo.getStGameRoomBaseInfo()
+					.getBIPLimit(),stGameRoomInfo.getStGameRoomBaseInfo().getBGPSLimit());
+			
+			if(eErrorCode!=ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
+				return eErrorCode;
+			}
+			
+			eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM;
 			
 			//坐下用户的信息
 			UserGameInfoNet.Builder stUserMyGameInfoNetBuilder = null;
