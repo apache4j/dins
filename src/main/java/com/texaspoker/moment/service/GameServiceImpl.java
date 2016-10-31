@@ -1165,7 +1165,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
 
-		System.out.println("buyInsuranceDelay request.getUuid() : " + request.getUuid() + " gameroomid : " + request.getLGameHandID());
+//		System.out.println("buyInsuranceDelay request.getUuid() : " + request.getUuid() + " gameroomid : " + request.getLGameHandID());
 		if(stGameRoomDetailInfo!=null){
 			InsuranceUserInfo stInsuranceUserInfo= stGameRoomDetailInfo.buyInsuranceDealy(request.getUuid(), request.getLGameHandID(), request.getEGameRoomStatus());
 			

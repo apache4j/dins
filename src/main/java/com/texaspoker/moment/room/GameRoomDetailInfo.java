@@ -1024,17 +1024,17 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	}
 	
 	public ERROR_CODE_TYPE checkLBSInfo(long uuid,int bIPLimit, int bGPSLimit){
-		System.out.println("checkLBSInfocheckLBSInfo111");
+//		System.out.println("checkLBSInfocheckLBSInfo111");
 		ArrayList<Long> vOtherUuids = new ArrayList<Long>();
 		for(int i = 0;i < stGameRoomInfo.getVUserGameInfosCount();i++){
 			UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
-			System.out.println("checkLBSInfocheckLBSInfo113");
+//			System.out.println("checkLBSInfocheckLBSInfo113");
 			if(stUserGameInfoNet != null && stUserGameInfoNet.getStUserInfo().getUuid() > 0){
 				vOtherUuids.add(stUserGameInfoNet.getStUserInfo().getUuid());
 			}
-			System.out.println("checkLBSInfocheckLBSInfo114");
+//			System.out.println("checkLBSInfocheckLBSInfo114");
 		}
-		System.out.println("checkLBSInfocheckLBSInfo112");
+//		System.out.println("checkLBSInfocheckLBSInfo112");
 		
 		boolean bPass = true;
 		//IP检测
@@ -1362,9 +1362,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameStart_VALUE:{
 				resetGameRoom();
 				reCalculateCouldPlayNum();
-				System.out.println("ROOM_GAME_STATE_GameStart_VALUE ROOM_GAME_STATE_GameStart_VALUE1 : " + iCouldPlayNum);
+//				System.out.println("ROOM_GAME_STATE_GameStart_VALUE ROOM_GAME_STATE_GameStart_VALUE1 : " + iCouldPlayNum);
 				if(iCouldPlayNum >=2){
-					System.out.println("");
 					TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
 							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
 							+"," + stGameRoomInfo.getLGameHandID()
@@ -1374,16 +1373,16 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							+","+stGameRoomInfo.getStGameRoomBaseInfo().getIAnte());
 					
 					saveOriginalStacks();
-					System.out.println("ROOM_GAME_STATE_GameStart_VALUE ROOM_GAME_STATE_GameStart_VALUE2 : " + iCouldPlayNum);
+//					System.out.println("ROOM_GAME_STATE_GameStart_VALUE ROOM_GAME_STATE_GameStart_VALUE2 : " + iCouldPlayNum);
 					//重置Dealer位置
 					rsetetDealerPos();
 					
 					//重新可以进行牌局的用户，去掉刚坐在小盲位的用户
 					couldPlayNumAfterSetDealer();
-					System.out.println("ROOM_GAME_STATE_GameStart_VALUE ROOM_GAME_STATE_GameStart_VALUE3 : " + iCouldPlayNum);
+//					System.out.println("ROOM_GAME_STATE_GameStart_VALUE ROOM_GAME_STATE_GameStart_VALUE3 : " + iCouldPlayNum);
 					//每个选手发两张牌,并把游戏的状态设置为FirstRound	
 					beforeTheGame();
-					System.out.println("ROOM_GAME_STATE_GameStart_VALUE ROOM_GAME_STATE_GameStart_VALUE4 : " + iCouldPlayNum);
+//					System.out.println("ROOM_GAME_STATE_GameStart_VALUE ROOM_GAME_STATE_GameStart_VALUE4 : " + iCouldPlayNum);
 					if(iCouldPlayNum>=2){
 						//每个选手发两张牌,并把游戏的状态设置为FirstRound	
 						beforeTheGame();
