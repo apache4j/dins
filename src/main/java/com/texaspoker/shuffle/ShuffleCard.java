@@ -64,7 +64,7 @@ public class ShuffleCard {
    */
   public static void secureShuffle(int[] cards) {
     // 洗3遍
-    for (int safecount = 0; safecount < 3; safecount++) {
+    for (int safecount = 0; safecount < 5; safecount++) {
       ShuffleAlgorithm.secureShuffle(cards);
     }
   }
