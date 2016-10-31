@@ -211,8 +211,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	 * @return
 	 */
 	@Override  
-	public ERROR_CODE_TYPE doFlodAction(long uuid,int userPos){
-		return doFlodAction(uuid,userPos,-2);
+	public ERROR_CODE_TYPE doFlodAction(long uuid,int userPos,boolean bDeleggate){
+		return doFlodAction(uuid,userPos,-2,bDeleggate);
 	}
 	
 	/**
@@ -223,10 +223,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	 */
 	
 	@Override  
-	public ERROR_CODE_TYPE doFlodAction(long uuid,long lBettingID){
+	public ERROR_CODE_TYPE doFlodAction(long uuid,long lBettingID,boolean bDeleggate){
 		Integer userPos = getUserPos(uuid);
 		if(userPos!=null){
-			return doFlodAction(uuid,userPos,lBettingID);
+			return doFlodAction(uuid,userPos,lBettingID,bDeleggate);
 		}else{
 			return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
 		}
@@ -1563,7 +1563,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	 * @return
 	 */	
 	@Override  
-	public ERROR_CODE_TYPE doFlodAction(long uuid,int userPos,long lBettingID){
+	public ERROR_CODE_TYPE doFlodAction(long uuid,int userPos,long lBettingID,boolean bDeleggate){
 		ERROR_CODE_TYPE eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 
 		if(bPause == true){
@@ -1604,12 +1604,21 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					
 					if(lBettingID==-1){
 	                    //自动弃牌日志
-						TableLogService.getInstance().error(lFromRoomID
-								+"," + lGameRoomID
-								+"," + stGameRoomInfo.getLGameHandID()
-								+"," + uuid
-								+"," + "fold" 
-								+"," + "auto");
+						if(bDeleggate){
+							TableLogService.getInstance().error(lFromRoomID
+									+"," + lGameRoomID
+									+"," + stGameRoomInfo.getLGameHandID()
+									+"," + uuid
+									+"," + "fold" 
+									+"," + "tuoguan");
+						}else{
+							TableLogService.getInstance().error(lFromRoomID
+									+"," + lGameRoomID
+									+"," + stGameRoomInfo.getLGameHandID()
+									+"," + uuid
+									+"," + "fold" 
+									+"," + "auto");
+						}
 					}else{
 	                    //主动弃牌日志
 						TableLogService.getInstance().error(lFromRoomID

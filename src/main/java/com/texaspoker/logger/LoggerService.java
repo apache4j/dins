@@ -88,7 +88,7 @@ public class LoggerService
     {   
         if (System.getProperty("log4j.properties") == null)   
         {   
-        	PropertyConfigurator.configure( "log4j.properties" );
+        	PropertyConfigurator.configureAndWatch("log4j.properties" , 10000);
         	BasicConfigurator.configure();
         }
     }   

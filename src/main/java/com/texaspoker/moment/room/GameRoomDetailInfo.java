@@ -227,7 +227,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							if(bAllAllin == false){
 								if(checkAllAllin()!=true){
 									if(stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_BETTING){
-										doFlodAction(uuid , pos);
+										doFlodAction(uuid , pos,false);
 									}else{
 										//如果用户还参与牌局，并且没有轮到他打牌，则默认直接设置为弃牌状态即可
 										if(stUserGameInfoBuilder.getEGameState()!=USER_GAME_STATE.USER_GAME_STATE_WAIT 
@@ -267,7 +267,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 									}
 								}else{
 									if(stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_BETTING){
-										doFlodAction(uuid , pos);
+										doFlodAction(uuid , pos,false);
 									}else{
 										SidePot();
 										resetStepStatus();
@@ -1254,7 +1254,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				if(lStepMaxStacks == stUserGameInfoNet.getLBetStacks()){
 					doCheckAction(stUserGameInfoNet.getStUserInfo().getUuid(), 0);
 				}else{
-					doFlodAction(stUserGameInfoNet.getStUserInfo().getUuid(),(long)-1);
+					doFlodAction(stUserGameInfoNet.getStUserInfo().getUuid(),(long)-1,true);
 				}
 				return;
 			}
@@ -1926,11 +1926,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							doCheckAction(uuid, 0);
 						}else{
 							addUserTimeoutTimes(uuid);
-							doFlodAction(uuid,(long)-1);
+							doFlodAction(uuid,(long)-1,false);
 						}
 					}else{
 						addUserTimeoutTimes(uuid);
-						doFlodAction(uuid,(long)-1);
+						doFlodAction(uuid,(long)-1,false);
 					}
 				}
 			}

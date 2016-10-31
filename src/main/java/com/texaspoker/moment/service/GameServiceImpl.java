@@ -248,7 +248,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 			
 			switch(request.getEGameActType().getNumber()){
 			case GAME_ACT_TYPE.GAME_ACT_TYPE_FOLD_VALUE:{
-				rst = stGameRoomDetailInfo.doFlodAction(request.getUuid(),request.getLBettingID());
+				rst = stGameRoomDetailInfo.doFlodAction(request.getUuid(),request.getLBettingID(),false);
 			}
 			break;
 			case GAME_ACT_TYPE.GAME_ACT_TYPE_CHECK_VALUE:{	
@@ -1165,6 +1165,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
 
+		System.out.println("buyInsuranceDelay request.getUuid() : " + request.getUuid() + " gameroomid : " + request.getLGameHandID());
 		if(stGameRoomDetailInfo!=null){
 			InsuranceUserInfo stInsuranceUserInfo= stGameRoomDetailInfo.buyInsuranceDealy(request.getUuid(), request.getLGameHandID(), request.getEGameRoomStatus());
 			

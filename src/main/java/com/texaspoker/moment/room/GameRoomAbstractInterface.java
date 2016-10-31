@@ -28,7 +28,7 @@ public interface GameRoomAbstractInterface {
 	 * @param userPos		用户所在位置
 	 * @return
 	 */
-	ERROR_CODE_TYPE doFlodAction(long uuid,int userPos);
+	ERROR_CODE_TYPE doFlodAction(long uuid,int userPos,boolean bDeleggate);
 	
 	/**
 	 * 弃牌函数，可以通过uuid获取位置的弃牌（非站起坐下弃牌用这个函数）
@@ -36,7 +36,7 @@ public interface GameRoomAbstractInterface {
 	 * @param lBettingID	手牌动作ID
 	 * @return
 	 */
-	ERROR_CODE_TYPE doFlodAction(long uuid,long lBettingID);
+	ERROR_CODE_TYPE doFlodAction(long uuid,long lBettingID,boolean bDeleggate);
 	
 	/**
 	 * 弃牌公共函数
@@ -45,7 +45,7 @@ public interface GameRoomAbstractInterface {
 	 * @param lBettingID	手牌动作ID
 	 * @return
 	 */	
-	ERROR_CODE_TYPE doFlodAction(long uuid,int userPos,long lBettingID);
+	ERROR_CODE_TYPE doFlodAction(long uuid,int userPos,long lBettingID,boolean bDeleggate);
 	
 	ERROR_CODE_TYPE doCheckAction(long uuid,long lBettingID);
 	
