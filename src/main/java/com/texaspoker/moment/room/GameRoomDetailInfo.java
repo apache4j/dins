@@ -336,7 +336,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				stGameRoomInfo = stGameRoomInfoBuilder.build();
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 			}else{
-				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM;
+				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_SITTED;
 			}
 		}
 	}
