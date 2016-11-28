@@ -482,8 +482,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							long lCreateTime = System.currentTimeMillis();
 							stUserGameInfoBuilder.setBWaitingBuyinConfirmation(1);
 							stUserGameInfoBuilder.setLBuyinTime(lCreateTime);
-							stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoBuilder);
 							stUserGameInfoBuilder.setLBuyinClubID(clubID);
+							stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoBuilder);
+		
 							stGameRoomInfo = stGameRoomInfoBuilder.build();
 							mBuyinControlInfo.put(uuid, lStacks);
 							mBuyinControlTimes.put(uuid, lCreateTime);
