@@ -594,7 +594,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						
 						GameRoomMsgManager.getInstance().sendBuyinControlMsg(lActionedUuid , stBuyinControlMsgBuilder.build());
 						
-						System.out.println("sendAllBuyinControls 1 : " + stUserGameInfoBuilder.getLBuyinClubID());
 						sendAllBuyinControls(stBuyinControlMsgBuilder.build(),stUserGameInfoBuilder.getLBuyinClubID());
 						
 						if(stUserGameInfoBuilder.getLRemainStacks() == 0 && 
@@ -613,9 +612,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
 						stBuyinControlMsgBuilder.setLActionUuid(lActionedUuid);
 						stBuyinControlMsgBuilder.setLMsgID(lMsgID);
-						stBuyinControlMsgBuilder.setSActionNickname(stUserGameInfoBuilder.getStUserInfo().getStrNick());
+						if(stUserBaseInfoBuilder!=null)
+							stBuyinControlMsgBuilder.setSActionNickname(stUserBaseInfoBuilder.getStrNick());
 						
-						System.out.println("sendAllBuyinControls 2 : " + stUserGameInfoBuilder.getLBuyinClubID());
 						GameRoomMsgManager.getInstance().sendBuyinControlMsg(lActionedUuid , stBuyinControlMsgBuilder.build());
 						
 						sendAllBuyinControls(stBuyinControlMsgBuilder.build(),stUserGameInfoBuilder.getLBuyinClubID());
@@ -649,7 +648,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						stBuyinControlMsgBuilder.setSActionNickname(stUserBaseInfoBuilder.getStrNick());
 					
 					GameRoomMsgManager.getInstance().sendBuyinControlMsg(lActionedUuid , stBuyinControlMsgBuilder.build());
-					System.out.println("sendAllBuyinControls 3 : " + stUserGameInfoBuilder.getLBuyinClubID());
+	
 					sendAllBuyinControls(stBuyinControlMsgBuilder.build(),stUserGameInfoBuilder.getLBuyinClubID());
 				}
 				else{
@@ -661,11 +660,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
 					stBuyinControlMsgBuilder.setLActionUuid(lActionedUuid);
 					stBuyinControlMsgBuilder.setLMsgID(lMsgID);
-					stBuyinControlMsgBuilder.setSActionNickname(stUserGameInfoBuilder.getStUserInfo().getStrNick());
+					if(stUserBaseInfoBuilder!=null)
+						stBuyinControlMsgBuilder.setSActionNickname(stUserBaseInfoBuilder.getStrNick());
 					
 					GameRoomMsgManager.getInstance().sendBuyinControlMsg(lActionedUuid
 							, stBuyinControlMsgBuilder.build());
-					System.out.println("sendAllBuyinControls 4 : " + stUserGameInfoBuilder.getLBuyinClubID());
 					sendAllBuyinControls(stBuyinControlMsgBuilder.build(),stUserGameInfoBuilder.getLBuyinClubID());
 				}
 				
@@ -697,6 +696,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	
 			//发送成功的push
 			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+			UserBaseInfoNet.Builder stUserBaseInfoBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
 			for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount();i++){
 				//找到购买的筹码
 				UserGameInfoNet.Builder stUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(i).toBuilder();
@@ -715,7 +715,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stBuyinControlMsgBuilder.setLActionUuid(uuid);
 					stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
 					stBuyinControlMsgBuilder.setLMsgID(lMsgID);
-					stBuyinControlMsgBuilder.setSActionNickname(stUserGameInfoBuilder.getStUserInfo().getStrNick());
+					if(stUserBaseInfoBuilder!=null)
+						stBuyinControlMsgBuilder.setSActionNickname(stUserBaseInfoBuilder.getStrNick());
 					
 					GameRoomMsgManager.getInstance().sendBuyinControlMsg(uuid
 							, stBuyinControlMsgBuilder.build());
@@ -748,7 +749,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				stBuyinControlMsgBuilder.setLActionUuid(uuid);
 				stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
 				stBuyinControlMsgBuilder.setLMsgID(lMsgID);
-				stBuyinControlMsgBuilder.setSActionNickname(stUserGameInfoBuilder.getStUserInfo().getStrNick());
+				if(stUserBaseInfoBuilder!=null)
+					stBuyinControlMsgBuilder.setSActionNickname(stUserBaseInfoBuilder.getStrNick());
 				
 				//给申请人发push消息
 				GameRoomMsgManager.getInstance().sendBuyinControlMsg(uuid
