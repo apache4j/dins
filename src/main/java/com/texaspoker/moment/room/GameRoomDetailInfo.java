@@ -589,9 +589,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
 						stBuyinControlMsgBuilder.setLActionUuid(lActionedUuid);
 						stBuyinControlMsgBuilder.setLMsgID(lMsgID);
-						if(stUserBaseInfoBuilder!=null)
+						if(stUserBaseInfoBuilder!=null){
 							stBuyinControlMsgBuilder.setSActionNickname(stUserBaseInfoBuilder.getStrNick());
-						
+						}else{
+							stBuyinControlMsgBuilder.setSActionNickname("");
+						}
+							
 						GameRoomMsgManager.getInstance().sendBuyinControlMsg(lActionedUuid , stBuyinControlMsgBuilder.build());
 						
 						sendAllBuyinControls(stBuyinControlMsgBuilder.build(),stUserGameInfoBuilder.getLBuyinClubID());
@@ -612,8 +615,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
 						stBuyinControlMsgBuilder.setLActionUuid(lActionedUuid);
 						stBuyinControlMsgBuilder.setLMsgID(lMsgID);
-						if(stUserBaseInfoBuilder!=null)
+						if(stUserBaseInfoBuilder!=null){
 							stBuyinControlMsgBuilder.setSActionNickname(stUserBaseInfoBuilder.getStrNick());
+						}else{
+							stBuyinControlMsgBuilder.setSActionNickname("");
+						}
+							
 						
 						GameRoomMsgManager.getInstance().sendBuyinControlMsg(lActionedUuid , stBuyinControlMsgBuilder.build());
 						
@@ -644,8 +651,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
 					stBuyinControlMsgBuilder.setLActionUuid(lActionedUuid);
 					stBuyinControlMsgBuilder.setLMsgID(lMsgID);
-					if(stUserBaseInfoBuilder!=null)
+					if(stUserBaseInfoBuilder!=null){
 						stBuyinControlMsgBuilder.setSActionNickname(stUserBaseInfoBuilder.getStrNick());
+					}else{
+						stBuyinControlMsgBuilder.setSActionNickname("");
+					}
+						
 					
 					GameRoomMsgManager.getInstance().sendBuyinControlMsg(lActionedUuid , stBuyinControlMsgBuilder.build());
 	
@@ -660,8 +671,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
 					stBuyinControlMsgBuilder.setLActionUuid(lActionedUuid);
 					stBuyinControlMsgBuilder.setLMsgID(lMsgID);
-					if(stUserBaseInfoBuilder!=null)
+					if(stUserBaseInfoBuilder!=null){
 						stBuyinControlMsgBuilder.setSActionNickname(stUserBaseInfoBuilder.getStrNick());
+					}else{
+						stBuyinControlMsgBuilder.setSActionNickname("");
+					}
+						
 					
 					GameRoomMsgManager.getInstance().sendBuyinControlMsg(lActionedUuid
 							, stBuyinControlMsgBuilder.build());
@@ -675,24 +690,24 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		}
 	}
 	
-	public ERROR_CODE_TYPE  buyinControlActionDeny(long uuid,boolean auto){
+	public ERROR_CODE_TYPE  buyinControlActionDeny(long uuid,long lActionedUuid,boolean auto){
 		synchronized(this){
 			if(this.stGameRoomInfo.getStGameRoomBaseInfo().getBGamePause() == 1){
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
 			}
 			
 			//如果不存在请求，则显示错误
-			if(!mBuyinControlInfo.containsKey(uuid)){
+			if(!mBuyinControlInfo.containsKey(lActionedUuid)){
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_INVITE_BUYIN;
 			}
 			
-			long lStacks = mBuyinControlInfo.get(uuid);
-			long lMsgID = mBuyinControlTimes.get(uuid);
+			long lStacks = mBuyinControlInfo.get(lActionedUuid);
+			long lMsgID = mBuyinControlTimes.get(lActionedUuid);
 			
-			mBuyinControlInfo.remove(uuid);
-			mBuyinControlTimes.remove(uuid);
-			mBuyinControlTimeOut.removeKey(uuid);
-			mBuyinControlClubIDs.remove(uuid);
+			mBuyinControlInfo.remove(lActionedUuid);
+			mBuyinControlTimes.remove(lActionedUuid);
+			mBuyinControlTimeOut.removeKey(lActionedUuid);
+			mBuyinControlClubIDs.remove(lActionedUuid);
 	
 			//发送成功的push
 			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
@@ -700,7 +715,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount();i++){
 				//找到购买的筹码
 				UserGameInfoNet.Builder stUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(i).toBuilder();
-				if(stUserGameInfoBuilder.getStUserInfo().getUuid() == uuid){
+				if(stUserGameInfoBuilder.getStUserInfo().getUuid() == lActionedUuid){
 					long lCreateTime = System.currentTimeMillis();
 					stUserGameInfoBuilder.setBWaitingBuyinConfirmation(0);
 					stUserGameInfoBuilder.setLBuyinTime(0);
@@ -712,13 +727,17 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stBuyinControlMsgBuilder.setLBuyStacks(lStacks);
 					stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_DENY);
 					stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
-					stBuyinControlMsgBuilder.setLActionUuid(uuid);
+					stBuyinControlMsgBuilder.setLActionUuid(lActionedUuid);
 					stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
 					stBuyinControlMsgBuilder.setLMsgID(lMsgID);
-					if(stUserBaseInfoBuilder!=null)
+					if(stUserBaseInfoBuilder!=null){
 						stBuyinControlMsgBuilder.setSActionNickname(stUserBaseInfoBuilder.getStrNick());
+					}
+					else{
+						stBuyinControlMsgBuilder.setSActionNickname("");
+					}
 					
-					GameRoomMsgManager.getInstance().sendBuyinControlMsg(uuid
+					GameRoomMsgManager.getInstance().sendBuyinControlMsg(lActionedUuid
 							, stBuyinControlMsgBuilder.build());
 					
 					sendAllBuyinControls(stBuyinControlMsgBuilder.build(),stUserGameInfoBuilder.getLBuyinClubID());
@@ -727,14 +746,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							(stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD 
 							||stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_WAIT
 							||stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_READY)){
-						this.doStandUpAction(uuid, true);
+						this.doStandUpAction(lActionedUuid, true);
 					}
 					
 					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 				}
 			}
 			
-			UserGameInfoNet.Builder stUserGameInfoBuilder = mapStandByUserGameInfos.get(uuid);	
+			UserGameInfoNet.Builder stUserGameInfoBuilder = mapStandByUserGameInfos.get(lActionedUuid);	
 			if(stUserGameInfoBuilder!=null){
 				long lCreateTime = System.currentTimeMillis();
 				stUserGameInfoBuilder.setBWaitingBuyinConfirmation(0);
@@ -746,14 +765,18 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				stBuyinControlMsgBuilder.setLBuyStacks(lStacks);
 				stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_DENY);
 				stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
-				stBuyinControlMsgBuilder.setLActionUuid(uuid);
+				stBuyinControlMsgBuilder.setLActionUuid(lActionedUuid);
 				stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
 				stBuyinControlMsgBuilder.setLMsgID(lMsgID);
-				if(stUserBaseInfoBuilder!=null)
+				if(stUserBaseInfoBuilder!=null){
 					stBuyinControlMsgBuilder.setSActionNickname(stUserBaseInfoBuilder.getStrNick());
+				}else{
+					stBuyinControlMsgBuilder.setSActionNickname("");
+				}
+					
 				
 				//给申请人发push消息
-				GameRoomMsgManager.getInstance().sendBuyinControlMsg(uuid
+				GameRoomMsgManager.getInstance().sendBuyinControlMsg(lActionedUuid
 						, stBuyinControlMsgBuilder.build());
 				
 				//给房主发push消息
@@ -1278,7 +1301,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			for(int i = 0 ; i < timeoutArray.size() ; i++){
 				Long uuid = (Long) timeoutArray.get(i);
 				if(uuid!=null){			
-					this.buyinControlActionDeny(uuid,true);
+					this.buyinControlActionDeny(0,uuid,true);
 				}
 			}
 		}

@@ -419,9 +419,9 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 					if(bClubManager){
 						ERROR_CODE_TYPE rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 						if(request.getEBuyinControlMessageType() == BUYIN_CONTROL_TYPE.BUYIN_CONTROL_TYPE_ACCEPT){
-							rst = stGameRoomDetailInfo.buyinControlActionAccept(request.getLActionUuid());
+							rst = stGameRoomDetailInfo.buyinControlActionAccept(request.getUuid(),request.getLActionUuid());
 						}else if(request.getEBuyinControlMessageType() == BUYIN_CONTROL_TYPE.BUYIN_CONTROL_TYPE_DENY){
-							rst = stGameRoomDetailInfo.buyinControlActionDeny(request.getLActionUuid(),false);
+							rst = stGameRoomDetailInfo.buyinControlActionDeny(0,request.getLActionUuid(),false);
 						}
 						
 						if(rst == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
@@ -438,9 +438,9 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 				if(stGameRoomDetailInfo.checkClubManager(request.getUuid())){
 					ERROR_CODE_TYPE rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 					if(request.getEBuyinControlMessageType() == BUYIN_CONTROL_TYPE.BUYIN_CONTROL_TYPE_ACCEPT){
-						rst = stGameRoomDetailInfo.buyinControlActionAccept(request.getLActionUuid());
+						rst = stGameRoomDetailInfo.buyinControlActionAccept(request.getUuid(),request.getLActionUuid());
 					}else if(request.getEBuyinControlMessageType() == BUYIN_CONTROL_TYPE.BUYIN_CONTROL_TYPE_DENY){
-						rst = stGameRoomDetailInfo.buyinControlActionDeny(request.getLActionUuid(),false);
+						rst = stGameRoomDetailInfo.buyinControlActionDeny(request.getUuid(),request.getLActionUuid(),false);
 					}
 					
 					if(rst == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
