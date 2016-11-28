@@ -544,29 +544,31 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		}
 	}
 	
-	public ERROR_CODE_TYPE  buyinControlActionAccept(long uuid){
+	public ERROR_CODE_TYPE  buyinControlActionAccept(long uuid,long lActionedUuid){
 		synchronized(this){
 			if(this.stGameRoomInfo.getStGameRoomBaseInfo().getBGamePause() == 1){
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
 			}
 			
 			//如果不存在请求，则显示错误
-			if(!mBuyinControlInfo.containsKey(uuid)){
+			if(!mBuyinControlInfo.containsKey(lActionedUuid)){
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_INVITE_BUYIN;
 			}
 			
-			long lStacks = mBuyinControlInfo.get(uuid);
-			long lMsgID = mBuyinControlTimes.get(uuid);
-			mBuyinControlInfo.remove(uuid);
-			mBuyinControlTimes.remove(uuid);
-			mBuyinControlTimeOut.removeKey(uuid);
-			mBuyinControlClubIDs.remove(uuid);
+			long lStacks = mBuyinControlInfo.get(lActionedUuid);
+			long lMsgID = mBuyinControlTimes.get(lActionedUuid);
+			mBuyinControlInfo.remove(lActionedUuid);
+			mBuyinControlTimes.remove(lActionedUuid);
+			mBuyinControlTimeOut.removeKey(lActionedUuid);
+			mBuyinControlClubIDs.remove(lActionedUuid);
 			//发送成功的push
 			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+			
+			UserBaseInfoNet.Builder stUserBaseInfoBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
 			for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount();i++){
 				//找到购买的筹码
 				UserGameInfoNet.Builder stUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(i).toBuilder();
-				if(stUserGameInfoBuilder.getStUserInfo().getUuid() == uuid){
+				if(stUserGameInfoBuilder.getStUserInfo().getUuid() == lActionedUuid){
 
 					long lCreateTime = System.currentTimeMillis();
 					stUserGameInfoBuilder.setBWaitingBuyinConfirmation(0);
@@ -574,7 +576,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoBuilder);
 					stGameRoomInfo = stGameRoomInfoBuilder.build();
 					
-					ERROR_CODE_TYPE eErrorCodeType = buyBuyin(uuid,stUserGameInfoBuilder.getLBuyinClubID(), lStacks);
+					ERROR_CODE_TYPE eErrorCodeType = buyBuyin(lActionedUuid,stUserGameInfoBuilder.getLBuyinClubID(), lStacks);
 					
 					if(eErrorCodeType  == ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY
 							||eErrorCodeType  == ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYIN_MAX_STACKS){
@@ -585,12 +587,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
 						stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_DENY);
 						stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
-						stBuyinControlMsgBuilder.setLActionUuid(uuid);
+						stBuyinControlMsgBuilder.setLActionUuid(lActionedUuid);
 						stBuyinControlMsgBuilder.setLMsgID(lMsgID);
-						stBuyinControlMsgBuilder.setSActionNickname(stUserGameInfoBuilder.getStUserInfo().getStrNick());
+						if(stUserBaseInfoBuilder!=null)
+							stBuyinControlMsgBuilder.setSActionNickname(stUserBaseInfoBuilder.getStrNick());
 						
-						
-						GameRoomMsgManager.getInstance().sendBuyinControlMsg(uuid , stBuyinControlMsgBuilder.build());
+						GameRoomMsgManager.getInstance().sendBuyinControlMsg(lActionedUuid , stBuyinControlMsgBuilder.build());
 						
 						System.out.println("sendAllBuyinControls 1 : " + stUserGameInfoBuilder.getLBuyinClubID());
 						sendAllBuyinControls(stBuyinControlMsgBuilder.build(),stUserGameInfoBuilder.getLBuyinClubID());
@@ -599,7 +601,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								(stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD 
 								||stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_WAIT
 								||stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_READY)){
-							this.doStandUpAction(uuid, true);
+							this.doStandUpAction(lActionedUuid, true);
 						}
 					}
 					else{
@@ -609,12 +611,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
 						stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_ACCEPT);
 						stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
-						stBuyinControlMsgBuilder.setLActionUuid(uuid);
+						stBuyinControlMsgBuilder.setLActionUuid(lActionedUuid);
 						stBuyinControlMsgBuilder.setLMsgID(lMsgID);
 						stBuyinControlMsgBuilder.setSActionNickname(stUserGameInfoBuilder.getStUserInfo().getStrNick());
 						
 						System.out.println("sendAllBuyinControls 2 : " + stUserGameInfoBuilder.getLBuyinClubID());
-						GameRoomMsgManager.getInstance().sendBuyinControlMsg(uuid , stBuyinControlMsgBuilder.build());
+						GameRoomMsgManager.getInstance().sendBuyinControlMsg(lActionedUuid , stBuyinControlMsgBuilder.build());
 						
 						sendAllBuyinControls(stBuyinControlMsgBuilder.build(),stUserGameInfoBuilder.getLBuyinClubID());
 					}
@@ -623,14 +625,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					return eErrorCodeType;
 				}
 			}
-			UserGameInfoNet.Builder stUserGameInfoBuilder = mapStandByUserGameInfos.get(uuid);	
+			UserGameInfoNet.Builder stUserGameInfoBuilder = mapStandByUserGameInfos.get(lActionedUuid);	
 			if(stUserGameInfoBuilder!=null){
 				long lCreateTime = System.currentTimeMillis();
 				stUserGameInfoBuilder.setBWaitingBuyinConfirmation(0);
 				stUserGameInfoBuilder.setLBuyinTime(0);
 				mapStandByUserGameInfos.put(stUserGameInfoBuilder.getStUserInfo().getUuid(), stUserGameInfoBuilder);
 				
-				ERROR_CODE_TYPE eErrorCodeType = buyBuyin(uuid, stUserGameInfoBuilder.getLBuyinClubID(),lStacks);
+				ERROR_CODE_TYPE eErrorCodeType = buyBuyin(lActionedUuid, stUserGameInfoBuilder.getLBuyinClubID(),lStacks);
 				
 				if(eErrorCodeType  == ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY
 						||eErrorCodeType  == ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYIN_MAX_STACKS){
@@ -641,11 +643,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
 					stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_DENY);
 					stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
-					stBuyinControlMsgBuilder.setLActionUuid(uuid);
+					stBuyinControlMsgBuilder.setLActionUuid(lActionedUuid);
 					stBuyinControlMsgBuilder.setLMsgID(lMsgID);
-					stBuyinControlMsgBuilder.setSActionNickname(stUserGameInfoBuilder.getStUserInfo().getStrNick());
+					if(stUserBaseInfoBuilder!=null)
+						stBuyinControlMsgBuilder.setSActionNickname(stUserBaseInfoBuilder.getStrNick());
 					
-					GameRoomMsgManager.getInstance().sendBuyinControlMsg(uuid , stBuyinControlMsgBuilder.build());
+					GameRoomMsgManager.getInstance().sendBuyinControlMsg(lActionedUuid , stBuyinControlMsgBuilder.build());
 					System.out.println("sendAllBuyinControls 3 : " + stUserGameInfoBuilder.getLBuyinClubID());
 					sendAllBuyinControls(stBuyinControlMsgBuilder.build(),stUserGameInfoBuilder.getLBuyinClubID());
 				}
@@ -656,11 +659,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_ACCEPT);
 					stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
 					stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
-					stBuyinControlMsgBuilder.setLActionUuid(uuid);
+					stBuyinControlMsgBuilder.setLActionUuid(lActionedUuid);
 					stBuyinControlMsgBuilder.setLMsgID(lMsgID);
 					stBuyinControlMsgBuilder.setSActionNickname(stUserGameInfoBuilder.getStUserInfo().getStrNick());
 					
-					GameRoomMsgManager.getInstance().sendBuyinControlMsg(uuid
+					GameRoomMsgManager.getInstance().sendBuyinControlMsg(lActionedUuid
 							, stBuyinControlMsgBuilder.build());
 					System.out.println("sendAllBuyinControls 4 : " + stUserGameInfoBuilder.getLBuyinClubID());
 					sendAllBuyinControls(stBuyinControlMsgBuilder.build(),stUserGameInfoBuilder.getLBuyinClubID());
