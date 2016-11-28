@@ -5,6 +5,7 @@ import java.util.Set;
 import com.google.protobuf.RpcCallback;
 import com.google.protobuf.RpcController;
 import com.google.protobuf.ServiceException;
+import com.texaspoker.club.ClubManager;
 import com.texaspoker.league.LeagueManager;
 import com.texaspoker.moment.TexasPoker.BUYIN_CONTROL_TYPE;
 import com.texaspoker.moment.TexasPoker.BuyinControl;
@@ -13,6 +14,7 @@ import com.texaspoker.moment.TexasPoker.GameRoomInfo;
 import com.texaspoker.moment.TexasPoker.InsuranceUserInfo;
 import com.texaspoker.moment.TexasPoker.QuickGameRoomInfo;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
+import com.texaspoker.moment.TexasPokerCommon.ClubBaseInfo;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerGameService;
 import com.texaspoker.moment.TexasPoker.GameRoomBaseInfo;
@@ -97,6 +99,7 @@ import com.texaspoker.moment.TexasPokerGameService.UserDelegateResponse;
 import com.texaspoker.moment.TexasPokerGameService.UserInsuranceSettingRequest;
 import com.texaspoker.moment.TexasPokerGameService.UserInsuranceSettingResponse;
 import com.texaspoker.moment.TexasPokerHttpLeague.LeagueBaseInfo;
+import com.texaspoker.moment.TexasPokerHttpLeague.LeagueInfo;
 import com.texaspoker.moment.room.GameRoomDetailInfo;
 import com.texaspoker.moment.room.GameRoomIDResultInfo;
 import com.texaspoker.moment.room.GameRoomManager;
@@ -764,18 +767,46 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 			throws ServiceException {
 		// TODO Auto-generated method stub
 		GetAllBuyinControlsResponse.Builder  stGetAllBuyinControlsResponseBuilder = GetAllBuyinControlsResponse.newBuilder();
-		
+	
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+
 		if(stGameRoomDetailInfo!=null&&stGameRoomDetailInfo.getStGameRoomInfo()!=null){
-			if(request.getUuid() == stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()){
-				ArrayList<BuyinControl> vBuyinControls = stGameRoomDetailInfo.getAllBuyinControls();
-				if(vBuyinControls!=null){
-					stGetAllBuyinControlsResponseBuilder.addAllVBuyinControls(vBuyinControls);
+			boolean bClubManager = false;
+			if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLLeagueID() > 0){
+				//如果是俱乐部管理员，则开始
+				LeagueInfo stLeagueInfo = stGameRoomDetailInfo.getStLeagueInfo();
+		
+				if(stLeagueInfo!=null){
+					for(ClubBaseInfo stClubBaseInfo:stLeagueInfo.getVClubBaseInfosList()){
+						
+						bClubManager = ClubManager.getInstance().checkClubManager(stClubBaseInfo.getLClubID(),request.getUuid());
+					
+						if(bClubManager){
+							ArrayList<BuyinControl> vBuyinControls = stGameRoomDetailInfo.getAllBuyinControls(stClubBaseInfo.getLClubID());
+							
+							for(BuyinControl stBuyinControl:vBuyinControls){
+								stGetAllBuyinControlsResponseBuilder.addVBuyinControls(stBuyinControl);
+							}
+						}
+					}
+					stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+				}else{
+					stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_LEAGUE);
 				}
-				stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-				
 			}else{
-				stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_AUTH_BUYINACTION);
+				bClubManager = stGameRoomDetailInfo.checkClubManager(request.getUuid());
+				
+				if(bClubManager){
+					ArrayList<BuyinControl> vBuyinControls = stGameRoomDetailInfo.getAllBuyinControls(0);
+					
+					if(vBuyinControls!=null){
+						stGetAllBuyinControlsResponseBuilder.addAllVBuyinControls(vBuyinControls);
+					}
+					stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+					
+				}else{
+					stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_AUTH_BUYINACTION);
+				}
 			}
 		}else{
 			stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);

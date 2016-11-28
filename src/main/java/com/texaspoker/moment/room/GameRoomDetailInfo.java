@@ -2294,9 +2294,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 //		}
 	}
 
-	public ArrayList<BuyinControl> getAllBuyinControls(){
+	public ArrayList<BuyinControl> getAllBuyinControls(long clubid){
 		ArrayList<BuyinControl> vBuyinControls = new ArrayList<BuyinControl>();
 		Iterator iter = mBuyinControlInfo.entrySet().iterator(); 
+	
 		while (iter.hasNext()) {
 			Map.Entry entry = (Map.Entry) iter.next(); 
 			Long uuid = (Long) entry.getKey();
@@ -2306,14 +2307,20 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				BuyinControl.Builder stBuyinControlBuilder = BuyinControl.newBuilder();
 				long lStacks = mBuyinControlInfo.get(uuid);
 				long lCreateTime = mBuyinControlTimes.get(uuid);
+				long lClubID = mBuyinControlClubIDs.get(uuid);
 				
-				stBuyinControlBuilder.setStUserBaseInfo(stUserBaseInfoNetBuilder);
-				stBuyinControlBuilder.setLGameRoomID(this.stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
-				stBuyinControlBuilder.setSGameRoomName(this.stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName());
-				stBuyinControlBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL);
-				stBuyinControlBuilder.setLStacks(lStacks);
-				stBuyinControlBuilder.setLBuyinCreateTime(lCreateTime);
-				vBuyinControls.add(stBuyinControlBuilder.build());
+	
+				if(lClubID==clubid){
+					stBuyinControlBuilder.setStUserBaseInfo(stUserBaseInfoNetBuilder);
+					stBuyinControlBuilder.setLGameRoomID(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+					stBuyinControlBuilder.setSGameRoomName(stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName());
+					stBuyinControlBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL);
+					stBuyinControlBuilder.setLStacks(lStacks);
+					stBuyinControlBuilder.setLBuyinCreateTime(lCreateTime);
+					vBuyinControls.add(stBuyinControlBuilder.build());
+				}else{
+					
+				}
 			}
 		}
 		return vBuyinControls;
