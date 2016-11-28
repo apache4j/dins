@@ -503,7 +503,7 @@ public class QuickGameRoomManager {
 									
 									BillManager.getInstance().createBillInfo(0,gameRoomBaseInfoBuilder.build());
 									
-									stGameRoomDetailInfo.buyStakcsInRoom(stUserBaseInfoNet.getUuid(),0);
+									stGameRoomDetailInfo.buyStakcsInRoom(stUserBaseInfoNet.getUuid(),0,gameRoomBaseInfoBuilder.getLChatRoomID());
 									
 									//设置快速聊天室对应的牌局ID
 									stSettingGameRoomBaseInfoBuilder.setLGameRoomId(gameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId());

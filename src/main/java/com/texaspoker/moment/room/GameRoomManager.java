@@ -242,7 +242,7 @@ public class GameRoomManager  {
 						userSelfGameInfoBuilder.setBGameDealer(0);
 						userSelfGameInfoBuilder.setIDelaySingleTime(20);
 						
-						stGameRoomDetailInfo.buyStakcsInRoom(stUserBaseInfoNet.getUuid(),0);
+						stGameRoomDetailInfo.buyStakcsInRoom(stUserBaseInfoNet.getUuid(),0,gameRoomBaseInfoBuilder.getLChatRoomID());
 
 						// 将被邀请的用户设置要被邀请的名单中,弄发送邀请通知
 						for (int i = 0; i < userList.size(); i++) {
@@ -366,7 +366,7 @@ public class GameRoomManager  {
 							// 把房间放到房主的房间列表里面
 							UserManager.getInstance().addUserCreateGameRooms(uuid,gameRoomBaseInfoBuilder.getLGameRoomId());
 							
-							stGameRoomDetailInfo.buyStakcsInRoom(stUserBaseInfoNet.getUuid(),0);
+							stGameRoomDetailInfo.buyStakcsInRoom(stUserBaseInfoNet.getUuid(),0,gameRoomBaseInfoBuilder.getLChatRoomID());
 
 							if(stUserBaseInfoNet.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
 								// 生成回包

@@ -1,6 +1,8 @@
 package com.texaspoker.club;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import com.google.protobuf.ServiceException;
 import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.logger.NormalLogService;
@@ -22,6 +24,8 @@ import com.texaspoker.moment.TexasPokerClubService.DeleteClubMemberRequest;
 import com.texaspoker.moment.TexasPokerClubService.DeleteClubMemberResponse;
 import com.texaspoker.moment.TexasPokerClubService.GetClubInfoRequest;
 import com.texaspoker.moment.TexasPokerClubService.GetClubInfoResponse;
+import com.texaspoker.moment.TexasPokerClubService.GetClubManagerUuidsRequest;
+import com.texaspoker.moment.TexasPokerClubService.GetClubManagerUuidsResponse;
 import com.texaspoker.moment.TexasPokerClubService.GetClubSettingRequest;
 import com.texaspoker.moment.TexasPokerClubService.GetClubSettingResponse;
 import com.texaspoker.moment.TexasPokerClubService.SetClubBaseInfoRequest;
@@ -34,6 +38,7 @@ import com.texaspoker.moment.TexasPokerClubService.UploadClubCoverRequest;
 import com.texaspoker.moment.TexasPokerClubService.UploadClubCoverResponse;
 import com.texaspoker.moment.TexasPokerClubService.UploadClubIconRequest;
 import com.texaspoker.moment.TexasPokerClubService.UploadClubIconResponse;
+import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerHttpClub.CLUB_USER_LEVEL;
 import com.texaspoker.moment.TexasPokerHttpClub.ClubInfo;
 import com.texaspoker.moment.TexasPokerHttpClub.ClubUserInfo;
@@ -486,4 +491,42 @@ public class ClubManager {
 	      return null;
 	    }
 	} 
+	
+	public List<Long> getClubManagerUuids(long clubid){
+		GetClubManagerUuidsRequest.Builder stGetClubManagerUuidsRequestBuilder = GetClubManagerUuidsRequest.newBuilder();
+		stGetClubManagerUuidsRequestBuilder.setLClubID(clubid);
+		stGetClubManagerUuidsRequestBuilder.setUuid(0);
+	    
+	    try {
+	    	GetClubManagerUuidsResponse response = blockingClubService.getClubManagerUuids(controller, stGetClubManagerUuidsRequestBuilder.build());
+	    	
+	    	if (response != null&&response.getEErrorCode() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS) {
+	    		if(response.getVClubManagerUuidsList()!=null){
+	    			return response.getVClubManagerUuidsList();
+	    		}else{
+	    			return null;
+	    		}
+	    	} else {
+	    		return null;
+	    	}
+	    } catch (ServiceException e) {
+	    	NormalLogService.getInstance().error("syn echo error:" + e.getMessage());
+	      return null;
+	    }
+	}
+	
+	public boolean checkClubManager(long lClubID,long uuid){
+		List<Long> vClubManagerUuids = ClubManager.getInstance().getClubManagerUuids(lClubID);
+		if(vClubManagerUuids!=null){
+			//检查房主是否是房间的管理员
+			for(long lClubManagerUuid:vClubManagerUuids){
+				//检查房主是否是俱乐部的管理员
+				if(lClubManagerUuid==uuid){
+					return true;
+				}		
+			}	
+		}
+		
+		return false;
+	}
 }

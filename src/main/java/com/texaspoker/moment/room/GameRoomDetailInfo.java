@@ -32,12 +32,15 @@ import com.texaspoker.moment.TexasPoker.InsuranceUserInfo;
 import com.texaspoker.moment.TexasPoker.USER_GAME_ROLE;
 import com.texaspoker.moment.TexasPoker.USER_GAME_STATE;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
+import com.texaspoker.moment.TexasPokerCommon.CREATE_ROOM_TYPE;
+import com.texaspoker.moment.TexasPokerCommon.ClubBaseInfo;
 import com.texaspoker.moment.TexasPokerCommon.DEVICE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.GAME_ROOM_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
 import com.texaspoker.moment.TexasPokerHttpClub.ClubInfo;
 import com.texaspoker.moment.TexasPokerHttpClub.ClubUserInfo;
+import com.texaspoker.moment.TexasPokerHttpLeague.LeagueInfo;
 import com.texaspoker.msg.GameRoomMsgManager;
 import com.texaspoker.user.UserManager;
 
@@ -49,6 +52,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	private Map<Long,Long> mDelayPlayer = new ConcurrentHashMap<Long,Long>();
 	private Map<Long,Long> mBuyinControlInfo = new ConcurrentHashMap<Long,Long>();
 	private Map<Long,Long> mBuyinControlTimes = new ConcurrentHashMap<Long,Long>();
+	private Map<Long,Long> mBuyinControlClubIDs = new ConcurrentHashMap<Long,Long>();
+	
 	private TimeoutHashMap<Long,Long> mBuyinControlTimeOut; //房间相关的数据
 	
 	private Map<Long,Long> mUserKickingUser = new ConcurrentHashMap<Long,Long>();
@@ -56,6 +61,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	
 	private Map<Long,Long> mUserBuyinStacks = new ConcurrentHashMap<Long,Long>();
 	
+	//如果是联盟局，保存联盟信息
+	private LeagueInfo stLeagueInfo;
 	
 	//是否已经结算用户数据结构
 	private ConcurrentHashMap<Long,Long> mapUserNoCharge = new ConcurrentHashMap<Long,Long>();
@@ -435,7 +442,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		}
 	}
 		
-	public ERROR_CODE_TYPE  buyBuyinControl(long uuid,long lStacks){
+	public ERROR_CODE_TYPE  buyBuyinControl(long uuid,long clubID,long lStacks){
 		synchronized(this){
 			if(this.stGameRoomInfo.getStGameRoomBaseInfo().getBGamePause() == 1){
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
@@ -448,21 +455,68 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			long popularity = (100+GameRoomDetailInfo.getServiceFeeRat((int)stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds()))*lStacks/100;
 			
 			//首先获取用户的基本信息
-			if(UserManager.getInstance().checkUserPopularity(uuid, popularity) ){
-				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+			UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
+
+			if(stUserBaseInfoNetBuilder!=null){
+				//检查用户是否存在买入俱乐部不相同的问题
+				if(stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID() > 0){
+					for(UserGameInfoNet stUserGameInfoNet:stGameRoomInfo.getVUserGameInfosList()){
+						if(stUserGameInfoNet.getStUserInfo().getUuid() == uuid){
+							//如果用户过，则查看买入过的俱乐部和这次买入的俱乐部是否为1个俱乐部
+							if(stUserGameInfoNet.getLBuyinClubID() != 0){
+								if(stUserGameInfoNet.getLBuyinClubID() != clubID){
+									return ERROR_CODE_TYPE.ERROR_CODE_TYPE_LEAGUE_BUYIN_NOT_SAME_CLUB; 
+								}
+							}
+						}
+					}
+				}
 				
-				for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount();i++){
-					//找到购买的筹码
-					UserGameInfoNet.Builder stUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(i).toBuilder();
-					if(stUserGameInfoBuilder.getStUserInfo().getUuid() == uuid){
+				if(UserManager.getInstance().checkUserPopularity(stUserBaseInfoNetBuilder.getUuid(), popularity)){
+					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+					
+					for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount();i++){
+						//找到购买的筹码
+						UserGameInfoNet.Builder stUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(i).toBuilder();
+						if(stUserGameInfoBuilder.getStUserInfo().getUuid() == uuid){
+							long lCreateTime = System.currentTimeMillis();
+							stUserGameInfoBuilder.setBWaitingBuyinConfirmation(1);
+							stUserGameInfoBuilder.setLBuyinTime(lCreateTime);
+							stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoBuilder);
+							stUserGameInfoBuilder.setLBuyinClubID(clubID);
+							stGameRoomInfo = stGameRoomInfoBuilder.build();
+							mBuyinControlInfo.put(uuid, lStacks);
+							mBuyinControlTimes.put(uuid, lCreateTime);
+							mBuyinControlTimeOut.setCurrent(uuid, uuid);
+							mBuyinControlClubIDs.put(uuid, clubID);
+							
+							BuyinControlMsg.Builder stBuyinControlMsgBuilder = BuyinControlMsg.newBuilder();
+							stBuyinControlMsgBuilder.setLBuyinActionID(lCreateTime);
+							stBuyinControlMsgBuilder.setLBuyStacks(lStacks);
+							stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_INVITE);
+							stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
+							stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
+							stBuyinControlMsgBuilder.setLActionUuid(uuid);
+							
+							//首先push给房主
+							sendAllBuyinControls(stBuyinControlMsgBuilder.build(),clubID);
+						
+							pushAppPushBuyinInvite(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(),stUserBaseInfoNetBuilder.getStrNick());
+							return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
+						}
+					}
+					
+					UserGameInfoNet.Builder stUserGameInfoBuilder = mapStandByUserGameInfos.get(uuid);	
+					if(stUserGameInfoBuilder!=null){
 						long lCreateTime = System.currentTimeMillis();
 						stUserGameInfoBuilder.setBWaitingBuyinConfirmation(1);
 						stUserGameInfoBuilder.setLBuyinTime(lCreateTime);
-						stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoBuilder);
-						stGameRoomInfo = stGameRoomInfoBuilder.build();
+						stUserGameInfoBuilder.setLBuyinClubID(clubID);
+						mapStandByUserGameInfos.put(stUserGameInfoBuilder.getStUserInfo().getUuid(), stUserGameInfoBuilder);
 						mBuyinControlInfo.put(uuid, lStacks);
 						mBuyinControlTimes.put(uuid, lCreateTime);
 						mBuyinControlTimeOut.setCurrent(uuid, uuid);
+						mBuyinControlClubIDs.put(uuid, clubID);
 						
 						BuyinControlMsg.Builder stBuyinControlMsgBuilder = BuyinControlMsg.newBuilder();
 						stBuyinControlMsgBuilder.setLBuyinActionID(lCreateTime);
@@ -471,44 +525,20 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
 						stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
 						stBuyinControlMsgBuilder.setLActionUuid(uuid);
-						GameRoomMsgManager.getInstance().sendBuyinControlMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
-								, stBuyinControlMsgBuilder.build());
 						
-						pushAppPushBuyinInvite(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(),stUserGameInfoBuilder.getStUserInfo().getStrNick());
-
+						sendAllBuyinControls(stBuyinControlMsgBuilder.build(),clubID);
+						
+						pushAppPushBuyinInvite(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(),stUserBaseInfoNetBuilder.getStrNick());
 						return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 					}
+					
+					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_USER_IN_GAME;
+				}else{
+					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY;
 				}
 				
-				UserGameInfoNet.Builder stUserGameInfoBuilder = mapStandByUserGameInfos.get(uuid);	
-				if(stUserGameInfoBuilder!=null){
-					long lCreateTime = System.currentTimeMillis();
-					stUserGameInfoBuilder.setBWaitingBuyinConfirmation(1);
-					stUserGameInfoBuilder.setLBuyinTime(lCreateTime);
-					mapStandByUserGameInfos.put(stUserGameInfoBuilder.getStUserInfo().getUuid(), stUserGameInfoBuilder);
-					mBuyinControlInfo.put(uuid, lStacks);
-					mBuyinControlTimes.put(uuid, lCreateTime);
-					mBuyinControlTimeOut.setCurrent(uuid, uuid);
-					
-					BuyinControlMsg.Builder stBuyinControlMsgBuilder = BuyinControlMsg.newBuilder();
-					stBuyinControlMsgBuilder.setLBuyinActionID(lCreateTime);
-					stBuyinControlMsgBuilder.setLBuyStacks(lStacks);
-					stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_INVITE);
-					stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
-					stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
-					stBuyinControlMsgBuilder.setLActionUuid(uuid);
-					
-					GameRoomMsgManager.getInstance().sendBuyinControlMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
-							, stBuyinControlMsgBuilder.build());
-					
-					
-					pushAppPushBuyinInvite(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(),stUserGameInfoBuilder.getStUserInfo().getStrNick());
-					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
-				}
-
-				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_USER_IN_GAME;
 			}else{
-				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY;
+				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_USER;
 			}
 		}
 	}
@@ -519,16 +549,17 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
 			}
 			
-
 			//如果不存在请求，则显示错误
 			if(!mBuyinControlInfo.containsKey(uuid)){
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_INVITE_BUYIN;
 			}
 			
 			long lStacks = mBuyinControlInfo.get(uuid);
+			long lMsgID = mBuyinControlTimes.get(uuid);
 			mBuyinControlInfo.remove(uuid);
 			mBuyinControlTimes.remove(uuid);
 			mBuyinControlTimeOut.removeKey(uuid);
+			mBuyinControlClubIDs.remove(uuid);
 			//发送成功的push
 			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 			for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount();i++){
@@ -542,7 +573,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoBuilder);
 					stGameRoomInfo = stGameRoomInfoBuilder.build();
 					
-					ERROR_CODE_TYPE eErrorCodeType = buyBuyin(uuid, lStacks);
+					ERROR_CODE_TYPE eErrorCodeType = buyBuyin(uuid,stUserGameInfoBuilder.getLBuyinClubID(), lStacks);
 					
 					if(eErrorCodeType  == ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY
 							||eErrorCodeType  == ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYIN_MAX_STACKS){
@@ -554,11 +585,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_DENY);
 						stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
 						stBuyinControlMsgBuilder.setLActionUuid(uuid);
+						stBuyinControlMsgBuilder.setLMsgID(lMsgID);
+						stBuyinControlMsgBuilder.setSActionNickname(stUserGameInfoBuilder.getStUserInfo().getStrNick());
+						
 						
 						GameRoomMsgManager.getInstance().sendBuyinControlMsg(uuid , stBuyinControlMsgBuilder.build());
 						
-						GameRoomMsgManager.getInstance().sendBuyinControlMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
-								, stBuyinControlMsgBuilder.build());
+						
+						sendAllBuyinControls(stBuyinControlMsgBuilder.build(),stUserGameInfoBuilder.getLBuyinClubID());
 						
 						if(stUserGameInfoBuilder.getLRemainStacks() == 0 && 
 								(stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD 
@@ -575,24 +609,28 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_ACCEPT);
 						stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
 						stBuyinControlMsgBuilder.setLActionUuid(uuid);
+						stBuyinControlMsgBuilder.setLMsgID(lMsgID);
+						stBuyinControlMsgBuilder.setSActionNickname(stUserGameInfoBuilder.getStUserInfo().getStrNick());
+						
 						
 						GameRoomMsgManager.getInstance().sendBuyinControlMsg(uuid , stBuyinControlMsgBuilder.build());
 						
-						GameRoomMsgManager.getInstance().sendBuyinControlMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
-								, stBuyinControlMsgBuilder.build());
+						sendAllBuyinControls(stBuyinControlMsgBuilder.build(),stUserGameInfoBuilder.getLBuyinClubID());
 					}
 					
+
 					return eErrorCodeType;
 				}
 			}
 			UserGameInfoNet.Builder stUserGameInfoBuilder = mapStandByUserGameInfos.get(uuid);	
-			
 			if(stUserGameInfoBuilder!=null){
 				long lCreateTime = System.currentTimeMillis();
 				stUserGameInfoBuilder.setBWaitingBuyinConfirmation(0);
 				stUserGameInfoBuilder.setLBuyinTime(0);
 				mapStandByUserGameInfos.put(stUserGameInfoBuilder.getStUserInfo().getUuid(), stUserGameInfoBuilder);
-				ERROR_CODE_TYPE eErrorCodeType = buyBuyin(uuid, lStacks);
+				
+				ERROR_CODE_TYPE eErrorCodeType = buyBuyin(uuid, stUserGameInfoBuilder.getLBuyinClubID(),lStacks);
+				
 				if(eErrorCodeType  == ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY
 						||eErrorCodeType  == ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYIN_MAX_STACKS){
 					eErrorCodeType = ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYINCONTROL_NO_MONEY;
@@ -603,11 +641,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_DENY);
 					stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
 					stBuyinControlMsgBuilder.setLActionUuid(uuid);
+					stBuyinControlMsgBuilder.setLMsgID(lMsgID);
+					stBuyinControlMsgBuilder.setSActionNickname(stUserGameInfoBuilder.getStUserInfo().getStrNick());
 					
 					GameRoomMsgManager.getInstance().sendBuyinControlMsg(uuid , stBuyinControlMsgBuilder.build());
 					
-					GameRoomMsgManager.getInstance().sendBuyinControlMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
-							, stBuyinControlMsgBuilder.build());
+					sendAllBuyinControls(stBuyinControlMsgBuilder.build(),stUserGameInfoBuilder.getLBuyinClubID());
 				}
 				else{
 					BuyinControlMsg.Builder stBuyinControlMsgBuilder = BuyinControlMsg.newBuilder();
@@ -617,12 +656,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
 					stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
 					stBuyinControlMsgBuilder.setLActionUuid(uuid);
+					stBuyinControlMsgBuilder.setLMsgID(lMsgID);
+					stBuyinControlMsgBuilder.setSActionNickname(stUserGameInfoBuilder.getStUserInfo().getStrNick());
 					
 					GameRoomMsgManager.getInstance().sendBuyinControlMsg(uuid
 							, stBuyinControlMsgBuilder.build());
 					
-					GameRoomMsgManager.getInstance().sendBuyinControlMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
-							, stBuyinControlMsgBuilder.build());
+					sendAllBuyinControls(stBuyinControlMsgBuilder.build(),stUserGameInfoBuilder.getLBuyinClubID());
 				}
 				
 				return eErrorCodeType;
@@ -644,10 +684,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			}
 			
 			long lStacks = mBuyinControlInfo.get(uuid);
-					
+			long lMsgID = mBuyinControlTimes.get(uuid);
+			
 			mBuyinControlInfo.remove(uuid);
 			mBuyinControlTimes.remove(uuid);
 			mBuyinControlTimeOut.removeKey(uuid);
+			mBuyinControlClubIDs.remove(uuid);
 	
 			//发送成功的push
 			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
@@ -668,18 +710,21 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
 					stBuyinControlMsgBuilder.setLActionUuid(uuid);
 					stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
+					stBuyinControlMsgBuilder.setLMsgID(lMsgID);
+					stBuyinControlMsgBuilder.setSActionNickname(stUserGameInfoBuilder.getStUserInfo().getStrNick());
 					
 					GameRoomMsgManager.getInstance().sendBuyinControlMsg(uuid
 							, stBuyinControlMsgBuilder.build());
 					
-					GameRoomMsgManager.getInstance().sendBuyinControlMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
-							, stBuyinControlMsgBuilder.build());
+					sendAllBuyinControls(stBuyinControlMsgBuilder.build(),stUserGameInfoBuilder.getLBuyinClubID());
+					
 					if(stUserGameInfoBuilder.getLRemainStacks() == 0 && 
 							(stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD 
 							||stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_WAIT
 							||stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_READY)){
 						this.doStandUpAction(uuid, true);
 					}
+					
 					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 				}
 			}
@@ -698,33 +743,17 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
 				stBuyinControlMsgBuilder.setLActionUuid(uuid);
 				stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
+				stBuyinControlMsgBuilder.setLMsgID(lMsgID);
+				stBuyinControlMsgBuilder.setSActionNickname(stUserGameInfoBuilder.getStUserInfo().getStrNick());
 				
 				//给申请人发push消息
 				GameRoomMsgManager.getInstance().sendBuyinControlMsg(uuid
 						, stBuyinControlMsgBuilder.build());
 				
 				//给房主发push消息
-				GameRoomMsgManager.getInstance().sendBuyinControlMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
-						, stBuyinControlMsgBuilder.build());
+				sendAllBuyinControls(stBuyinControlMsgBuilder.build(),stUserGameInfoBuilder.getLBuyinClubID());
+				
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
-			}else{
-				if(auto){
-					BuyinControlMsg.Builder stBuyinControlMsgBuilder = BuyinControlMsg.newBuilder();
-					stBuyinControlMsgBuilder.setLBuyinActionID(System.currentTimeMillis());
-					stBuyinControlMsgBuilder.setLBuyStacks(lStacks);
-					stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_DENY);
-					stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
-					stBuyinControlMsgBuilder.setLActionUuid(uuid);
-					
-					//给申请人发push消息
-					GameRoomMsgManager.getInstance().sendBuyinControlMsg(uuid
-							, stBuyinControlMsgBuilder.build());
-					
-					//给房主发push消息
-					GameRoomMsgManager.getInstance().sendBuyinControlMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
-							, stBuyinControlMsgBuilder.build());
-					
-				}
 			}
 
 			return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_USER_IN_GAME;
@@ -769,6 +798,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				mBuyinControlInfo.remove(uuid);
 				mBuyinControlTimes.remove(uuid);
 				mBuyinControlTimeOut.removeKey(uuid);
+				mBuyinControlClubIDs.remove(uuid);
 			}
 			
 			//发送成功的push
@@ -849,6 +879,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			mBuyinControlInfo.clear();
 			mBuyinControlTimes.clear();
 			mBuyinControlTimeOut.clear();
+			mBuyinControlClubIDs.clear();
 			
 			return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 		}
@@ -859,11 +890,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	 * @param uuid	坐下用户的uuid
 	 * @param lStacks	买入的金额
 	 */
-	public ERROR_CODE_TYPE  buyBuyin(long uuid,long lStacks){
+	public ERROR_CODE_TYPE  buyBuyin(long uuid,long clubID,long lStacks){
 		synchronized(this){
 			if(this.stGameRoomInfo.getStGameRoomBaseInfo().getBGamePause() == 1){
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
 			}
+			
 			// 生成银币扣除数据
 			long popularity = 0;
 			
@@ -879,145 +911,164 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			
 			//首先获取用户的基本信息
 			UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
-			if(UserManager.getInstance().checkUserPopularity(uuid, popularity)){
-				eErrorCodeType = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
-				//获取要增加筹码的用户
-				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount();i++){
-					//找到购买的筹码
-					UserGameInfoNet.Builder stUserGameInfoBuilder = stGameRoomInfo.getVUserGameInfos(i).toBuilder();
-					if(stUserGameInfoBuilder.getStUserInfo().getUuid() == uuid){
-						stUserMyGameInfoNetBuilder = stUserGameInfoBuilder;
-						iPos = i;
-						
-						//如果这个是弃牌或者不在牌局里面，则直接加盲注
-						if(stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD 
-								||stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_WAIT
-								||(stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_READY && getGameStarted() == false)
-								||(stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_READY && this.iCouldPlayNum == 1)){
-							
-							
-							//玩家购买的筹码
-							if((stUserGameInfoBuilder.getLRemainStacks() +  lStacks) < (this.stGameRoomInfo.getStGameRoomBaseInfo().getIMaxBuyinRatio()/10+1)*stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBuyIn()){
-								long buyStacks = lStacks;
-								stUserGameInfoBuilder.setLRemainStacks(buyStacks+ stUserGameInfoBuilder.getLRemainStacks());
-								stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoBuilder);
-								
-								buyStakcsInRoom(uuid, buyStacks);
-								
-								if(stUserGameInfoBuilder!=null){
-									BillManager.getInstance().setCurrentStacksInRoom(stUserGameInfoBuilder.getStUserInfo().getUuid(), 
-											stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-											, stUserGameInfoBuilder.getLRemainStacks());
-								}
-								//减去用户的银币
-								String sLog = null;
-								stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), -popularity);	
-								if(stUserBaseInfoNetBuilder.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
-									sLog = uuid + " " + 0 + " " + 110000 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
-											+ " 0 " + " 0 " + lStacks + " " + stUserBaseInfoNetBuilder.getLAndroidPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
-								}else{
-									sLog = uuid + " " + 0 + " " + 110000 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
-											+ " 0 " + " 0 " + lStacks + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
-								}
-
-//								mLog.error(sLog);
-								TranscationLogService.getInstance().error(sLog);
-								ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLChatRoomID());
 			
-								if(stClubInfoBuilder!=null && stClubInfoBuilder.getStClubBaseInfo().getLClubID() > 0){									
-									//添加俱乐部积分
-									stClubInfoBuilder = ClubManager.getInstance()
-											.addClubScore(stClubInfoBuilder.getStClubBaseInfo().getLClubID(), 5);
+			//检查用户是否存在
+			if(stUserBaseInfoNetBuilder!=null){
+				//检查用户是否存在买入俱乐部不相同的问题
+				if(stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID() > 0){
+					for(UserGameInfoNet stUserGameInfoNet:stGameRoomInfo.getVUserGameInfosList()){
+						if(stUserGameInfoNet.getStUserInfo().getUuid() == uuid){
+							//如果用户过，则查看买入过的俱乐部和这次买入的俱乐部是否为1个俱乐部
+							if(stUserGameInfoNet.getLBuyinClubID() != 0){
+								if(stUserGameInfoNet.getLBuyinClubID() != clubID){
+									return ERROR_CODE_TYPE.ERROR_CODE_TYPE_LEAGUE_BUYIN_NOT_SAME_CLUB; 
 								}
+							}
+						}
+					}
+				}
+				
+				//检查用户德扑币是否充足
+				if(UserManager.getInstance().checkUserPopularity(stUserBaseInfoNetBuilder.getUuid(), popularity)){
+					eErrorCodeType = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
+					//获取要增加筹码的用户
+					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+					for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount();i++){
+						//找到购买的筹码
+						UserGameInfoNet.Builder stUserGameInfoBuilder = stGameRoomInfo.getVUserGameInfos(i).toBuilder();
+						if(stUserGameInfoBuilder.getStUserInfo().getUuid() == uuid){
+							stUserMyGameInfoNetBuilder = stUserGameInfoBuilder;
+							iPos = i;
+							
+							//如果这个是弃牌或者不在牌局里面，则直接加盲注
+							if(stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD 
+									||stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_WAIT
+									||(stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_READY && getGameStarted() == false)
+									||(stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_READY && this.iCouldPlayNum == 1)){
 								
+								//玩家购买的筹码
+								if((stUserGameInfoBuilder.getLRemainStacks() +  lStacks) < (this.stGameRoomInfo.getStGameRoomBaseInfo().getIMaxBuyinRatio()/10+1)*stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBuyIn()){
+									long buyStacks = lStacks;
+									stUserGameInfoBuilder.setLRemainStacks(buyStacks+ stUserGameInfoBuilder.getLRemainStacks());
+									stUserGameInfoBuilder.setLBuyinClubID(clubID);
+									stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoBuilder);
+									//修改账单信息
+									buyStakcsInRoom(uuid, buyStacks,clubID);
+									
+									if(stUserGameInfoBuilder!=null){
+										BillManager.getInstance().setCurrentStacksInRoom(stUserGameInfoBuilder.getStUserInfo().getUuid(), 
+												stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+												, stUserGameInfoBuilder.getLRemainStacks());
+									}
+									bSetted = true;
+									//减去用户的银币
+									stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), -popularity);		
+									String sLog=null;
+									if(stUserBaseInfoNetBuilder.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
+										sLog = uuid + " " + 0 + " " + 110000 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
+												+ " 0 " + " 0 " + lStacks + " " + stUserBaseInfoNetBuilder.getLAndroidPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+									}else{
+										sLog = uuid + " " + 0 + " " + 110000 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
+												+ " 0 " + " 0 " + lStacks + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+									}
+									
+									TranscationLogService.getInstance().error(sLog);
+									ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLChatRoomID());
+				
+									if(stClubInfoBuilder!=null && stClubInfoBuilder.getStClubBaseInfo().getLClubID() > 0){									
+										//添加俱乐部积分
+										stClubInfoBuilder = ClubManager.getInstance()
+												.addClubScore(stClubInfoBuilder.getStClubBaseInfo().getLClubID(), 5);
+									}
+									
+									stGameRoomInfo = stGameRoomInfoBuilder.build();
+									if(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait_VALUE == stGameRoomInfoBuilder.getEGameState().getNumber()){
+										resetGameRoom();
+										stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
+									}
+								}else{
+									eErrorCodeType =  ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYIN_MAX_STACKS;
+									bSetted = true;
+								}
+							}else{
+								//把好友状态从游戏玩家列表中删除
+								stUserGameInfoBuilder.setBBuyin(1);
+								stUserGameInfoBuilder.setLBuyinClubID(clubID);
+								stUserGameInfoBuilder.setLBuyinStacks((int)lStacks);
+								stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoBuilder);
+								System.out.println("buyBuyin clubID 2 : " + clubID);
 								stGameRoomInfo = stGameRoomInfoBuilder.build();
-								if(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait_VALUE == stGameRoomInfoBuilder.getEGameState().getNumber()){
-									resetGameRoom();
+								if(stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result ){
 									stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
 								}
 								bSetted = true;
-							}else{
-								eErrorCodeType =  ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYIN_MAX_STACKS;
-								bSetted = true;
 							}
-						}else{
-							//把好友状态从游戏玩家列表中删除
-							stUserGameInfoBuilder.setBBuyin(1);
-							stUserGameInfoBuilder.setLBuyinStacks((int)lStacks);
-							stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoBuilder);
-							stGameRoomInfo = stGameRoomInfoBuilder.build();
-							if(stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result ){
-								stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
-							}
-							bSetted = true;
+							break;
 						}
-						break;
-					}
-				} 
-				if(bSetted==false){
-					//查看所有在旁观队列
-						UserGameInfoNet.Builder stUserGameInfoBuilder = mapStandByUserGameInfos.get(uuid);
-						if(stUserGameInfoBuilder!=null){
-							stUserMyGameInfoNetBuilder = stUserGameInfoBuilder;
-							if((stUserGameInfoBuilder.getLRemainStacks() +  lStacks) < (this.stGameRoomInfo.getStGameRoomBaseInfo().getIMaxBuyinRatio()/10+1)*stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBuyIn()){
-								//玩家购买的筹码
-								long buyStacks = lStacks;
-								stUserGameInfoBuilder.setLRemainStacks(buyStacks + stUserGameInfoBuilder.getLRemainStacks());
-								stUserGameInfoBuilder.setBWaitingBuyinConfirmation(0);
-
-								buyStakcsInRoom(uuid, buyStacks);
+					} 
+					
+					if(bSetted==false){
+						//查看所有在旁观队列
+							UserGameInfoNet.Builder stUserGameInfoBuilder = mapStandByUserGameInfos.get(uuid);
+							if(stUserGameInfoBuilder!=null){
+								stUserMyGameInfoNetBuilder = stUserGameInfoBuilder;
+								if((stUserGameInfoBuilder.getLRemainStacks() +  lStacks) < (this.stGameRoomInfo.getStGameRoomBaseInfo().getIMaxBuyinRatio()/10+1)*stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBuyIn()){
+									//玩家购买的筹码
+									long buyStacks = lStacks;
+									stUserGameInfoBuilder.setLRemainStacks(buyStacks + stUserGameInfoBuilder.getLRemainStacks());
+									stUserGameInfoBuilder.setBWaitingBuyinConfirmation(0);
+									stUserGameInfoBuilder.setLBuyinClubID(clubID);
 								
-								if(stUserGameInfoBuilder!=null){
-									BillManager.getInstance().setCurrentStacksInRoom(stUserGameInfoBuilder.getStUserInfo().getUuid(), 
-											stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-											, stUserGameInfoBuilder.getLRemainStacks());
-								}
-								
-								//减去用户的银币
-								stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), -popularity);
-								String sLog = null;
-								if(stUserBaseInfoNetBuilder.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
-									sLog = uuid + " " + 0 + " " + 110000 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
-											+ " 0 " + " 0 " + lStacks + " " + stUserBaseInfoNetBuilder.getLAndroidPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
-								}else{
-									sLog = uuid + " " + 0 + " " + 110000 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
+									//修改账单信息
+									buyStakcsInRoom(uuid, buyStacks,clubID);
+									
+									if(stUserGameInfoBuilder!=null){
+										BillManager.getInstance().setCurrentStacksInRoom(stUserGameInfoBuilder.getStUserInfo().getUuid(), 
+												stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+												, stUserGameInfoBuilder.getLRemainStacks());
+									}
+									
+									//减去用户的银币
+									stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), -popularity);
+									
+									String sLog = uuid + " " + 0 + " " + 110000 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
 											+ " 0 " + " 0 " + lStacks + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+									TranscationLogService.getInstance().error(sLog);
+									
+									ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLChatRoomID());
+									if(stClubInfoBuilder!=null){
+										//添加俱乐部积分
+										stClubInfoBuilder = ClubManager.getInstance()
+												.addClubScore(stClubInfoBuilder.getStClubBaseInfo().getLClubID(), 5);
+									}								
+								}else{
+									eErrorCodeType =  ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYIN_MAX_STACKS;
 								}
-
-								TranscationLogService.getInstance().error(sLog);
-								
-								ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLChatRoomID());
-								if(stClubInfoBuilder!=null){
-									//添加俱乐部积分
-									stClubInfoBuilder = ClubManager.getInstance()
-											.addClubScore(stClubInfoBuilder.getStClubBaseInfo().getLClubID(), 5);
-								}								
-							}else{
-								eErrorCodeType =  ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYIN_MAX_STACKS;
 							}
-						}
-					
-					
-				}
-				//如果房间没有坐下的话，会push消息
-				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
-					UserGameInfoNet stUserGameInfoSendNet = stGameRoomInfo.getVUserGameInfos(i);
-					
-					if(stUserGameInfoSendNet.getStUserInfo().getUuid() == stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()){
-						//首先找到离开房间的用户基本信息				
-						pushGameRoomUserMsgs(stUserMyGameInfoNetBuilder.build(),stUserGameInfoSendNet.getStUserInfo().getUuid(),
-								GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_BUYIN,iPos);
-						break;
 					}
-				}
-				if(mapStandByUserGameInfos.get(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid())!=null){
-					//首先找到离开房间的用户基本信息	
-					pushGameRoomUserMsgs(stUserMyGameInfoNetBuilder.build(),stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(),
-							GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_BUYIN,iPos);
+					
+					//如果房间没有坐下的话，会push消息
+					for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
+						UserGameInfoNet stUserGameInfoSendNet = stGameRoomInfo.getVUserGameInfos(i);
+						
+						if(stUserGameInfoSendNet.getStUserInfo().getUuid() == stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()){
+							//首先找到离开房间的用户基本信息				
+							pushGameRoomUserMsgs(stUserMyGameInfoNetBuilder.build(),stUserGameInfoSendNet.getStUserInfo().getUuid(),
+									GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_BUYIN,iPos);
+							break;
+						}
+					}
+						
+					if(mapStandByUserGameInfos.get(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid())!=null){
+						//首先找到离开房间的用户基本信息	
+						pushGameRoomUserMsgs(stUserMyGameInfoNetBuilder.build(),stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(),
+								GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_BUYIN,iPos);
+					}
+				}else{
+					eErrorCodeType = ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY;
 				}
 			}else{
-				eErrorCodeType = ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY;
+				eErrorCodeType = ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_USER;
 			}
 			return eErrorCodeType;
 		}
@@ -1565,9 +1616,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					if(stUserGameInfoNetBuilder.getBBuyin() ==1){
 						iCouldPlayNum++;
 						UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
-						//������������������
+
 						
-							// ������������������������
 							long popularity = 0;
 							
 							popularity = (100+GameRoomDetailInfo.getServiceFeeRat((int)stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds()))*stUserGameInfoNetBuilder.getLBuyinStacks()/100;
@@ -1579,8 +1629,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 									if(stUserGameInfoNetBuilder.getLRemainStacks() + buyStacks < (this.stGameRoomInfo.getStGameRoomBaseInfo().getIMaxBuyinRatio()/10+1)*stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBuyIn()){
 										stUserGameInfoNetBuilder.setLRemainStacks(stUserGameInfoNetBuilder.getLRemainStacks()+buyStacks);
 										
-										//������������������
-										buyStakcsInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), buyStacks);
+										buyStakcsInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), buyStacks,stUserGameInfoNetBuilder.getLBuyinClubID());
 										
 										if(stUserGameInfoNetBuilder!=null){
 											BillManager.getInstance().setCurrentStacksInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), 
@@ -1653,19 +1702,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		//������������������������
 		stGameRoomInfo = stGameRoomInfoBuilder.build();
 		
-	}
-	
-	public void buyStakcsInRoom(long uuid,long lBuyStacks){
-		Long lBuyinStacks = mUserBuyinStacks.get(uuid);
-		if(lBuyinStacks==null){
-			lBuyinStacks=(long)0;
-		}
-		
-		lBuyinStacks += lBuyStacks;
-		//修改账单信息
-		BillManager.getInstance().buyStackInRoom(uuid,stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), lBuyinStacks);
-		
-		mUserBuyinStacks.put(uuid, lBuyinStacks);
 	}
 	
 	private void resetStepStatus(){
@@ -3398,5 +3434,95 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			pushGameRoomUserMsgs(null,push_uuid,GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_FORCE_CANCEL,0);
 		}
 	}
+	
+	public void buyStakcsInRoom(long uuid,long lBuyStacks,long clubid){
+		Long lBuyinStacks = mUserBuyinStacks.get(uuid);
+		if(lBuyinStacks==null){
+			lBuyinStacks=(long)0;
+		}
+		
+		String sClubName="";
+		//检查联盟信息,取出相关的俱乐部信息
+		if(stLeagueInfo!=null){
+			for(ClubBaseInfo stClubBaseInfo:stLeagueInfo.getVClubBaseInfosList()){
+				if(stClubBaseInfo.getLClubID() == clubid&&stClubBaseInfo.getSClubName()!=null){
+					sClubName=stClubBaseInfo.getSClubName();
+				}
+			}
+		}
+	
+		lBuyinStacks += lBuyStacks;
+		//修改账单信息
+		BillManager.getInstance().buyStackInRoom(uuid,stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), lBuyinStacks,clubid,sClubName);
+		
+		mUserBuyinStacks.put(uuid, lBuyinStacks);
+	}
+	
+	//俱乐部买入控制push接口
+		private void sendAllBuyinControls(BuyinControlMsg stBuyinControlMsg,long clubID){
+			System.out.println("sendAllBuyinControls clubid : " + clubID);
+			//如果是俱乐部牌局，则看创建牌局的人是否是俱乐部的管理员，如果是俱乐部的管理员，则给俱乐部里面的每个管理员都push买入控制请求
+			if(this.stGameRoomInfo.getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){		
+				long lClubID = clubID;
+				//如果不是联盟局，则设置俱乐部ID为来源ID
+
+				if(stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID() == 0){
+					lClubID = stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+				}
+				
+				List<Long> vClubManagerUuids = ClubManager.getInstance().getClubManagerUuids(lClubID);
+
+				if(vClubManagerUuids!=null){
+					boolean bClubManager = false;
+					//检查房主是否是房间的管理员
+					if(stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID() > 0 ){
+						bClubManager=true;
+					}else{
+						for(long lClubManagerUuid:vClubManagerUuids){
+							//检查房主是否是俱乐部的管理员
+							if(lClubManagerUuid == stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()){
+								bClubManager=true;
+								break;
+							}
+						}
+					}
+					
+					//如果房主在俱乐部的管理员中，则给所有俱乐部管理员都push买入控制信息
+					if(bClubManager){
+						for(long lClubManagerUuid:vClubManagerUuids){
+							GameRoomMsgManager.getInstance().sendBuyinControlMsg(lClubManagerUuid, stBuyinControlMsg);
+						}
+					}else{
+						GameRoomMsgManager.getInstance().sendBuyinControlMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
+								, stBuyinControlMsg);
+					}
+				}else{
+					GameRoomMsgManager.getInstance().sendBuyinControlMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
+							, stBuyinControlMsg);
+				}
+				
+			}else{
+				GameRoomMsgManager.getInstance().sendBuyinControlMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
+						, stBuyinControlMsg);
+			}
+		}
+		
+		public boolean checkClubManager(long uuid){
+			if(this.stGameRoomInfo.getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
+				List<Long> vClubManagerUuids = ClubManager.getInstance().getClubManagerUuids(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID());
+				if(vClubManagerUuids!=null){
+					//检查房主是否是房间的管理员
+					for(long lClubManagerUuid:vClubManagerUuids){
+						//检查房主是否是俱乐部的管理员
+						if(lClubManagerUuid==uuid){
+							return true;
+						}		
+					}	
+				}
+			}
+			
+			return false;
+		}
+			
 	
 }

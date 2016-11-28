@@ -90,10 +90,9 @@ public class BillManager {
 		}
 	}
 
-//	//改变某个房间的某个用户的购买筹码的值
-	public void buyStackInRoom(long uuid , long roomid , long changeStacks){
+	//改变某个房间的某个用户的购买筹码的值
+	public void buyStackInRoom(long uuid , long roomid , long changeStacks,long clubid,String clubname){
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(roomid);
-		
 		if(stGameRoomDetailInfo!=null 
 				&& stGameRoomDetailInfo.getStGameRoomInfo()!=null
 				&& stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo()!=null){
@@ -102,6 +101,8 @@ public class BillManager {
 			stBuyStackInRoomRequestBuilder.setUuid(uuid);
 			stBuyStackInRoomRequestBuilder.setLBillID(roomid);
 			stBuyStackInRoomRequestBuilder.setLChangeStacks(changeStacks);
+			stBuyStackInRoomRequestBuilder.setLClubID(clubid);
+			stBuyStackInRoomRequestBuilder.setSClubName(clubname);
 			
 			try {
 				blockingBillService.buyStackInRoom(controller, stBuyStackInRoomRequestBuilder.build());
@@ -110,7 +111,7 @@ public class BillManager {
 				e.printStackTrace();
 			}
 		}
-	}
+	}	
 		
 	public void setCurrentStacksInRoom(long uuid,long roomid,long stacks){
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(roomid);

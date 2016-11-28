@@ -5,6 +5,7 @@ import java.util.Set;
 import com.google.protobuf.RpcCallback;
 import com.google.protobuf.RpcController;
 import com.google.protobuf.ServiceException;
+import com.texaspoker.league.LeagueManager;
 import com.texaspoker.moment.TexasPoker.BUYIN_CONTROL_TYPE;
 import com.texaspoker.moment.TexasPoker.BuyinControl;
 import com.texaspoker.moment.TexasPoker.GAME_ACT_TYPE;
@@ -95,6 +96,7 @@ import com.texaspoker.moment.TexasPokerGameService.UserDelegateRequest;
 import com.texaspoker.moment.TexasPokerGameService.UserDelegateResponse;
 import com.texaspoker.moment.TexasPokerGameService.UserInsuranceSettingRequest;
 import com.texaspoker.moment.TexasPokerGameService.UserInsuranceSettingResponse;
+import com.texaspoker.moment.TexasPokerHttpLeague.LeagueBaseInfo;
 import com.texaspoker.moment.room.GameRoomDetailInfo;
 import com.texaspoker.moment.room.GameRoomIDResultInfo;
 import com.texaspoker.moment.room.GameRoomManager;
@@ -134,6 +136,13 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		stGameRoomBaseInfoBuilder.setBInsurance(1);
 		stGameRoomBaseInfoBuilder.setBIPLimit(request.getStGameRoomBaseInfo().getBIPLimit());
 		stGameRoomBaseInfoBuilder.setBGPSLimit(request.getStGameRoomBaseInfo().getBGPSLimit());
+		stGameRoomBaseInfoBuilder.setLLeagueID(request.getStGameRoomBaseInfo().getLLeagueID());
+		
+		//添加联盟相关信息
+		LeagueBaseInfo stLeagueBaseInfo = LeagueManager.getInstance().getLeagueBaseInfo(stGameRoomBaseInfoBuilder.getLLeagueID());
+		if(stLeagueBaseInfo!=null){
+			stGameRoomBaseInfoBuilder.setSLeagueName(stLeagueBaseInfo.getSLeagueName());
+		}
 		
 		GameRoomIDResultInfo stGameRoomIDResultInfo = GameRoomManager.getInstance().createGameRoom(request.getUuid()
 				,stGameRoomBaseInfoBuilder.build());
@@ -298,12 +307,12 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 			if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBBuyinControl() == 0 || 
 					(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBBuyinControl() == 1
 					&&stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid())){
-				rst = stGameRoomDetailInfo.buyBuyin(request.getUuid(), request.getLStacks());
+				rst = stGameRoomDetailInfo.buyBuyin(request.getUuid(),request.getLClubID(), request.getLStacks());
 			}
 			//需要买入控制
 			else{
 				//发送买入控制的push
-				rst = stGameRoomDetailInfo.buyBuyinControl(request.getUuid(), request.getLStacks());
+				rst = stGameRoomDetailInfo.buyBuyinControl(request.getUuid(), request.getLClubID(),request.getLStacks());
 			}
 			
 			if(rst == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
