@@ -401,30 +401,65 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
 
 		if(stGameRoomDetailInfo!=null){
-			if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()){
-				ERROR_CODE_TYPE rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
-				if(request.getEBuyinControlMessageType() == BUYIN_CONTROL_TYPE.BUYIN_CONTROL_TYPE_ACCEPT){
-					rst = stGameRoomDetailInfo.buyinControlActionAccept(request.getLActionUuid());
-				}else if(request.getEBuyinControlMessageType() == BUYIN_CONTROL_TYPE.BUYIN_CONTROL_TYPE_DENY){
-					rst = stGameRoomDetailInfo.buyinControlActionDeny(request.getLActionUuid(),false);
-				}
-				
-				if(rst == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
-					stBuyinActionResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-					stBuyinActionResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
+			if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLLeagueID() > 0){
+				//如果是俱乐部管理员，则开始
+				LeagueInfo stLeagueInfo = stGameRoomDetailInfo.getStLeagueInfo();
+		
+				if(stLeagueInfo!=null){
+					boolean bClubManager = false;
+					for(ClubBaseInfo stClubBaseInfo:stLeagueInfo.getVClubBaseInfosList()){
+						
+						bClubManager = ClubManager.getInstance().checkClubManager(stClubBaseInfo.getLClubID(),request.getUuid());
+					
+						if(bClubManager){
+							break;
+						}
+					}
+					
+					if(bClubManager){
+						ERROR_CODE_TYPE rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
+						if(request.getEBuyinControlMessageType() == BUYIN_CONTROL_TYPE.BUYIN_CONTROL_TYPE_ACCEPT){
+							rst = stGameRoomDetailInfo.buyinControlActionAccept(request.getLActionUuid());
+						}else if(request.getEBuyinControlMessageType() == BUYIN_CONTROL_TYPE.BUYIN_CONTROL_TYPE_DENY){
+							rst = stGameRoomDetailInfo.buyinControlActionDeny(request.getLActionUuid(),false);
+						}
+						
+						if(rst == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
+							stBuyinActionResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+							stBuyinActionResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
+						}else{
+							stBuyinActionResponseBuilder.setEErrCode(rst);
+						}
+					}
 				}else{
-					stBuyinActionResponseBuilder.setEErrCode(rst);
+					stBuyinActionResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_LEAGUE);
 				}
 			}else{
-				stBuyinActionResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_AUTH_BUYINACTION);
+				if(stGameRoomDetailInfo.checkClubManager(request.getUuid())){
+					ERROR_CODE_TYPE rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
+					if(request.getEBuyinControlMessageType() == BUYIN_CONTROL_TYPE.BUYIN_CONTROL_TYPE_ACCEPT){
+						rst = stGameRoomDetailInfo.buyinControlActionAccept(request.getLActionUuid());
+					}else if(request.getEBuyinControlMessageType() == BUYIN_CONTROL_TYPE.BUYIN_CONTROL_TYPE_DENY){
+						rst = stGameRoomDetailInfo.buyinControlActionDeny(request.getLActionUuid(),false);
+					}
+					
+					if(rst == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
+						stBuyinActionResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+						stBuyinActionResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
+					}else{
+						stBuyinActionResponseBuilder.setEErrCode(rst);
+					}
+				}else{
+					stBuyinActionResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_AUTH_BUYINACTION);
+				}
 			}
-			
 		}else{
 			stBuyinActionResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);
 		}
 		
 		return stBuyinActionResponseBuilder.build();
 	}
+
 
 	@Override
 	public PauseGameResponse pauseGame(RpcController controller,
