@@ -3435,6 +3435,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		}
 	}
 	
+	public LeagueInfo getStLeagueInfo() {
+		return stLeagueInfo;
+	}
+
+	public void setStLeagueInfo(LeagueInfo stLeagueInfo) {
+		this.stLeagueInfo = stLeagueInfo;
+	}
+	
 	public void buyStakcsInRoom(long uuid,long lBuyStacks,long clubid){
 		Long lBuyinStacks = mUserBuyinStacks.get(uuid);
 		if(lBuyinStacks==null){
