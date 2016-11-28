@@ -3488,7 +3488,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				}
 				
 				List<Long> vClubManagerUuids = ClubManager.getInstance().getClubManagerUuids(lClubID);
-
+				System.out.println("sendAllBuyinControls vClubManagerUuids : " + vClubManagerUuids);
+				
 				if(vClubManagerUuids!=null){
 					boolean bClubManager = false;
 					//检查房主是否是房间的管理员
