@@ -951,6 +951,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 									long buyStacks = lStacks;
 									stUserGameInfoBuilder.setLRemainStacks(buyStacks+ stUserGameInfoBuilder.getLRemainStacks());
 									stUserGameInfoBuilder.setLBuyinClubID(clubID);
+									System.out.println("buyBuyinbuyBuyinbuyBuyinbuyBuyin clubid : " + clubID);
 									stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoBuilder);
 									//修改账单信息
 									buyStakcsInRoom(uuid, buyStacks,clubID);
