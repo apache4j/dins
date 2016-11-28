@@ -591,7 +591,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						
 						GameRoomMsgManager.getInstance().sendBuyinControlMsg(uuid , stBuyinControlMsgBuilder.build());
 						
-						
+						System.out.println("sendAllBuyinControls 1 : " + stUserGameInfoBuilder.getLBuyinClubID());
 						sendAllBuyinControls(stBuyinControlMsgBuilder.build(),stUserGameInfoBuilder.getLBuyinClubID());
 						
 						if(stUserGameInfoBuilder.getLRemainStacks() == 0 && 
@@ -612,7 +612,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						stBuyinControlMsgBuilder.setLMsgID(lMsgID);
 						stBuyinControlMsgBuilder.setSActionNickname(stUserGameInfoBuilder.getStUserInfo().getStrNick());
 						
-						
+						System.out.println("sendAllBuyinControls 2 : " + stUserGameInfoBuilder.getLBuyinClubID());
 						GameRoomMsgManager.getInstance().sendBuyinControlMsg(uuid , stBuyinControlMsgBuilder.build());
 						
 						sendAllBuyinControls(stBuyinControlMsgBuilder.build(),stUserGameInfoBuilder.getLBuyinClubID());
@@ -645,7 +645,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stBuyinControlMsgBuilder.setSActionNickname(stUserGameInfoBuilder.getStUserInfo().getStrNick());
 					
 					GameRoomMsgManager.getInstance().sendBuyinControlMsg(uuid , stBuyinControlMsgBuilder.build());
-					
+					System.out.println("sendAllBuyinControls 3 : " + stUserGameInfoBuilder.getLBuyinClubID());
 					sendAllBuyinControls(stBuyinControlMsgBuilder.build(),stUserGameInfoBuilder.getLBuyinClubID());
 				}
 				else{
@@ -661,7 +661,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					
 					GameRoomMsgManager.getInstance().sendBuyinControlMsg(uuid
 							, stBuyinControlMsgBuilder.build());
-					
+					System.out.println("sendAllBuyinControls 4 : " + stUserGameInfoBuilder.getLBuyinClubID());
 					sendAllBuyinControls(stBuyinControlMsgBuilder.build(),stUserGameInfoBuilder.getLBuyinClubID());
 				}
 				
