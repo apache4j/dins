@@ -106,7 +106,7 @@ public class GameRoomManager  {
 		
 		// 获取创建牌局的用户的vip类型
 		UserBaseInfoNet.Builder stUserBaseInfoNet = UserManager.getInstance().getUserBaseInfo(uuid);
-	
+		System.out.println("createGameRoom111111111111111111111111222222222222222222");
 		// 判断用户是否可以在创建房间
 		if (userPlaysNumber >= GlobalData.getSimultaneousPlays(stUserBaseInfoNet.getEVipType())) {	
 			// 生成回包
@@ -117,6 +117,7 @@ public class GameRoomManager  {
 			// 生成银币扣除数据
 				if(stGameRoomBaseInfo.getEGameRoomSeniorType() == GAME_ROOM_SENIOR_TYPE.GAME_ROOM_SENIOR_TYPE_NO){
 					synchronized(RoomIDManager.class){
+						System.out.println("createGameRoom111111111111111111111111222222222222222223");
 						TexasPoker.GameRoomBaseInfo.Builder gameRoomBaseInfoBuilder = stGameRoomBaseInfo.toBuilder();
 						gameRoomBaseInfoBuilder.setLGameRoomId(RoomIDManager.getInstance().getNewRoomID(stUserBaseInfoNet.getUuid()));
 						gameRoomBaseInfoBuilder.setBBuyIn(1);
