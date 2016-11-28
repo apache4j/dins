@@ -2320,97 +2320,106 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	}
 	
 	//用户进入房间
-	public ERROR_CODE_TYPE enterGameRoom(long uuid){
-		synchronized(this){
-			try{
-				if(mUserKickedUser.containsKey(uuid)){
-					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_BLACKED; 
-				}
-				
-				//把用户加入房间
-				//获取gameroom builder,这里要注意toBuilder的方式，看看toBuilder是否会有问题
-				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-				
-				//开发游戏
-				ClubInfo.Builder stClubInfo = ClubManager.getInstance().getClubInfo(this.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID());
-
-				boolean bInClub = false;
-				if(stClubInfo != null){
-					for(ClubUserInfo stClubUserInfo:stClubInfo.getVClubUserInfosList()){
-						if(stClubUserInfo!=null && stClubUserInfo.getStUserBaseInfo().getUuid() > 0) {
-							if(stClubUserInfo.getStUserBaseInfo().getUuid() == uuid){
-								bInClub = true;
-								break;
-							}
-						}
+	//用户进入房间
+		public ERROR_CODE_TYPE enterGameRoom(long uuid){
+			synchronized(this){
+				try{
+					if(mUserKickedUser.containsKey(uuid)){
+						return ERROR_CODE_TYPE.ERROR_CODE_TYPE_BLACKED; 
 					}
-				}else{
-					bInClub = true;
-				}
-
-				if(bInClub == false){
-					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_CLUB_NO_USER;
-				}
-				if(containUser(uuid)){
-					//如果用户已经存在房间了，就直接返回
-					for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount() ; i++){
-						UserGameInfoNet stUserGameInfo = stGameRoomInfo.getVUserGameInfos(i);
-						if(stUserGameInfo.getStUserInfo().getUuid() == uuid){
-							return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
-						}
-					}
-				}else if(mapStandByUserGameInfos.containsKey(uuid)){
-					//如果用户已经存在房间了，就直接返回
-					addStandByUuid(uuid);
-					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
-				}
-				else{
-					//生成新的游戏玩家，放入旁观队列,暂离游戏
-					TexasPoker.UserGameInfoNet.Builder userGameInfoBuilder = TexasPoker.UserGameInfoNet.newBuilder();
+					//把用户加入房间
+					//获取gameroom builder,这里要注意toBuilder的方式，看看toBuilder是否会有问题
+					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 					
-					UserBaseInfoNet stUserBaseInfo = UserManager.getInstance().getUserBaseInfo(uuid).build();
-					if(stUserBaseInfo != null){
-						userGameInfoBuilder.setStUserInfo(stUserBaseInfo);
-						userGameInfoBuilder.setLRoomId(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
-						userGameInfoBuilder.setLRemainStacks(0);
-						
-						userGameInfoBuilder.setLBetStacks(0);
-						userGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_STANDBY);
-						userGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_NORMAL);
-						userGameInfoBuilder.setBGameDealer(0);
-						//设置座位和用户的对应关系
-						mapStandByUserGameInfos.put(uuid, userGameInfoBuilder);
-						addStandByUuid(uuid);
-						setStGameRoomInfo(stGameRoomInfoBuilder.build());
-						
-						ConnectDatabase.getInstance().insertInGameUser(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-								,uuid);
-						
-						//APP push
-						if(stGameRoomInfo!=null && stGameRoomInfo.getStGameRoomBaseInfo()!=null 
-								&& stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo()!=null){
-							int iTotal = 0;
-							for(int k = 0 ; k < stGameRoomInfo.getVUserGameInfosCount();k++){
-								UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(k);
-								if(stUserGameInfoNet.getStUserInfo().getUuid() > 0)
-									iTotal++;
+					//开发游戏
+					ClubInfo.Builder stClubInfo = ClubManager.getInstance().getClubInfo(this.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID());
+
+					boolean bInClub = false;
+					//联盟局暂时不检查所在俱乐部的情况
+					if(stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID() == 0){
+						if(stClubInfo != null){
+							for(ClubUserInfo stClubUserInfo:stClubInfo.getVClubUserInfosList()){
+								if(stClubUserInfo!=null && stClubUserInfo.getStUserBaseInfo().getUuid() > 0) {
+									if(stClubUserInfo.getStUserBaseInfo().getUuid() == uuid){
+										bInClub = true;
+										break;
+									}
+								}
 							}
-							pushAppPushEnterGame(uuid,iTotal);
+						}else{
+							bInClub = true;
 						}
-						
+					}else{
+						bInClub = true;
+					}
+					
+					//如果不在俱乐部。则返回错误码
+					if(bInClub == false){
+						return ERROR_CODE_TYPE.ERROR_CODE_TYPE_CLUB_NO_USER;
+					}
+			
+					if(containUser(uuid)){
+						//如果用户已经存在房间了，就直接返回
+						for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount() ; i++){
+							UserGameInfoNet stUserGameInfo = stGameRoomInfo.getVUserGameInfos(i);
+							if(stUserGameInfo.getStUserInfo().getUuid() == uuid){
+								return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
+							}
+						}
+					}else if(mapStandByUserGameInfos.containsKey(uuid)){
+						//如果用户已经存在房间了，就直接返回
+						addStandByUuid(uuid);
 						return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 					}
 					else{
-						return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_USER;
+						//生成新的游戏玩家，放入旁观队列,暂离游戏
+						TexasPoker.UserGameInfoNet.Builder userGameInfoBuilder = TexasPoker.UserGameInfoNet.newBuilder();
+						
+						UserBaseInfoNet stUserBaseInfo = UserManager.getInstance().getUserBaseInfo(uuid).build();
+						if(stUserBaseInfo != null){
+							userGameInfoBuilder.setStUserInfo(stUserBaseInfo);
+							userGameInfoBuilder.setLRoomId(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+							userGameInfoBuilder.setLRemainStacks(0);
+							
+							userGameInfoBuilder.setLBetStacks(0);
+							userGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_STANDBY);
+							userGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_NORMAL);
+							userGameInfoBuilder.setBGameDealer(0);
+							//设置座位和用户的对应关系
+							mapStandByUserGameInfos.put(uuid, userGameInfoBuilder);
+							addStandByUuid(uuid);
+							setStGameRoomInfo(stGameRoomInfoBuilder.build());
+							
+							ConnectDatabase.getInstance().insertInGameUser(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+									,uuid);
+							
+							//APP push
+							if(stGameRoomInfo!=null && stGameRoomInfo.getStGameRoomBaseInfo()!=null 
+									&& stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo()!=null){
+								
+								int iTotal = 0;
+								for(int k = 0 ; k < stGameRoomInfo.getVUserGameInfosCount();k++){
+									UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(k);
+									if(stUserGameInfoNet.getStUserInfo().getUuid() > 0)
+										iTotal++;
+								}
+								
+								pushAppPushEnterGame(uuid,iTotal);
+							}
+							
+							return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
+						}
+						else{
+							return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_USER;
+						}
 					}
-				}
 
-				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
-			}catch(Exception e){
-				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
+					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
+				}catch(Exception e){
+					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
+				}	
 			}
-		}	
-	}
+		}
 	
 	public int getDealyTimes(long uuid){
 		for(int i = 0 ; i < this.stGameRoomInfo.getVUserGameInfosCount() ; i++){
