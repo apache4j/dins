@@ -853,18 +853,54 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 					stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_LEAGUE);
 				}
 			}else{
-				bClubManager = stGameRoomDetailInfo.checkClubManager(request.getUuid());
-				
-				if(bClubManager){
-					ArrayList<BuyinControl> vBuyinControls = stGameRoomDetailInfo.getAllBuyinControls(0);
-					
-					if(vBuyinControls!=null){
-						stGetAllBuyinControlsResponseBuilder.addAllVBuyinControls(vBuyinControls);
+				//如果创建牌局的人不是俱乐部的管理员
+				if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
+					//检查创建牌局的用户是否为管理员创建
+					if(ClubManager.getInstance().checkClubManager(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID()
+							,stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid())){
+						//如果是管理员创建牌局，则检查是否为管理员，只要是管理员，就可以获得买入信息
+						bClubManager = stGameRoomDetailInfo.checkClubManager(request.getUuid());
+						
+						if(bClubManager){
+							ArrayList<BuyinControl> vBuyinControls = stGameRoomDetailInfo.getAllBuyinControls(0);
+							
+							if(vBuyinControls!=null){
+								stGetAllBuyinControlsResponseBuilder.addAllVBuyinControls(vBuyinControls);
+							}
+							stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+							
+						}else{
+							stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_AUTH_BUYINACTION);
+						}
+						
+					}else{
+						//如果不是管理员创建牌局，则只有房主可以获得买入申请信息
+						if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()){
+							ArrayList<BuyinControl> vBuyinControls = stGameRoomDetailInfo.getAllBuyinControls(0);
+							
+							if(vBuyinControls!=null){
+								stGetAllBuyinControlsResponseBuilder.addAllVBuyinControls(vBuyinControls);
+							}
+							stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+							
+						}else{
+							stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_AUTH_BUYINACTION);
+						}
 					}
-					stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-					
-				}else{
-					stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_AUTH_BUYINACTION);
+				}
+				else{
+					//如果不是管理员创建牌局，则只有房主可以获得买入申请信息
+					if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()){
+						ArrayList<BuyinControl> vBuyinControls = stGameRoomDetailInfo.getAllBuyinControls(0);
+						
+						if(vBuyinControls!=null){
+							stGetAllBuyinControlsResponseBuilder.addAllVBuyinControls(vBuyinControls);
+						}
+						stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+						
+					}else{
+						stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_AUTH_BUYINACTION);
+					}
 				}
 			}
 		}else{
