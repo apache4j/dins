@@ -14,6 +14,7 @@ import com.texaspoker.moment.TexasPoker.GameRoomInfo;
 import com.texaspoker.moment.TexasPoker.InsuranceUserInfo;
 import com.texaspoker.moment.TexasPoker.QuickGameRoomInfo;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
+import com.texaspoker.moment.TexasPokerCommon.CREATE_ROOM_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.ClubBaseInfo;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerGameService;
@@ -307,17 +308,40 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 			ERROR_CODE_TYPE rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 			
 			//不需要买入控制
-			if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBBuyinControl() == 0 || 
-					(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBBuyinControl() == 1
-					&&stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid())){
+			if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBBuyinControl() == 0){
 				rst = stGameRoomDetailInfo.buyBuyin(request.getUuid(),request.getLClubID(), request.getLStacks());
+			}else{
+				if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
+					//如果是俱乐部局，则首先检查创建牌局的是否为俱乐部管理员
+					if(ClubManager.getInstance().checkClubManager(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID()
+							,stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid())){
+						//如果买入的人再买入的俱乐部里面是管理员的话，则直接买入成功
+						if(ClubManager.getInstance().checkClubManager(request.getLClubID(),request.getUuid())){
+							rst = stGameRoomDetailInfo.buyBuyin(request.getUuid(),request.getLClubID(), request.getLStacks());
+						}else{
+							//发送买入控制的push
+							rst = stGameRoomDetailInfo.buyBuyinControl(request.getUuid(), request.getLClubID(),request.getLStacks());
+						}
+					}else{
+						//如果是俱乐部局，但是不是管理员创建的牌局，则只有房主可以不进行买入控制，直接买入
+						if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()){
+							rst = stGameRoomDetailInfo.buyBuyin(request.getUuid(),request.getLClubID(), request.getLStacks());
+						}else{
+							//发送买入控制的push
+							rst = stGameRoomDetailInfo.buyBuyinControl(request.getUuid(), request.getLClubID(),request.getLStacks());
+						}
+					}
+				}else{
+					//如果不是俱乐部局，则检查买入的是否为牌局创建者，如果是牌局创建者，则直接买入成功
+					if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()){
+						rst = stGameRoomDetailInfo.buyBuyin(request.getUuid(),request.getLClubID(), request.getLStacks());
+					}else{
+						//发送买入控制的push
+						rst = stGameRoomDetailInfo.buyBuyinControl(request.getUuid(), request.getLClubID(),request.getLStacks());
+					}
+				}				
 			}
-			//需要买入控制
-			else{
-				//发送买入控制的push
-				rst = stGameRoomDetailInfo.buyBuyinControl(request.getUuid(), request.getLClubID(),request.getLStacks());
-			}
-			
+
 			if(rst == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
 				stBuyBuyInResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
 				stBuyBuyInResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());

@@ -1301,7 +1301,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			for(int i = 0 ; i < timeoutArray.size() ; i++){
 				Long uuid = (Long) timeoutArray.get(i);
 				if(uuid!=null){			
-					this.buyinControlActionDeny(0,uuid,true);
+					buyinControlActionDeny(0,uuid,true);
 				}
 			}
 		}
