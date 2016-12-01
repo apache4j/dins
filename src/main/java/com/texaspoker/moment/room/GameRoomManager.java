@@ -97,6 +97,25 @@ public class GameRoomManager  {
 		mGameRoomDetailInfos.setCurrent(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId(), stGameRoomDetailInfo);
 	}
 	
+	//检查是否是否有权限创建俱乐部普通局
+	public boolean checkAuthClubGame(GameRoomBaseInfo stGameRoomBaseInfo,long uuid){
+		if(stGameRoomBaseInfo.getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
+			if(stGameRoomBaseInfo.getLLeagueID() == 0){
+				ClubBaseInfo.Builder stClubBaseInfoBuilder = ClubManager.getInstance().getClubBaseInfo(stGameRoomBaseInfo.getLChatRoomID());
+				if(stClubBaseInfoBuilder!=null){
+					//检查俱乐部设置
+					if(stClubBaseInfoBuilder.getIManagerCreate()==1){
+						boolean bClubManager = ClubManager.getInstance().checkClubManager(stGameRoomBaseInfo.getLChatRoomID(), uuid);
+						if(!bClubManager){
+							return false;
+						}
+					}
+				}
+			}
+		}
+		return true;
+	}
+	
 	public GameRoomIDResultInfo createGameRoom(long uuid,GameRoomBaseInfo stGameRoomBaseInfo){
 		
 		GameRoomIDResultInfo stGameRoomIDResultInfo = new GameRoomIDResultInfo();
@@ -105,6 +124,22 @@ public class GameRoomManager  {
 		int userPlaysNumber = 0;
 		if (stUserCreateGames != null && stUserCreateGames.mRoomMap!=null) {
 			userPlaysNumber = stUserCreateGames.mRoomMap.size();
+		}
+		
+		//如果是俱乐部局，创建牌局前先检查用户是否为该牌局用户
+		if(stGameRoomBaseInfo.getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
+			boolean bInClub = ClubManager.getInstance().inClub(stGameRoomBaseInfo.getLChatRoomID(), uuid);
+			//如果用户不在俱乐部中，则用户无法开局
+			if(bInClub==false){
+				stGameRoomIDResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_CLUB_NO_USER);
+				return stGameRoomIDResultInfo;
+			}
+		}
+		
+		//如果没通过创建牌局检测
+		if(checkAuthClubGame(stGameRoomBaseInfo,uuid) == false){
+			stGameRoomIDResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_CLUB_NO_AUTH_MANAGE);
+			return stGameRoomIDResultInfo; 
 		}
 		
 		// 获取创建牌局的用户的vip类型

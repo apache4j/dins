@@ -22,6 +22,8 @@ import com.texaspoker.moment.TexasPokerClubService.DeleteClubCoverRequest;
 import com.texaspoker.moment.TexasPokerClubService.DeleteClubCoverResponse;
 import com.texaspoker.moment.TexasPokerClubService.DeleteClubMemberRequest;
 import com.texaspoker.moment.TexasPokerClubService.DeleteClubMemberResponse;
+import com.texaspoker.moment.TexasPokerClubService.GetClubBaseInfoRequest;
+import com.texaspoker.moment.TexasPokerClubService.GetClubBaseInfoResponse;
 import com.texaspoker.moment.TexasPokerClubService.GetClubInfoRequest;
 import com.texaspoker.moment.TexasPokerClubService.GetClubInfoResponse;
 import com.texaspoker.moment.TexasPokerClubService.GetClubManagerUuidsRequest;
@@ -38,6 +40,7 @@ import com.texaspoker.moment.TexasPokerClubService.UploadClubCoverRequest;
 import com.texaspoker.moment.TexasPokerClubService.UploadClubCoverResponse;
 import com.texaspoker.moment.TexasPokerClubService.UploadClubIconRequest;
 import com.texaspoker.moment.TexasPokerClubService.UploadClubIconResponse;
+import com.texaspoker.moment.TexasPokerCommon.ClubBaseInfo;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerHttpClub.CLUB_USER_LEVEL;
 import com.texaspoker.moment.TexasPokerHttpClub.ClubInfo;
@@ -187,6 +190,26 @@ public class ClubManager {
 		}
 		return bFull;
 		
+	}
+	
+	//获取俱乐部信息
+	public ClubBaseInfo.Builder getClubBaseInfo(long lClubID){
+		GetClubBaseInfoRequest.Builder stGetClubBaseInfoRequestBuilder = GetClubBaseInfoRequest.newBuilder();
+		stGetClubBaseInfoRequestBuilder.setLClubID(lClubID);
+	    
+	    try {
+//			System.out.println("getUserBaseInfogetUserBaseInforpc begin.");
+	    	GetClubBaseInfoResponse response = blockingClubService.getClubBaseInfo(controller, stGetClubBaseInfoRequestBuilder.build());
+	    	
+	    	if (response != null && response.getStClubBaseInfo()!=null && response.getStClubBaseInfo().getLClubID() > 0) {
+	    		return response.getStClubBaseInfo().toBuilder();
+	    	} else {
+	    		return null;
+	    	}
+	    } catch (ServiceException e) {
+	    	NormalLogService.getInstance().error("syn echo error:" + e.getMessage());
+	      return null;
+	    }
 	}
 
 	//该用户是否在俱乐部中
