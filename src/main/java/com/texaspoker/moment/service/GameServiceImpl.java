@@ -445,7 +445,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 						if(request.getEBuyinControlMessageType() == BUYIN_CONTROL_TYPE.BUYIN_CONTROL_TYPE_ACCEPT){
 							rst = stGameRoomDetailInfo.buyinControlActionAccept(request.getUuid(),request.getLActionUuid());
 						}else if(request.getEBuyinControlMessageType() == BUYIN_CONTROL_TYPE.BUYIN_CONTROL_TYPE_DENY){
-							rst = stGameRoomDetailInfo.buyinControlActionDeny(0,request.getLActionUuid(),false);
+							rst = stGameRoomDetailInfo.buyinControlActionDeny(request.getUuid(),request.getLActionUuid(),false);
 						}
 						
 						if(rst == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
@@ -459,7 +459,8 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 					stBuyinActionResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_LEAGUE);
 				}
 			}else{
-				if(stGameRoomDetailInfo.checkClubManager(request.getUuid())){
+				if(stGameRoomDetailInfo.checkClubManager(request.getUuid()) 
+						|| (stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid())){
 					ERROR_CODE_TYPE rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 					if(request.getEBuyinControlMessageType() == BUYIN_CONTROL_TYPE.BUYIN_CONTROL_TYPE_ACCEPT){
 						rst = stGameRoomDetailInfo.buyinControlActionAccept(request.getUuid(),request.getLActionUuid());
@@ -483,7 +484,6 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		
 		return stBuyinActionResponseBuilder.build();
 	}
-
 
 	@Override
 	public PauseGameResponse pauseGame(RpcController controller,
