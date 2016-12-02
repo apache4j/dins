@@ -34,7 +34,6 @@ import com.texaspoker.moment.TexasPokerCommon.ID_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
 import com.texaspoker.moment.TexasPokerCommon.VIP_TYPE;
 import com.texaspoker.moment.TexasPokerHttpClub.ClubInfo;
-import com.texaspoker.moment.TexasPokerHttpClub.ClubUserInfo;
 import com.texaspoker.moment.TexasPokerHttpLeague.LeagueInfo;
 import com.texaspoker.moment.setting.GlobalData;
 import com.texaspoker.msg.GameRoomMsgManager;
@@ -145,7 +144,8 @@ public class GameRoomManager  {
 		// 获取创建牌局的用户的vip类型
 		UserBaseInfoNet.Builder stUserBaseInfoNet = UserManager.getInstance().getUserBaseInfo(uuid);
 		// 判断用户是否可以在创建房间
-		if (userPlaysNumber >= GlobalData.getSimultaneousPlays(stUserBaseInfoNet.getEVipType())) {	
+		if (stGameRoomBaseInfo.getLLeagueID() == 0 
+				&&userPlaysNumber >= GlobalData.getSimultaneousPlays(stUserBaseInfoNet.getEVipType())) {	
 			// 生成回包
 			stGameRoomIDResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_GAMEROOM_OVERFLOW);
 			return stGameRoomIDResultInfo;
@@ -295,15 +295,6 @@ public class GameRoomManager  {
 						userSelfGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_NORMAL);
 						userSelfGameInfoBuilder.setBGameDealer(0);
 						userSelfGameInfoBuilder.setIDelaySingleTime(20);
-												
-						//设置联盟中的各个俱乐部的管理员进行买入
-						if(stGameRoomDetailInfo.getStLeagueInfo()!=null){
-							//联盟牌局给联盟里面的每个俱乐部添加游戏
-							for(ClubBaseInfo stClubBaseInfo:stGameRoomDetailInfo.getStLeagueInfo().getVClubBaseInfosList()){																																									
-								//把每个俱乐部的创建者放入账单
-								stGameRoomDetailInfo.buyStakcsInRoom(stClubBaseInfo.getStCreateUserBaseInfo().getUuid(),0,stClubBaseInfo.getLClubID());
-							}
-						}
 
 						// 将被邀请的用户设置要被邀请的名单中,弄发送邀请通知
 						for (int i = 0; i < userList.size(); i++) {
@@ -498,6 +489,16 @@ public class GameRoomManager  {
 									
 								}
 							}
+							
+							//设置联盟中的各个俱乐部的管理员进行买入
+							if(stGameRoomDetailInfo.getStLeagueInfo()!=null){
+								//联盟牌局给联盟里面的每个俱乐部添加游戏
+								for(ClubBaseInfo stClubBaseInfo:stGameRoomDetailInfo.getStLeagueInfo().getVClubBaseInfosList()){																																									
+									//把每个俱乐部的创建者放入账单
+									stGameRoomDetailInfo.buyStakcsInRoom(stClubBaseInfo.getStCreateUserBaseInfo().getUuid(),0,stClubBaseInfo.getLClubID());
+								}
+							}
+							
 							stGameRoomIDResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
 							stGameRoomIDResultInfo.setlGameRoomID(gameRoomBaseInfoBuilder.getLGameRoomId());
 							return stGameRoomIDResultInfo;
