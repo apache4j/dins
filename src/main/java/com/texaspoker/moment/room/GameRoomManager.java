@@ -144,7 +144,6 @@ public class GameRoomManager  {
 		
 		// 获取创建牌局的用户的vip类型
 		UserBaseInfoNet.Builder stUserBaseInfoNet = UserManager.getInstance().getUserBaseInfo(uuid);
-		System.out.println("createGameRoom111111111111111111111111222222222222222222");
 		// 判断用户是否可以在创建房间
 		if (userPlaysNumber >= GlobalData.getSimultaneousPlays(stUserBaseInfoNet.getEVipType())) {	
 			// 生成回包
@@ -155,7 +154,6 @@ public class GameRoomManager  {
 			// 生成银币扣除数据
 				if(stGameRoomBaseInfo.getEGameRoomSeniorType() == GAME_ROOM_SENIOR_TYPE.GAME_ROOM_SENIOR_TYPE_NO){
 					synchronized(RoomIDManager.class){
-						System.out.println("createGameRoom111111111111111111111111222222222222222223");
 						TexasPoker.GameRoomBaseInfo.Builder gameRoomBaseInfoBuilder = stGameRoomBaseInfo.toBuilder();
 						gameRoomBaseInfoBuilder.setLGameRoomId(RoomIDManager.getInstance().getNewRoomID(stUserBaseInfoNet.getUuid()));
 						gameRoomBaseInfoBuilder.setBBuyIn(1);
@@ -297,8 +295,15 @@ public class GameRoomManager  {
 						userSelfGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_NORMAL);
 						userSelfGameInfoBuilder.setBGameDealer(0);
 						userSelfGameInfoBuilder.setIDelaySingleTime(20);
-						
-						stGameRoomDetailInfo.buyStakcsInRoom(stUserBaseInfoNet.getUuid(),0,gameRoomBaseInfoBuilder.getLChatRoomID());
+												
+						//设置联盟中的各个俱乐部的管理员进行买入
+						if(stGameRoomDetailInfo.getStLeagueInfo()!=null){
+							//联盟牌局给联盟里面的每个俱乐部添加游戏
+							for(ClubBaseInfo stClubBaseInfo:stGameRoomDetailInfo.getStLeagueInfo().getVClubBaseInfosList()){																																									
+								//把每个俱乐部的创建者放入账单
+								stGameRoomDetailInfo.buyStakcsInRoom(stClubBaseInfo.getStCreateUserBaseInfo().getUuid(),0,stClubBaseInfo.getLClubID());
+							}
+						}
 
 						// 将被邀请的用户设置要被邀请的名单中,弄发送邀请通知
 						for (int i = 0; i < userList.size(); i++) {
