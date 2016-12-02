@@ -582,6 +582,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
 		if(stGameRoomDetailInfo!=null){
+			//检查用户设置权限
 			if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()){
 				ERROR_CODE_TYPE rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 				rst = stGameRoomDetailInfo.resetBuyinState(request.getBBuyinControl());
@@ -610,16 +611,19 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
 		if(stGameRoomDetailInfo!=null){
-			ERROR_CODE_TYPE rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
-			rst = stGameRoomDetailInfo.resetBuyinRatio(request.getUuid(), request.getIMinBuyinRatio(), request.getIMaxBuyinRatio());
-			
-			if(rst == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
-				stResetBuyinRatioResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-				stResetBuyinRatioResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
+			if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()){
+				ERROR_CODE_TYPE rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
+				rst = stGameRoomDetailInfo.resetBuyinRatio(request.getUuid(), request.getIMinBuyinRatio(), request.getIMaxBuyinRatio());
+				
+				if(rst == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
+					stResetBuyinRatioResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+					stResetBuyinRatioResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
+				}else{
+					stResetBuyinRatioResponseBuilder.setEErrCode(rst);
+				}
 			}else{
-				stResetBuyinRatioResponseBuilder.setEErrCode(rst);
+				stResetBuyinRatioResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_AUTH_BUYINACTION);
 			}
-			
 		}else{
 			stResetBuyinRatioResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);
 		}
