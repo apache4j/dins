@@ -2543,41 +2543,38 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	
 	public ERROR_CODE_TYPE resetBuyinRatio(long uuid,int iMinBuyinRatio,int iMaxBuyinRatio){
 		synchronized(this){
-			if(stGameRoomInfo.getStGameRoomBaseInfo().getEGameRoomSeniorType() == GAME_ROOM_SENIOR_TYPE.GAME_ROOM_SENIOR_TYPE_NORMAL){
-				if(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == uuid){
-					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-					GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = stGameRoomInfoBuilder.getStGameRoomBaseInfoBuilder();
-					stGameRoomBaseInfoBuilder.setIMaxBuyinRatio(iMaxBuyinRatio);
-					stGameRoomBaseInfoBuilder.setIMinBuyinRatio(iMinBuyinRatio);
-					stGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
-					stGameRoomInfo = stGameRoomInfoBuilder.build();
-							
-					//发送push消息
-					for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
-						UserGameInfoNet stUserGameInfoSendNet = stGameRoomInfo.getVUserGameInfos(i);
+			if(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == uuid){
+				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+				GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = stGameRoomInfoBuilder.getStGameRoomBaseInfoBuilder();
+				stGameRoomBaseInfoBuilder.setIMaxBuyinRatio(iMaxBuyinRatio);
+				stGameRoomBaseInfoBuilder.setIMinBuyinRatio(iMinBuyinRatio);
+				stGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
+				stGameRoomInfo = stGameRoomInfoBuilder.build();
 						
-						
-						if((stUserGameInfoSendNet.getStUserInfo().getUuid() > 0) &&
-								(stUserGameInfoSendNet.getStUserInfo().getUuid() != stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid())){
-							//首先找到离开房间的用户基本信息				
-							pushGameRoomUserMsgs(null,stUserGameInfoSendNet.getStUserInfo().getUuid(),
-									GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_RESET_BUYIN_RATIO);
-						}
-					}
+				//发送push消息
+				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
+					UserGameInfoNet stUserGameInfoSendNet = stGameRoomInfo.getVUserGameInfos(i);
 					
-					if(mapStandByUserGameInfos.get(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid())!=null){
-						//首先找到离开房间的用户基本信息	
-						pushGameRoomUserMsgs(null,stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(),
+					
+					if((stUserGameInfoSendNet.getStUserInfo().getUuid() > 0) &&
+							(stUserGameInfoSendNet.getStUserInfo().getUuid() != stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid())){
+						//首先找到离开房间的用户基本信息				
+						pushGameRoomUserMsgs(null,stUserGameInfoSendNet.getStUserInfo().getUuid(),
 								GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_RESET_BUYIN_RATIO);
 					}
-					
-					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
-				}else{
-					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_GAME_ROOM_OWNER;
 				}
+				
+				if(mapStandByUserGameInfos.get(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid())!=null){
+					//首先找到离开房间的用户基本信息	
+					pushGameRoomUserMsgs(null,stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(),
+							GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_RESET_BUYIN_RATIO);
+				}
+				
+				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 			}else{
-				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_SENIOR_GAME_ROOM;
+				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_GAME_ROOM_OWNER;
 			}
+			
 		}
 	}
 	
