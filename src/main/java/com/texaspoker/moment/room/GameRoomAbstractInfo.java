@@ -3902,9 +3902,15 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	public ERROR_CODE_TYPE useItem(long uuid,long toUuid,long lMsgID,int itemID,String sExtra){
 		UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
 		if(stUserBaseInfoNetBuilder!=null){
+			long lCheckPopularity = 10;
+			
+			if(sExtra.equals("animateItem#item15") || sExtra.equals("animateItem#item12")){
+				lCheckPopularity=40;
+			}
+			
 			switch(itemID){
 			case 10010:
-				if(UserManager.getInstance().checkUserPopularity(stUserBaseInfoNetBuilder.getUuid(), 100)){
+				if(UserManager.getInstance().checkUserPopularity(stUserBaseInfoNetBuilder.getUuid(), lCheckPopularity)){
 					//组织push包
 					UseItemPushMsg.Builder stUseItemPushMsgBuilder = UseItemPushMsg.newBuilder();
 					stUseItemPushMsgBuilder.setLItemID(itemID);
@@ -3914,12 +3920,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					stUseItemPushMsgBuilder.setLRoomID(lGameRoomID);
 					stUseItemPushMsgBuilder.setSExtra(sExtra);
 					
-
-					stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), - 10);
+					stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), - lCheckPopularity);
 					
-					//打印日志
 					Log   mLog   =   LogFactory.getLog("fortransaction");
-					mLog.error(stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 430001 + " " + sExtra + " 0 " + "0 10 "  + stUserBaseInfoNetBuilder.getLPopularity());
+					mLog.error(stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 430001 + " " + sExtra + " 0 " + "0 "+lCheckPopularity+" "  + stUserBaseInfoNetBuilder.getLPopularity());
 					
 					for(int i = 0; i < stGameRoomInfo.getVUserGameInfosCount();i++){
 						UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
