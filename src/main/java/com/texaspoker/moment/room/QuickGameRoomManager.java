@@ -238,8 +238,8 @@ public class QuickGameRoomManager {
 							stGameRoomBaseInfoBuilder.setStrRoomName(stGameRoomBaseInfo.getStrRoomName());
 							stGameRoomBaseInfoBuilder.setStCreateUserBaseInfo(stFromUserBuilder);
 							stGameRoomBaseInfoBuilder.setBStarted(0);
-							stGameRoomBaseInfoBuilder.setIMaxBuyinRatio(40);
-							stGameRoomBaseInfoBuilder.setIMinBuyinRatio(10);
+							stGameRoomBaseInfoBuilder.setIMaxBuyinRatio(stGameRoomBaseInfo.getIMaxBuyinRatio());
+							stGameRoomBaseInfoBuilder.setIMinBuyinRatio(stGameRoomBaseInfo.getIMinBuyinRatio());
 							stGameRoomBaseInfoBuilder.setEGameRoomSeniorType(stGameRoomBaseInfo.getEGameRoomSeniorType());
 							stGameRoomBaseInfoBuilder.setBBuyinControl(stGameRoomBaseInfo.getBBuyinControl());
 							stGameRoomBaseInfoBuilder.setIGameRoomUserMaxNums(stGameRoomBaseInfo.getIGameRoomUserMaxNums());

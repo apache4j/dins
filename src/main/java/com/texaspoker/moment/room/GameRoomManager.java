@@ -156,8 +156,8 @@ public class GameRoomManager  {
 						gameRoomBaseInfoBuilder.setLGameRoomId(RoomIDManager.getInstance().getNewRoomID(stUserBaseInfoNet.getUuid()));
 						gameRoomBaseInfoBuilder.setBBuyIn(1);
 						gameRoomBaseInfoBuilder.setLCreateTime(System.currentTimeMillis());
-						gameRoomBaseInfoBuilder.setIMaxBuyinRatio(40);
-						gameRoomBaseInfoBuilder.setIMinBuyinRatio(10);
+						gameRoomBaseInfoBuilder.setIMaxBuyinRatio(stGameRoomBaseInfo.getIMaxBuyinRatio());
+						gameRoomBaseInfoBuilder.setIMinBuyinRatio(stGameRoomBaseInfo.getIMinBuyinRatio());
 						gameRoomBaseInfoBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 					
 						// 设置房主vip信息
