@@ -24,7 +24,6 @@ import com.texaspoker.moment.TexasPoker.BuyinControl;
 import com.texaspoker.moment.TexasPoker.BuyinControlMsg;
 import com.texaspoker.moment.TexasPoker.GAME_ROOM_GAME_STATE;
 import com.texaspoker.moment.TexasPoker.GAME_ROOM_MESSAGE_TYPE;
-import com.texaspoker.moment.TexasPoker.GAME_ROOM_SENIOR_TYPE;
 import com.texaspoker.moment.TexasPoker.GameRoomBaseInfo;
 import com.texaspoker.moment.TexasPoker.GameRoomInfo;
 import com.texaspoker.moment.TexasPoker.InsuranceInfo;
@@ -497,6 +496,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
 							stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
 							stBuyinControlMsgBuilder.setLActionUuid(uuid);
+							stBuyinControlMsgBuilder.setLClubID(clubID);
+							ClubBaseInfo.Builder stClubBaseInfoBuilder = ClubManager.getInstance().getClubBaseInfo(clubID);
+							if(stClubBaseInfoBuilder!=null){
+								stBuyinControlMsgBuilder.setSClubName(stClubBaseInfoBuilder.getSClubName());
+							}
 							
 							//首先push给房主
 							sendAllBuyinControls(stBuyinControlMsgBuilder.build(),clubID);
@@ -525,6 +529,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
 						stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
 						stBuyinControlMsgBuilder.setLActionUuid(uuid);
+						stBuyinControlMsgBuilder.setLClubID(clubID);
+						ClubBaseInfo.Builder stClubBaseInfoBuilder = ClubManager.getInstance().getClubBaseInfo(clubID);
+						if(stClubBaseInfoBuilder!=null){
+							stBuyinControlMsgBuilder.setSClubName(stClubBaseInfoBuilder.getSClubName());
+						}
 						
 						sendAllBuyinControls(stBuyinControlMsgBuilder.build(),clubID);
 						
