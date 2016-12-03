@@ -505,7 +505,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							//首先push给房主
 							sendAllBuyinControls(stBuyinControlMsgBuilder.build(),clubID);
 						
-							pushAppPushBuyinInvite(stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID(),stUserBaseInfoNetBuilder.getStrNick());
+							pushAppPushBuyinInvite(stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID(),clubID,stUserBaseInfoNetBuilder.getStrNick());
 							return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 						}
 					}
@@ -537,7 +537,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						
 						sendAllBuyinControls(stBuyinControlMsgBuilder.build(),clubID);
 						
-						pushAppPushBuyinInvite(stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID(),stUserBaseInfoNetBuilder.getStrNick());
+						pushAppPushBuyinInvite(stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID(),clubID,stUserBaseInfoNetBuilder.getStrNick());
 						return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 					}
 					
@@ -2258,13 +2258,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		APNManager.getInstance().gameOverPush(touuid , stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(), 1);	
 	}
 	
-	void pushAppPushBuyinInvite(long leagueID,String strNickname){     	
+	void pushAppPushBuyinInvite(long leagueID,long clubid,String strNickname){     	
 		if(leagueID==0){
 			APNManager.getInstance().buyinPush(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(), strNickname , stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(), 1);
 		}else{
 			if(stLeagueInfo!=null){
 				for(ClubBaseInfo stClubBaseInfo:stLeagueInfo.getVClubBaseInfosList()){
-					APNManager.getInstance().buyinPush(stClubBaseInfo.getStCreateUserBaseInfo().getUuid(), strNickname , stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(), 1);
+					if(stClubBaseInfo.getLClubID() == clubid){
+						APNManager.getInstance().buyinPush(stClubBaseInfo.getStCreateUserBaseInfo().getUuid(), strNickname , stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(), 1);
+					}
 				}
 			}
 		}
