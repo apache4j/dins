@@ -24,7 +24,6 @@ import com.texaspoker.moment.TexasPoker.QuickGameRoomPushMsg;
 import com.texaspoker.moment.TexasPoker.USER_GAME_ROLE;
 import com.texaspoker.moment.TexasPoker.USER_GAME_STATE;
 import com.texaspoker.moment.TexasPokerCommon.CREATE_ROOM_TYPE;
-import com.texaspoker.moment.TexasPokerCommon.DEVICE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.GAME_ROOM_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.ID_TYPE;
@@ -353,15 +352,9 @@ public class QuickGameRoomManager {
 										
 								QuickGameRoomManager.getInstance().addUserCreateQuickGameRoom(stFromUserBuilder.getUuid(), lRoomID);
 								
-								if(stFromUserBuilder.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
-									mLog.error(uuid + " " + lRoomID + " " + 110001 + " " + stGameRoomBaseInfoBuilder.getLDuration()
-											+ " " + stGameRoomBaseInfoBuilder.getIMinBuyinRatio() 
-											+ " " + stGameRoomBaseInfoBuilder.getIMaxBuyinRatio() + " 200 "  + stFromUserBuilder.getLAndroidCoin());
-								}else{
-									mLog.error(uuid + " " + lRoomID + " " + 110001 + " " + stGameRoomBaseInfoBuilder.getLDuration()
-											+ " " + stGameRoomBaseInfoBuilder.getIMinBuyinRatio() 
-											+ " " + stGameRoomBaseInfoBuilder.getIMaxBuyinRatio() + " 200 "  +stFromUserBuilder.getLCoin());
-								}
+								mLog.error(uuid + " " + lRoomID + " " + 110001 + " " + stGameRoomBaseInfoBuilder.getLDuration()
+										+ " " + stGameRoomBaseInfoBuilder.getIMinBuyinRatio() 
+										+ " " + stGameRoomBaseInfoBuilder.getIMaxBuyinRatio() + " 200 "  +stFromUserBuilder.getLCoin());
 								
 								//组织回包
 								stQuickGameRoomResultInfo.setStQuickGameRoomInfo(stQuickGameRoomInfoBuilder.build());

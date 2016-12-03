@@ -3,7 +3,6 @@ package com.texaspoker.moment.room;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -27,7 +26,6 @@ import com.texaspoker.moment.TexasPoker.USER_GAME_STATE;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
 import com.texaspoker.moment.TexasPokerCommon.CREATE_ROOM_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.ClubBaseInfo;
-import com.texaspoker.moment.TexasPokerCommon.DEVICE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.GAME_ROOM_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.ID_TYPE;
@@ -171,13 +169,10 @@ public class GameRoomManager  {
 											
 						GameRoomDetailInfo stGameRoomDetailInfo = new GameRoomDetailInfo();
 											
-						List<UserBaseInfoNet> userList = new ArrayList<UserBaseInfoNet>();
 						
 						if(gameRoomBaseInfoBuilder.getECreateRoomType() == CREATE_ROOM_TYPE.CAHT_ROOM){
 							ChatRoomInfo stChatRoomInfo = ChatRoomManager.getInstance().getChatRoomInfo(gameRoomBaseInfoBuilder.getLChatRoomID());
 							if(stChatRoomInfo!=null){
-								userList = stChatRoomInfo.getVUserBaseInfosList();
-													
 								// 将牌局ID存到关联的聊天室里面
 								ChatRoomManager.getInstance().addGameRooms(gameRoomBaseInfoBuilder.getLChatRoomID(),gameRoomBaseInfoBuilder.getLGameRoomId());
 							}
@@ -295,20 +290,6 @@ public class GameRoomManager  {
 						userSelfGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_NORMAL);
 						userSelfGameInfoBuilder.setBGameDealer(0);
 						userSelfGameInfoBuilder.setIDelaySingleTime(20);
-
-						// 将被邀请的用户设置要被邀请的名单中,弄发送邀请通知
-						for (int i = 0; i < userList.size(); i++) {
-							UserBaseInfoNet stUserBaseInfo = userList.get(i);
-							if (stUserBaseInfo.getUuid() != uuid) {
-								// 把用户放到nocahrge队列里面
-
-								pushGametRoomUserMsgs(userSelfGameInfoBuilder.build(),
-												stUserBaseInfo.getUuid(),
-												GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_INVITE,
-												stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
-								
-							}
-						}
 						
 						stGameRoomIDResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
 						stGameRoomIDResultInfo.setlGameRoomID(gameRoomBaseInfoBuilder.getLGameRoomId());
@@ -339,13 +320,9 @@ public class GameRoomManager  {
 							gameRoomBaseInfoBuilder.setStCreateUserBaseInfo(stUserBaseInfoNet);
 							GameRoomDetailInfo stGameRoomDetailInfo = new GameRoomDetailInfo();
 											
-							List<UserBaseInfoNet> userList = new ArrayList<UserBaseInfoNet>();
-											
 							if(gameRoomBaseInfoBuilder.getECreateRoomType() == CREATE_ROOM_TYPE.CAHT_ROOM){
 								ChatRoomInfo stChatRoomInfo = ChatRoomManager.getInstance().getChatRoomInfo(gameRoomBaseInfoBuilder.getLChatRoomID());
 								if(stChatRoomInfo!=null){
-									userList = stChatRoomInfo.getVUserBaseInfosList();
-													
 									// 将牌局ID存到关联的聊天室里面
 									ChatRoomManager.getInstance().addGameRooms(gameRoomBaseInfoBuilder.getLChatRoomID(),gameRoomBaseInfoBuilder.getLGameRoomId());
 								}
@@ -436,19 +413,11 @@ public class GameRoomManager  {
 							
 							stGameRoomDetailInfo.buyStakcsInRoom(stUserBaseInfoNet.getUuid(),0,gameRoomBaseInfoBuilder.getLChatRoomID());
 
-							if(stUserBaseInfoNet.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
-								// 生成回包
-								mLog.error(stUserBaseInfoNet.getUuid() + " " + gameRoomBaseInfoBuilder.getLGameRoomId() + " " + 110001 + " " + gameRoomBaseInfoBuilder.getLDuration()
-													+ " " + gameRoomBaseInfoBuilder.getIMinBuyinRatio() 
-													+ " " + gameRoomBaseInfoBuilder.getIMaxBuyinRatio() + " 200 "  + stUserBaseInfoNet.getLAndroidCoin());
-							}else{
-								// 生成回包
-								mLog.error(stUserBaseInfoNet.getUuid() + " " + gameRoomBaseInfoBuilder.getLGameRoomId() + " " + 110001 + " " + gameRoomBaseInfoBuilder.getLDuration()
-													+ " " + gameRoomBaseInfoBuilder.getIMinBuyinRatio() 
-													+ " " + gameRoomBaseInfoBuilder.getIMaxBuyinRatio() + " 200 "  + stUserBaseInfoNet.getLCoin());
-							}
-
-										
+							// 生成回包
+							mLog.error(stUserBaseInfoNet.getUuid() + " " + gameRoomBaseInfoBuilder.getLGameRoomId() + " " + 110001 + " " + gameRoomBaseInfoBuilder.getLDuration()
+												+ " " + gameRoomBaseInfoBuilder.getIMinBuyinRatio() 
+												+ " " + gameRoomBaseInfoBuilder.getIMaxBuyinRatio() + " 200 "  + stUserBaseInfoNet.getLCoin());
+								
 							if(gameRoomBaseInfoBuilder.getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
 								ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(gameRoomBaseInfoBuilder.getLChatRoomID());
 								if(stClubInfoBuilder!=null){
@@ -475,20 +444,6 @@ public class GameRoomManager  {
 							userSelfGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_NORMAL);
 							userSelfGameInfoBuilder.setBGameDealer(0);
 							userSelfGameInfoBuilder.setIDelaySingleTime(20);
-							
-							// 将被邀请的用户设置要被邀请的名单中,弄发送邀请通知
-							for (int i = 0; i < userList.size(); i++) {
-								UserBaseInfoNet stUserBaseInfo = userList.get(i);
-								if (stUserBaseInfo.getUuid() != uuid) {
-									//发送邀请通知
-									pushGametRoomUserMsgs(
-												userSelfGameInfoBuilder.build(),
-												stUserBaseInfo.getUuid(),
-												GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_INVITE,
-												stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
-									
-								}
-							}
 							
 							//设置联盟中的各个俱乐部的管理员进行买入
 							if(stGameRoomDetailInfo.getStLeagueInfo()!=null){

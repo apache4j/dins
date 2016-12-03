@@ -410,7 +410,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		StartGameResponse.Builder  stStartGameResponseBuilder = StartGameResponse.newBuilder();
 
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLRoomID());
-//		System.out.println("startgame roomid : " + request.getLRoomID() + " uuid " + request.getUuid());
+
 		if(stGameRoomDetailInfo!=null){
 			stGameRoomDetailInfo.startGame(request.getUuid());
 			

@@ -236,12 +236,9 @@ public class ClubManager {
 	    stAddClubFundRequestBuilder.setLFund(lFund);
 	    
 	    try {
-//			System.out.println("addClubfundaddClubfundaddClubfund begin.");
 			AddClubFundResponse response = blockingClubService.addClubFund(controller, stAddClubFundRequestBuilder.build());
-//			System.out.println("addClubfundaddClubfundaddClubfund end1 : " + response.getIErrorCode());
 	    	if (response != null&&response.getIErrorCode() == 0) {
 	    		if(response.getStClubInfo()!=null){
-//	    			System.out.println("addClubfundaddClubfundaddClubfund end");
 	    			return response.getStClubInfo().toBuilder();
 	    		}else{
 	    			return null;
@@ -257,7 +254,6 @@ public class ClubManager {
 	
 	//添加俱乐部积分
 	public ClubInfo.Builder addClubScore(long lClubid,long lScore){
-//		System.out.println("addClubScoreaddClubScoreaddClubScoreaddClubScore begin.");
 		AddClubScoreRequest.Builder stAddClubScoreRequestBuilder = AddClubScoreRequest.newBuilder();
 		stAddClubScoreRequestBuilder.setLClubID(lClubid);
 		stAddClubScoreRequestBuilder.setLScore(lScore);

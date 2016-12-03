@@ -30,7 +30,6 @@ import com.texaspoker.moment.TexasPoker.SCGameRoomStateChange;
 import com.texaspoker.moment.TexasPoker.USER_GAME_STATE;
 import com.texaspoker.moment.TexasPoker.UseItemPushMsg;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
-import com.texaspoker.moment.TexasPokerCommon.DEVICE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
 import com.texaspoker.msg.GameRoomMsgManager;
@@ -3917,13 +3916,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					
 
 					stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), - 10);
-					Log   mLog   =   LogFactory.getLog("fortransaction");
-					if(stUserBaseInfoNetBuilder.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
-						mLog.error(stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 430001 + " " + sExtra + " 0 " + "0 10 "  + stUserBaseInfoNetBuilder.getLAndroidPopularity());
-					}else{
-						mLog.error(stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 430001 + " " + sExtra + " 0 " + "0 10 "  + stUserBaseInfoNetBuilder.getLPopularity());
-					}
 					
+					//打印日志
+					Log   mLog   =   LogFactory.getLog("fortransaction");
+					mLog.error(stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 430001 + " " + sExtra + " 0 " + "0 10 "  + stUserBaseInfoNetBuilder.getLPopularity());
 					
 					for(int i = 0; i < stGameRoomInfo.getVUserGameInfosCount();i++){
 						UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
@@ -3955,16 +3951,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					stUseItemPushMsgBuilder.setLRoomID(lGameRoomID);
 					stUseItemPushMsgBuilder.setSExtra(sExtra);
 					
-
 					stUserBaseInfoNetBuilder = UserManager.getInstance().addUserCoin(stUserBaseInfoNetBuilder.getUuid(), - 6);
-					
+
+					//打印日志
 					Log   mLog   =   LogFactory.getLog("fortransaction");
-					if(stUserBaseInfoNetBuilder.getEDeviceType() == DEVICE_TYPE.DEVICE_TYPE_ANDROID){
-						mLog.error(stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 430002 + " " + sExtra + " 0 " + "0 6 "  + stUserBaseInfoNetBuilder.getLAndroidCoin());
-					}else{
-						mLog.error(stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 430002 + " " + sExtra + " 0 " + "0 6 "  + stUserBaseInfoNetBuilder.getLCoin());
-					}
-					
+					mLog.error(stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 430002 + " " + sExtra + " 0 " + "0 6 "  + stUserBaseInfoNetBuilder.getLCoin());
+
 					
 					for(int i = 0; i < stGameRoomInfo.getVUserGameInfosCount();i++){
 						UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
