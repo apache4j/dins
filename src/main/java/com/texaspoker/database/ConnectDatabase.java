@@ -218,7 +218,7 @@ public class ConnectDatabase {
 	             }
 	             
 	             stConnection.close();
-			} catch (SQLException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				
@@ -447,7 +447,7 @@ public class ConnectDatabase {
    		 }
    		 
    		 stConnection.close();
-   	 } catch (SQLException e) {
+   	 } catch (Exception e) {
    		 // TODO Auto-generated catch block
    		 e.printStackTrace();
 				
@@ -477,7 +477,7 @@ public class ConnectDatabase {
           
            stConnection.close();
            return true;
-     	}catch (SQLException e) {
+     	}catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
          	try {
@@ -611,7 +611,7 @@ public class ConnectDatabase {
              
               stConnection.close();
               return true;
-        	}catch (SQLException e) {
+        	}catch (Exception e) {
    			// TODO Auto-generated catch block
    			e.printStackTrace();
             	try {
@@ -714,7 +714,7 @@ public class ConnectDatabase {
            	return true;
            else
            	return false;
-     	}catch (SQLException e) {
+     	}catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
          	try {
@@ -843,7 +843,7 @@ public class ConnectDatabase {
    	             
    	             stConnection.close();
    	             return mBlindsLevel;
-   			} catch (SQLException e) {
+   			} catch (Exception e) {
    				// TODO Auto-generated catch block
    				e.printStackTrace();
    				

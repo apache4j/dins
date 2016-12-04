@@ -2332,7 +2332,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				long lClubID = mBuyinControlClubIDs.get(uuid);
 				
 	
-				if(lClubID==clubid){
+				if(lClubID==clubid || clubid==0){
 					stBuyinControlBuilder.setStUserBaseInfo(stUserBaseInfoNetBuilder);
 					stBuyinControlBuilder.setLGameRoomID(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 					stBuyinControlBuilder.setSGameRoomName(stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName());
