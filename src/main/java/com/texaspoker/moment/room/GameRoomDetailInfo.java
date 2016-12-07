@@ -988,7 +988,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 									long buyStacks = lStacks;
 									stUserGameInfoBuilder.setLRemainStacks(buyStacks+ stUserGameInfoBuilder.getLRemainStacks());
 									stUserGameInfoBuilder.setLBuyinClubID(clubID);
-									System.out.println("buyBuyinbuyBuyinbuyBuyinbuyBuyin clubid : " + clubID);
+//									System.out.println("buyBuyinbuyBuyinbuyBuyinbuyBuyin clubid : " + clubID);
 									stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoBuilder);
 									//修改账单信息
 									buyStakcsInRoom(uuid, buyStacks,clubID);
@@ -1020,7 +1020,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								stUserGameInfoBuilder.setLBuyinClubID(clubID);
 								stUserGameInfoBuilder.setLBuyinStacks((int)lStacks);
 								stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoBuilder);
-								System.out.println("buyBuyin clubID 2 : " + clubID);
+//								System.out.println("buyBuyin clubID 2 : " + clubID);
 								stGameRoomInfo = stGameRoomInfoBuilder.build();
 								if(stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result ){
 									stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
@@ -3494,7 +3494,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	
 	//俱乐部买入控制push接口
 		private void sendAllBuyinControls(BuyinControlMsg stBuyinControlMsg,long clubID){
-			System.out.println("sendAllBuyinControls clubid : " + clubID);
+//			System.out.println("sendAllBuyinControls clubid : " + clubID);
 			//如果是俱乐部牌局，则看创建牌局的人是否是俱乐部的管理员，如果是俱乐部的管理员，则给俱乐部里面的每个管理员都push买入控制请求
 			if(this.stGameRoomInfo.getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){		
 				long lClubID = clubID;
@@ -3505,7 +3505,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				}
 				
 				List<Long> vClubManagerUuids = ClubManager.getInstance().getClubManagerUuids(lClubID);
-				System.out.println("sendAllBuyinControls vClubManagerUuids : " + vClubManagerUuids);
+//				System.out.println("sendAllBuyinControls vClubManagerUuids : " + vClubManagerUuids);
 				
 				if(vClubManagerUuids!=null){
 					boolean bClubManager = false;

@@ -168,7 +168,7 @@ public class GameRoomMsgManager {
 		
 		BuyinControlMsgRequest.Builder stBuyinControlMsgRequestBuilder = BuyinControlMsgRequest.newBuilder(); 
 		stBuyinControlMsgRequestBuilder.setUuid(toUserId);
-		System.out.println("sendBuyinControlMsg toUserId : " + toUserId);
+//		System.out.println("sendBuyinControlMsg toUserId : " + toUserId);
 		stBuyinControlMsgRequestBuilder.addVPushMsgs(stMsgData);
 		
 		msgService.pushBuyinControlMsg(controller, stBuyinControlMsgRequestBuilder.build(),null);
