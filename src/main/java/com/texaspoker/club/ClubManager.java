@@ -89,26 +89,26 @@ public class ClubManager {
 		return instance;  
 	}
 	
-	//获取俱乐部信息
-	public ClubInfo.Builder getClubInfo(long lClubID){
-		GetClubInfoRequest.Builder stGetClubInfoRequestBuilder = GetClubInfoRequest.newBuilder();
-		stGetClubInfoRequestBuilder.setLClubID(lClubID);
-	    
-	    try {
-//			System.out.println("getUserBaseInfogetUserBaseInforpc begin.");
-			GetClubInfoResponse response = blockingClubService.getClubInfo(controller, stGetClubInfoRequestBuilder.build());
-	    	
-	    	if (response != null && response.getStClubInfo()!=null && response.getStClubInfo().getStClubBaseInfo().getLClubID() > 0) {
-	    		return response.getStClubInfo().toBuilder();
-	    	} else {
-	    		return null;
-	    	}
-	    } catch (ServiceException e) {
-	    	NormalLogService.getInstance().error("syn echo error:" + e.getMessage());
-	      return null;
-	    }
-	}
-	
+//	//获取俱乐部信息
+//	public ClubInfo.Builder getClubInfo(long lClubID){
+//		GetClubInfoRequest.Builder stGetClubInfoRequestBuilder = GetClubInfoRequest.newBuilder();
+//		stGetClubInfoRequestBuilder.setLClubID(lClubID);
+//	    
+//	    try {
+////			System.out.println("getUserBaseInfogetUserBaseInforpc begin.");
+//			GetClubInfoResponse response = blockingClubService.getClubInfo(controller, stGetClubInfoRequestBuilder.build());
+//	    	
+//	    	if (response != null && response.getStClubInfo()!=null && response.getStClubInfo().getStClubBaseInfo().getLClubID() > 0) {
+//	    		return response.getStClubInfo().toBuilder();
+//	    	} else {
+//	    		return null;
+//	    	}
+//	    } catch (ServiceException e) {
+//	    	NormalLogService.getInstance().error("syn echo error:" + e.getMessage());
+//	      return null;
+//	    }
+//	}
+//	
 	//获取俱乐部信息
 	public void setClubInfo(ClubInfo.Builder stClubInfoBuilder){
 	    try {

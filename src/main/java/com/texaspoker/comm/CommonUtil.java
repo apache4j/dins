@@ -2,9 +2,9 @@ package com.texaspoker.comm;
 
 import com.texaspoker.club.ClubManager;
 import com.texaspoker.moment.TexasPokerCommon.CREATE_ROOM_TYPE;
+import com.texaspoker.moment.TexasPokerCommon.ClubBaseInfo;
 import com.texaspoker.moment.TexasPoker.ChatRoomInfo;
 import com.texaspoker.moment.TexasPoker.QuickGameRoomInfo;
-import com.texaspoker.moment.TexasPokerHttpClub.ClubInfo;
 import com.texaspoker.moment.room.ChatRoomManager;
 import com.texaspoker.moment.room.QuickGameRoomManager;
 
@@ -26,10 +26,10 @@ public class CommonUtil {
 			}
 		}else if(eCreateRoomType == CREATE_ROOM_TYPE.CLUB_ROOM){
 			String sFromText=""/*"来自"*/;
-			ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(lFromRoomID);
+			ClubBaseInfo.Builder stClubBaseInfoBuilder = ClubManager.getInstance().getClubBaseInfo(lFromRoomID);
 			
-			if(stClubInfoBuilder.getStClubBaseInfo().getSClubName()!=null){	
-				sFromText += stClubInfoBuilder.getStClubBaseInfo().getSClubName();
+			if(stClubBaseInfoBuilder.getSClubName()!=null){	
+				sFromText += stClubBaseInfoBuilder.getSClubName();
 			}
 			return sFromText;
 		}else if(eCreateRoomType == CREATE_ROOM_TYPE.QUICK_GAME_ROOM){

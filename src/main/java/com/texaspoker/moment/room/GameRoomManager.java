@@ -187,21 +187,13 @@ public class GameRoomManager  {
 								if(stLeagueInfo!=null){
 									//联盟牌局给联盟里面的每个俱乐部添加游戏
 									for(ClubBaseInfo stClubBaseInfo:stLeagueInfo.getVClubBaseInfosList()){
-										ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(stClubBaseInfo.getLClubID());
-										if(stClubInfoBuilder!=null){																															
-											// 将牌局ID存到关联的聊天室里面
-											ClubManager.getInstance().addGameRooms(stClubBaseInfo.getLClubID(),gameRoomBaseInfoBuilder.getLGameRoomId());
-										}
+										ClubManager.getInstance().addGameRooms(stClubBaseInfo.getLClubID(),gameRoomBaseInfoBuilder.getLGameRoomId());
 									}
 								}
 								
-							}else{
-								//普通俱乐部局
-								ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(gameRoomBaseInfoBuilder.getLChatRoomID());
-								if(stClubInfoBuilder!=null){																											
-									// 将牌局ID存到关联的聊天室里面
-									ClubManager.getInstance().addGameRooms(gameRoomBaseInfoBuilder.getLChatRoomID(),gameRoomBaseInfoBuilder.getLGameRoomId());
-								}
+							}else{																										
+								// 将牌局ID存到关联的聊天室里面
+								ClubManager.getInstance().addGameRooms(gameRoomBaseInfoBuilder.getLChatRoomID(),gameRoomBaseInfoBuilder.getLGameRoomId());
 							}
 						}
 											
@@ -262,16 +254,13 @@ public class GameRoomManager  {
 						UserManager.getInstance().addUserCreateGameRooms(uuid,gameRoomBaseInfoBuilder.getLGameRoomId());
 				
 						if(gameRoomBaseInfoBuilder.getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
-							ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(gameRoomBaseInfoBuilder.getLChatRoomID());
-							if(stClubInfoBuilder!=null){
-								// 发送APP Push
-								pushAppCreateMsg(gameRoomBaseInfoBuilder.getLLeagueID()
-										,gameRoomBaseInfoBuilder.getLChatRoomID()
-										,gameRoomBaseInfoBuilder.getStrRoomName()
-										,gameRoomBaseInfoBuilder.getLDuration()
-										,gameRoomBaseInfoBuilder.getLSmallBlinds()
-										,gameRoomBaseInfoBuilder.getIAnte());
-							}	
+							// 发送APP Push
+							pushAppCreateMsg(gameRoomBaseInfoBuilder.getLLeagueID()
+									,gameRoomBaseInfoBuilder.getLChatRoomID()
+									,gameRoomBaseInfoBuilder.getStrRoomName()
+									,gameRoomBaseInfoBuilder.getLDuration()
+									,gameRoomBaseInfoBuilder.getLSmallBlinds()
+									,gameRoomBaseInfoBuilder.getIAnte());
 						}			
 						
 						TexasPoker.UserGameInfoNet.Builder userSelfGameInfoBuilder = TexasPoker.UserGameInfoNet.newBuilder();
@@ -333,22 +322,15 @@ public class GameRoomManager  {
 									
 									if(stLeagueInfo!=null){
 										//联盟牌局给联盟里面的每个俱乐部添加游戏
-										for(ClubBaseInfo stClubBaseInfo:stLeagueInfo.getVClubBaseInfosList()){
-											ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(stClubBaseInfo.getLClubID());
-											if(stClubInfoBuilder!=null){																															
-												// 将牌局ID存到关联的聊天室里面
-												ClubManager.getInstance().addGameRooms(stClubBaseInfo.getLClubID(),gameRoomBaseInfoBuilder.getLGameRoomId());
-											}
+										for(ClubBaseInfo stClubBaseInfo:stLeagueInfo.getVClubBaseInfosList()){																													
+											// 将牌局ID存到关联的聊天室里面
+											ClubManager.getInstance().addGameRooms(stClubBaseInfo.getLClubID(),gameRoomBaseInfoBuilder.getLGameRoomId());
 										}
 									}
 									
-								}else{
-									//普通俱乐部局
-									ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(gameRoomBaseInfoBuilder.getLChatRoomID());
-									if(stClubInfoBuilder!=null){																												
-										// 将牌局ID存到关联的聊天室里面
-										ClubManager.getInstance().addGameRooms(gameRoomBaseInfoBuilder.getLChatRoomID(),gameRoomBaseInfoBuilder.getLGameRoomId());
-									}
+								}else{																											
+									// 将牌局ID存到关联的聊天室里面
+									ClubManager.getInstance().addGameRooms(gameRoomBaseInfoBuilder.getLChatRoomID(),gameRoomBaseInfoBuilder.getLGameRoomId());
 								}
 							}
 							
@@ -413,17 +395,14 @@ public class GameRoomManager  {
 												+ " " + gameRoomBaseInfoBuilder.getIMaxBuyinRatio() + " 200 "  + stUserBaseInfoNet.getLCoin());
 								
 							if(gameRoomBaseInfoBuilder.getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
-								ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(gameRoomBaseInfoBuilder.getLChatRoomID());
-								if(stClubInfoBuilder!=null){
-									// 如果是俱乐部开局，则对俱乐部里的每个人进行push操作
-									// 发送APP Push
-									pushAppCreateMsg(gameRoomBaseInfoBuilder.getLLeagueID()
-											,gameRoomBaseInfoBuilder.getLChatRoomID()
-											,gameRoomBaseInfoBuilder.getStrRoomName()
-											,gameRoomBaseInfoBuilder.getLDuration()
-											,gameRoomBaseInfoBuilder.getLSmallBlinds()
-											,gameRoomBaseInfoBuilder.getIAnte());
-								}
+								// 如果是俱乐部开局，则对俱乐部里的每个人进行push操作
+								// 发送APP Push
+								pushAppCreateMsg(gameRoomBaseInfoBuilder.getLLeagueID()
+										,gameRoomBaseInfoBuilder.getLChatRoomID()
+										,gameRoomBaseInfoBuilder.getStrRoomName()
+										,gameRoomBaseInfoBuilder.getLDuration()
+										,gameRoomBaseInfoBuilder.getLSmallBlinds()
+										,gameRoomBaseInfoBuilder.getIAnte());
 							}	
 							
 							TexasPoker.UserGameInfoNet.Builder userSelfGameInfoBuilder = TexasPoker.UserGameInfoNet.newBuilder();
@@ -476,12 +455,9 @@ public class GameRoomManager  {
 				}
 			}
 		}else{
-			ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(lClubID);
-			if(stClubInfoBuilder!=null){
-				//获取push相关信息
-		    	float fHour =  (float)lDuration/(float)3600;
-		    	APNManager.getInstance().createGameRoomPush(lClubID, sGameName, ""+fHour, sb, ante, 1); 
-			}
+			//获取push相关信息
+	    	float fHour =  (float)lDuration/(float)3600;
+	    	APNManager.getInstance().createGameRoomPush(lClubID, sGameName, ""+fHour, sb, ante, 1); 
 		}
 	}
 	

@@ -145,10 +145,7 @@ public class ConnectDatabase {
 	            	 if(stChatRoomInfo!=null){
 	            		 ChatRoomManager.getInstance().addGameRooms(stGameRoomBaseInfo.getLChatRoomID(), stGameRoomBaseInfo.getLGameRoomId());
 	            	 }else{
-	            		 ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(stGameRoomBaseInfo.getLChatRoomID());
-	            		 if(stClubInfoBuilder!=null){
-	            			 ClubManager.getInstance().addGameRooms(stGameRoomBaseInfo.getLChatRoomID(), stGameRoomBaseInfo.getLGameRoomId());
-	            		 }
+	            		 ClubManager.getInstance().addGameRooms(stGameRoomBaseInfo.getLChatRoomID(), stGameRoomBaseInfo.getLGameRoomId());
 	            	 }
 	            	
 	     			//设置房间的其他玩家，因为现在还没有玩家同意，所以设置9个空用户
