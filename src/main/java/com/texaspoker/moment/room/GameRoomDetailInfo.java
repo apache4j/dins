@@ -54,6 +54,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	
 	private TimeoutHashMap<Long,Long> mBuyinControlTimeOut; //房间相关的数据
 	
+	private Map<Long,Long> mUserForceStandupUser = new ConcurrentHashMap<Long,Long>();
+	
 	private Map<Long,Long> mUserKickingUser = new ConcurrentHashMap<Long,Long>();
 	private Map<Long,Long> mUserKickedUser = new ConcurrentHashMap<Long,Long>();
 	
@@ -61,6 +63,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	
 	//如果是联盟局，保存联盟信息
 	private LeagueInfo stLeagueInfo;
+	
+	//重新设置的思考时间间隔
+	int iThinkingInterval = 0;
 	
 	//是否已经结算用户数据结构
 	private ConcurrentHashMap<Long,Long> mapUserNoCharge = new ConcurrentHashMap<Long,Long>();
@@ -1058,13 +1063,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 									String sLog = uuid + " " + 0 + " " + 110000 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
 											+ " 0 " + " 0 " + lStacks + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
 									TranscationLogService.getInstance().error(sLog);
-									
-									ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLChatRoomID());
-									if(stClubInfoBuilder!=null){
-										//添加俱乐部积分
-										stClubInfoBuilder = ClubManager.getInstance()
-												.addClubScore(stClubInfoBuilder.getStClubBaseInfo().getLClubID(), 5);
-									}								
+							
 								}else{
 									eErrorCodeType =  ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYIN_MAX_STACKS;
 								}
@@ -1621,6 +1620,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					kickUserPush(stUserGameInfoNetBuilder,i,1);	
 					
 					stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+				}else if(mUserForceStandupUser.containsKey(stUserGameInfoNetBuilder.getStUserInfoBuilder().getUuid())){
+					//踢人逻辑，首先把用户站起
+					stGameRoomInfo  = stGameRoomInfoBuilder.build();
+					doStandUpAction(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),true);
+					
+					//踢人消息
+					forceStandupPush(stUserGameInfoNetBuilder,i);	
+					stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 				}else{
 					stUserGameInfoNetBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_READY);
 					
@@ -1696,6 +1703,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			}			
 		}
 		
+		if(iThinkingInterval > 0){
+			GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = stGameRoomInfoBuilder.getStGameRoomBaseInfoBuilder();
+			stGameRoomBaseInfoBuilder.setIThinkingInterval(iThinkingInterval);
+			stGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
+			iThinkingInterval=0;
+		}
+		
 		//踢出其站起的用户
 		ArrayList<Long> vKickingUuids = new ArrayList<Long>(mUserKickingUser.keySet());
 		for(long uuid:vKickingUuids){
@@ -1706,7 +1720,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				return;
 			}
 		}
-	
+		mUserForceStandupUser.clear();
 		stGameRoomInfoBuilder.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait);
 		
 		mPotList.clear();
@@ -3399,6 +3413,39 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		}
 	}
 	
+	//强制站起
+	public void forceStandup(long uuid){
+		synchronized(this){
+			for(int i = 0 ; i < this.stGameRoomInfo.getVUserGameInfosCount();i++){
+				//获取炮狙用户信息
+				UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
+				
+				//找到要取消托管状态的用户
+				if(stUserGameInfoNet!=null 
+						&& stUserGameInfoNet.getStUserInfo().getUuid()>0
+						&& stUserGameInfoNet.getStUserInfo().getUuid() == uuid){
+					
+					//获取牌局中玩家的信息
+					UserGameInfoNet.Builder stUserGameInfoNetBuilder = stUserGameInfoNet.toBuilder();
+					
+					//判断踢出状态
+					if(stUserGameInfoNet.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_WAIT
+							|| stUserGameInfoNet.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_STANDBY){
+						//没在打牌中，直接踢出,相当于用户离开房间
+						doStandUpAction(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),true);
+						
+						//踢人消息
+						forceStandupPush(stUserGameInfoNetBuilder,i);
+					}else{
+						//这个时间，不能踢人，先记录，然后等到牌局结束再踢人
+						mUserForceStandupUser.put(uuid, uuid);
+						return;
+					}
+				}
+			}
+		}
+	}
+	
 	//牌局黑名单接口
 	public void addBlackList(long uuid){
 		mUserKickedUser.put(uuid, uuid);
@@ -3558,5 +3605,92 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			
 			return false;
 		}
+		
+		public ERROR_CODE_TYPE setStraddle(long uuid,int bStraddle){
+			synchronized(this){
+				if(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == uuid){
+					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+					GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = stGameRoomInfoBuilder.getStGameRoomBaseInfoBuilder();
+					stGameRoomBaseInfoBuilder.setBStraddle(bStraddle);
+					stGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
+					stGameRoomInfo = stGameRoomInfoBuilder.build();
+					
+					for(int j = 0 ; j < stGameRoomInfo.getVUserGameInfosCount(); j++){
+						UserGameInfoNet stUserGameInfoNetIn = stGameRoomInfo.getVUserGameInfos(j);
+						
+						if(stUserGameInfoNetIn.getStUserInfo().getUuid() > 0){			
+							pushGameRoomUserMsgs(null,stUserGameInfoNetIn.getStUserInfo().getUuid(),
+									GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_SET_STRADDLE,0);
+						}
+					}
+						
+					//给旁观的人发返回牌桌消息
+					for (long push_uuid : mStandBys) {
+						pushGameRoomUserMsgs(null,push_uuid,GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_SET_STRADDLE,0);
+					}
+							
+					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
+				}else{
+					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_GAME_ROOM_OWNER;
+				}
+			}
+		}
+		
+		//强制站起
+		private void forceStandupPush(UserGameInfoNet.Builder stUserGameInfoNetBuilder,int pos){	
+			
+			//给牌桌上的用户发送返回牌桌的消息
+			stUserGameInfoNetBuilder.clearVCurrentHands();
+		
+			for(int j = 0 ; j < stGameRoomInfo.getVUserGameInfosCount(); j++){
+				UserGameInfoNet stUserGameInfoNetIn = stGameRoomInfo.getVUserGameInfos(j);
+				
+				if(stUserGameInfoNetIn.getStUserInfo().getUuid() > 0){			
+					pushGameRoomUserMsgs(stUserGameInfoNetBuilder.build(),stUserGameInfoNetIn.getStUserInfo().getUuid(),
+							GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_FORCE_STANDUP,pos);
+				}
+			}
+				
+			//给旁观的人发返回牌桌消息
+			for (long push_uuid : mStandBys) {
+				pushGameRoomUserMsgs(stUserGameInfoNetBuilder.build(),push_uuid,GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_FORCE_STANDUP,pos);
+			}
+					
+			//把人从踢人列表里面删除
+			mUserForceStandupUser.remove(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
+		}
+		
+		
+		//重新设置思考时间
+		public ERROR_CODE_TYPE resetPlayThinkingInterval(long uuid,int interval){	
+			if(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == uuid){
+				if(interval==10||interval==12||interval==15){
+					
+					iThinkingInterval = interval;
+					
+					//发送push消息
+					for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
+						UserGameInfoNet stUserGameInfoSendNet = stGameRoomInfo.getVUserGameInfos(i);
+						
+						if(stUserGameInfoSendNet.getStUserInfo().getUuid() > 0){
+							//首先找到离开房间的用户基本信息				
+							pushGameRoomUserMsgsResetThinkingInterval(null,stUserGameInfoSendNet.getStUserInfo().getUuid(),interval);
+						}
+					}
+					
+					//给旁观的人发返回牌桌消息
+					for (long push_uuid : mStandBys) {
+						pushGameRoomUserMsgsResetThinkingInterval(null,push_uuid,interval);
+					}
+			
+				}
+				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
+			}else{
+				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_GAME_ROOM_OWNER;
+			}
+		}
+		
+	
+		
 
 }

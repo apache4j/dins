@@ -230,7 +230,7 @@ public class ClubManager {
 	}
 	
 	//添加俱乐部基金
-	public ClubInfo.Builder addClubfund(long lClubid,long lFund){
+	public ClubBaseInfo.Builder addClubfund(long lClubid,long lFund){
 		AddClubFundRequest.Builder stAddClubFundRequestBuilder = AddClubFundRequest.newBuilder();
 		stAddClubFundRequestBuilder.setLClubID(lClubid);
 	    stAddClubFundRequestBuilder.setLFund(lFund);
@@ -238,8 +238,8 @@ public class ClubManager {
 	    try {
 			AddClubFundResponse response = blockingClubService.addClubFund(controller, stAddClubFundRequestBuilder.build());
 	    	if (response != null&&response.getIErrorCode() == 0) {
-	    		if(response.getStClubInfo()!=null){
-	    			return response.getStClubInfo().toBuilder();
+	    		if(response.getStClubBaseInfo()!=null){
+	    			return response.getStClubBaseInfo().toBuilder();
 	    		}else{
 	    			return null;
 	    		}
@@ -253,7 +253,7 @@ public class ClubManager {
 	}
 	
 	//添加俱乐部积分
-	public ClubInfo.Builder addClubScore(long lClubid,long lScore){
+	public ClubBaseInfo.Builder addClubScore(long lClubid,long lScore){
 		AddClubScoreRequest.Builder stAddClubScoreRequestBuilder = AddClubScoreRequest.newBuilder();
 		stAddClubScoreRequestBuilder.setLClubID(lClubid);
 		stAddClubScoreRequestBuilder.setLScore(lScore);
@@ -262,8 +262,8 @@ public class ClubManager {
 			AddClubScoreResponse response = blockingClubService.addClubScore(controller, stAddClubScoreRequestBuilder.build());
 
 	    	if (response != null&&response.getIErrorCode() == 0) {
-	    		if(response.getStClubInfo()!=null){
-	    			return response.getStClubInfo().toBuilder();
+	    		if(response.getStClubBaseInfo()!=null){
+	    			return response.getStClubBaseInfo().toBuilder();
 	    		}else{
 	    			return null;
 	    		}
@@ -276,7 +276,7 @@ public class ClubManager {
 	    }
 	}
 	
-	public ClubInfo.Builder setClubBaseInfo(long clubid , String sClubName , String sClubDesc){
+	public ClubBaseInfo.Builder setClubBaseInfo(long clubid , String sClubName , String sClubDesc){
 		SetClubBaseInfoRequest.Builder stSetClubBaseInfoRequestBuilder = SetClubBaseInfoRequest.newBuilder();
 		stSetClubBaseInfoRequestBuilder.setLClubID(clubid);
 		stSetClubBaseInfoRequestBuilder.setSClubName(sClubName);
@@ -286,8 +286,8 @@ public class ClubManager {
 			SetClubBaseInfoResponse response = blockingClubService.setClubBaseInfo(controller, stSetClubBaseInfoRequestBuilder.build());
 	    	
 	    	if (response != null&&response.getIErrorCode() == 0) {
-	    		if(response.getStClubInfo()!=null){
-	    			return response.getStClubInfo().toBuilder();
+	    		if(response.getStClubBaseInfo()!=null){
+	    			return response.getStClubBaseInfo().toBuilder();
 	    		}else{
 	    			return null;
 	    		}
@@ -324,7 +324,7 @@ public class ClubManager {
 	    }
 	}
 	
-	public ClubInfo.Builder uploadClubIcon(long clubid,String sBigIcon,String sSmallIcon){
+	public ClubBaseInfo.Builder uploadClubIcon(long clubid,String sBigIcon,String sSmallIcon){
 		UploadClubIconRequest.Builder stUploadClubIconRequestBuilder = UploadClubIconRequest.newBuilder();
 		stUploadClubIconRequestBuilder.setLClubID(clubid);
 		stUploadClubIconRequestBuilder.setSSmallClubIcon(sSmallIcon);
@@ -334,8 +334,8 @@ public class ClubManager {
 	    	UploadClubIconResponse response = blockingClubService.uploadClubIcon(controller, stUploadClubIconRequestBuilder.build());
 	    	
 	    	if (response != null&&response.getIErrorCode() == 0) {
-	    		if(response.getStClubInfo()!=null){
-	    			return response.getStClubInfo().toBuilder();
+	    		if(response.getStClubBaseInfo()!=null){
+	    			return response.getStClubBaseInfo().toBuilder();
 	    		}else{
 	    			return null;
 	    		}
@@ -348,7 +348,7 @@ public class ClubManager {
 	    }
 	}
 	
-	public ClubInfo.Builder uploadClubCover(long clubid,String sBigCover,String sSmallCover,int iPos){
+	public ClubBaseInfo.Builder uploadClubCover(long clubid,String sBigCover,String sSmallCover,int iPos){
 		UploadClubCoverRequest.Builder stUploadClubCoverRequestBuilder = UploadClubCoverRequest.newBuilder();
 		stUploadClubCoverRequestBuilder.setLClubID(clubid);
 		stUploadClubCoverRequestBuilder.setSBigAlbums(sBigCover);
@@ -358,8 +358,8 @@ public class ClubManager {
 	    	UploadClubCoverResponse response = blockingClubService.uploadClubCover(controller, stUploadClubCoverRequestBuilder.build());
 	    	
 	    	if (response != null&&response.getIErrorCode() == 0) {
-	    		if(response.getStClubInfo()!=null){
-	    			return response.getStClubInfo().toBuilder();
+	    		if(response.getStClubBaseInfo()!=null){
+	    			return response.getStClubBaseInfo().toBuilder();
 	    		}else{
 	    			return null;
 	    		}
@@ -372,7 +372,7 @@ public class ClubManager {
 	    }
 	}
 	
-	public ClubInfo.Builder deleteClubCover(long clubid,int iPos){
+	public ClubBaseInfo.Builder deleteClubCover(long clubid,int iPos){
 		DeleteClubCoverRequest.Builder stDeleteClubCoverRequestBuilder = DeleteClubCoverRequest.newBuilder();
 		stDeleteClubCoverRequestBuilder.setLClubID(clubid);
 		stDeleteClubCoverRequestBuilder.setIPos(iPos);
@@ -381,8 +381,8 @@ public class ClubManager {
 	    	DeleteClubCoverResponse response = blockingClubService.deleteClubCover(controller, stDeleteClubCoverRequestBuilder.build());
 	    	
 	    	if (response != null&&response.getIErrorCode() == 0) {
-	    		if(response.getStClubInfo()!=null){
-	    			return response.getStClubInfo().toBuilder();
+	    		if(response.getStClubBaseInfo()!=null){
+	    			return response.getStClubBaseInfo().toBuilder();
 	    		}else{
 	    			return null;
 	    		}
@@ -488,7 +488,7 @@ public class ClubManager {
 	    }
 	} 
 
-	public ClubInfo.Builder addClubMax(long clubid,int iNum){
+	public ClubBaseInfo.Builder addClubMax(long clubid,int iNum){
 		AddClubMaxRequest.Builder stAddClubMaxRequest = AddClubMaxRequest.newBuilder();
 		stAddClubMaxRequest.setLClubID(clubid);
 		stAddClubMaxRequest.setINum(iNum);
@@ -497,8 +497,8 @@ public class ClubManager {
 	    	AddClubMaxResponse response = blockingClubService.addClubMax(controller, stAddClubMaxRequest.build());
 	    	
 	    	if (response != null&&response.getIErrorCode() == 0) {
-	    		if(response.getStClubInfo()!=null){
-	    			return response.getStClubInfo().toBuilder();
+	    		if(response.getStClubBaseInfo()!=null){
+	    			return response.getStClubBaseInfo().toBuilder();
 	    		}else{
 	    			return null;
 	    		}

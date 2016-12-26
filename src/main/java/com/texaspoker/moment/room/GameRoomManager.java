@@ -198,10 +198,7 @@ public class GameRoomManager  {
 							}else{
 								//普通俱乐部局
 								ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(gameRoomBaseInfoBuilder.getLChatRoomID());
-								if(stClubInfoBuilder!=null){														
-									//添加俱乐部积分
-									stClubInfoBuilder = ClubManager.getInstance().addClubScore(stClubInfoBuilder.getStClubBaseInfo().getLClubID(), 5);
-													
+								if(stClubInfoBuilder!=null){																											
 									// 将牌局ID存到关联的聊天室里面
 									ClubManager.getInstance().addGameRooms(gameRoomBaseInfoBuilder.getLChatRoomID(),gameRoomBaseInfoBuilder.getLGameRoomId());
 								}
@@ -348,10 +345,7 @@ public class GameRoomManager  {
 								}else{
 									//普通俱乐部局
 									ClubInfo.Builder stClubInfoBuilder = ClubManager.getInstance().getClubInfo(gameRoomBaseInfoBuilder.getLChatRoomID());
-									if(stClubInfoBuilder!=null){														
-										//添加俱乐部积分
-										stClubInfoBuilder = ClubManager.getInstance().addClubScore(stClubInfoBuilder.getStClubBaseInfo().getLClubID(), 5);
-														
+									if(stClubInfoBuilder!=null){																												
 										// 将牌局ID存到关联的聊天室里面
 										ClubManager.getInstance().addGameRooms(gameRoomBaseInfoBuilder.getLChatRoomID(),gameRoomBaseInfoBuilder.getLGameRoomId());
 									}

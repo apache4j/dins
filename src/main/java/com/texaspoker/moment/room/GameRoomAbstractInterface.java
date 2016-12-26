@@ -183,4 +183,7 @@ public interface GameRoomAbstractInterface {
 	void pushAllGameRoomUserMsgs(UserGameInfoNet stFromUserGamenfo,GAME_ROOM_MESSAGE_TYPE eGameRoomMessageType,long exceptionUuid);
 	
 	public void pushAllGameRoomUserMsgsIncludeSelf(UserGameInfoNet stFromUserGamenfo,GAME_ROOM_MESSAGE_TYPE eGameRoomMessageType);
+	
+	public void pushGameRoomUserMsgsResetThinkingInterval(UserGameInfoNet stFromUserGamenfo,
+			long stToUserUuid,int iThinkingInterval);
 }

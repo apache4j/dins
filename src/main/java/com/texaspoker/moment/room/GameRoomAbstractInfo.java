@@ -4054,6 +4054,80 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		}
 	}
 	
+	@Override
+	public void pushGameRoomUserMsgsResetThinkingInterval(UserGameInfoNet stFromUserGamenfo,
+			long stToUserUuid,int iThinkingInterval){
+		//给被邀请用户发通知
+		TexasPoker.GameRoomPushMsg.Builder stGameRoomPushMsgBuilder = TexasPoker.GameRoomPushMsg.newBuilder() ;
+			
+		//获取时间
+		long curTime = System.currentTimeMillis();
+			
+		// 设置msg id
+		stGameRoomPushMsgBuilder.setLMsgID(curTime);
+		// 设置发送时间
+		stGameRoomPushMsgBuilder.setLCreateTime(curTime);
+		
+		// 设置发送人的userbaseinfo
+		if(stFromUserGamenfo!=null){
+			stGameRoomPushMsgBuilder.setStFromUser(stFromUserGamenfo);
+		}
+		
+		// 设置消息内容，暂时没有什么具体用处
+		stGameRoomPushMsgBuilder.setSMsg("");
+		
+		stGameRoomPushMsgBuilder.setIPos(0);
+		
+		// 设置 好友类型
+		stGameRoomPushMsgBuilder.setEGameMessageType(GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_RESET_THINKING_INTERVAL);
+		
+		stGameRoomPushMsgBuilder.setIThinkingInterval(iThinkingInterval);
+		
+		checkAllAllin();
+		
+		if(stGameRoomInfo!=null){
+			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+			for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount() ; i ++){
+				UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+				if(stUserGameInfoNetBuilder.getStUserInfo().getUuid()!=stToUserUuid){
+					
+					if(stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN && bAllAllin == true){
+						continue;
+					}
+					
+					if(stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
+							|| (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)){
+						if(stUserGameInfoNetBuilder.getBShowCardOne()==1||stUserGameInfoNetBuilder.getBShowCardTwo()==1){
+							continue;
+						}
+						
+						if(stUserGameInfoNetBuilder.getEGameState()==USER_GAME_STATE.USER_GAME_STATE_FOLD){
+							stUserGameInfoNetBuilder.clearVCurrentHands();
+						}else{
+							if(bFlodResult==true){
+								stUserGameInfoNetBuilder.clearVCurrentHands();
+							}
+						}
+					}else{
+						stUserGameInfoNetBuilder.clearVCurrentHands();
+					}
+				}
+				stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+			}
+			
+			stGameRoomPushMsgBuilder.setStGameRoomInfo(stGameRoomInfoBuilder);
+		}
+	
+		TexasPoker.GameRoomPushMsg stGameRoomPushMsg = stGameRoomPushMsgBuilder
+				.build();
+	
+		UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(stToUserUuid);
+		if(stUserBaseInfoNetBuilder!=null){
+			//发送push
+			GameRoomMsgManager.getInstance().sendGameRoomMsg(stToUserUuid,stGameRoomPushMsg);
+		}
+	}
+	
 	//取消代理
 	public void userReturnGame(long uuid){
 		synchronized(this){

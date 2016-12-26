@@ -39,6 +39,8 @@ import com.texaspoker.moment.TexasPokerGameService.EnterGameRoomRequest;
 import com.texaspoker.moment.TexasPokerGameService.EnterGameRoomResponse;
 import com.texaspoker.moment.TexasPokerGameService.EnterQuickGameRoomRequest;
 import com.texaspoker.moment.TexasPokerGameService.EnterQuickGameRoomResponse;
+import com.texaspoker.moment.TexasPokerGameService.ForceStandupRequest;
+import com.texaspoker.moment.TexasPokerGameService.ForceStandupResponse;
 import com.texaspoker.moment.TexasPokerGameService.GameActionRequest;
 import com.texaspoker.moment.TexasPokerGameService.GameActionResponse;
 import com.texaspoker.moment.TexasPokerGameService.GetAllBuyinControlsRequest;
@@ -77,10 +79,14 @@ import com.texaspoker.moment.TexasPokerGameService.SetBuyinControlStateRequest;
 import com.texaspoker.moment.TexasPokerGameService.SetBuyinControlStateResponse;
 import com.texaspoker.moment.TexasPokerGameService.SetGameRoomInfoRequest;
 import com.texaspoker.moment.TexasPokerGameService.SetGameRoomInfoResponse;
+import com.texaspoker.moment.TexasPokerGameService.SetGameThinkingIntervalRequest;
+import com.texaspoker.moment.TexasPokerGameService.SetGameThinkingIntervalResponse;
 import com.texaspoker.moment.TexasPokerGameService.SetQuickGameRoomInfoRequest;
 import com.texaspoker.moment.TexasPokerGameService.SetQuickGameRoomInfoResponse;
 import com.texaspoker.moment.TexasPokerGameService.SetStandByUserGameInfosRequest;
 import com.texaspoker.moment.TexasPokerGameService.SetStandByUserGameInfosResponse;
+import com.texaspoker.moment.TexasPokerGameService.SetStraddleRequest;
+import com.texaspoker.moment.TexasPokerGameService.SetStraddleResponse;
 import com.texaspoker.moment.TexasPokerGameService.ShowCardRequest;
 import com.texaspoker.moment.TexasPokerGameService.ShowCardResponse;
 import com.texaspoker.moment.TexasPokerGameService.SitDownRequest;
@@ -1472,6 +1478,67 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 	@Override
 	public void cancelGame(RpcController arg0, CancelGameRequest arg1,
 			RpcCallback<CancelGameResponse> arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ForceStandupResponse forceStandup(RpcController arg0, ForceStandupRequest request) throws ServiceException {
+		// TODO Auto-generated method stub
+		// TODO Auto-generated method stub
+		ForceStandupResponse.Builder  stForceStandupResponseBuilder = ForceStandupResponse.newBuilder();
+		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+		if(stGameRoomDetailInfo!=null){
+			stGameRoomDetailInfo.forceStandup(request.getLForceStandUpUuid());
+		}
+		stForceStandupResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);	
+		
+		return stForceStandupResponseBuilder.build();
+	}
+
+	@Override
+	public SetGameThinkingIntervalResponse setGameThinkingInterval(RpcController arg0,
+			SetGameThinkingIntervalRequest request) throws ServiceException {
+		// TODO Auto-generated method stub
+		SetGameThinkingIntervalResponse.Builder  stSetGameThinkingIntervalResponseBuilder = SetGameThinkingIntervalResponse.newBuilder();
+		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+		if(stGameRoomDetailInfo!=null){
+			stGameRoomDetailInfo.resetPlayThinkingInterval(request.getUuid(),request.getIThinkingInterval());
+		}
+		stSetGameThinkingIntervalResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);	
+		stSetGameThinkingIntervalResponseBuilder.setStGameRoomBaseInfo(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo());
+		
+		return stSetGameThinkingIntervalResponseBuilder.build();
+	}
+
+	@Override
+	public SetStraddleResponse setStraddle(RpcController arg0, SetStraddleRequest request) throws ServiceException {
+		// TODO Auto-generated method stub
+		SetStraddleResponse.Builder  stSetStraddleResponseBuilder = SetStraddleResponse.newBuilder();
+		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+		if(stGameRoomDetailInfo!=null){
+			stGameRoomDetailInfo.setStraddle(request.getUuid(),request.getBStraddle());
+		}
+		stSetStraddleResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);	
+		
+		return stSetStraddleResponseBuilder.build();
+	}
+
+	@Override
+	public void forceStandup(RpcController arg0, ForceStandupRequest arg1, RpcCallback<ForceStandupResponse> arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setGameThinkingInterval(RpcController arg0, SetGameThinkingIntervalRequest arg1,
+			RpcCallback<SetGameThinkingIntervalResponse> arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setStraddle(RpcController arg0, SetStraddleRequest arg1, RpcCallback<SetStraddleResponse> arg2) {
 		// TODO Auto-generated method stub
 		
 	}
