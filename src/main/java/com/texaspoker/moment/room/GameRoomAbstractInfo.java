@@ -3427,7 +3427,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	@Override
 	public void setTimeoutUserCurrent(long uuid){
 		mTimeoutGameUsers.setCurrent(uuid);
-		mTimeoutGameUsers.setTimeout(uuid, (long)20);
+		mTimeoutGameUsers.setTimeout(uuid, (long)(2+stGameRoomInfo.getStGameRoomBaseInfo().getIThinkingInterval()));
 	}
 	
 	/**
