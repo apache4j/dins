@@ -3118,7 +3118,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		
 		int userRole=1;//0 代表deal 1代表小盲 2代表大盲 3代表普通
 		int iLoop=0;
-		if(iCouldPlayNum > 2){
+		if(iCouldPlayNum > 3){
 			for(int j = mSmallBlindPos ; iLoop < iGameRoomUserMaxNums;iLoop++,j++ ){
 				int userIndex = 0;
 				if(j<iGameRoomUserMaxNums){
