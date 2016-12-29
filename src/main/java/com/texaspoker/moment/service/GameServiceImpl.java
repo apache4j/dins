@@ -147,6 +147,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		stGameRoomBaseInfoBuilder.setBIPLimit(request.getStGameRoomBaseInfo().getBIPLimit());
 		stGameRoomBaseInfoBuilder.setBGPSLimit(request.getStGameRoomBaseInfo().getBGPSLimit());
 		stGameRoomBaseInfoBuilder.setLLeagueID(request.getStGameRoomBaseInfo().getLLeagueID());
+		stGameRoomBaseInfoBuilder.setIThinkingInterval(15);
 		
 		//添加联盟相关信息
 		LeagueBaseInfo stLeagueBaseInfo = LeagueManager.getInstance().getLeagueBaseInfo(stGameRoomBaseInfoBuilder.getLLeagueID());
