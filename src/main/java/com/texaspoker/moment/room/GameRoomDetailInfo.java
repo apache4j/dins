@@ -2357,6 +2357,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stBuyinControlBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL);
 					stBuyinControlBuilder.setLStacks(lStacks);
 					stBuyinControlBuilder.setLBuyinCreateTime(lCreateTime);
+					ClubBaseInfo.Builder stClubBaseInfoBuilder = ClubManager.getInstance().getClubBaseInfo(lClubID);
+					if(stClubBaseInfoBuilder!=null){
+						stBuyinControlBuilder.setSClubName(stClubBaseInfoBuilder.getSClubName());
+					}
+					
 					vBuyinControls.add(stBuyinControlBuilder.build());
 				}else{
 					
