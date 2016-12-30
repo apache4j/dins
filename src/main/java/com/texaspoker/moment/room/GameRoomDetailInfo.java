@@ -1193,7 +1193,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							stUserMyGameInfoNetBuilder.clearVCurrentHands();
 							stUserMyGameInfoNetBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_NORMAL);
 							stUserMyGameInfoNetBuilder.setBGameDealer(0);
-							stUserMyGameInfoNetBuilder.setBJustSit(1);
+							if(stGameRoomInfo.getStGameRoomBaseInfo().getBStarted() == 1){
+								stUserMyGameInfoNetBuilder.setBJustSit(1);
+							}
 								
 							UserGameInfoNet.Builder stUserMyTempGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(iPos);	
 							if(stUserMyTempGameInfoNetBuilder!=null){
@@ -1221,7 +1223,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							stUserMyGameInfoNetBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_NORMAL);
 							stUserMyGameInfoNetBuilder.setBGameDealer(0);
 							stUserMyGameInfoNetBuilder.setStUserInfo(stUserBaseInfoBuilder);
-							stUserMyGameInfoNetBuilder.setBJustSit(1);
+							if(stGameRoomInfo.getStGameRoomBaseInfo().getBStarted() == 1){
+								stUserMyGameInfoNetBuilder.setBJustSit(1);
+							}
 								
 							UserGameInfoNet.Builder stUserMyTempGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(iPos);
 							if(stUserMyTempGameInfoNetBuilder!=null){
@@ -1447,19 +1451,21 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							+","+stGameRoomInfo.getStGameRoomBaseInfo().getIAnte());
 					
 					saveOriginalStacks();
-//					System.out.println("ROOM_GAME_STATE_GameStart_VALUE ROOM_GAME_STATE_GameStart_VALUE2 : " + iCouldPlayNum);
+					
 					//重置Dealer位置
 					rsetetDealerPos();
 					
 					//重新可以进行牌局的用户，去掉刚坐在小盲位的用户
 					couldPlayNumAfterSetDealer();
-//					System.out.println("ROOM_GAME_STATE_GameStart_VALUE ROOM_GAME_STATE_GameStart_VALUE3 : " + iCouldPlayNum);
-					//每个选手发两张牌,并把游戏的状态设置为FirstRound	
-					beforeTheGame();
-//					System.out.println("ROOM_GAME_STATE_GameStart_VALUE ROOM_GAME_STATE_GameStart_VALUE4 : " + iCouldPlayNum);
+
 					if(iCouldPlayNum>=2){
 						//每个选手发两张牌,并把游戏的状态设置为FirstRound	
-						beforeTheGame();
+						if(stGameRoomInfo.getStGameRoomBaseInfo().getBStraddle() == 1){
+							beforeTheGameStraddle();
+						}else{
+							beforeTheGame();
+						}
+						
 						if(this.stGameRoomInfo.getStGameRoomBaseInfo().getIAnte() > 0 ){
 							gotoAnteStatus();
 						}
@@ -1999,6 +2005,305 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					}
 				}
 			}
+		}
+	}
+	
+	private void beforeTheGameStraddle(){
+		
+		GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+		if(iCouldPlayNum > 3){
+			
+			//大于两个人的时候牌局出事状态的设置
+			//然后设置牌局中玩家的状态
+			//用户的较色
+			int userRole=0;//0 代表deal 1代表小盲 2代表大盲 3代表普通
+			//循环次数
+			int iLoop=0;
+				
+			//首先设置纽扣，小盲，大盲位
+			for(int j = mDealPos ; iLoop < iGameRoomUserMaxNums;iLoop++,j++ ){
+				int userIndex = 0;
+				if(j<iGameRoomUserMaxNums){
+					userIndex = j;
+				}else{
+					userIndex = j - iGameRoomUserMaxNums;
+				}
+				
+				UserGameInfoNet.Builder stUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(userIndex).toBuilder();
+				//判断这个位置是否有用户坐下，没有用户坐下，则过掉这个用户
+				if(stUserGameInfoBuilder.getStUserInfo().getUuid() > 0&&stUserGameInfoBuilder.getLRemainStacks() > 0){
+					//如果是小盲，并且用户刚刚坐下，则用户不能参加牌局
+					
+					if(stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1){
+						//设置游戏的用户状态
+						stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_WAIT);
+						stUserGameInfoBuilder.setBGameDealer(0);
+						stUserGameInfoBuilder.setIDelayLong(0);
+						stUserGameInfoBuilder.setIDelaySingleTime(20);
+					}else{
+						//设置游戏的用户状态
+						stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_READY);
+						stUserGameInfoBuilder.setBGameDealer(0);
+						stUserGameInfoBuilder.setIDelayLong(0);
+						stUserGameInfoBuilder.setIDelaySingleTime(20);
+
+						//设置用户的较色状态
+						if(0 == userRole){
+							stUserGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_DEAL);
+							stUserGameInfoBuilder.setBGameDealer(1);
+							//设置dealer的index
+							mDealPos = userIndex;
+							//寻找下一个小盲注
+							userRole++;
+						}else if( 1 == userRole){
+							//设置小盲的index
+							mSmallBlindPos = userIndex;
+							stUserGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_SMALL_BLIND);
+							//寻找下一个大盲
+							userRole++;
+							
+						}else if(2 == userRole){
+							//设置大盲的index
+							mBigBlindPos = userIndex;	
+							stUserGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_BIG_BLIND);
+							//大盲为第一轮最后一个说话的人
+							mEndPos = userIndex;
+							//寻找普通玩家
+							userRole++;
+						
+						}else if(3 == userRole){
+							//设置大盲的index
+							mBigBlindPos = userIndex;	
+							stUserGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_STRADDLE);
+							//大盲为第一轮最后一个说话的人
+							mEndPos = userIndex;
+							//寻找普通玩家
+							userRole++;
+						
+						}else{
+							stUserGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_NORMAL);
+							stUserGameInfoBuilder.setBGameDealer(0);
+						}
+						stUserGameInfoBuilder.setBJustSit(0);
+					}
+					
+				}
+				else{
+					stUserGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_NORMAL);
+					stUserGameInfoBuilder.setBGameDealer(0);
+				}
+				stGameRoomInfoBuilder.setVUserGameInfos(userIndex,stUserGameInfoBuilder.build());
+			}
+			
+			
+			
+			int startIndex = mBigBlindPos + 1;
+			
+			if(startIndex >= iGameRoomUserMaxNums){
+				startIndex -= iGameRoomUserMaxNums;
+			}
+			iLoop = 0;
+			//寻找第一轮的理论结束位的后一位，枪口位
+			for(int j = startIndex ; iLoop < iGameRoomUserMaxNums;iLoop++,j++ ){
+				int userIndex = 0;
+				if(j<iGameRoomUserMaxNums){
+					userIndex = j;
+				}else{
+					userIndex = j-iGameRoomUserMaxNums;
+				}
+				
+				UserGameInfoNet.Builder stUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(userIndex).toBuilder();
+				//判断这个位置是否有用户坐下，没有用户坐下，则过掉这个用户
+				if(stUserGameInfoBuilder.getStUserInfo().getUuid() > 0){
+					//找到大盲位后面的第一个用户的位置
+					mEndPos = userIndex;
+					break;
+				}
+			}
+			
+			//最后把最新的牌局信息push给每一个进入牌局的用户
+			stGameRoomInfo = stGameRoomInfoBuilder.build();
+			
+			
+			//把牌局的信息push给每个人
+			sendAllGameStateChange(0,null);
+		}else if(iCouldPlayNum == 3){
+			
+			//大于两个人的时候牌局出事状态的设置
+			//然后设置牌局中玩家的状态
+			//用户的较色
+			int userRole=0;//0 代表deal 1代表小盲 2代表大盲 3代表普通
+			//循环次数
+			int iLoop=0;
+				
+			//首先设置纽扣，小盲，大盲位
+			for(int j = mDealPos ; iLoop < iGameRoomUserMaxNums;iLoop++,j++ ){
+				int userIndex = 0;
+				if(j<iGameRoomUserMaxNums){
+					userIndex = j;
+				}else{
+					userIndex = j - iGameRoomUserMaxNums;
+				}
+				
+				UserGameInfoNet.Builder stUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(userIndex).toBuilder();
+				//判断这个位置是否有用户坐下，没有用户坐下，则过掉这个用户
+				if(stUserGameInfoBuilder.getStUserInfo().getUuid() > 0&&stUserGameInfoBuilder.getLRemainStacks() > 0){
+					//如果是小盲，并且用户刚刚坐下，则用户不能参加牌局
+					
+					if(stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1){
+						//设置游戏的用户状态
+						stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_WAIT);
+						stUserGameInfoBuilder.setBGameDealer(0);
+						stUserGameInfoBuilder.setIDelayLong(0);
+						stUserGameInfoBuilder.setIDelaySingleTime(20);
+					}else{
+						//设置游戏的用户状态
+						stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_READY);
+						stUserGameInfoBuilder.setBGameDealer(0);
+						stUserGameInfoBuilder.setIDelayLong(0);
+						stUserGameInfoBuilder.setIDelaySingleTime(20);
+
+						//设置用户的较色状态
+						if(0 == userRole){
+							stUserGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_DEAL);
+							stUserGameInfoBuilder.setBGameDealer(1);
+							//设置dealer的index
+							mDealPos = userIndex;
+							//寻找下一个小盲注
+							userRole++;
+						}else if( 1 == userRole){
+							//设置小盲的index
+							mSmallBlindPos = userIndex;
+							stUserGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_SMALL_BLIND);
+							//寻找下一个大盲
+							userRole++;
+							
+						}else if(2 == userRole){
+							//设置大盲的index
+							mBigBlindPos = userIndex;	
+							stUserGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_BIG_BLIND);
+							//大盲为第一轮最后一个说话的人
+							mEndPos = userIndex;
+							//寻找普通玩家
+							userRole++;
+						
+						}else{
+							stUserGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_NORMAL);
+							stUserGameInfoBuilder.setBGameDealer(0);
+						}
+						stUserGameInfoBuilder.setBJustSit(0);
+					}
+					
+				}
+				else{
+					stUserGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_NORMAL);
+					stUserGameInfoBuilder.setBGameDealer(0);
+				}
+				stGameRoomInfoBuilder.setVUserGameInfos(userIndex,stUserGameInfoBuilder.build());
+			}
+			
+			
+			
+			int startIndex = mBigBlindPos + 1;
+			
+			if(startIndex >= iGameRoomUserMaxNums){
+				startIndex -= iGameRoomUserMaxNums;
+			}
+			iLoop = 0;
+			//寻找第一轮的理论结束位的后一位，枪口位
+			for(int j = startIndex ; iLoop < iGameRoomUserMaxNums;iLoop++,j++ ){
+				int userIndex = 0;
+				if(j<iGameRoomUserMaxNums){
+					userIndex = j;
+				}else{
+					userIndex = j-iGameRoomUserMaxNums;
+				}
+				
+				UserGameInfoNet.Builder stUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(userIndex).toBuilder();
+				//判断这个位置是否有用户坐下，没有用户坐下，则过掉这个用户
+				if(stUserGameInfoBuilder.getStUserInfo().getUuid() > 0){
+					//找到大盲位后面的第一个用户的位置
+					mEndPos = userIndex;
+					break;
+				}
+			}
+			
+			//最后把最新的牌局信息push给每一个进入牌局的用户
+			stGameRoomInfo = stGameRoomInfoBuilder.build();
+			
+			
+			//把牌局的信息push给每个人
+			sendAllGameStateChange(0,null);
+		}
+		else{
+			//如果两个人的时候，牌局初始状态的设置
+			int userRole=0;//0 代表deal 1代表小盲 2代表大盲 3代表普通
+			//循环次数
+			int iLoop=0;
+			
+			//首先设置纽扣，小盲，大盲位
+			for(int j = mDealPos ; iLoop < iGameRoomUserMaxNums;iLoop++,j++ ){
+				int userIndex = 0;
+				if(j<iGameRoomUserMaxNums){
+					userIndex = j;
+				}else{
+					userIndex = j - iGameRoomUserMaxNums;
+				}
+				
+				UserGameInfoNet.Builder stUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(userIndex).toBuilder();
+				//判断这个位置是否有用户坐下，没有用户坐下，则过掉这个用户
+				if(stUserGameInfoBuilder.getStUserInfo().getUuid() > 0&&stUserGameInfoBuilder.getLRemainStacks() > 0){
+					//设置游戏的用户状态
+					stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_READY);
+					stUserGameInfoBuilder.setBGameDealer(0);
+					stUserGameInfoBuilder.setIDelayLong(0);
+					stUserGameInfoBuilder.setIDelaySingleTime(20);
+					
+
+					if(stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1){
+						//直接跳过，不发牌
+						stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_WAIT);
+					}
+					//设置用户的较色状态
+					else if( 0 == userRole){
+						stUserGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_SMALL_BLIND);
+						stUserGameInfoBuilder.setBGameDealer(1);
+						//设置dealer的index
+						mDealPos = userIndex;
+						//设置小盲的index
+						mSmallBlindPos = userIndex;
+						mEndPos = userIndex;
+						//寻找下一个小盲注
+						userRole++;
+						stUserGameInfoBuilder.setBJustSit(0);
+					}else if( 1 == userRole){
+						//寻找下一个大盲（因为是两个人的牌局，所以大盲就是dealer）
+						mBigBlindPos = userIndex;	
+						stUserGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_BIG_BLIND);
+						userRole++;
+						stUserGameInfoBuilder.setBJustSit(0);
+					}else if(2 == userRole){
+						//设置大盲的index
+						mBigBlindPos = userIndex;	
+						//寻找普通玩家
+						userRole++;
+					}else{
+						stUserGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_NORMAL);
+						stUserGameInfoBuilder.setBGameDealer(0);
+					}
+					
+				}
+				else{
+					stUserGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_NORMAL);
+					stUserGameInfoBuilder.setBGameDealer(0);
+				}
+				stGameRoomInfoBuilder.setVUserGameInfos(userIndex,stUserGameInfoBuilder.build());
+			}
+			
+		
+			
+			//最后把最新的牌局信息push给每一个进入牌局的用户
+			stGameRoomInfo = stGameRoomInfoBuilder.build();
 		}
 	}
 	
