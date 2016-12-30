@@ -3625,8 +3625,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				stGameRoomInfoBuilder.setVUserGameInfos(userIndex,stUserGameInfoBuilder.build());
 			}
 			
-			if(lStepMaxStacks < 2*stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds()){
-				lStepMaxStacks = 2*stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds();
+			if(lStepMaxStacks < stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds()){
+				lStepMaxStacks = stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds();
 			}
 			iLoop=0;
 
