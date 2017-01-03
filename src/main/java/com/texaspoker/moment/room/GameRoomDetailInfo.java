@@ -1,6 +1,7 @@
 package com.texaspoker.moment.room;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -4619,19 +4620,27 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					
 					iThinkingInterval = interval;
 					
+					Map<Long,Long> mSendedUuids = new HashMap<Long,Long>();
+					
 					//发送push消息
 					for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
 						UserGameInfoNet stUserGameInfoSendNet = stGameRoomInfo.getVUserGameInfos(i);
 						
 						if(stUserGameInfoSendNet.getStUserInfo().getUuid() > 0){
-							//首先找到离开房间的用户基本信息				
-							pushGameRoomUserMsgsResetThinkingInterval(null,stUserGameInfoSendNet.getStUserInfo().getUuid(),interval);
+							if(mSendedUuids.get(stUserGameInfoSendNet.getStUserInfo().getUuid())==null){
+								mSendedUuids.put(stUserGameInfoSendNet.getStUserInfo().getUuid(), stUserGameInfoSendNet.getStUserInfo().getUuid());
+								//首先找到离开房间的用户基本信息				
+								pushGameRoomUserMsgsResetThinkingInterval(null,stUserGameInfoSendNet.getStUserInfo().getUuid(),interval);
+							}
 						}
 					}
 					
 					//给旁观的人发返回牌桌消息
 					for (long push_uuid : mStandBys) {
-						pushGameRoomUserMsgsResetThinkingInterval(null,push_uuid,interval);
+						if(mSendedUuids.get(push_uuid)==null){
+							mSendedUuids.put(push_uuid, push_uuid);
+							pushGameRoomUserMsgsResetThinkingInterval(null,push_uuid,interval);
+						}
 					}
 			
 				}
