@@ -3569,14 +3569,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 									+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
 									+"," + stGameRoomInfoBuilder.getLGameHandID()
 									+"," + stUserGameInfoBuilder.getStUserInfo().getUuid() 
-									+"," + "raise" 
+									+"," + "straddle" 
 									+"," + stUserGameInfoBuilder.getLRemainStacks() );
 						}else{
 							TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
 									+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
 									+"," + stGameRoomInfoBuilder.getLGameHandID()
 									+"," + stUserGameInfoBuilder.getStUserInfo().getUuid() 
-									+"," + "raise" 
+									+"," + "straddle" 
 									+"," + 2*stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds());
 						}
 						
