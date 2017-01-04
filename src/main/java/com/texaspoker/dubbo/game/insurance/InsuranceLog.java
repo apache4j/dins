@@ -42,6 +42,7 @@ public class InsuranceLog {
   private final static String ACTION_CHECK = "check";
   private final static String ACTION_SHOWDOWN = "showdown";
   private final static String ACTION_FOLD = "fold";
+  private final static String ACTION_STRADDLE = "straddle";
 
   private final static String ACTION_FLOP1 = "flop1";
   private final static String ACTION_FLOP2 = "flop2";
@@ -122,7 +123,7 @@ public class InsuranceLog {
     }
 
     // 下注信息
-    if (actionStr.equalsIgnoreCase(ACTION_CALL) || actionStr.equalsIgnoreCase(ACTION_RAISE)) {
+    if (actionStr.equalsIgnoreCase(ACTION_CALL) || actionStr.equalsIgnoreCase(ACTION_RAISE) || actionStr.equalsIgnoreCase(ACTION_STRADDLE)) {
       int betChips = Integer.parseInt(tableLogContentArray[5]);
       HandsManager.getInstance().setUserBets(roomId, uuid, betChips);
       return;
