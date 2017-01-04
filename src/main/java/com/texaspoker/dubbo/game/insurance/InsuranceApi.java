@@ -72,6 +72,11 @@ public class InsuranceApi {
     return resultInfo;
   }
 
+  // 获取当前保险信息
+  public static TexasPoker.InsuranceInfo getInsuranceInfo(long lGameRoomID, long lHandID){
+    return getApiInfoFromInsuranceInfo(InsuranceManager.getInstance().getInsurance(lGameRoomID,lHandID));
+  }
+
   // 每一手结账时调用保险结算接口
   public static TexasPoker.GameRoomInfo getInsuranceBill(GameRoomInfo stGameRoomInfo, long lHandID) {
     // 获取房间id
