@@ -3382,13 +3382,17 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		if(bAllAllin==true){
 			int drawCard = mCards[iDrawCardNum++];
 			
-			List<OutsInfo> outs = InsuranceManager.getInstance().getInsurance(this.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId()).getAllOuts();
-			for(OutsInfo stOutsInfo:outs){
-				for(int i = 0 ; i < stOutsInfo.outs.length; i++){
-					int out_card = stOutsInfo.outs[i];
-					System.out.println("out_card : " + out_card);
+			com.texaspoker.dubbo.game.insurance.InsuranceInfo stInsuranceInfo = InsuranceManager.getInstance().getInsurance(this.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
+			if(stInsuranceInfo!=null){
+				List<OutsInfo> outs = stInsuranceInfo.getAllOuts();
+				for(OutsInfo stOutsInfo:outs){
+					for(int i = 0 ; i < stOutsInfo.outs.length; i++){
+						int out_card = stOutsInfo.outs[i];
+						System.out.println("out_card : " + out_card);
+					}
 				}
 			}
+			
 			
 			return drawCard;
 		}else{
