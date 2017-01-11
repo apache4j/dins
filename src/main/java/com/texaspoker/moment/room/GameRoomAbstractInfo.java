@@ -3414,14 +3414,14 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			
 			int precentCard = ShuffleAlgorithm.getRandomCard();
 			if(precentCard > 50){
-				System.out.println("checkOutsCard drawCard : " + drawCard + " vAllOuts " + vAllOuts + " true ");
+				System.out.println(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " checkOutsCard drawCard : " + drawCard + " vAllOuts " + vAllOuts + " true ");
 				return true;
 			}else{
-				System.out.println("checkOutsCard drawCard : " + drawCard + " vAllOuts " + vAllOuts + " false ");
+				System.out.println(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " checkOutsCard drawCard : " + drawCard + " vAllOuts " + vAllOuts + " false ");
 				return false;
 			}
 		}else{
-			System.out.println("checkOutsCard drawCard : " + drawCard + " vAllOuts " + vAllOuts);
+			System.out.println(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + "checkOutsCard drawCard : " + drawCard + " vAllOuts " + vAllOuts);
 			return false;
 		}
 	}
