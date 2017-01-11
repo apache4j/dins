@@ -3421,6 +3421,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				return false;
 			}
 		}else{
+			System.out.println("checkOutsCard drawCard : " + drawCard + " vAllOuts " + vAllOuts);
 			return false;
 		}
 	}
