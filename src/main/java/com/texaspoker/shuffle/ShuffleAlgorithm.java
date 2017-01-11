@@ -70,4 +70,28 @@ public class ShuffleAlgorithm {
       cards[count] = randomCard;
     }
   }
+  
+  /**
+   * 获取1-100随机数
+   * 
+   * @param cards
+   * @throws NoSuchAlgorithmException void
+   * @exception 没有这个算法实现
+   */
+  public static int getRandomCard() {
+	// 设置随机种子
+	SecureRandom randomseed = null;
+	try {
+	  randomseed = SecureRandom.getInstance("SHA1PRNG");
+	} catch (NoSuchAlgorithmException e) {
+	  // TODO Auto-generated catch block
+	  e.printStackTrace();
+	  return -1;
+	}
+	randomseed.setSeed(ShuffleSeed.get());
+	
+	// 从n张牌后面一个随机位置抽一张牌
+	return randomseed.nextInt(100)+1;
+  }
+
 }

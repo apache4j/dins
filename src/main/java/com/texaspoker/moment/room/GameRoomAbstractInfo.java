@@ -35,6 +35,7 @@ import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
 import com.texaspoker.msg.GameRoomMsgManager;
+import com.texaspoker.shuffle.ShuffleAlgorithm;
 import com.texaspoker.shuffle.ShuffleCard;
 import com.texaspoker.user.UserManager;
 
@@ -3384,19 +3385,41 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			
 			com.texaspoker.dubbo.game.insurance.InsuranceInfo stInsuranceInfo = InsuranceManager.getInstance().getInsurance(this.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
 			if(stInsuranceInfo!=null){
+				ArrayList<Integer> vAllOuts = new ArrayList<Integer>();
+				
 				List<OutsInfo> outs = stInsuranceInfo.getAllOuts();
 				for(OutsInfo stOutsInfo:outs){
 					for(int i = 0 ; i < stOutsInfo.outs.length; i++){
 						int out_card = stOutsInfo.outs[i];
-						System.out.println("out_card : " + out_card);
+						vAllOuts.add(out_card);
+					}
+				}
+				
+				if(vAllOuts.size() > 0){
+					//如果牌局
+					while(checkOutsCard(drawCard,vAllOuts)){
+						drawCard = mCards[iDrawCardNum++];
 					}
 				}
 			}
 			
-			
 			return drawCard;
 		}else{
 			return mCards[iDrawCardNum++];
+		}
+	}
+	
+	public boolean checkOutsCard(int drawCard,ArrayList<Integer> vAllOuts){
+		if(vAllOuts.contains(drawCard)){
+			
+			int precentCard = ShuffleAlgorithm.getRandomCard();
+			if(precentCard > 50){
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
 		}
 	}
 	
