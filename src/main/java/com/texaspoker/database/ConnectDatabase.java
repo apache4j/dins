@@ -39,7 +39,6 @@ import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
 import com.texaspoker.moment.TexasPokerCommon.GAME_ROOM_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.CREATE_ROOM_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.VIP_TYPE;
-import com.texaspoker.moment.TexasPokerHttpClub.ClubInfo;
 import com.texaspoker.moment.room.ChatRoomManager;
 import com.texaspoker.moment.room.GameRoomDetailInfo;
 import com.texaspoker.moment.room.GameRoomManager;
@@ -135,6 +134,8 @@ public class ConnectDatabase {
 	            	 stGameRoomBaseInfo.setIMinBuyinRatio(gameRoomRS.getInt("minbuyinratio"));
 	            	 stGameRoomBaseInfo.setEGameRoomSeniorType(GAME_ROOM_SENIOR_TYPE.valueOf(gameRoomRS.getInt("gameroomseniortype")));
 	            	 stGameRoomBaseInfo.setBBuyIn(1);
+	            	 stGameRoomBaseInfo.setLLeagueID(gameRoomRS.getLong("leagueid"));
+	            	 stGameRoomBaseInfo.setSLeagueName(gameRoomRS.getString("leaguebname"));
 	            	 
 	            	 stGameRoomInfoBuild.setStGameRoomBaseInfo(stGameRoomBaseInfo.build());
 	            	 stGameRoomInfoBuild.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
@@ -646,7 +647,9 @@ public class ConnectDatabase {
      				+",ante=?"
      				+",insurance=?"
      				+",gpslimit=?"
-     				+",iplimit=?";
+     				+",iplimit=?"
+     				+",leagueid=?"
+     				+",leaguebname=?";
      				
            //上面的方法比下面的方法有优势，一方面是安全性，另一方面我忘记了……
            PreparedStatement ps=stConnection.prepareStatement(insql);
@@ -670,6 +673,8 @@ public class ConnectDatabase {
            ps.setInt(18,stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBInsurance());
            ps.setInt(19,stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBGPSLimit());
            ps.setInt(20,stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBIPLimit());
+           ps.setLong(21,stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLLeagueID());
+           ps.setString(22,stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getSLeagueName());
            
            //保存链接 
            int result=ps.executeUpdate();
