@@ -16,6 +16,8 @@ import com.texaspoker.bill.BillManager;
 import com.texaspoker.comm.AdvancedTimeoutHashMap;
 import com.texaspoker.comm.TimeoutHashMap;
 import com.texaspoker.dubbo.game.insurance.InsuranceApi;
+import com.texaspoker.dubbo.game.insurance.InsuranceManager;
+import com.texaspoker.dubbo.game.insurance.OutsInfo;
 import com.texaspoker.logger.TableLogService;
 import com.texaspoker.moment.TexasPoker;
 import com.texaspoker.moment.TexasPoker.GAME_ACT_TYPE;
@@ -3377,7 +3379,21 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	 */
 	@Override
 	public int getCard(){
-		return mCards[iDrawCardNum++];
+		if(bAllAllin==true){
+			int drawCard = mCards[iDrawCardNum++];
+			
+			List<OutsInfo> outs = InsuranceManager.getInstance().getInsurance(this.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId()).getAllOuts();
+			for(OutsInfo stOutsInfo:outs){
+				for(int i = 0 ; i < stOutsInfo.outs.length; i++){
+					int out_card = stOutsInfo.outs[i];
+					System.out.println("out_card : " + out_card);
+				}
+			}
+			
+			return drawCard;
+		}else{
+			return mCards[iDrawCardNum++];
+		}
 	}
 	
 	/**
