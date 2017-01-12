@@ -846,8 +846,12 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		GetAllBuyinControlsResponse.Builder  stGetAllBuyinControlsResponseBuilder = GetAllBuyinControlsResponse.newBuilder();
 	
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+		
+		
 
 		if(stGameRoomDetailInfo!=null&&stGameRoomDetailInfo.getStGameRoomInfo()!=null){
+			System.out.println("stGetAllBuyinControlsResponseBuilder getStCreateUserBaseInfo uuid : " + stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid());
+			System.out.println("stGetAllBuyinControlsResponseBuilder request uuid : " + request.getUuid());
 			boolean bClubManager = false;
 			if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLLeagueID() > 0){
 				//如果是俱乐部管理员，则开始
