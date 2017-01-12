@@ -925,6 +925,8 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 			stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);
 		}
 		
+		System.out.println("stGetAllBuyinControlsResponseBuilder : " + stGetAllBuyinControlsResponseBuilder);
+		
 		return stGetAllBuyinControlsResponseBuilder.build();
 	}
 
