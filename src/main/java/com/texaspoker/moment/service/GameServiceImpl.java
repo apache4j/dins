@@ -937,11 +937,13 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
 		if(stGameRoomDetailInfo!=null&&stGameRoomDetailInfo.getStGameRoomInfo()!=null){
 			ArrayList<Long> vStandingByUuids = new ArrayList<Long>(stGameRoomDetailInfo.getStandByUuids());
+			System.out.println("getStandByUuids vStandingByUuids : " + vStandingByUuids);
 			if(vStandingByUuids!=null){
 				stGetStandByUuidsResponseBuilder.addAllVStandingByUuids(vStandingByUuids);
 			}
 			
 			ArrayList<Long> vAllUuids = new ArrayList<Long>(stGameRoomDetailInfo.getAllStandByUuids());
+			System.out.println("getStandByUuids vAllUuids : " + vAllUuids);
 			for(long lUuid:vAllUuids){
 				if(!vStandingByUuids.contains(lUuid)){
 					stGetStandByUuidsResponseBuilder.addVStandByUuids(lUuid);
@@ -952,6 +954,8 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		}else{
 			stGetStandByUuidsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);
 		}
+		
+		System.out.println("getStandByUuids : " + stGetStandByUuidsResponseBuilder);
 		
 		return stGetStandByUuidsResponseBuilder.build();
 	}
