@@ -38,7 +38,6 @@ import com.texaspoker.msg.GameRoomMsgManager;
 import com.texaspoker.shuffle.ShuffleAlgorithm;
 import com.texaspoker.shuffle.ShuffleCard;
 import com.texaspoker.user.UserManager;
-import com.texaspoker.vipclub.VIPClubManager;
 
 public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	//dealer的位置
@@ -503,9 +502,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			int card2 = 0;
 			int card3 = 0;
 			if(NOT_DEBUG){
-				card1 = getCard();
-				card2 = getCard();
-				card3 = getCard();
+				card1 = getTableCard(0);
+				card2 = getTableCard(1);
+				card3 = getTableCard(2);
 			}else{
 				card1 = getCard(0,0,true);
 				card2 = getCard(0,1,true);
@@ -662,7 +661,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		if(stGameRoomInfo.getVCurrentCardsCount() <= 3){
             //发turn牌
 			if(NOT_DEBUG){
-				card1 = getCard();
+				card1 = getTableCard(3);
 			}else{
 				card1 =  getCard(0,3,true);
 			}
@@ -732,7 +731,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		ArrayList<Integer> cards = new ArrayList<Integer>();
 		if(stGameRoomInfo.getVCurrentCardsCount() <= 4){
 			if(NOT_DEBUG){
-				card1 = getCard();
+				card1 = getTableCard(4);
 			}else{
 				card1 = getCard(0,4,true);
 			}	
@@ -3380,27 +3379,38 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	 * @return 返回一张手牌
 	 */
 	@Override
-	public int getCard(){
+	public int getTableCard(int cardNo){
 		if(bAllAllin==true ){
 			int drawCard = mCards[iDrawCardNum++];
+		
+			//然后查看保险信息
+			com.texaspoker.dubbo.game.insurance.InsuranceInfo stInsuranceInfo = InsuranceManager.getInstance().getInsurance(this.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
 			
-			Integer iPercent = VIPClubManager.getInstance().getVIPClubPercent(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID());
-			if(iPercent!=null && iPercent > 0){	
-				com.texaspoker.dubbo.game.insurance.InsuranceInfo stInsuranceInfo = InsuranceManager.getInstance().getInsurance(this.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
-				if(stInsuranceInfo!=null){
-					ArrayList<Integer> vAllOuts = new ArrayList<Integer>();
-					
-					List<OutsInfo> outs = stInsuranceInfo.getAllOuts();
-					for(OutsInfo stOutsInfo:outs){
-						for(int i = 0 ; i < stOutsInfo.outs.length; i++){
-							int out_card = stOutsInfo.outs[i];
-							vAllOuts.add(out_card);
-						}
+			//如果有保险信息，则继续查看
+			if(stInsuranceInfo!=null){
+				ArrayList<Integer> vAllOuts = new ArrayList<Integer>();
+				
+				List<OutsInfo> outs = stInsuranceInfo.getAllOuts();
+				for(OutsInfo stOutsInfo:outs){
+					for(int i = 0 ; i < stOutsInfo.outs.length; i++){
+						int out_card = stOutsInfo.outs[i];
+						vAllOuts.add(out_card);
+					}
+
+					long lPotSize = 0;
+					for(int iSidePotSize:stGameRoomInfo.getVCurrentCardsList()){
+						lPotSize += iSidePotSize;
 					}
 					
-					if(vAllOuts.size() > 0){
-						//如果牌局
-						while(checkOutsCard(drawCard,vAllOuts,iPercent)){
+					//如果池子大于200倍bb，则需要50%再发一张
+					if(lPotSize > 200*stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds()){
+						while(checkOutsCard(drawCard,vAllOuts,70,cardNo,iDrawCardNum)){
+							//则70%再发下一张
+							drawCard = mCards[iDrawCardNum++];
+						}
+					}else{
+						while(checkOutsCard(drawCard,vAllOuts,50,cardNo,iDrawCardNum)){
+							//则50%再发下一张
 							drawCard = mCards[iDrawCardNum++];
 						}
 					}
@@ -3413,15 +3423,28 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		}
 	}
 	
-	public boolean checkOutsCard(int drawCard,ArrayList<Integer> vAllOuts,int iPercent){
+	@Override
+	public int getHandCard(){
+		return mCards[iDrawCardNum++];
+	}
+	
+	//检查是否需要再发一张牌，如果随机数大于百分比的数据,则需要再发一张牌，否则不发牌，iPercent为再发一张的可能性
+	//cardNo 要发的第几张牌
+	//drawCardNum 要抓的第几张牌
+	public boolean checkOutsCard(int drawCard,ArrayList<Integer> vAllOuts,int iPercent,int cardNo,int drawCardNum){
 		if(vAllOuts.contains(drawCard)){
-			int precentCard = ShuffleAlgorithm.getRandomCard();
-			if(precentCard > iPercent){
-				System.out.println(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " checkOutsCard drawCard : " + drawCard + " vAllOuts " + vAllOuts + " true ");
-				return true;
-			}else{
-				System.out.println(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " checkOutsCard drawCard : " + drawCard + " vAllOuts " + vAllOuts + " false ");
+			//检查是否还有牌可以接着发
+			if(drawCardNum + (5 - cardNo) >= 52){
 				return false;
+			}else{
+				int precentCard = ShuffleAlgorithm.getRandomCard();
+				if(precentCard < iPercent){
+					System.out.println(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " checkOutsCard drawCard : " + drawCard + " vAllOuts " + vAllOuts + " true ");
+					return true;
+				}else{
+					System.out.println(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " checkOutsCard drawCard : " + drawCard + " vAllOuts " + vAllOuts + " false ");
+					return false;
+				}
 			}
 		}else{
 			System.out.println(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + "checkOutsCard drawCard : " + drawCard + " vAllOuts " + vAllOuts);

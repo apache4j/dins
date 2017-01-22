@@ -3062,8 +3062,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					int card2 = 0;
 					
 					if(GameRoomDetailInfo.NOT_DEBUG){
-						card1 = getCard();
-						card2 = getCard();	
+						card1 = getHandCard();
+						card2 = getHandCard();	
 					}else{											
 						card1 = getCard(stUserGameInfoBuilder.getStUserInfo().getUuid(),0,false);
 						card2 = getCard(stUserGameInfoBuilder.getStUserInfo().getUuid(),1,false);
@@ -3269,8 +3269,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					int card1 = 0;
 					int card2 = 0;
 					if(GameRoomDetailInfo.NOT_DEBUG){
-						card1 = getCard();
-						card2 = getCard();	
+						card1 = getHandCard();
+						card2 = getHandCard();	
 					}else{											
 						card1 = getCard(stUserGameInfoBuilder.getStUserInfo().getUuid(),0,false);
 						card2 = getCard(stUserGameInfoBuilder.getStUserInfo().getUuid(),1,false);
@@ -3448,8 +3448,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					int card2 = 0;
 					
 					if(GameRoomDetailInfo.NOT_DEBUG){
-						card1 = getCard();
-						card2 = getCard();	
+						card1 = getHandCard();
+						card2 = getHandCard();	
 					}else{											
 						card1 = getCard(stUserGameInfoBuilder.getStUserInfo().getUuid(),0,false);
 						card2 = getCard(stUserGameInfoBuilder.getStUserInfo().getUuid(),1,false);
@@ -3698,8 +3698,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					int card2 = 0;
 					
 					if(GameRoomDetailInfo.NOT_DEBUG){
-						card1 = getCard();
-						card2 = getCard();	
+						card1 = getHandCard();
+						card2 = getHandCard();	
 					}else{											
 						card1 = getCard(stUserGameInfoBuilder.getStUserInfo().getUuid(),0,false);
 						card2 = getCard(stUserGameInfoBuilder.getStUserInfo().getUuid(),1,false);
@@ -3905,8 +3905,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					int card1 = 0;
 					int card2 = 0;
 					if(GameRoomDetailInfo.NOT_DEBUG){
-						card1 = getCard();
-						card2 = getCard();	
+						card1 = getHandCard();
+						card2 = getHandCard();	
 					}else{											
 						card1 = getCard(stUserGameInfoBuilder.getStUserInfo().getUuid(),0,false);
 						card2 = getCard(stUserGameInfoBuilder.getStUserInfo().getUuid(),1,false);

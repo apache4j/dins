@@ -87,7 +87,9 @@ public interface GameRoomAbstractInterface {
 	 * 发牌函数
 	 * @return 返回一张手牌
 	 */
-	int getCard();
+	int getTableCard(int cardNo);
+	
+	int getHandCard();
 	
 	/**
 	 * 发牌函数，测试用，发固定牌
