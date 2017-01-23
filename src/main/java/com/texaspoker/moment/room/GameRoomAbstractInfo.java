@@ -3388,7 +3388,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			
 			//如果有保险信息，则继续查看
 			if(stInsuranceInfo!=null){
-				ArrayList<Integer> vAllOuts = new ArrayList<Integer>();
+				Set<Integer> vAllOuts = new HashSet<Integer>();
 				
 				List<OutsInfo> outs = stInsuranceInfo.getAllOuts();
 				for(OutsInfo stOutsInfo:outs){
@@ -3396,26 +3396,27 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 						int out_card = stOutsInfo.outs[i];
 						vAllOuts.add(out_card);
 					}
-
-					long lPotSize = 0;
-					for(int iSidePotSize:stGameRoomInfo.getVCurrentCardsList()){
-						lPotSize += iSidePotSize;
+				}
+				
+				long lPotSize = 0;
+				for(int iSidePotSize:stGameRoomInfo.getVCurrentCardsList()){
+					lPotSize += iSidePotSize;
+				}
+				
+				//如果池子大于200倍bb，则需要50%再发一张
+				if(lPotSize > 200*stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds()){
+					while(checkOutsCard(drawCard,vAllOuts,70,cardNo,iDrawCardNum)){
+						//则70%再发下一张
+						drawCard = mCards[iDrawCardNum++];
 					}
-					
-					//如果池子大于200倍bb，则需要50%再发一张
-					if(lPotSize > 200*stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds()){
-						while(checkOutsCard(drawCard,vAllOuts,70,cardNo,iDrawCardNum)){
-							//则70%再发下一张
-							drawCard = mCards[iDrawCardNum++];
-						}
-					}else{
-						while(checkOutsCard(drawCard,vAllOuts,50,cardNo,iDrawCardNum)){
-							//则50%再发下一张
-							drawCard = mCards[iDrawCardNum++];
-						}
+				}else{
+					while(checkOutsCard(drawCard,vAllOuts,50,cardNo,iDrawCardNum)){
+						//则50%再发下一张
+						drawCard = mCards[iDrawCardNum++];
 					}
 				}
 			}
+			
 			
 			return drawCard;
 		}else{
@@ -3431,7 +3432,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	//检查是否需要再发一张牌，如果随机数大于百分比的数据,则需要再发一张牌，否则不发牌，iPercent为再发一张的可能性
 	//cardNo 要发的第几张牌
 	//drawCardNum 要抓的第几张牌
-	public boolean checkOutsCard(int drawCard,ArrayList<Integer> vAllOuts,int iPercent,int cardNo,int drawCardNum){
+	public boolean checkOutsCard(int drawCard,Set<Integer> vAllOuts,int iPercent,int cardNo,int drawCardNum){
 		if(vAllOuts.contains(drawCard)){
 			//检查是否还有牌可以接着发
 			if(drawCardNum + (5 - cardNo) >= 52){
