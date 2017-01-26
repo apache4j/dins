@@ -3379,7 +3379,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	 */
 	@Override
 	public int getTableCard(int cardNo){
-		TableLogService.getInstance().error(lFromRoomID
+		TableLogService.getInstance().error1(lFromRoomID
 				+"," + lGameRoomID
 				+"," + stGameRoomInfo.getLGameHandID()
 				+",getTableCard begin " + cardNo);
@@ -3421,12 +3421,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				}
 			}
 			
-			TableLogService.getInstance().error(lFromRoomID
+			TableLogService.getInstance().error1(lFromRoomID
 					+"," + lGameRoomID
 					+"," + stGameRoomInfo.getLGameHandID()
 					+",getTableCard card " + drawCard);
 			
-			TableLogService.getInstance().error(lFromRoomID
+			TableLogService.getInstance().error1(lFromRoomID
 					+"," + lGameRoomID
 					+"," + stGameRoomInfo.getLGameHandID()
 					+",getTableCard end " + cardNo);
@@ -3437,12 +3437,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		}else{
 			int drawCard = mCards[iDrawCardNum++];
 			
-			TableLogService.getInstance().error(lFromRoomID
+			TableLogService.getInstance().error1(lFromRoomID
 					+"," + lGameRoomID
 					+"," + stGameRoomInfo.getLGameHandID()
 					+",getTableCard card " + drawCard);
 			
-			TableLogService.getInstance().error(lFromRoomID
+			TableLogService.getInstance().error1(lFromRoomID
 					+"," + lGameRoomID
 					+"," + stGameRoomInfo.getLGameHandID()
 					+",getTableCard end " + cardNo);
