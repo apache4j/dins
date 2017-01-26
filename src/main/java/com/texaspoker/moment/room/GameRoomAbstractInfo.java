@@ -526,7 +526,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			cards.add(card3);
 			sendAllGameStateChange(uuid,cards);
 			
-			
 			TableLogService.getInstance().error(lFromRoomID
 					+"," + lGameRoomID
 					+"," + stGameRoomInfo.getLGameHandID()
@@ -3380,6 +3379,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	 */
 	@Override
 	public int getTableCard(int cardNo){
+		TableLogService.getInstance().error(lFromRoomID
+				+"," + lGameRoomID
+				+"," + stGameRoomInfo.getLGameHandID()
+				+",getTableCard begin " + cardNo);
+		
 		if(bAllAllin==true ){
 			int drawCard = mCards[iDrawCardNum++];
 		
@@ -3417,10 +3421,33 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				}
 			}
 			
+			TableLogService.getInstance().error(lFromRoomID
+					+"," + lGameRoomID
+					+"," + stGameRoomInfo.getLGameHandID()
+					+",getTableCard card " + drawCard);
+			
+			TableLogService.getInstance().error(lFromRoomID
+					+"," + lGameRoomID
+					+"," + stGameRoomInfo.getLGameHandID()
+					+",getTableCard end " + cardNo);
+			
+
 			
 			return drawCard;
 		}else{
-			return mCards[iDrawCardNum++];
+			int drawCard = mCards[iDrawCardNum++];
+			
+			TableLogService.getInstance().error(lFromRoomID
+					+"," + lGameRoomID
+					+"," + stGameRoomInfo.getLGameHandID()
+					+",getTableCard card " + drawCard);
+			
+			TableLogService.getInstance().error(lFromRoomID
+					+"," + lGameRoomID
+					+"," + stGameRoomInfo.getLGameHandID()
+					+",getTableCard end " + cardNo);
+			
+			return drawCard;
 		}
 	}
 	
