@@ -4063,17 +4063,34 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	}
 	
 	public void gotoNextStep(){
+		TableLogService.getInstance().error1(lFromRoomID
+				+"," + lGameRoomID
+				+"," + stGameRoomInfo.getLGameHandID()
+				+",gotoNextStep " + stGameRoomInfo.getEGameState());
+		
 		synchronized(this){
 			switch (stGameRoomInfo.getEGameState().getNumber()) {
 			case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE: {
+				TableLogService.getInstance().error1(lFromRoomID
+						+"," + lGameRoomID
+						+"," + stGameRoomInfo.getLGameHandID()
+						+",gotoNextStep1 ROOM_GAME_STATE_Flop_VALUE");
 				gotoTurnStatus(0,true);
 			}
 				break;
 			case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Turn_VALUE: {
+				TableLogService.getInstance().error1(lFromRoomID
+						+"," + lGameRoomID
+						+"," + stGameRoomInfo.getLGameHandID()
+						+",gotoNextStep1 ROOM_GAME_STATE_Turn_VALUE");
 				gotoRiverStatus(0,true);
 			}
 				break;
 			case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_River_VALUE: {
+				TableLogService.getInstance().error1(lFromRoomID
+						+"," + lGameRoomID
+						+"," + stGameRoomInfo.getLGameHandID()
+						+",gotoNextStep1 ROOM_GAME_STATE_River_VALUE");
 				gotoResultStatus(0);
 			}
 				break;
