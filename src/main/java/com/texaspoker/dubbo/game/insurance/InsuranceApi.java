@@ -167,6 +167,7 @@ public class InsuranceApi {
   // 保险购买行为超时接口
   public static void gotoNextStep(long lGameRoomID) {
     GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
+    
     if (stGameRoomDetail != null) {
       stGameRoomDetail.gotoNextStep();
     }

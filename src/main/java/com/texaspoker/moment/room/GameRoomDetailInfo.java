@@ -1371,6 +1371,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			checkStandByTimeout();
 			
 			//首先判断每个房间的游戏状态
+			TableLogService.getInstance().error1(lFromRoomID
+					+"," + lGameRoomID
+					+"," + stGameRoomInfo.getLGameHandID()
+					+",gameRoomTimeoutHandle begin" + stGameRoomInfo.getEGameState());
+			
 			switch(stGameRoomInfo.getEGameState().getNumber()){					
 			//如果游戏状态是等待，则需要当进入房间人数大于等于2是，开始牌局
 			case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait_VALUE:
@@ -1575,6 +1580,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				break;
 			}
 		}
+		//首先判断每个房间的游戏状态
+		TableLogService.getInstance().error1(lFromRoomID
+				+"," + lGameRoomID
+				+"," + stGameRoomInfo.getLGameHandID()
+				+",gameRoomTimeoutHandle end" + stGameRoomInfo.getEGameState());
 	}
 	
 	/**
