@@ -4096,6 +4096,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				break;
 			}
 		}
+		
+		TableLogService.getInstance().error1(lFromRoomID
+				+"," + lGameRoomID
+				+"," + stGameRoomInfo.getLGameHandID()
+				+",gotoNextStep2 " + stGameRoomInfo.getEGameState());
 	}
 	
 	/**
