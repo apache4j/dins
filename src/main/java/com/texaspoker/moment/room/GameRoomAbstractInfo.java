@@ -51,6 +51,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	
 	private boolean bFlodResult = false;
 	
+	protected ArrayList<Integer> vTableCards = new ArrayList<Integer>();
+	
 	//初始筹码数量
 	protected ArrayList<Long> vOriginalStacks = new ArrayList<Long>();
 	protected ArrayList<Integer> vTestHandCards1 = new ArrayList<Integer>();
@@ -626,12 +628,25 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	
 	void checkGotoTurnStatus(long uuid){
 		if(checkAllAllin() == true){
+			TableLogService.getInstance().error1(lFromRoomID
+					+"," + lGameRoomID
+					+"," + stGameRoomInfo.getLGameHandID()
+					+",checkGotoTurnStatus begin" + stGameRoomInfo.getEGameState());
+			
 			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 			InsuranceInfo stInsuranceInfo = null;
 			if(stGameRoomInfoBuilder.getEInsuranceStatus() == INSURANCE_STATUS.INSURANCE_STATUS_NO){
+				TableLogService.getInstance().error1(lFromRoomID
+						+"," + lGameRoomID
+						+"," + stGameRoomInfo.getLGameHandID()
+						+",checkGotoTurnStatus 1" + stGameRoomInfo.getEGameState());
 				stInsuranceInfo = InsuranceApi.checkInsurance(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),stGameRoomInfo.getLGameHandID(),GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop);
 	
 				if(stInsuranceInfo != null){
+					TableLogService.getInstance().error1(lFromRoomID
+							+"," + lGameRoomID
+							+"," + stGameRoomInfo.getLGameHandID()
+							+",checkGotoTurnStatus 2" + stGameRoomInfo.getEGameState());
 					//进入保险模式
 					stGameRoomInfoBuilder.setEInsuranceStatus(INSURANCE_STATUS.INSURANCE_STATUS_BETTING);
 					stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
@@ -641,10 +656,19 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					stGameRoomInfo = stGameRoomInfoBuilder.build();		
 					
 					InsuranceApi.doInsuranceTimeout(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+					TableLogService.getInstance().error1(lFromRoomID
+							+"," + lGameRoomID
+							+"," + stGameRoomInfo.getLGameHandID()
+							+",checkGotoTurnStatus 3" + stGameRoomInfo.getEGameState());
 				}else{
 					gotoTurnStatus(uuid,false);
 				}
 			}
+			
+			TableLogService.getInstance().error1(lFromRoomID
+					+"," + lGameRoomID
+					+"," + stGameRoomInfo.getLGameHandID()
+					+",checkGotoTurnStatus end" + stGameRoomInfo.getEGameState());
 		}else{
 			gotoTurnStatus(uuid,false);
 		}
@@ -3431,8 +3455,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					+"," + stGameRoomInfo.getLGameHandID()
 					+",getTableCard end " + cardNo);
 			
-
-			
+			vTableCards.add(drawCard);
 			return drawCard;
 		}else{
 			int drawCard = mCards[iDrawCardNum++];
@@ -3446,7 +3469,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					+"," + lGameRoomID
 					+"," + stGameRoomInfo.getLGameHandID()
 					+",getTableCard end " + cardNo);
-			
+			vTableCards.add(drawCard);
 			return drawCard;
 		}
 	}

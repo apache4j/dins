@@ -2,9 +2,11 @@ package com.texaspoker.moment.room;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -1317,6 +1319,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	}
 	
 	private void robotCheck(){
+		preActionCheck();
 		delegateCheck();
 		robotFlodCheck();
 	}
@@ -1579,12 +1582,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				mGameRoomDetailInfos.setCurrent(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), this);
 				break;
 			}
+			//首先判断每个房间的游戏状态
+			TableLogService.getInstance().error1(lFromRoomID
+					+"," + lGameRoomID
+					+"," + stGameRoomInfo.getLGameHandID()
+					+",gameRoomTimeoutHandle end" + stGameRoomInfo.getEGameState());
 		}
-		//首先判断每个房间的游戏状态
-		TableLogService.getInstance().error1(lFromRoomID
-				+"," + lGameRoomID
-				+"," + stGameRoomInfo.getLGameHandID()
-				+",gameRoomTimeoutHandle end" + stGameRoomInfo.getEGameState());
+
 	}
 	
 	/**
@@ -1600,6 +1604,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		mHandMap.clear();
 		vHandList.clear();
 		mHandPos.clear();
+		vTableCards.clear();
 		
 		//���������������������������������������������
 		stGameRoomInfoBuilder.clearVCurrentCards();
@@ -1618,6 +1623,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			stUserGameInfoNetBuilder.setLBetStacks(0);
 			stUserGameInfoNetBuilder.setIDelayLong(0);
 			stUserGameInfoNetBuilder.setIDelaySingleTime(20);
+			stUserGameInfoNetBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
+			stUserGameInfoNetBuilder.clearVPayTableCards();
 			
 			//用户筹码非0保护
 			if(stUserGameInfoNetBuilder.getLRemainStacks() < 0){
@@ -1977,6 +1984,68 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		}
 		
 		stGameRoomInfo = stGameRoomInfoBuilder.build();
+	}
+	
+	//预动作检查处理
+	private void preActionCheck(){
+		for(int i = 0; i < stGameRoomInfo.getVUserGameInfosCount() ; i ++){
+			UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
+			
+			if(stUserGameInfoNet!=null 
+					&& stUserGameInfoNet.getStUserInfo().getUuid() > 0
+					&& stUserGameInfoNet.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_BETTING){
+
+				//如果由于动作，执行相关与动作操作
+				if(stUserGameInfoNet.getEPreAction() == USER_GAME_STATE.USER_GAME_STATE_CALL){
+					//恢复与动作状态
+					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+					UserGameInfoNet.Builder stUserGameInfoNetBuilder = stUserGameInfoNet.toBuilder();
+					stUserGameInfoNetBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
+					stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+					stGameRoomInfo = stGameRoomInfoBuilder.build();
+					
+					long betstacks = lStepMaxStacks - stUserGameInfoNet.getLBetStacks();
+					if(betstacks > 0){
+						if(betstacks <= stUserGameInfoNet.getLRemainStacks()){
+							doCallAction(stUserGameInfoNet.getStUserInfo().getUuid(),betstacks,0);
+						}else{
+							doCallAction(stUserGameInfoNet.getStUserInfo().getUuid(),stUserGameInfoNet.getLRemainStacks(),0);
+						}
+					}
+				}
+				else if(stUserGameInfoNet.getEPreAction() == USER_GAME_STATE.USER_GAME_STATE_CHECK){
+					//恢复与动作状态
+					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+					UserGameInfoNet.Builder stUserGameInfoNetBuilder = stUserGameInfoNet.toBuilder();
+					stUserGameInfoNetBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
+					stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+					stGameRoomInfo = stGameRoomInfoBuilder.build();
+					
+					//如果正在动作的用户
+					if(lStepMaxStacks == stUserGameInfoNet.getLBetStacks()){
+						doCheckAction(stUserGameInfoNet.getStUserInfo().getUuid(), 0);
+					}else{
+						//不操作，并且取消用户的状态
+					}
+				}else if(stUserGameInfoNet.getEPreAction() == USER_GAME_STATE.USER_GAME_STATE_FOLD){
+					//恢复与动作状态
+					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+					UserGameInfoNet.Builder stUserGameInfoNetBuilder = stUserGameInfoNet.toBuilder();
+					stUserGameInfoNetBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
+					stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+					stGameRoomInfo = stGameRoomInfoBuilder.build();
+					
+					//如果正在动作的用户
+					if(lStepMaxStacks == stUserGameInfoNet.getLBetStacks()){
+						doCheckAction(stUserGameInfoNet.getStUserInfo().getUuid(), 0);
+					}else{
+						doFlodAction(stUserGameInfoNet.getStUserInfo().getUuid(),(long)-1,true);
+					}
+				}
+				
+				return;
+			}
+		}
 	}
 	
 	private void robotFlodCheck(){
@@ -4073,13 +4142,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	}
 	
 	public void gotoNextStep(){
-		synchronized(this){
-			TableLogService.getInstance().error1(lFromRoomID
-					+"," + lGameRoomID
-					+"," + stGameRoomInfo.getLGameHandID()
-					+",gotoNextStep " + stGameRoomInfo.getEGameState());
+
 			
 			synchronized(this){
+				TableLogService.getInstance().error1(lFromRoomID
+						+"," + lGameRoomID
+						+"," + stGameRoomInfo.getLGameHandID()
+						+",gotoNextStep " + stGameRoomInfo.getEGameState());
+				
 				switch (stGameRoomInfo.getEGameState().getNumber()) {
 				case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE: {
 					TableLogService.getInstance().error1(lFromRoomID
@@ -4106,13 +4176,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				}
 					break;
 				}
+				
+				
+				TableLogService.getInstance().error1(lFromRoomID
+						+"," + lGameRoomID
+						+"," + stGameRoomInfo.getLGameHandID()
+						+",gotoNextStep2 " + stGameRoomInfo.getEGameState());
 			}
-			
-			TableLogService.getInstance().error1(lFromRoomID
-					+"," + lGameRoomID
-					+"," + stGameRoomInfo.getLGameHandID()
-					+",gotoNextStep2 " + stGameRoomInfo.getEGameState());
-		}
+
+		
 	}
 	
 	/**
@@ -4684,7 +4756,135 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			}
 		}
 		
-	
+		public static int getShowCardItemFee(int lSmallBlinds){
+			switch(lSmallBlinds){
+			case 1:
+				return 10;
+			case 2:
+				return 20;
+			case 5:
+				return 30;
+			case 10:
+				return 40;
+			case 20:
+				return 50;
+			case 25:
+				return 60;
+			case 50:
+				return 70;
+			case 100:
+				return 80;
+			case 200:
+				return 90;
+			case 300:
+				return 100;
+			case 500:
+				return 100;
+			}
+			return 10;
+		}
 		
+		public List<Integer> showTableCards(long uuid,long lGameRoomHandID){
+			synchronized(this){	
+				System.out.println("showTableCards GAME_ROOM_GAME_STATE : " + stGameRoomInfo.getEGameState());
+				System.out.println("showTableCards getLGameHandID : " + stGameRoomInfo.getLGameHandID());
+				System.out.println("showTableCards lGameRoomHandID : " + lGameRoomHandID);
+				
+				if(stGameRoomInfo.getLGameHandID() == lGameRoomHandID 
+						&&(stGameRoomInfo.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result 
+						|| stGameRoomInfo.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD) ){
+					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+					//找到目前桌上的排
+					Set<Integer> vTempTableCards = new HashSet<Integer>();
+					if(stGameRoomInfo.getVCurrentCardsList().size() > 0){
+						vTempTableCards.addAll(stGameRoomInfo.getVCurrentCardsList());
+					}
+					
+					for(int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount();i++){
+						UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+						if(stUserGameInfoNetBuilder!=null && stUserGameInfoNetBuilder.getStUserInfo().getUuid() == uuid){
+							
+							System.out.println("showTableCards uuid : " + uuid + " getVPayTableCardsList : " + stUserGameInfoNetBuilder.getVPayTableCardsList());
+							if(stUserGameInfoNetBuilder.getVPayTableCardsCount() > 0){
+								//找到目前应翻看的牌
+								vTempTableCards.addAll(stUserGameInfoNetBuilder.getVPayTableCardsList());
+							}
+							System.out.println("showTableCards vTempTableCards : " + vTempTableCards);
+							System.out.println("showTableCards vTableCards : " + vTableCards);
+							if(vTempTableCards.size() >= 5){
+								return vTableCards.subList(0, vTempTableCards.size());
+							}else{
+								if(vTempTableCards.size() == 0){
+									//获取三张牌
+									if(vTableCards.size() == 0){
+										//从新获取三张牌
+										getTableCard(0);
+										getTableCard(1);
+										getTableCard(2);
+									}
+									
+									for(int j = 0 ; j < 3 ; j++){
+										vTempTableCards.add(vTableCards.get(j));
+									}
+									//设置用户数据
+									
+								}else if(vTempTableCards.size() == 3){
+									//获取第四张牌
+									if(vTableCards.size() == 3){
+										//从新获取三张牌
+										getTableCard(3);
+									}
+									
+									//添加一张牌
+									vTempTableCards.add(vTableCards.get(3));
+								}else if(vTempTableCards.size() == 4){
+									//获取第五张牌
+									//获取第四张牌
+									if(vTableCards.size() == 4){
+										//从新获取三张牌
+										getTableCard(4);
+									}
+									
+									//添加一张牌
+									vTempTableCards.add(vTableCards.get(4));
+								}
+
+								stUserGameInfoNetBuilder.clearVPayTableCards();
+								stUserGameInfoNetBuilder.addAllVPayTableCards(vTempTableCards);
+								
+								stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+							}
+						}
+					}
+					
+					stGameRoomInfo = stGameRoomInfoBuilder.build();
+					return vTableCards.subList(0, vTempTableCards.size());
+				}else{
+					return null;
+				}
+			}
+		}
+		
+		public boolean setPreAction(long uuid,	USER_GAME_STATE eGameRoomType){
+			synchronized(this){	
+				for(int j = 0 ; j < stGameRoomInfo.getVUserGameInfosCount(); j++){
+					UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(j);
+					if(stUserGameInfoNet!=null && stUserGameInfoNet.getStUserInfo().getUuid() == uuid){
+						//检查用户状态，如果用户已经allin，或者已经弃牌，就没有预动作了
+						if(stUserGameInfoNet.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_ALLIN
+								&& stUserGameInfoNet.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_FOLD){
+							GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+							UserGameInfoNet.Builder stUserGameInfoNetBuilder = stUserGameInfoNet.toBuilder();
+							stUserGameInfoNetBuilder.setEPreAction(eGameRoomType);
+							stGameRoomInfoBuilder.setVUserGameInfos(j, stUserGameInfoNetBuilder);
+							stGameRoomInfo = stGameRoomInfoBuilder.build();
+							return true;
+						}
+					}
+				}
+				return false;
+				
+			}
+		}
 
 }

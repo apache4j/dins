@@ -1,6 +1,7 @@
 package com.texaspoker.moment.service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import com.google.protobuf.RpcCallback;
 import com.google.protobuf.RpcController;
@@ -81,6 +82,8 @@ import com.texaspoker.moment.TexasPokerGameService.SetGameRoomInfoRequest;
 import com.texaspoker.moment.TexasPokerGameService.SetGameRoomInfoResponse;
 import com.texaspoker.moment.TexasPokerGameService.SetGameThinkingIntervalRequest;
 import com.texaspoker.moment.TexasPokerGameService.SetGameThinkingIntervalResponse;
+import com.texaspoker.moment.TexasPokerGameService.SetPreActionRequest;
+import com.texaspoker.moment.TexasPokerGameService.SetPreActionResponse;
 import com.texaspoker.moment.TexasPokerGameService.SetQuickGameRoomInfoRequest;
 import com.texaspoker.moment.TexasPokerGameService.SetQuickGameRoomInfoResponse;
 import com.texaspoker.moment.TexasPokerGameService.SetStandByUserGameInfosRequest;
@@ -89,6 +92,8 @@ import com.texaspoker.moment.TexasPokerGameService.SetStraddleRequest;
 import com.texaspoker.moment.TexasPokerGameService.SetStraddleResponse;
 import com.texaspoker.moment.TexasPokerGameService.ShowCardRequest;
 import com.texaspoker.moment.TexasPokerGameService.ShowCardResponse;
+import com.texaspoker.moment.TexasPokerGameService.ShowTableCardsRequest;
+import com.texaspoker.moment.TexasPokerGameService.ShowTableCardsResponse;
 import com.texaspoker.moment.TexasPokerGameService.SitDownRequest;
 import com.texaspoker.moment.TexasPokerGameService.SitDownResponse;
 import com.texaspoker.moment.TexasPokerGameService.StandUpRequest;
@@ -1548,6 +1553,69 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 
 	@Override
 	public void setStraddle(RpcController arg0, SetStraddleRequest arg1, RpcCallback<SetStraddleResponse> arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public SetPreActionResponse setPreAction(RpcController arg0, SetPreActionRequest request) throws ServiceException {
+		// TODO Auto-generated method stub
+		SetPreActionResponse.Builder  stSetPreActionResponseBuilder = SetPreActionResponse.newBuilder();
+		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+		if(stGameRoomDetailInfo!=null){
+			boolean bAction = stGameRoomDetailInfo.setPreAction(request.getUuid(),request.getEPreUserGameState());
+			if(bAction){
+				stSetPreActionResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+			}else{
+				stSetPreActionResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
+			}
+		}else{
+			stSetPreActionResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);	
+		}
+		
+		System.out.println("setPreAction 1: " + request.getEPreUserGameState());
+		return stSetPreActionResponseBuilder.build();
+	}
+
+	@Override
+	public ShowTableCardsResponse showTableCards(RpcController arg0, ShowTableCardsRequest request)
+			throws ServiceException {
+		// TODO Auto-generated method stub
+		ShowTableCardsResponse.Builder  stShowTableCardsResponseBuilder = ShowTableCardsResponse.newBuilder();
+		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+		if(stGameRoomDetailInfo!=null){
+			System.out.println("showTableCards uuid : " + request.getUuid() + " gameroomid : " + request.getLGameRoomID());
+			long lFee = GameRoomDetailInfo.getShowCardItemFee((int)stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLSmallBlinds());
+			if(UserManager.getInstance().checkUserPopularity(request.getUuid(), lFee)){
+				UserManager.getInstance().addUserPopularity(request.getUuid(), -lFee);
+				
+				List<Integer> vTableCards = stGameRoomDetailInfo.showTableCards(request.getUuid(), request.getLGameHandID());
+				
+				if(vTableCards!=null){
+					stShowTableCardsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+					stShowTableCardsResponseBuilder.addAllVTableCards(vTableCards);
+				}else{
+					stShowTableCardsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
+				}
+			}else{
+				stShowTableCardsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY);
+			}
+		}else{
+			stShowTableCardsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);	
+		}
+		
+		return stShowTableCardsResponseBuilder.build();
+	}
+
+	@Override
+	public void setPreAction(RpcController arg0, SetPreActionRequest arg1, RpcCallback<SetPreActionResponse> arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showTableCards(RpcController arg0, ShowTableCardsRequest arg1,
+			RpcCallback<ShowTableCardsResponse> arg2) {
 		// TODO Auto-generated method stub
 		
 	}

@@ -166,10 +166,21 @@ public class InsuranceApi {
 
   // 保险购买行为超时接口
   public static void gotoNextStep(long lGameRoomID) {
+
     GameRoomDetailInfo stGameRoomDetail = GameRoomManager.getInstance().getGameRoomDetailInfo(lGameRoomID);
     
     if (stGameRoomDetail != null) {
+  	  TableLogService.getInstance().error1(stGameRoomDetail.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID()
+				+"," + lGameRoomID
+				+"," + stGameRoomDetail.getStGameRoomInfo().getLGameHandID()
+				+",insuranceapi gotoNextStep begin" + stGameRoomDetail.getStGameRoomInfo().getEGameState());
+  	  
       stGameRoomDetail.gotoNextStep();
+      
+  	  TableLogService.getInstance().error1(stGameRoomDetail.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID()
+				+"," + lGameRoomID
+				+"," + stGameRoomDetail.getStGameRoomInfo().getLGameHandID()
+				+",insuranceapi gotoNextStep end" + stGameRoomDetail.getStGameRoomInfo().getEGameState());
     }
   }
 
