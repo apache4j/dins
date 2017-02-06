@@ -439,6 +439,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 							switch (stGameRoomInfoBuilder.getEGameState()
 									.getNumber()) {
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE: {
+								TableLogService.getInstance().error1(lFromRoomID
+										+"," + lGameRoomID
+										+"," + stGameRoomInfo.getLGameHandID()
+										+",gotoFlopAllStatus enter2" + stGameRoomInfo.getEGameState());
 								gotoFlopAllStatus(uuid);
 							}
 								break;
@@ -984,6 +988,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 									//������������������
 									switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
 										case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
+											TableLogService.getInstance().error1(lFromRoomID
+													+"," + lGameRoomID
+													+"," + stGameRoomInfo.getLGameHandID()
+													+",gotoFlopAllStatus enter3" + stGameRoomInfo.getEGameState());
 											gotoFlopAllStatus(uuid);
 										}
 										break;
@@ -1537,6 +1545,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 							//������������������
 							switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
 								case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
+									TableLogService.getInstance().error1(lFromRoomID
+											+"," + lGameRoomID
+											+"," + stGameRoomInfo.getLGameHandID()
+											+",gotoFlopAllStatus enter4" + stGameRoomInfo.getEGameState());
 									gotoFlopAllStatus(uuid);
 								}
 								break;
@@ -1605,6 +1617,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	@Override  
 	public ERROR_CODE_TYPE doFlodAction(long uuid,int userPos,long lBettingID,boolean bDeleggate){
 		ERROR_CODE_TYPE eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
+		
+		TableLogService.getInstance().error1(lFromRoomID
+				+"," + lGameRoomID
+				+"," + stGameRoomInfo.getLGameHandID()
+				+",doFlodAction begin" + stGameRoomInfo.getEGameState());
 
 		if(bPause == true){
 			return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
@@ -1775,6 +1792,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 						//发牌相关操作
 						switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
+								TableLogService.getInstance().error1(lFromRoomID
+										+"," + lGameRoomID
+										+"," + stGameRoomInfo.getLGameHandID()
+										+",gotoFlopAllStatus enter5" + stGameRoomInfo.getEGameState());
 								//Flop发牌操作
 								gotoFlopAllStatus(uuid);
 							}
@@ -1867,6 +1888,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 								//������������������
 								switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
 									case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
+										TableLogService.getInstance().error1(lFromRoomID
+												+"," + lGameRoomID
+												+"," + stGameRoomInfo.getLGameHandID()
+												+",gotoFlopAllStatus enter6" + stGameRoomInfo.getEGameState());
 										gotoFlopAllStatus(uuid);
 									}
 									break;
@@ -1893,6 +1918,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					}
 				}
 			}	
+			
+			TableLogService.getInstance().error1(lFromRoomID
+					+"," + lGameRoomID
+					+"," + stGameRoomInfo.getLGameHandID()
+					+",doFlodAction end" + stGameRoomInfo.getEGameState());
 			
 		}
 		return eErrorCode;
