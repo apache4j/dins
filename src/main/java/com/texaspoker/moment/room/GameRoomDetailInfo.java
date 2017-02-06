@@ -14,6 +14,7 @@ import com.texaspoker.apns.APNManager;
 import com.texaspoker.bill.BillManager;
 import com.texaspoker.club.ClubManager;
 import com.texaspoker.comm.AdvancedTimeoutHashMap;
+import com.texaspoker.comm.GameFeeUtil;
 import com.texaspoker.comm.TimeoutHashMap;
 import com.texaspoker.database.ConnectDatabase;
 import com.texaspoker.dubbo.game.insurance.InsuranceApi;
@@ -458,7 +459,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_ALREADY_INVITE_BUYIN;
 			}
 			
-			long popularity = (100+GameRoomDetailInfo.getServiceFeeRat((int)stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds()))*lStacks/100;
+			long popularity = (100+GameFeeUtil.getServiceFeeRat((int)stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds()))*lStacks/100;
 			
 			//首先获取用户的基本信息
 			UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
@@ -952,7 +953,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			
 			ERROR_CODE_TYPE eErrorCodeType;
 			
-			popularity = (100+GameRoomDetailInfo.getServiceFeeRat((int)stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds()))*lStacks/100;
+			popularity = (100+GameFeeUtil.getServiceFeeRat((int)stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds()))*lStacks/100;
 			
 			//首先获取用户的基本信息
 			UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
@@ -1547,6 +1548,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			break;
 			case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
 				if(checkAllAllin()){
+					TableLogService.getInstance().error1(lFromRoomID
+							+"," + lGameRoomID
+							+"," + stGameRoomInfo.getLGameHandID()
+							+",checkGotoTurnStatus enter6" + stGameRoomInfo.getEGameState());
+					
 					checkGotoTurnStatus(0);
 				}else{
 					//检测机器人自动弃牌
@@ -1679,7 +1685,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						
 							long popularity = 0;
 							
-							popularity = (100+GameRoomDetailInfo.getServiceFeeRat((int)stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds()))*stUserGameInfoNetBuilder.getLBuyinStacks()/100;
+							popularity = (100+GameFeeUtil.getServiceFeeRat((int)stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds()))*stUserGameInfoNetBuilder.getLBuyinStacks()/100;
 							
 							if(stUserBaseInfoNetBuilder!= null){
 								if(UserManager.getInstance().checkUserPopularity(stUserBaseInfoNetBuilder.getUuid(), popularity)){
@@ -2594,25 +2600,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		vTestTableCards.add(20);
 		vTestTableCards.add(33);
 		vTestTableCards.add(46);
-	}
-	
-	public static int getServiceFeeRat(int lBigBlinds){
-		switch(lBigBlinds){
-		case 1:
-		case 5:
-		case 10:
-		case 20:
-			return 10;
-		case 25:
-		case 50:
-		case 100:
-		case 200:
-		case 500:
-			return 7;
-		case 5000:
-			return 5;
-		}
-		return 10;
 	}
 	
 	public static int getDelayCost(int times){
@@ -4756,33 +4743,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			}
 		}
 		
-		public static int getShowCardItemFee(int lSmallBlinds){
-			switch(lSmallBlinds){
-			case 1:
-				return 10;
-			case 2:
-				return 20;
-			case 5:
-				return 30;
-			case 10:
-				return 40;
-			case 20:
-				return 50;
-			case 25:
-				return 60;
-			case 50:
-				return 70;
-			case 100:
-				return 80;
-			case 200:
-				return 90;
-			case 300:
-				return 100;
-			case 500:
-				return 100;
-			}
-			return 10;
-		}
 		
 		public List<Integer> showTableCards(long uuid,long lGameRoomHandID){
 			synchronized(this){	

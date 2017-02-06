@@ -7,6 +7,7 @@ import com.google.protobuf.RpcCallback;
 import com.google.protobuf.RpcController;
 import com.google.protobuf.ServiceException;
 import com.texaspoker.club.ClubManager;
+import com.texaspoker.comm.GameFeeUtil;
 import com.texaspoker.league.LeagueManager;
 import com.texaspoker.moment.TexasPoker.BUYIN_CONTROL_TYPE;
 import com.texaspoker.moment.TexasPoker.BuyinControl;
@@ -1585,7 +1586,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
 		if(stGameRoomDetailInfo!=null){
 			System.out.println("showTableCards uuid : " + request.getUuid() + " gameroomid : " + request.getLGameRoomID());
-			long lFee = GameRoomDetailInfo.getShowCardItemFee((int)stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLSmallBlinds());
+			long lFee = GameFeeUtil.getShowCardItemFee((int)stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLSmallBlinds());
 			if(UserManager.getInstance().checkUserPopularity(request.getUuid(), lFee)){
 				UserManager.getInstance().addUserPopularity(request.getUuid(), -lFee);
 				

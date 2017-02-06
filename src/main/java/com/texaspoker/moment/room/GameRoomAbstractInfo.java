@@ -443,6 +443,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 							}
 								break;
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE: {
+								TableLogService.getInstance().error1(lFromRoomID
+								+"," + lGameRoomID
+								+"," + stGameRoomInfo.getLGameHandID()
+								+",checkGotoTurnStatus enter1" + stGameRoomInfo.getEGameState());
+								
 								checkGotoTurnStatus(uuid);
 							}
 								break;
@@ -983,6 +988,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 										}
 										break;
 										case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
+											TableLogService.getInstance().error1(lFromRoomID
+													+"," + lGameRoomID
+													+"," + stGameRoomInfo.getLGameHandID()
+													+",checkGotoTurnStatus enter2" + stGameRoomInfo.getEGameState());
+											
 											checkGotoTurnStatus(uuid);
 										}
 										break;
@@ -1531,6 +1541,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 								}
 								break;
 								case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
+									TableLogService.getInstance().error1(lFromRoomID
+											+"," + lGameRoomID
+											+"," + stGameRoomInfo.getLGameHandID()
+											+",checkGotoTurnStatus enter3" + stGameRoomInfo.getEGameState());
+									
 									checkGotoTurnStatus(uuid);
 								}
 								break;
@@ -1765,6 +1780,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 							}
 							break;
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
+								TableLogService.getInstance().error1(lFromRoomID
+								+"," + lGameRoomID
+								+"," + stGameRoomInfo.getLGameHandID()
+								+",checkGotoTurnStatus enter4" + stGameRoomInfo.getEGameState());
+								
 								//发turn一张牌
 								checkGotoTurnStatus(uuid);
 							}
@@ -1851,6 +1871,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 									}
 									break;
 									case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
+										TableLogService.getInstance().error1(lFromRoomID
+												+"," + lGameRoomID
+												+"," + stGameRoomInfo.getLGameHandID()
+												+",checkGotoTurnStatus enter5" + stGameRoomInfo.getEGameState());
+										
 										checkGotoTurnStatus(uuid);
 									}
 									break;

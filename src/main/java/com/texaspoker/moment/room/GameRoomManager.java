@@ -11,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import com.texaspoker.apns.APNManager;
 import com.texaspoker.bill.BillManager;
 import com.texaspoker.club.ClubManager;
+import com.texaspoker.comm.GameFeeUtil;
 import com.texaspoker.comm.TimeoutHashMap;
 import com.texaspoker.database.ConnectDatabase;
 import com.texaspoker.league.LeagueManager;
@@ -281,7 +282,8 @@ public class GameRoomManager  {
 						return stGameRoomIDResultInfo;
 					}		
 				}else if(stGameRoomBaseInfo.getEGameRoomSeniorType() == GAME_ROOM_SENIOR_TYPE.GAME_ROOM_SENIOR_TYPE_NORMAL){
-					if(UserManager.getInstance().checkUserCoin(stUserBaseInfoNet.getUuid(), 200)){
+					long lCoin = GameFeeUtil.getLeagueGameFee((int)stGameRoomBaseInfo.getLSmallBlinds());
+					if(UserManager.getInstance().checkUserCoin(stUserBaseInfoNet.getUuid(), lCoin)){
 						synchronized(RoomIDManager.class){
 							TexasPoker.GameRoomBaseInfo.Builder gameRoomBaseInfoBuilder = stGameRoomBaseInfo.toBuilder();
 							gameRoomBaseInfoBuilder.setLGameRoomId(RoomIDManager.getInstance().getNewRoomID(stUserBaseInfoNet.getUuid()));
@@ -300,7 +302,7 @@ public class GameRoomManager  {
 							Log   mLog   =  LogFactory.getLog("fortransaction");
 											
 							// 保存设置
-							stUserBaseInfoNet = UserManager.getInstance().addUserCoin(stUserBaseInfoNet.getUuid(),  - 200);
+							stUserBaseInfoNet = UserManager.getInstance().addUserCoin(stUserBaseInfoNet.getUuid(),  - lCoin);
 														
 							gameRoomBaseInfoBuilder.setStCreateUserBaseInfo(stUserBaseInfoNet);
 							GameRoomDetailInfo stGameRoomDetailInfo = new GameRoomDetailInfo();
@@ -391,7 +393,7 @@ public class GameRoomManager  {
 							// 生成回包
 							mLog.error(stUserBaseInfoNet.getUuid() + " " + gameRoomBaseInfoBuilder.getLGameRoomId() + " " + 110001 + " " + gameRoomBaseInfoBuilder.getLDuration()
 												+ " " + gameRoomBaseInfoBuilder.getIMinBuyinRatio() 
-												+ " " + gameRoomBaseInfoBuilder.getIMaxBuyinRatio() + " 200 "  + stUserBaseInfoNet.getLCoin());
+												+ " " + gameRoomBaseInfoBuilder.getIMaxBuyinRatio() + " "+ lCoin +" "  + stUserBaseInfoNet.getLCoin());
 								
 							if(gameRoomBaseInfoBuilder.getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
 								// 如果是俱乐部开局，则对俱乐部里的每个人进行push操作
