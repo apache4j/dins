@@ -46,7 +46,7 @@ public class GameFeeUtil {
 		case 500:
 			return 1500;
 		case 1000:
-			return 400;
+			return 4000;
 		}
 		return 10;
 	}

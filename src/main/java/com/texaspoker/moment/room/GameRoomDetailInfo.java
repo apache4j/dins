@@ -4823,6 +4823,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						}
 					}
 					
+					TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
+							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+							+"," + stGameRoomInfoBuilder.getLGameHandID()
+							+"," + uuid
+							+"," + "showtablecard" 
+							+"," + vTempTableCards);
+					
 					stGameRoomInfo = stGameRoomInfoBuilder.build();
 					return vTableCards.subList(0, vTempTableCards.size());
 				}else{
@@ -4844,6 +4851,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							stUserGameInfoNetBuilder.setEPreAction(eGameRoomType);
 							stGameRoomInfoBuilder.setVUserGameInfos(j, stUserGameInfoNetBuilder);
 							stGameRoomInfo = stGameRoomInfoBuilder.build();
+							
+							TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
+									+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+									+"," + stGameRoomInfoBuilder.getLGameHandID()
+									+"," + uuid
+									+"," + "preaction" 
+									+"," + eGameRoomType);
 							return true;
 						}
 					}
