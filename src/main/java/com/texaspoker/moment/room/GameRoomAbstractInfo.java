@@ -1913,6 +1913,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 									}
 									break;
 								}
+								break;
 							}
 						}
 					}
