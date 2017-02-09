@@ -373,6 +373,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 										}
 										
 										stResetUserGameInfoBuilder.setLBetStacks(0);
+										stResetUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 										
 										//������������gameroominfo���������������������
 										stGameRoomInfoBuilder.setVUserGameInfos(k, stResetUserGameInfoBuilder);
@@ -430,6 +431,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 										}
 										
 										stResetUserGameInfoBuilder.setLBetStacks(0);
+										stResetUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 									
 										stGameRoomInfoBuilder.setVUserGameInfos(userIndex2, stResetUserGameInfoBuilder);
 									}
@@ -984,6 +986,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 										
 										//������������������������������������
 										stResetUserGameInfoBuilder.setLBetStacks(0);
+										stResetUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 										
 										//������������gameroominfo���������������������
 										stGameRoomInfoBuilder.setVUserGameInfos(k, stResetUserGameInfoBuilder);
@@ -1406,6 +1409,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 									
 									//������������������������������������
 									stResetUserGameInfoBuilder.setLBetStacks(0);
+									stResetUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 									//������������gameroominfo���������������������
 									stGameRoomInfoBuilder.setVUserGameInfos(k, stResetUserGameInfoBuilder);
 									
@@ -1486,6 +1490,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 										}
 										
 										stResetUserGameInfoBuilder.setLBetStacks(0);
+										stResetUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 										stGameRoomInfoBuilder.setVUserGameInfos(k, stResetUserGameInfoBuilder);
 									}
 								}else{
@@ -1543,6 +1548,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 										
 										//������������������������������������
 										stResetUserGameInfoBuilder.setLBetStacks(0);
+										stResetUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 									
 										//������������gameroominfo���������������������
 										stGameRoomInfoBuilder.setVUserGameInfos(userIndex2, stResetUserGameInfoBuilder);
@@ -1791,6 +1797,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 									
 	                            //设置已下筹码为0
 	                            stResetUserGameInfoBuilder.setLBetStacks(0);
+	                            stResetUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 								
 	                            //重置用户牌局信息
 	                            stGameRoomInfoBuilder.setVUserGameInfos(userIndex2, stResetUserGameInfoBuilder);
@@ -1885,6 +1892,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 									
 									//������������������������������������
 									stResetUserGameInfoBuilder.setLBetStacks(0);
+									stResetUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 									
 									//������������gameroominfo���������������������
 									stGameRoomInfoBuilder.setVUserGameInfos(k, stResetUserGameInfoBuilder);
@@ -2176,7 +2184,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0) {
 				stResetUserGameInfoBuilder.setLBetStacks(0);
 			}
-			
+			stResetUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 			if(stResetUserGameInfoBuilder.getStUserInfo().getUuid() == -1){
 				UserBaseInfoNet.Builder stUserBaseInfo = stResetUserGameInfoBuilder.getStUserInfoBuilder();
 				stUserBaseInfo.setUuid(0);
@@ -3971,6 +3979,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				stResetUserGameInfoBuilder.setStUserInfo(stUserBaseInfo);
 			}
 			
+			stResetUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 			stResetUserGameInfoBuilder.setLBetStacks(0);
 			stGameRoomInfoBuilder.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait);
 			stGameRoomInfoBuilder.setVUserGameInfos(k, stResetUserGameInfoBuilder);

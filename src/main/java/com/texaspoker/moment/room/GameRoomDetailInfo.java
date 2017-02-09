@@ -1827,6 +1827,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					}
 					
 					stResetUserGameInfoBuilder.setLBetStacks(0);
+					stResetUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 					
 					if(stResetUserGameInfoBuilder.getStUserInfo().getUuid() == -1){
 						UserBaseInfoNet.Builder stUserBaseInfo = stResetUserGameInfoBuilder.getStUserInfoBuilder();
@@ -1837,6 +1838,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				
 				//������������������������������������
 				stResetUserGameInfoBuilder.setLBetStacks(0);
+				stResetUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 				//������������gameroominfo���������������������
 				stGameRoomInfoBuilder.setVUserGameInfos(k, stResetUserGameInfoBuilder);
 			}
@@ -1894,6 +1896,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				
 				//������������������������������������
 				stResetUserGameInfoBuilder.setLBetStacks(0);
+				stResetUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 			
 				//������������gameroominfo���������������������
 				stGameRoomInfoBuilder.setVUserGameInfos(userIndex2, stResetUserGameInfoBuilder);
@@ -1942,6 +1945,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					}
 					
 					stResetUserGameInfoBuilder.setLBetStacks(0);
+					stResetUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 					
 					if(stResetUserGameInfoBuilder.getStUserInfo().getUuid() == -1){
 						UserBaseInfoNet.Builder stUserBaseInfo = stResetUserGameInfoBuilder.getStUserInfoBuilder();
@@ -1952,6 +1956,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				
 				//������������������������������������
 				stResetUserGameInfoBuilder.setLBetStacks(0);
+				stResetUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 				//������������gameroominfo���������������������
 				stGameRoomInfoBuilder.setVUserGameInfos(k, stResetUserGameInfoBuilder);
 			}
@@ -2007,6 +2012,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				
 				//������������������������������������
 				stResetUserGameInfoBuilder.setLBetStacks(0);
+				stResetUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 			
 				//������������gameroominfo���������������������
 				stGameRoomInfoBuilder.setVUserGameInfos(userIndex2, stResetUserGameInfoBuilder);
@@ -2833,6 +2839,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							userGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_STANDBY);
 							userGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_NORMAL);
 							userGameInfoBuilder.setBGameDealer(0);
+							userGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 							//设置座位和用户的对应关系
 							mapStandByUserGameInfos.put(uuid, userGameInfoBuilder);
 							addStandByUuid(uuid);
