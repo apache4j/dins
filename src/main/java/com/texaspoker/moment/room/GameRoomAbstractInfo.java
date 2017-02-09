@@ -292,6 +292,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 								.setEGameState(USER_GAME_STATE.USER_GAME_STATE_CHECK);
 						stUserGameInfoBuilder.setIDelayLong(0);
 						stUserGameInfoBuilder.setIDelaySingleTime(20);
+						stUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 
 						// ������������gameroominfo���������������������
 						stGameRoomInfoBuilder.setVUserGameInfos(userIndex,stUserGameInfoBuilder);
@@ -895,8 +896,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 						}
 						stUserGameInfoBuilder.setIDelayLong(0);
 						stUserGameInfoBuilder.setIDelaySingleTime(20);
+						stUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 						
-						//������������������
 						stUserGameInfoBuilder.setLBetStacks(lStacks + stUserGameInfoBuilder.getLBetStacks());
 						long lTempEffectiveStacks = stUserGameInfoBuilder.getLBetStacks() - lStepMaxStacks;
 						if(lTempEffectiveStacks > stGameRoomInfoBuilder.getLEffectiveRaise()){
@@ -904,14 +905,21 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 						}
 						
 						lStepMaxStacks = stUserGameInfoBuilder.getLBetStacks();
-						//������������������
+						
 						stUserGameInfoBuilder.setLRemainStacks(stUserGameInfoBuilder.getLRemainStacks() - lStacks);
 						
-						//���������raise���������������������������������������������������
 						mEndPos = userPos;
 						
-						//������������gameroominfo���������������������
 						stGameRoomInfoBuilder.setVUserGameInfos(userIndex, stUserGameInfoBuilder);
+						
+						//找到目前所有与动作为更助的用户，重新设置这些用户用户的状态
+						for(int i=0;i<stGameRoomInfoBuilder.getVUserGameInfosCount();i++){
+							UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+							if(stUserGameInfoNetBuilder.getEPreAction() == USER_GAME_STATE.USER_GAME_STATE_CALL){
+								stUserGameInfoNetBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
+								stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+							}
+						}
 						
 						stGameRoomInfo = stGameRoomInfoBuilder.build();
 						
@@ -1352,6 +1360,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 						stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_CALL);
 						stUserGameInfoBuilder.setIDelayLong(0);
 						stUserGameInfoBuilder.setIDelaySingleTime(20);
+						stUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 						
 						//������������������
 						stUserGameInfoBuilder.setLBetStacks(betstacks + stUserGameInfoBuilder.getLBetStacks());
