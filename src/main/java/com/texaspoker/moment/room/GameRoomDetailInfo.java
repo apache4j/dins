@@ -4786,7 +4786,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		}
 		
 		
-		public List<Integer> showTableCards(long uuid,long lGameRoomHandID){
+		public List<Integer> showTableCards(long uuid,long lGameRoomHandID,long lFee){
 			synchronized(this){	
 				System.out.println("showTableCards GAME_ROOM_GAME_STATE : " + stGameRoomInfo.getEGameState());
 				System.out.println("showTableCards getLGameHandID : " + stGameRoomInfo.getLGameHandID());
@@ -4816,6 +4816,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							if(vTempTableCards.size() >= 5){
 								return vTableCards.subList(0, vTempTableCards.size());
 							}else{
+								UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(uuid, -lFee);
+								
+								//打印日志
+								Log   mLogFortransaction   =   LogFactory.getLog("fortransaction");
+								mLogFortransaction.error(uuid + " " + 0 + " " + 430004 + " 0 " + "0 "+lFee+" "  + stUserBaseInfoNetBuilder.getLPopularity());
+								
 								if(vTempTableCards.size() == 0){
 									//获取三张牌
 									if(vTableCards.size() == 0){

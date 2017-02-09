@@ -1590,16 +1590,9 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		ShowTableCardsResponse.Builder  stShowTableCardsResponseBuilder = ShowTableCardsResponse.newBuilder();
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
 		if(stGameRoomDetailInfo!=null){
-			System.out.println("showTableCards uuid : " + request.getUuid() + " gameroomid : " + request.getLGameRoomID());
 			long lFee = GameFeeUtil.getShowCardItemFee((int)stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLSmallBlinds());
 			if(UserManager.getInstance().checkUserPopularity(request.getUuid(), lFee)){
-				UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(request.getUuid(), -lFee);
-
-				//打印日志
-				Log   mLogFortransaction   =   LogFactory.getLog("fortransaction");
-				mLogFortransaction.error(request.getUuid() + " " + 0 + " " + 430004 + " 0 " + "0 "+lFee+" "  + stUserBaseInfoNetBuilder.getLPopularity());
-				
-				List<Integer> vTableCards = stGameRoomDetailInfo.showTableCards(request.getUuid(), request.getLGameHandID());
+				List<Integer> vTableCards = stGameRoomDetailInfo.showTableCards(request.getUuid(), request.getLGameHandID(),lFee);
 				
 				if(vTableCards!=null){
 					stShowTableCardsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
