@@ -377,7 +377,8 @@ public class GameRoomManager  {
 							stGameRoomDetailInfo.lGameRoomID = gameRoomBaseInfoBuilder.getLGameRoomId();
 							stGameRoomDetailInfo.lFromRoomID = gameRoomBaseInfoBuilder.getLChatRoomID();
 							stGameRoomDetailInfo.iGameRoomUserMaxNums = gameRoomBaseInfoBuilder.getIGameRoomUserMaxNums();
-
+							stGameRoomDetailInfo.lLeagueCoin = lCoin;
+							
 							// 放入GameManager中
 							GameRoomManager.getInstance().setGameRoomDetailInfo(stGameRoomDetailInfo);
 							ConnectDatabase.getInstance().insertGameRoomInfo(stGameRoomDetailInfo);

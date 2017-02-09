@@ -71,6 +71,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	//重新设置的思考时间间隔
 	int iThinkingInterval = 0;
 	
+	//创建联盟局花费的钻石
+	public long lLeagueCoin = 0;
+	
 	//是否已经结算用户数据结构
 	private ConcurrentHashMap<Long,Long> mapUserNoCharge = new ConcurrentHashMap<Long,Long>();
 	
@@ -1410,6 +1413,21 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						
 						ChatRoomManager.getInstance().removeChatRoomGameRoom(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID(),stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 						ClubManager.getInstance().removeChatRoomGameRoom(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID(),stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+						//修正联盟结束后，俱乐部拥有牌局数量
+						if(stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID() > 0){
+							if(stLeagueInfo!=null){
+								for(ClubBaseInfo stClubBaseInfo:stLeagueInfo.getVClubBaseInfosList()){																											
+									ClubManager.getInstance().removeChatRoomGameRoom(stClubBaseInfo.getLClubID(),stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+								}
+							}
+							
+							if(bStarted == false){
+								//如果牌局没有开始，则返还钻石
+								if(lLeagueCoin > 0){
+									UserManager.getInstance().addUserCoin(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(), lLeagueCoin);
+								}
+							}
+						}
 						
 						BillManager.getInstance().setGameOverTag(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),lMaxPot,mGameHandID);
 						
