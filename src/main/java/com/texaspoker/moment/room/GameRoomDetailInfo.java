@@ -4735,7 +4735,18 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			if(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == uuid){
 				if(interval==10||interval==12||interval==15){
 					
-					iThinkingInterval = interval;
+					System.out.println("resetPlayThinkingInterval ： " + stGameRoomInfo.getEGameState());
+					if(stGameRoomInfo.getEGameState().getNumber() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait_VALUE){
+						
+						GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+						GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = stGameRoomInfoBuilder.getStGameRoomBaseInfoBuilder();
+						stGameRoomBaseInfoBuilder.setIThinkingInterval(interval);
+						stGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
+						stGameRoomInfo = stGameRoomInfoBuilder.build();
+						iThinkingInterval=0;
+					}else{
+						iThinkingInterval = interval;
+					}
 					
 					Map<Long,Long> mSendedUuids = new HashMap<Long,Long>();
 					
