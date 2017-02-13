@@ -938,7 +938,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 			stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);
 		}
 		
-		System.out.println("stGetAllBuyinControlsResponseBuilder : " + stGetAllBuyinControlsResponseBuilder);
+//		System.out.println("stGetAllBuyinControlsResponseBuilder : " + stGetAllBuyinControlsResponseBuilder);
 		
 		return stGetAllBuyinControlsResponseBuilder.build();
 	}
@@ -952,13 +952,13 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
 		if(stGameRoomDetailInfo!=null&&stGameRoomDetailInfo.getStGameRoomInfo()!=null){
 			ArrayList<Long> vStandingByUuids = new ArrayList<Long>(stGameRoomDetailInfo.getStandByUuids());
-			System.out.println("getStandByUuids vStandingByUuids : " + vStandingByUuids);
+//			System.out.println("getStandByUuids vStandingByUuids : " + vStandingByUuids);
 			if(vStandingByUuids!=null){
 				stGetStandByUuidsResponseBuilder.addAllVStandingByUuids(vStandingByUuids);
 			}
 			
 			ArrayList<Long> vAllUuids = new ArrayList<Long>(stGameRoomDetailInfo.getAllStandByUuids());
-			System.out.println("getStandByUuids vAllUuids : " + vAllUuids);
+//			System.out.println("getStandByUuids vAllUuids : " + vAllUuids);
 			for(long lUuid:vAllUuids){
 				if(!vStandingByUuids.contains(lUuid)){
 					stGetStandByUuidsResponseBuilder.addVStandByUuids(lUuid);
@@ -970,7 +970,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 			stGetStandByUuidsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);
 		}
 		
-		System.out.println("getStandByUuids : " + stGetStandByUuidsResponseBuilder);
+//		System.out.println("getStandByUuids : " + stGetStandByUuidsResponseBuilder);
 		
 		return stGetStandByUuidsResponseBuilder.build();
 	}
@@ -1579,7 +1579,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 			stSetPreActionResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);	
 		}
 		
-		System.out.println("setPreAction 1: " + request.getEPreUserGameState());
+//		System.out.println("setPreAction 1: " + request.getEPreUserGameState());
 		return stSetPreActionResponseBuilder.build();
 	}
 

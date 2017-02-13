@@ -3505,13 +3505,13 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				}
 				
 				//如果池子大于200倍bb，则需要50%再发一张
-				if(lPotSize > 200*stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds() && stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds() > 20){
+				if(lPotSize > 200*stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds() && stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds() > 50){
 					while(checkOutsCard(drawCard,vAllOuts,50,cardNo,iDrawCardNum)){
 						//则70%再发下一张
 						drawCard = mCards[iDrawCardNum++];
 					}
 				}else{
-					while(checkOutsCard(drawCard,vAllOuts,40,cardNo,iDrawCardNum)){
+					while(checkOutsCard(drawCard,vAllOuts,30,cardNo,iDrawCardNum)){
 						//则50%再发下一张
 						drawCard = mCards[iDrawCardNum++];
 					}
@@ -3563,15 +3563,15 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			}else{
 				int precentCard = ShuffleAlgorithm.getRandomCard();
 				if(precentCard < iPercent){
-					System.out.println(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " checkOutsCard drawCard : " + drawCard + " vAllOuts " + vAllOuts + " true ");
+//					System.out.println(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " checkOutsCard drawCard : " + drawCard + " vAllOuts " + vAllOuts + " true ");
 					return true;
 				}else{
-					System.out.println(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " checkOutsCard drawCard : " + drawCard + " vAllOuts " + vAllOuts + " false ");
+//					System.out.println(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " checkOutsCard drawCard : " + drawCard + " vAllOuts " + vAllOuts + " false ");
 					return false;
 				}
 			}
 		}else{
-			System.out.println(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + "checkOutsCard drawCard : " + drawCard + " vAllOuts " + vAllOuts);
+//			System.out.println(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + "checkOutsCard drawCard : " + drawCard + " vAllOuts " + vAllOuts);
 			return false;
 		}
 	}

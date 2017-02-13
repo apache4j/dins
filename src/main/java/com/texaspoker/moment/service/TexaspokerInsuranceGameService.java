@@ -22,8 +22,6 @@ public class TexaspokerInsuranceGameService {
 
 	     server.config(host, port);
 
-	     server.registerService(TexasPokerGameService.GameService.newReflectiveService(new GameServiceImpl()));
-
 	     server.registerBlockingService(TexasPokerGameService.GameService.newReflectiveBlockingService(new GameServiceImpl()));
 
 	     server.run();

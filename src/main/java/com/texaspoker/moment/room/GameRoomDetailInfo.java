@@ -4742,7 +4742,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			if(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == uuid){
 				if(interval==10||interval==12||interval==15){
 					
-					System.out.println("resetPlayThinkingInterval ： " + stGameRoomInfo.getEGameState());
+//					System.out.println("resetPlayThinkingInterval ： " + stGameRoomInfo.getEGameState());
 					if(stGameRoomInfo.getEGameState().getNumber() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait_VALUE){
 						
 						GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
@@ -4788,9 +4788,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		
 		public List<Integer> showTableCards(long uuid,long lGameRoomHandID,long lFee){
 			synchronized(this){	
-				System.out.println("showTableCards GAME_ROOM_GAME_STATE : " + stGameRoomInfo.getEGameState());
-				System.out.println("showTableCards getLGameHandID : " + stGameRoomInfo.getLGameHandID());
-				System.out.println("showTableCards lGameRoomHandID : " + lGameRoomHandID);
+//				System.out.println("showTableCards GAME_ROOM_GAME_STATE : " + stGameRoomInfo.getEGameState());
+//				System.out.println("showTableCards getLGameHandID : " + stGameRoomInfo.getLGameHandID());
+//				System.out.println("showTableCards lGameRoomHandID : " + lGameRoomHandID);
 				
 				if(stGameRoomInfo.getLGameHandID() == lGameRoomHandID 
 						&&(stGameRoomInfo.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result 
@@ -4806,13 +4806,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
 						if(stUserGameInfoNetBuilder!=null && stUserGameInfoNetBuilder.getStUserInfo().getUuid() == uuid){
 							
-							System.out.println("showTableCards uuid : " + uuid + " getVPayTableCardsList : " + stUserGameInfoNetBuilder.getVPayTableCardsList());
+//							System.out.println("showTableCards uuid : " + uuid + " getVPayTableCardsList : " + stUserGameInfoNetBuilder.getVPayTableCardsList());
 							if(stUserGameInfoNetBuilder.getVPayTableCardsCount() > 0){
 								//找到目前应翻看的牌
 								vTempTableCards.addAll(stUserGameInfoNetBuilder.getVPayTableCardsList());
 							}
-							System.out.println("showTableCards vTempTableCards : " + vTempTableCards);
-							System.out.println("showTableCards vTableCards : " + vTableCards);
+//							System.out.println("showTableCards vTempTableCards : " + vTempTableCards);
+//							System.out.println("showTableCards vTableCards : " + vTableCards);
 							if(vTempTableCards.size() >= 5){
 								return vTableCards.subList(0, vTempTableCards.size());
 							}else{
