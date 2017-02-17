@@ -112,6 +112,18 @@ public class InsuranceApi {
     return resultInfo;
   }
 
+  // 检查是否重复购买逻辑
+  public static boolean checkUserRebuy(long lGameRoomID,long uuid,List<BuyInsuranceInfo> stBuyInsuranceInfos){
+	  for (BuyInsuranceInfo buyInfo : stBuyInsuranceInfos) {
+	      if (buyInfo.getEInsuranceAct().equals(INSURANCE_ACT.INSURANCE_ACT_BET)) {
+	        if(InsuranceManager.getInstance().checkUserRebuy(lGameRoomID, uuid, buyInfo.getLPotID(), buyInfo.getLBetStacks())){
+	        	return true;
+	        }
+	      } 
+	    }
+	  return false;
+  }
+  
   // 检查是否进行超时逻辑
   public static void doInsuranceTimeout(long lGameRoomID) {
     // 本次操作执行完毕以后，再来查看是否需要超时继续往下走

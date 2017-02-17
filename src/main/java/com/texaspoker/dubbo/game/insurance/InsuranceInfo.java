@@ -154,6 +154,26 @@ public class InsuranceInfo {
     return setUserBuys(potId, uuid, buys, true);
   }
 
+  // 获取用户购买信息
+  public long getUserBuys(long potId, long uuid){
+	ConcurrentMap<Long, OutsInfo> userOuts = round_pot_user_outs.get(potId);
+	if (userOuts == null) {
+	  logger.error("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",no potId outs info");
+	  return 0;
+	}
+    if (!userOuts.containsKey(uuid)) {
+      logger.error("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",no uuid outs info");
+      return 0;
+    }
+    // 这个边池已经购买过了！！！
+    OutsInfo info = userOuts.get(uuid);
+    if (info.getBuy() > 0) {
+      logger.debug("roomId:" + roomId + ",potId:" + potId + ",uuid:" + uuid + ",has already buy " + info.getBuy());
+      return info.getBuy();
+    }
+    return 0;
+  }
+  
   // 设置用户购买信息
   public long setUserBuys(long potId, long uuid, long buys, boolean sysForce) {
     ConcurrentMap<Long, OutsInfo> userOuts = round_pot_user_outs.get(potId);

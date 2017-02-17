@@ -1323,7 +1323,9 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 //			System.out.println("buyInsurance roomid : " + request.getLGameRoomID() + " handid : " + request.getLGameHandID() + " uuid : " + request.getUuid());
 			stBuyInsuranceResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);	
 		}
-		stGameRoomDetailInfo.doInsuranceTimeout();
+		if(!stGameRoomDetailInfo.checkUserRebuy(request.getUuid(), request.getStBuyInsuranceInfoList())){
+			stGameRoomDetailInfo.doInsuranceTimeout();
+		}
 		return stBuyInsuranceResponseBuilder.build();
 	}
 

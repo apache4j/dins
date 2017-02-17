@@ -4373,6 +4373,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		}
 	}
 	
+	/*
+	 * 检查重复购买
+	 */
+	public boolean checkUserRebuy(long uuid,List<BuyInsuranceInfo> vBuyInsuranceInfo){
+		synchronized(this){	
+			return InsuranceApi.checkUserRebuy(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid, vBuyInsuranceInfo);
+		}
+	}
+	
 	/**
 	 * 获取保险状态
 	 */

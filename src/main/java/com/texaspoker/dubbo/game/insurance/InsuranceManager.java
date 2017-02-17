@@ -504,6 +504,22 @@ public class InsuranceManager {
     insurance_timer.checkRoomTimeout(roomId);
   }
 
+  //判断这次是否重复购买
+  public boolean checkUserRebuy(long roomId,long uuid,long potId,long buys){
+	// 检查保险信息
+    InsuranceInfo insuranceInfo = insurances_map.get(roomId);
+    if (insuranceInfo == null) {
+      logger.error("roomId:" + roomId + ",insurance info null");
+      return false;
+    }
+    long finalBuys = insuranceInfo.getUserBuys(potId, uuid);
+    if (finalBuys > 0) {
+    	logger.error("roomId:" + roomId + ",uuid:"+uuid+",rebuy!!!");
+    	return true;
+    }
+    return false;
+  }
+  
   // 通知这个用户，购买超时了
   public void notifyUserTimeout(long roomId, long uuid) {
     // 检查保险信息
