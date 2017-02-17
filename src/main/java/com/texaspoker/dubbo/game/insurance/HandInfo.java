@@ -358,6 +358,12 @@ public class HandInfo {
     if (roundInfos.containsKey(preStatus)) {
       // 后面几轮，用上一轮初始化
       roundInfo.user_totals.putAll(roundInfos.get(preStatus).user_totals);
+      // 保证此轮下注的玩家，在统计里面
+      for(Long userId : roundInfo.user_bets.keySet()){
+    	  if(!roundInfo.user_totals.containsKey(userId)){
+    		  roundInfo.user_totals.put(userId, 0);
+    	  }
+      }
     } else {
       // preflop 第一轮，初始化
       for (Long userId : roundInfo.user_bets.keySet()) {
