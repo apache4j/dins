@@ -1313,18 +1313,15 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		BuyInsuranceResponse.Builder  stBuyInsuranceResponseBuilder = BuyInsuranceResponse.newBuilder();
 		stBuyInsuranceResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);	
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
-		
-		GameRoomInfo stGameRoomInfo = stGameRoomDetailInfo.buyInsurance(request.getUuid(), request.getLGameHandID(), request.getEGameRoomStatus(), request.getStBuyInsuranceInfoList());
-		
-		if(stGameRoomInfo!=null){
-			stBuyInsuranceResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-			stBuyInsuranceResponseBuilder.setStGameRoomInfo(stGameRoomInfo);
-		}else{
-//			System.out.println("buyInsurance roomid : " + request.getLGameRoomID() + " handid : " + request.getLGameHandID() + " uuid : " + request.getUuid());
-			stBuyInsuranceResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);	
-		}
 		if(!stGameRoomDetailInfo.checkUserRebuy(request.getUuid(), request.getStBuyInsuranceInfoList())){
+			GameRoomInfo stGameRoomInfo = stGameRoomDetailInfo.buyInsurance(request.getUuid(), request.getLGameHandID(), request.getEGameRoomStatus(), request.getStBuyInsuranceInfoList());
+			if(stGameRoomInfo!=null){
+				stBuyInsuranceResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+				stBuyInsuranceResponseBuilder.setStGameRoomInfo(stGameRoomInfo);
+			}
 			stGameRoomDetailInfo.doInsuranceTimeout();
+		}else{
+			stBuyInsuranceResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
 		}
 		return stBuyInsuranceResponseBuilder.build();
 	}
