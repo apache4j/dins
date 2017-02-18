@@ -1318,6 +1318,8 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 			if(stGameRoomInfo!=null){
 				stBuyInsuranceResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
 				stBuyInsuranceResponseBuilder.setStGameRoomInfo(stGameRoomInfo);
+			}else{
+				stBuyInsuranceResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
 			}
 			stGameRoomDetailInfo.doInsuranceTimeout();
 		}else{
