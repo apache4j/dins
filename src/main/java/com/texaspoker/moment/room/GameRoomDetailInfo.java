@@ -64,6 +64,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	private Map<Long,Long> mUserKickedUser = new ConcurrentHashMap<Long,Long>();
 	
 	private Map<Long,Long> mUserBuyinStacks = new ConcurrentHashMap<Long,Long>();
+	private Map<Long,Long> mUserBuyinClubIDs = new ConcurrentHashMap<Long,Long>();
+	private Map<Long,Long> mUserBuyining = new ConcurrentHashMap<Long,Long>();
 	
 	//如果是联盟局，保存联盟信息
 	private LeagueInfo stLeagueInfo;
@@ -1430,7 +1432,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						}
 						
 						BillManager.getInstance().setGameOverTag(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),lMaxPot,mGameHandID);
-						
+						saveBuyinStacks();
 						
 						QuickGameRoomManager.getInstance().finishQuickGameRoom(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID());
 						mGameRoomDetailInfos.removeKey(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
@@ -1783,6 +1785,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		
 		mPotList.clear();
 		resetCard();
+		saveBuyinStacks();
 		//������������������������
 		stGameRoomInfo = stGameRoomInfoBuilder.build();
 		
@@ -4616,12 +4619,41 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				}
 			}
 		}
-	
+
 		lBuyinStacks += lBuyStacks;
+		mUserBuyining.put(uuid, uuid);
 		//修改账单信息
-		BillManager.getInstance().buyStackInRoom(uuid,stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), lBuyinStacks,clubid,sClubName);
-		
+		if(BillManager.getInstance().buyStackInRoom(uuid,stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), lBuyinStacks,clubid,sClubName)){
+			mUserBuyining.remove(uuid);
+		}
 		mUserBuyinStacks.put(uuid, lBuyinStacks);
+		mUserBuyinClubIDs.put(uuid, clubid);
+	}
+	
+	
+	public void saveBuyinStacks(){
+		Iterator iter = mUserBuyining.entrySet().iterator(); 
+		while (iter.hasNext()) {
+			Map.Entry entry = (Map.Entry) iter.next(); 
+			Long uuid = (Long) entry.getKey();
+		
+			long lBuyinStacks = mUserBuyinStacks.get(uuid);	
+			long clubid = mUserBuyinClubIDs.get(uuid);	
+			
+			String sClubName="";
+			//检查联盟信息,取出相关的俱乐部信息
+			if(stLeagueInfo!=null){
+				for(ClubBaseInfo stClubBaseInfo:stLeagueInfo.getVClubBaseInfosList()){
+					if(stClubBaseInfo.getLClubID() == clubid&&stClubBaseInfo.getSClubName()!=null){
+						sClubName=stClubBaseInfo.getSClubName();
+					}
+				}
+			}
+
+			if(BillManager.getInstance().buyStackInRoom(uuid,stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), lBuyinStacks,clubid,sClubName)){
+				mUserBuyining.remove(uuid);
+			}
+		}
 	}
 	
 	//俱乐部买入控制push接口

@@ -8,6 +8,7 @@ import com.texaspoker.logger.NormalLogService;
 import com.texaspoker.moment.TexasPoker.GameRoomBaseInfo;
 import com.texaspoker.moment.TexasPokerBillService;
 import com.texaspoker.moment.TexasPokerBillService.BuyStackInRoomRequest;
+import com.texaspoker.moment.TexasPokerBillService.BuyStackInRoomResponse;
 import com.texaspoker.moment.TexasPokerBillService.CreateBillInfoRequest;
 import com.texaspoker.moment.TexasPokerBillService.FinishGameRoomAndReturnRequest;
 import com.texaspoker.moment.TexasPokerBillService.GetAllBillUsersRequest;
@@ -91,11 +92,13 @@ public class BillManager {
 	}
 
 	//改变某个房间的某个用户的购买筹码的值
-	public void buyStackInRoom(long uuid , long roomid , long changeStacks,long clubid,String clubname){
+	public boolean buyStackInRoom(long uuid , long roomid , long changeStacks,long clubid,String clubname){
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(roomid);
+		
 		if(stGameRoomDetailInfo!=null 
 				&& stGameRoomDetailInfo.getStGameRoomInfo()!=null
 				&& stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo()!=null){
+
 			//设置用户
 			BuyStackInRoomRequest.Builder stBuyStackInRoomRequestBuilder = BuyStackInRoomRequest.newBuilder();
 			stBuyStackInRoomRequestBuilder.setUuid(uuid);
@@ -105,12 +108,18 @@ public class BillManager {
 			stBuyStackInRoomRequestBuilder.setSClubName(clubname);
 			
 			try {
-				blockingBillService.buyStackInRoom(controller, stBuyStackInRoomRequestBuilder.build());
+				BuyStackInRoomResponse stBuyStackInRoomResponse = blockingBillService.buyStackInRoom(controller, stBuyStackInRoomRequestBuilder.build());
+				if(stBuyStackInRoomResponse!=null && stBuyStackInRoomResponse.getIErrorCode() == 0){
+					return true;
+				}else{
+					return false;
+				}
 			} catch (ServiceException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+		return false;
 	}	
 		
 	public void setCurrentStacksInRoom(long uuid,long roomid,long stacks){
