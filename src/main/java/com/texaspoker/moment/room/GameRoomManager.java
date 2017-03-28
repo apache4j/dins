@@ -114,7 +114,6 @@ public class GameRoomManager  {
 	}
 	
 	public GameRoomIDResultInfo createGameRoom(long uuid,GameRoomBaseInfo stGameRoomBaseInfo){
-		
 		GameRoomIDResultInfo stGameRoomIDResultInfo = new GameRoomIDResultInfo();
 		// 获取该用户已经开的牌局数量
 		UserGameRooms stUserCreateGames = UserManager.getInstance().getUserCreateGameRooms(uuid);
@@ -247,9 +246,10 @@ public class GameRoomManager  {
 						
 						ConnectDatabase.getInstance().insertInGameUser(stGameRoomDetailInfo.getStGameRoomInfo()
 											.getStGameRoomBaseInfo().getLGameRoomId(),uuid);
-	
+
 						BillManager.getInstance().createBillInfo(0,gameRoomBaseInfoBuilder.build());
 						
+						stGameRoomDetailInfo.buyStakcsInRoom(stUserBaseInfoNet.getUuid(),0,gameRoomBaseInfoBuilder.getLChatRoomID());
 						// 把房间放到房主的房间列表里面
 						UserManager.getInstance().addUserCreateGameRooms(uuid,gameRoomBaseInfoBuilder.getLGameRoomId());
 				
