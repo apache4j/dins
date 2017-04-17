@@ -16,7 +16,6 @@ import com.texaspoker.moment.TexasPokerClubService.AddClubMemberResponse;
 import com.texaspoker.moment.TexasPokerClubService.AddClubScoreRequest;
 import com.texaspoker.moment.TexasPokerClubService.AddClubScoreResponse;
 import com.texaspoker.moment.TexasPokerClubService.ClubGameRequest;
-import com.texaspoker.moment.TexasPokerClubService.ClubGamesNet;
 import com.texaspoker.moment.TexasPokerClubService.ClubInfoClubID;
 import com.texaspoker.moment.TexasPokerClubService.DeleteClubCoverRequest;
 import com.texaspoker.moment.TexasPokerClubService.DeleteClubCoverResponse;
@@ -24,6 +23,8 @@ import com.texaspoker.moment.TexasPokerClubService.DeleteClubMemberRequest;
 import com.texaspoker.moment.TexasPokerClubService.DeleteClubMemberResponse;
 import com.texaspoker.moment.TexasPokerClubService.GetClubBaseInfoRequest;
 import com.texaspoker.moment.TexasPokerClubService.GetClubBaseInfoResponse;
+import com.texaspoker.moment.TexasPokerClubService.GetClubGameRoomsRequest;
+import com.texaspoker.moment.TexasPokerClubService.GetClubGameRoomsResponse;
 import com.texaspoker.moment.TexasPokerClubService.GetClubInfoRequest;
 import com.texaspoker.moment.TexasPokerClubService.GetClubInfoResponse;
 import com.texaspoker.moment.TexasPokerClubService.GetClubManagerUuidsRequest;
@@ -149,16 +150,15 @@ public class ClubManager {
 	}
 	
 	//获取俱乐部中的牌局
-	public ArrayList<Long> getGameRooms(long clubID){
-		ClubInfoClubID.Builder stClubInfoClubIDBuilder = ClubInfoClubID.newBuilder();
-		stClubInfoClubIDBuilder.setLClubID(clubID);
+	public ArrayList<Long> getGameRooms(long clubID,long uuid){
+		GetClubGameRoomsRequest.Builder stGetClubGameRoomsRequestBuilder = GetClubGameRoomsRequest.newBuilder();
+		stGetClubGameRoomsRequestBuilder.setLClubID(clubID);
+		stGetClubGameRoomsRequestBuilder.setUuid(uuid);
 		
 	    try {
-//			System.out.println("getGameRoomsgetGameRoomsgetGameRoomsgetGameRooms begin.");
-			ClubGamesNet stClubGamesNet = blockingClubService.getClubGameRooms(controller, stClubInfoClubIDBuilder.build());
-			
-			if(stClubGamesNet!=null && stClubGamesNet.getVGameRoomIDsList()!=null){
-				return new ArrayList<Long>(stClubGamesNet.getVGameRoomIDsList());
+	    	GetClubGameRoomsResponse stGetClubGameRoomsResponse = blockingClubService.getClubGameRooms(controller, stGetClubGameRoomsRequestBuilder.build());
+			if(stGetClubGameRoomsResponse!=null && stGetClubGameRoomsResponse.getVGameRoomIDsList()!=null){
+				return new ArrayList<Long>(stGetClubGameRoomsResponse.getVGameRoomIDsList());
 			}
 	    } catch (ServiceException e) {
 	    	NormalLogService.getInstance().error("syn echo error:" + e.getMessage());

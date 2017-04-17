@@ -2062,7 +2062,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			if(winnerIDArray.size()!=0){
 				GamePotResultInfo.Builder  stGamePotResultInfoBuilder = GamePotResultInfo.newBuilder();
 				
-				int winStacks = stGameRoomInfo.getVCurrentPots(index)/winnerIDArray.size();
+				long winStacks = stGameRoomInfo.getVCurrentPots(index)/winnerIDArray.size();
 				lSingleMaxPot += stGameRoomInfo.getVCurrentPots(index);
 				for(int i = 0 ; i < winnerIDArray.size() ; i++){
 					int userPos  =  winnerIDArray.get(i);
@@ -3122,7 +3122,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		for(int i = 0 ; i < mPotList.size();i++){
 			PotInfo stPotInfo = mPotList.get(i);
 			//设置Pot相关
-			stGameRoomInfoBuilder.addVCurrentPots((int)stPotInfo.potSize);
+			stGameRoomInfoBuilder.addVCurrentPots(stPotInfo.potSize);
 			
 			//设置新pot结构
 			TexasPoker.PotInfo.Builder stPotInfoBuilder = TexasPoker.PotInfo.newBuilder();
@@ -3806,7 +3806,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			if(winnerIDArray.size()!=0){
 				GamePotResultInfo.Builder  stGamePotResultInfoBuilder = GamePotResultInfo.newBuilder();
 				
-				int winStacks = stGameRoomInfo.getVCurrentPots(index)/winnerIDArray.size();
+				long winStacks = stGameRoomInfo.getVCurrentPots(index)/winnerIDArray.size();
 				lSingleMaxPot += stGameRoomInfo.getVCurrentPots(index);
 				for(int i = 0 ; i < winnerIDArray.size() ; i++){
 					int userPos  =  winnerIDArray.get(i);
@@ -3849,7 +3849,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					
 					GamePotResultInfo.Builder  stGamePotResultInfoBuilder = GamePotResultInfo.newBuilder();
 					
-					int winStacks = stGameRoomInfo.getVCurrentPots(index)/allFoldPos.size();
+					long winStacks = stGameRoomInfo.getVCurrentPots(index)/allFoldPos.size();
 					lSingleMaxPot += stGameRoomInfo.getVCurrentPots(index);
 					
 					for(int i = 0 ; i < allFoldPos.size() ; i++){
