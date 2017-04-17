@@ -118,12 +118,13 @@ public class ConnectDatabase {
 	            	 stGameRoomBaseInfo.setECreateRoomType(CREATE_ROOM_TYPE.valueOf(gameRoomRS.getString("createroomtype")));
 	            	 stGameRoomBaseInfo.setBBuyinControl(gameRoomRS.getInt("buyincontrol"));
 	            	 stGameRoomBaseInfo.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
-	            	 long createUuid = gameRoomRS.getLong("createuser");
-	            	 if(GetUserByID(createUuid,stConnection)==null){
-	            		 continue;          		
-	  				 }
-	            	 	
-	            	 stGameRoomBaseInfo.setStCreateUserBaseInfo(GetUserByID(createUuid,stConnection));
+	
+	            	 UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(gameRoomRS.getLong("createuser"));
+	            	 if(stUserBaseInfoNetBuilder==null){
+	            		 continue;
+	            	 }
+	            	 
+	            	 stGameRoomBaseInfo.setStCreateUserBaseInfo(stUserBaseInfoNetBuilder);
 	            	 stGameRoomBaseInfo.setBPrivateRoom(gameRoomRS.getInt("privateroom"));
 	            	 stGameRoomBaseInfo.setLChatRoomID(gameRoomRS.getInt("chatroomid"));
 	            	 stGameRoomBaseInfo.setIAnte(gameRoomRS.getInt("ante"));
@@ -302,65 +303,6 @@ public class ConnectDatabase {
         	APNManager.getInstance().gameOverPush(touuid, sRoomName, 1);
         }
 	}
-    //用来查看用户的用户名和密码是否匹配
-    public UserBaseInfoNet GetUserByID(long uuid,Connection stConnection){
-        try{
-            String insql="select * from t_user_baseinfo where uuid=?";
-            
-            //查询操作
-            PreparedStatement ps = stConnection.prepareStatement(insql);
-            ps.setLong(1, uuid);
-            ResultSet rs = ps.executeQuery();
-            
-            if(rs.next()){
-           	 UserBaseInfoNet.Builder stUserBaseInfoBuild = UserBaseInfoNet.newBuilder();
-           	 stUserBaseInfoBuild.setUuid(rs.getLong("uuid"));
-           	 stUserBaseInfoBuild.setStrID(rs.getString("strid"));
-           	 stUserBaseInfoBuild.setEType(ID_TYPE.valueOf(rs.getString("idtype")));
-           	 stUserBaseInfoBuild.setStrNick(rs.getString("nickname"));
-           	 stUserBaseInfoBuild.setStrCover(rs.getString("bigicon"));
-           	 stUserBaseInfoBuild.setStrSmallCover(rs.getString("smallicon"));
-           	 stUserBaseInfoBuild.setEVipType(VIP_TYPE.valueOf(rs.getString("viptype")));
-           	 stUserBaseInfoBuild.setStrPhoneNumber(rs.getString("phonenumber"));
-           	 stUserBaseInfoBuild.setIGender(rs.getInt("gender"));
-           	 stUserBaseInfoBuild.setLLoginTime(rs.getLong("logintime"));
-           	 stUserBaseInfoBuild.setLCoin(rs.getLong("coin"));
-           	 stUserBaseInfoBuild.setILevel(rs.getInt("level"));
-           	 stUserBaseInfoBuild.setIExperience(rs.getInt("experience"));
-           	 stUserBaseInfoBuild.setLPopularity(rs.getLong("popularity"));
-           	 stUserBaseInfoBuild.setIMute(rs.getInt("mute"));
-           	 stUserBaseInfoBuild.setIVibrate(rs.getInt("vibrate"));
-           	 stUserBaseInfoBuild.setStrDesc(rs.getString("description"));
-           	 stUserBaseInfoBuild.setLVIPLimitTime(rs.getLong("viplimittime"));
-           	 
-           	 String sSmallAlbums = rs.getString("smallalbums");
-           	 if(sSmallAlbums.length()>0){
-           		 String[] vSmallAlbumes = sSmallAlbums.split(",");
-               	 
-               	 for(int i = 0 ; i < vSmallAlbumes.length ; i ++){
-               		 stUserBaseInfoBuild.addSSmallAlbums(vSmallAlbumes[i]);
-               	 }
-           	 }
-           	 
-           	 String sBigAlbums = rs.getString("bigalbums");
-           	 if(sBigAlbums.length()>0){
-               	 String[] vBigAlbumes = sBigAlbums.split(",");
-               	 for(int i = 0 ; i < vBigAlbumes.length ; i ++){
-               		 stUserBaseInfoBuild.addSBigAlbums(vBigAlbumes[i]);
-               	 }
-           	 }
-           	 
-           	 return stUserBaseInfoBuild.build();
-            }
-            else{
-           	 return null;
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-
-            return null;
-        }
-    } 
     
     public void loadAllQuickGameRooms(ConcurrentHashMap<Long,QuickGameRoomInfo.Builder> vQuickGameRooms,Map<String,Long> vCodeQuickGameRooms,ConcurrentHashMap<Long,HashSet<Long>> vUserQuickGameRooms){
    	 Connection stConnection = null;
