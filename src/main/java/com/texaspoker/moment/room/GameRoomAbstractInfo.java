@@ -3619,6 +3619,16 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		
 		//重置获取牌的数量
 		iDrawCardNum = 0;
+		
+		vTableCards.clear();
+		GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+		
+		for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount();i++){
+			UserGameInfoNet.Builder stUserGameInfoNetBuilder =  stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+			stUserGameInfoNetBuilder.clearVPayTableCards();
+			stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+		}
+		stGameRoomInfo = stGameRoomInfoBuilder.build();
 	}
 
 	/****************************玩家超时辅助函数*******************************/

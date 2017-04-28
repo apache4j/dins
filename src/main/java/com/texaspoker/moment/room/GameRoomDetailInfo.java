@@ -1646,7 +1646,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		mHandMap.clear();
 		vHandList.clear();
 		mHandPos.clear();
-		vTableCards.clear();
 		
 		//���������������������������������������������
 		stGameRoomInfoBuilder.clearVCurrentCards();
@@ -1666,7 +1665,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			stUserGameInfoNetBuilder.setIDelayLong(0);
 			stUserGameInfoNetBuilder.setIDelaySingleTime(20);
 			stUserGameInfoNetBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
-			stUserGameInfoNetBuilder.clearVPayTableCards();
 			
 			//用户筹码非0保护
 			if(stUserGameInfoNetBuilder.getLRemainStacks() < 0){
