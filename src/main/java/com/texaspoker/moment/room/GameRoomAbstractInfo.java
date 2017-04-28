@@ -123,6 +123,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	protected boolean bStarted = false;
 	protected int iGameRoomUserMaxNums = 0;
 
+	//查看是否可以看牌
+	public boolean bShowTableCard = false;
+	public boolean bFirstWaitShowTableCard = true;
 	
 	/**
 	 * 初始化函数
@@ -730,7 +733,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		stGameRoomInfo = stGameRoomInfoBuilder.build();
 		
 	}
-	
+
 	void checkGotoRiverStatus(long uuid){
 		if(checkAllAllin() == true){
 			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
@@ -810,9 +813,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	void gotoResultStatus(long uuid){
 		//如果是和牌
 		GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();					
-		stGameRoomInfoBuilder.setEGameState(TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result);
+		stGameRoomInfoBuilder.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result);
 		stGameRoomInfoBuilder.setBStateChange(1);
 		stGameRoomInfo = stGameRoomInfoBuilder.build();
+		
+		bShowTableCard = true;
+		bFirstWaitShowTableCard = true;
 
         //计算结果
 		calculateWinner();
@@ -3703,9 +3709,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			
 		//设置牌局状态
 		GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();	
-		stGameRoomInfoBuilder.setEGameState(TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result);	
+		stGameRoomInfoBuilder.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result);	
 		stGameRoomInfoBuilder.setBStateChange(1);
 		stGameRoomInfo = stGameRoomInfoBuilder.build();
+		
+		bShowTableCard = true;
+		bFirstWaitShowTableCard = true;
 	}
 	
 	/****************************牌局用户位置辅助函数*******************************/

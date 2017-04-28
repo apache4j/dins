@@ -1448,6 +1448,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				else{
 					//房间没有到时见，继续游戏
 					//等待10秒钟以后，如果牌局里面大于两个人，需要把游戏状态改成start，并通知改牌局的所有玩家
+					if(bFirstWaitShowTableCard == false && bShowTableCard == true){
+						bShowTableCard = false;
+					}
+					
+					if(bFirstWaitShowTableCard == true){
+						bFirstWaitShowTableCard = false;
+					}
+					
 					resetGameRoom();
 					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 					if(iCouldPlayNum>= 2 && getGameStarted() == true){
@@ -1469,8 +1477,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				break;
 			case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameStart_VALUE:{
 				resetGameRoom();
+				resetCard();
 				reCalculateCouldPlayNum();
-//				System.out.println("ROOM_GAME_STATE_GameStart_VALUE ROOM_GAME_STATE_GameStart_VALUE1 : " + iCouldPlayNum);
+				bShowTableCard = false;
+
 				if(iCouldPlayNum >=2){
 					TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
 							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -1784,7 +1794,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		stGameRoomInfoBuilder.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait);
 		
 		mPotList.clear();
-		resetCard();
+
 		saveBuyinStacks();
 		//������������������������
 		stGameRoomInfo = stGameRoomInfoBuilder.build();
@@ -4829,13 +4839,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		
 		public List<Integer> showTableCards(long uuid,long lGameRoomHandID,long lFee){
 			synchronized(this){	
-//				System.out.println("showTableCards GAME_ROOM_GAME_STATE : " + stGameRoomInfo.getEGameState());
-//				System.out.println("showTableCards getLGameHandID : " + stGameRoomInfo.getLGameHandID());
-//				System.out.println("showTableCards lGameRoomHandID : " + lGameRoomHandID);
 				
 				if(stGameRoomInfo.getLGameHandID() == lGameRoomHandID 
-						&&(stGameRoomInfo.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result 
-						|| stGameRoomInfo.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD) ){
+						&&(bShowTableCard == true) ){
 					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 					//找到目前桌上的排
 					Set<Integer> vTempTableCards = new HashSet<Integer>();
@@ -4847,13 +4853,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
 						if(stUserGameInfoNetBuilder!=null && stUserGameInfoNetBuilder.getStUserInfo().getUuid() == uuid){
 							
-//							System.out.println("showTableCards uuid : " + uuid + " getVPayTableCardsList : " + stUserGameInfoNetBuilder.getVPayTableCardsList());
 							if(stUserGameInfoNetBuilder.getVPayTableCardsCount() > 0){
 								//找到目前应翻看的牌
 								vTempTableCards.addAll(stUserGameInfoNetBuilder.getVPayTableCardsList());
 							}
-//							System.out.println("showTableCards vTempTableCards : " + vTempTableCards);
-//							System.out.println("showTableCards vTableCards : " + vTableCards);
+
 							if(vTempTableCards.size() >= 5){
 								return vTableCards.subList(0, vTempTableCards.size());
 							}else{
