@@ -4247,6 +4247,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					
 					//设置为托管状态
 					userGameInfoBuilder.setBDelegate(1);
+					userGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 					
 					//将用户设置回房间
 					stGameRoomInfoBuilder.setVUserGameInfos(i, userGameInfoBuilder);	
