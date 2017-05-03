@@ -823,7 +823,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		
 		mCurrentTableCards.clear();
 		mCurrentTableCards.addAll(stGameRoomInfo.getVCurrentCardsList());
-		System.out.println("gotoResultStatus : " + stGameRoomInfo.getVCurrentCardsList());
 
         //计算结果
 		calculateWinner();
@@ -3730,6 +3729,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		
 		bShowTableCard = true;
 		bFirstWaitShowTableCard = true;
+		
+		mCurrentTableCards.clear();
+		mCurrentTableCards.addAll(stGameRoomInfo.getVCurrentCardsList());
 	}
 	
 	/****************************牌局用户位置辅助函数*******************************/
