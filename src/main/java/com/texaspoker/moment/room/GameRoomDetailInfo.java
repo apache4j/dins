@@ -4848,6 +4848,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					if(mCurrentTableCards.size() > 0){
 						vTempTableCards.addAll(mCurrentTableCards);
 					}
+					System.out.println("mCurrentTableCardsmCurrentTableCards : " + mCurrentTableCards);
 					
 					for(int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount();i++){
 						UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
