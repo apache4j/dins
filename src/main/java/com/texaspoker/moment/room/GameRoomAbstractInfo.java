@@ -823,6 +823,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		
 		mCurrentTableCards.clear();
 		mCurrentTableCards.addAll(stGameRoomInfo.getVCurrentCardsList());
+		System.out.println("gotoResultStatus : " + stGameRoomInfo.getVCurrentCardsList());
 
         //计算结果
 		calculateWinner();
