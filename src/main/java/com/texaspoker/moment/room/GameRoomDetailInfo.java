@@ -1450,6 +1450,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					//等待10秒钟以后，如果牌局里面大于两个人，需要把游戏状态改成start，并通知改牌局的所有玩家
 					if(bFirstWaitShowTableCard == false && bShowTableCard == true){
 						bShowTableCard = false;
+						mCurrentTableCards.clear();
 					}
 					
 					if(bFirstWaitShowTableCard == true){
@@ -1480,7 +1481,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				resetCard();
 				reCalculateCouldPlayNum();
 				bShowTableCard = false;
-
+				mCurrentTableCards.clear();
+				
 				if(iCouldPlayNum >=2){
 					TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
 							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -4843,8 +4845,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 					//找到目前桌上的排
 					Set<Integer> vTempTableCards = new HashSet<Integer>();
-					if(stGameRoomInfo.getVCurrentCardsList().size() > 0){
-						vTempTableCards.addAll(stGameRoomInfo.getVCurrentCardsList());
+					if(mCurrentTableCards.size() > 0){
+						vTempTableCards.addAll(mCurrentTableCards);
 					}
 					
 					for(int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount();i++){

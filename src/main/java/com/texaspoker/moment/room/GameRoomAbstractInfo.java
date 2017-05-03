@@ -127,6 +127,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	public boolean bShowTableCard = false;
 	public boolean bFirstWaitShowTableCard = true;
 	
+	protected Set<Integer> mCurrentTableCards = new HashSet<Integer>();
 	/**
 	 * 初始化函数
 	 */
@@ -819,6 +820,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		
 		bShowTableCard = true;
 		bFirstWaitShowTableCard = true;
+		
+		mCurrentTableCards.clear();
+		mCurrentTableCards.addAll(stGameRoomInfo.getVCurrentCardsList());
 
         //计算结果
 		calculateWinner();
