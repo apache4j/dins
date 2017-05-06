@@ -2776,7 +2776,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					if(stClubBaseInfoBuilder!=null){
 						stBuyinControlBuilder.setSClubName(stClubBaseInfoBuilder.getSClubName());
 					}
-					
+					stBuyinControlBuilder.setLClubID(lClubID);
 					vBuyinControls.add(stBuyinControlBuilder.build());
 				}else{
 					
