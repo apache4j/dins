@@ -199,6 +199,8 @@ public class InsuranceManager {
       logger.debug("roomId:" + roomId + ",potId:" + allin_bets + ",outs size:" + outsList.size());
       // 设置用户的保险购买信息
       for (OutsInfo outsInfo : outsList) {
+        // 打印保险信息日志
+        printOutsInfoLog(insuranceInfo, outsInfo);
         // 是否开启保险购买逻辑
         if (insurance_open.checkUserCloseInsurance(roomId, outsInfo.winner)) {
           logger.debug("roomId:" + roomId + ",uuid:" + outsInfo.winner + ",outs close");
@@ -379,30 +381,41 @@ public class InsuranceManager {
   // 玩家控制保险
   public boolean openInsuranceByUser(long roomId, long uuid, boolean close) {
     logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",close:" + close);
+    long groupId = roomId;
+    long handId = 0;
     // 检查保险信息
+    boolean result = false;
     InsuranceInfo insuranceInfo = insurances_map.get(roomId);
     if (insuranceInfo == null) {
       logger.debug("roomId:" + roomId + ",no insurance info");
       // 第一手信息初始化问题
       insurance_open.setUserOpenStatus(roomId, uuid, close);
-      return true;
-    }
-    // 检查这一手是否有保险买入
-    if (close) {
-      // 买入则不让关闭保险
-      // insuranceInfo.getUserAllBuyTotal(uuid) > 0
-      // 只要本手触发保险就不准关闭了
-      if (insuranceInfo.checkHandOcur()) {
-        return false;
-      } else {
-        insurance_open.setUserOpenStatus(roomId, uuid, close);
-        return true;
-      }
+      result = true;
     } else {
-      // 恢复保险没有限制
-      insurance_open.setUserOpenStatus(roomId, uuid, close);
-      return true;
+      // 检查这一手是否有保险买入
+      groupId = insuranceInfo.groupId;
+      handId = insuranceInfo.handId;
+      if (close) {
+        // 买入则不让关闭保险
+        // insuranceInfo.getUserAllBuyTotal(uuid) > 0
+        // 只要本手触发保险就不准关闭了
+        if (insuranceInfo.checkHandOcur()) {
+          result = false;
+        } else {
+          insurance_open.setUserOpenStatus(roomId, uuid, close);
+          result = true;
+        }
+      } else {
+        // 恢复保险没有限制
+        insurance_open.setUserOpenStatus(roomId, uuid, close);
+        result = true;
+      }
     }
+    // 打印关闭日志
+    if (result) {
+      printInsuranceLimitLog(groupId, roomId, handId, uuid, close);
+    }
+    return result;
   }
 
   // 获取玩家保险开关状态
@@ -643,5 +656,37 @@ public class InsuranceManager {
       return null;
     }
     return info;
+  }
+
+  // 内部使用，打印用户保险日志
+  private void printOutsInfoLog(InsuranceInfo insuranceInfo, OutsInfo outsInfo) {
+    StringBuilder loginfo1 = new StringBuilder();
+    loginfo1.append(insuranceInfo.groupId);
+    loginfo1.append(",");
+    loginfo1.append(insuranceInfo.roomId);
+    loginfo1.append(",");
+    loginfo1.append(insuranceInfo.handId);
+    loginfo1.append(",");
+    loginfo1.append(outsInfo.winner);
+    loginfo1.append(",outs,");
+    loginfo1.append(outsInfo.potIndex);
+    loginfo1.append(",");
+    loginfo1.append(outsInfo.outs.length);
+    InsuranceApi.insuranceDebug(loginfo1.toString());
+  }
+
+  private void printInsuranceLimitLog(long groupId, long roomId, long handId, Long uuid, boolean close) {
+    String openStatus = close ? "off" : "on";
+    StringBuilder loginfo1 = new StringBuilder();
+    loginfo1.append(groupId);
+    loginfo1.append(",");
+    loginfo1.append(roomId);
+    loginfo1.append(",");
+    loginfo1.append(handId);
+    loginfo1.append(",");
+    loginfo1.append(uuid);
+    loginfo1.append(",insconfig,");
+    loginfo1.append(openStatus);
+    InsuranceApi.insuranceDebug(loginfo1.toString());
   }
 }
