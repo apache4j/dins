@@ -94,7 +94,6 @@ public class BillManager {
 	//改变某个房间的某个用户的购买筹码的值
 	public boolean buyStackInRoom(long uuid , long roomid , long changeStacks,long clubid,String clubname){
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(roomid);
-		System.out.println("buyStackInRoombuyStackInRoom uuid " + uuid + " gameroomid : " + roomid);
 		if(stGameRoomDetailInfo!=null 
 				&& stGameRoomDetailInfo.getStGameRoomInfo()!=null
 				&& stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo()!=null){
