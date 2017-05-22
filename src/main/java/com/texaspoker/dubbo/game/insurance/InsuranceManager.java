@@ -48,7 +48,7 @@ public class InsuranceManager {
 
   // 解析游戏数据
   public void onGameAction(String tableLog) {
-    logger.debug(tableLog);
+//    logger.debug(tableLog);
     InsuranceLog.onLogMessage(tableLog);
   }
 

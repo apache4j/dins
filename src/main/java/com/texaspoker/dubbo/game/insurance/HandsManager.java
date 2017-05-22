@@ -35,7 +35,7 @@ public class HandsManager {
 
   // 新一手牌局
   public void setHandOpen(long groupId, long roomId, long handId) {
-    logger.debug("roomId:" + roomId + ",handId:" + handId);
+//    logger.debug("roomId:" + roomId + ",handId:" + handId);
     HandInfo handInfo = hands_map.get(roomId);
     if (handInfo == null) {
       handInfo = new HandInfo();
@@ -48,7 +48,7 @@ public class HandsManager {
   }
 
   public void setHandClose(long roomId, long handId) {
-    logger.debug("roomId:" + roomId + ",handId:" + handId);
+//    logger.debug("roomId:" + roomId + ",handId:" + handId);
     HandInfo handInfo = hands_map.get(roomId);
     if (handInfo == null) {
       logger.error("roomId:" + roomId + ",handId:" + handId + ",info null");
@@ -66,13 +66,13 @@ public class HandsManager {
   }
 
   public void onTableOpen(long roomId) {
-    logger.debug("open roomId:" + roomId);
+//    logger.debug("open roomId:" + roomId);
     // 调用本局开始逻辑
     InsuranceManager.getInstance().onTableOpenAction(roomId);
   }
 
   public void onTableClose(long roomId) {
-    logger.debug("remove roomId:" + roomId);
+//    logger.debug("remove roomId:" + roomId);
     hands_map.remove(roomId);
     // 调用本局结束逻辑
     InsuranceManager.getInstance().onTableCloseAction(roomId);
@@ -113,7 +113,7 @@ public class HandsManager {
       logger.debug("roomId:" + roomId + ",handId:" + handInfo.handId + ",uuid:" + uuid + ",info null");
       return;
     }
-    logger.debug("roomId:" + roomId + ",handId:" + handInfo.handId + ",uuid:" + uuid + ",fold");
+//    logger.debug("roomId:" + roomId + ",handId:" + handInfo.handId + ",uuid:" + uuid + ",fold");
     userInfo.fold = true;
     // 记录玩家弃牌操作
     handInfo.setRoundUserFlod(uuid);
@@ -142,7 +142,7 @@ public class HandsManager {
   }
 
   public void setTableCards(long roomId, int status, int[] tables) {
-    logger.debug("roomId:" + roomId + ",stats:" + status + ",tables:" + Arrays.toString(tables));
+//    logger.debug("roomId:" + roomId + ",stats:" + status + ",tables:" + Arrays.toString(tables));
     HandInfo handInfo = hands_map.get(roomId);
     if (handInfo == null || tables == null) {
       logger.error("roomId:" + roomId + ",handinfo:" + handInfo + ",tables:" + tables);
