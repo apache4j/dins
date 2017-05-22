@@ -38,7 +38,7 @@ public class TableLogService {
   		InsuranceApi.parseGameAction(content);
   	}
   
-  	public void error1(String content){
-  		mLogSocial.error(content);
-  	}
+//  	public void error1(String content){
+//  		mLogSocial.error(content);
+//  	}
 }  

@@ -446,18 +446,18 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 							switch (stGameRoomInfoBuilder.getEGameState()
 									.getNumber()) {
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE: {
-								TableLogService.getInstance().error1(lFromRoomID
-										+"," + lGameRoomID
-										+"," + stGameRoomInfo.getLGameHandID()
-										+",gotoFlopAllStatus enter2" + stGameRoomInfo.getEGameState());
+//								TableLogService.getInstance().error1(lFromRoomID
+//										+"," + lGameRoomID
+//										+"," + stGameRoomInfo.getLGameHandID()
+//										+",gotoFlopAllStatus enter2" + stGameRoomInfo.getEGameState());
 								gotoFlopAllStatus(uuid);
 							}
 								break;
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE: {
-								TableLogService.getInstance().error1(lFromRoomID
-								+"," + lGameRoomID
-								+"," + stGameRoomInfo.getLGameHandID()
-								+",checkGotoTurnStatus enter1" + stGameRoomInfo.getEGameState());
+//								TableLogService.getInstance().error1(lFromRoomID
+//								+"," + lGameRoomID
+//								+"," + stGameRoomInfo.getLGameHandID()
+//								+",checkGotoTurnStatus enter1" + stGameRoomInfo.getEGameState());
 								
 								checkGotoTurnStatus(uuid);
 							}
@@ -644,25 +644,25 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	
 	void checkGotoTurnStatus(long uuid){
 		if(checkAllAllin() == true){
-			TableLogService.getInstance().error1(lFromRoomID
-					+"," + lGameRoomID
-					+"," + stGameRoomInfo.getLGameHandID()
-					+",checkGotoTurnStatus begin" + stGameRoomInfo.getEGameState());
+//			TableLogService.getInstance().error1(lFromRoomID
+//					+"," + lGameRoomID
+//					+"," + stGameRoomInfo.getLGameHandID()
+//					+",checkGotoTurnStatus begin" + stGameRoomInfo.getEGameState());
 			
 			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 			InsuranceInfo stInsuranceInfo = null;
 			if(stGameRoomInfoBuilder.getEInsuranceStatus() == INSURANCE_STATUS.INSURANCE_STATUS_NO){
-				TableLogService.getInstance().error1(lFromRoomID
-						+"," + lGameRoomID
-						+"," + stGameRoomInfo.getLGameHandID()
-						+",checkGotoTurnStatus 1" + stGameRoomInfo.getEGameState());
+//				TableLogService.getInstance().error1(lFromRoomID
+//						+"," + lGameRoomID
+//						+"," + stGameRoomInfo.getLGameHandID()
+//						+",checkGotoTurnStatus 1" + stGameRoomInfo.getEGameState());
 				stInsuranceInfo = InsuranceApi.checkInsurance(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),stGameRoomInfo.getLGameHandID(),GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop);
 	
 				if(stInsuranceInfo != null){
-					TableLogService.getInstance().error1(lFromRoomID
-							+"," + lGameRoomID
-							+"," + stGameRoomInfo.getLGameHandID()
-							+",checkGotoTurnStatus 2" + stGameRoomInfo.getEGameState());
+//					TableLogService.getInstance().error1(lFromRoomID
+//							+"," + lGameRoomID
+//							+"," + stGameRoomInfo.getLGameHandID()
+//							+",checkGotoTurnStatus 2" + stGameRoomInfo.getEGameState());
 					//进入保险模式
 					stGameRoomInfoBuilder.setEInsuranceStatus(INSURANCE_STATUS.INSURANCE_STATUS_BETTING);
 					stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
@@ -672,19 +672,19 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					stGameRoomInfo = stGameRoomInfoBuilder.build();		
 					
 					InsuranceApi.doInsuranceTimeout(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
-					TableLogService.getInstance().error1(lFromRoomID
-							+"," + lGameRoomID
-							+"," + stGameRoomInfo.getLGameHandID()
-							+",checkGotoTurnStatus 3" + stGameRoomInfo.getEGameState());
+//					TableLogService.getInstance().error1(lFromRoomID
+//							+"," + lGameRoomID
+//							+"," + stGameRoomInfo.getLGameHandID()
+//							+",checkGotoTurnStatus 3" + stGameRoomInfo.getEGameState());
 				}else{
 					gotoTurnStatus(uuid,false);
 				}
 			}
 			
-			TableLogService.getInstance().error1(lFromRoomID
-					+"," + lGameRoomID
-					+"," + stGameRoomInfo.getLGameHandID()
-					+",checkGotoTurnStatus end" + stGameRoomInfo.getEGameState());
+//			TableLogService.getInstance().error1(lFromRoomID
+//					+"," + lGameRoomID
+//					+"," + stGameRoomInfo.getLGameHandID()
+//					+",checkGotoTurnStatus end" + stGameRoomInfo.getEGameState());
 		}else{
 			gotoTurnStatus(uuid,false);
 		}
@@ -1009,18 +1009,18 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 									//������������������
 									switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
 										case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
-											TableLogService.getInstance().error1(lFromRoomID
-													+"," + lGameRoomID
-													+"," + stGameRoomInfo.getLGameHandID()
-													+",gotoFlopAllStatus enter3" + stGameRoomInfo.getEGameState());
+//											TableLogService.getInstance().error1(lFromRoomID
+//													+"," + lGameRoomID
+//													+"," + stGameRoomInfo.getLGameHandID()
+//													+",gotoFlopAllStatus enter3" + stGameRoomInfo.getEGameState());
 											gotoFlopAllStatus(uuid);
 										}
 										break;
 										case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
-											TableLogService.getInstance().error1(lFromRoomID
-													+"," + lGameRoomID
-													+"," + stGameRoomInfo.getLGameHandID()
-													+",checkGotoTurnStatus enter2" + stGameRoomInfo.getEGameState());
+//											TableLogService.getInstance().error1(lFromRoomID
+//													+"," + lGameRoomID
+//													+"," + stGameRoomInfo.getLGameHandID()
+//													+",checkGotoTurnStatus enter2" + stGameRoomInfo.getEGameState());
 											
 											checkGotoTurnStatus(uuid);
 										}
@@ -1570,18 +1570,18 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 							//������������������
 							switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
 								case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
-									TableLogService.getInstance().error1(lFromRoomID
-											+"," + lGameRoomID
-											+"," + stGameRoomInfo.getLGameHandID()
-											+",gotoFlopAllStatus enter4" + stGameRoomInfo.getEGameState());
+//									TableLogService.getInstance().error1(lFromRoomID
+//											+"," + lGameRoomID
+//											+"," + stGameRoomInfo.getLGameHandID()
+//											+",gotoFlopAllStatus enter4" + stGameRoomInfo.getEGameState());
 									gotoFlopAllStatus(uuid);
 								}
 								break;
 								case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
-									TableLogService.getInstance().error1(lFromRoomID
-											+"," + lGameRoomID
-											+"," + stGameRoomInfo.getLGameHandID()
-											+",checkGotoTurnStatus enter3" + stGameRoomInfo.getEGameState());
+//									TableLogService.getInstance().error1(lFromRoomID
+//											+"," + lGameRoomID
+//											+"," + stGameRoomInfo.getLGameHandID()
+//											+",checkGotoTurnStatus enter3" + stGameRoomInfo.getEGameState());
 									
 									checkGotoTurnStatus(uuid);
 								}
@@ -1643,10 +1643,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	public ERROR_CODE_TYPE doFlodAction(long uuid,int userPos,long lBettingID,boolean bDeleggate){
 		ERROR_CODE_TYPE eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 		
-		TableLogService.getInstance().error1(lFromRoomID
-				+"," + lGameRoomID
-				+"," + stGameRoomInfo.getLGameHandID()
-				+",doFlodAction begin" + stGameRoomInfo.getEGameState());
+//		TableLogService.getInstance().error1(lFromRoomID
+//				+"," + lGameRoomID
+//				+"," + stGameRoomInfo.getLGameHandID()
+//				+",doFlodAction begin" + stGameRoomInfo.getEGameState());
 
 		if(bPause == true){
 			return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
@@ -1818,19 +1818,19 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 						//发牌相关操作
 						switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
-								TableLogService.getInstance().error1(lFromRoomID
-										+"," + lGameRoomID
-										+"," + stGameRoomInfo.getLGameHandID()
-										+",gotoFlopAllStatus enter5" + stGameRoomInfo.getEGameState());
+//								TableLogService.getInstance().error1(lFromRoomID
+//										+"," + lGameRoomID
+//										+"," + stGameRoomInfo.getLGameHandID()
+//										+",gotoFlopAllStatus enter5" + stGameRoomInfo.getEGameState());
 								//Flop发牌操作
 								gotoFlopAllStatus(uuid);
 							}
 							break;
 							case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
-								TableLogService.getInstance().error1(lFromRoomID
-								+"," + lGameRoomID
-								+"," + stGameRoomInfo.getLGameHandID()
-								+",checkGotoTurnStatus enter4" + stGameRoomInfo.getEGameState());
+//								TableLogService.getInstance().error1(lFromRoomID
+//								+"," + lGameRoomID
+//								+"," + stGameRoomInfo.getLGameHandID()
+//								+",checkGotoTurnStatus enter4" + stGameRoomInfo.getEGameState());
 								
 								//发turn一张牌
 								checkGotoTurnStatus(uuid);
@@ -1915,18 +1915,18 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 								//������������������
 								switch(stGameRoomInfoBuilder.getEGameState().getNumber()){
 									case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE:{
-										TableLogService.getInstance().error1(lFromRoomID
-												+"," + lGameRoomID
-												+"," + stGameRoomInfo.getLGameHandID()
-												+",gotoFlopAllStatus enter6" + stGameRoomInfo.getEGameState());
+//										TableLogService.getInstance().error1(lFromRoomID
+//												+"," + lGameRoomID
+//												+"," + stGameRoomInfo.getLGameHandID()
+//												+",gotoFlopAllStatus enter6" + stGameRoomInfo.getEGameState());
 										gotoFlopAllStatus(uuid);
 									}
 									break;
 									case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
-										TableLogService.getInstance().error1(lFromRoomID
-												+"," + lGameRoomID
-												+"," + stGameRoomInfo.getLGameHandID()
-												+",checkGotoTurnStatus enter5" + stGameRoomInfo.getEGameState());
+//										TableLogService.getInstance().error1(lFromRoomID
+//												+"," + lGameRoomID
+//												+"," + stGameRoomInfo.getLGameHandID()
+//												+",checkGotoTurnStatus enter5" + stGameRoomInfo.getEGameState());
 										
 										checkGotoTurnStatus(uuid);
 									}
@@ -1947,10 +1947,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				}
 			}	
 			
-			TableLogService.getInstance().error1(lFromRoomID
-					+"," + lGameRoomID
-					+"," + stGameRoomInfo.getLGameHandID()
-					+",doFlodAction end" + stGameRoomInfo.getEGameState());
+//			TableLogService.getInstance().error1(lFromRoomID
+//					+"," + lGameRoomID
+//					+"," + stGameRoomInfo.getLGameHandID()
+//					+",doFlodAction end" + stGameRoomInfo.getEGameState());
 			
 		}
 		return eErrorCode;
@@ -3486,10 +3486,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	 */
 	@Override
 	public int getTableCard(int cardNo){
-		TableLogService.getInstance().error1(lFromRoomID
-				+"," + lGameRoomID
-				+"," + stGameRoomInfo.getLGameHandID()
-				+",getTableCard begin " + cardNo);
+//		TableLogService.getInstance().error1(lFromRoomID
+//				+"," + lGameRoomID
+//				+"," + stGameRoomInfo.getLGameHandID()
+//				+",getTableCard begin " + cardNo);
 		
 		if(bAllAllin==true ){
 			int drawCard = mCards[iDrawCardNum++];
@@ -3528,30 +3528,30 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				}
 			}
 			
-			TableLogService.getInstance().error1(lFromRoomID
-					+"," + lGameRoomID
-					+"," + stGameRoomInfo.getLGameHandID()
-					+",getTableCard card " + drawCard);
-			
-			TableLogService.getInstance().error1(lFromRoomID
-					+"," + lGameRoomID
-					+"," + stGameRoomInfo.getLGameHandID()
-					+",getTableCard end " + cardNo);
+//			TableLogService.getInstance().error1(lFromRoomID
+//					+"," + lGameRoomID
+//					+"," + stGameRoomInfo.getLGameHandID()
+//					+",getTableCard card " + drawCard);
+//			
+//			TableLogService.getInstance().error1(lFromRoomID
+//					+"," + lGameRoomID
+//					+"," + stGameRoomInfo.getLGameHandID()
+//					+",getTableCard end " + cardNo);
 			
 			vTableCards.add(drawCard);
 			return drawCard;
 		}else{
 			int drawCard = mCards[iDrawCardNum++];
 			
-			TableLogService.getInstance().error1(lFromRoomID
-					+"," + lGameRoomID
-					+"," + stGameRoomInfo.getLGameHandID()
-					+",getTableCard card " + drawCard);
+//			TableLogService.getInstance().error1(lFromRoomID
+//					+"," + lGameRoomID
+//					+"," + stGameRoomInfo.getLGameHandID()
+//					+",getTableCard card " + drawCard);
 			
-			TableLogService.getInstance().error1(lFromRoomID
-					+"," + lGameRoomID
-					+"," + stGameRoomInfo.getLGameHandID()
-					+",getTableCard end " + cardNo);
+//			TableLogService.getInstance().error1(lFromRoomID
+//					+"," + lGameRoomID
+//					+"," + stGameRoomInfo.getLGameHandID()
+//					+",getTableCard end " + cardNo);
 			vTableCards.add(drawCard);
 			return drawCard;
 		}

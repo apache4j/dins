@@ -1380,10 +1380,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			checkStandByTimeout();
 			
 			//首先判断每个房间的游戏状态
-			TableLogService.getInstance().error1(lFromRoomID
-					+"," + lGameRoomID
-					+"," + stGameRoomInfo.getLGameHandID()
-					+",gameRoomTimeoutHandle begin" + stGameRoomInfo.getEGameState());
+//			TableLogService.getInstance().error1(lFromRoomID
+//					+"," + lGameRoomID
+//					+"," + stGameRoomInfo.getLGameHandID()
+//					+",gameRoomTimeoutHandle begin" + stGameRoomInfo.getEGameState());
 			
 			switch(stGameRoomInfo.getEGameState().getNumber()){					
 			//如果游戏状态是等待，则需要当进入房间人数大于等于2是，开始牌局
@@ -1567,10 +1567,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				//如果allin状态，则发牌跳转到下一个状态
 				if(stGameRoomInfo.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result && checkAllAllin() == true){
 
-					TableLogService.getInstance().error1(lFromRoomID
-							+"," + lGameRoomID
-							+"," + stGameRoomInfo.getLGameHandID()
-							+",gotoFlopAllStatus enter1" + stGameRoomInfo.getEGameState());
+//					TableLogService.getInstance().error1(lFromRoomID
+//							+"," + lGameRoomID
+//							+"," + stGameRoomInfo.getLGameHandID()
+//							+",gotoFlopAllStatus enter1" + stGameRoomInfo.getEGameState());
 					
 					gotoFlopAllStatus(0);
 				}
@@ -1586,10 +1586,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			break;
 			case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE:{
 				if(checkAllAllin()){
-					TableLogService.getInstance().error1(lFromRoomID
-							+"," + lGameRoomID
-							+"," + stGameRoomInfo.getLGameHandID()
-							+",checkGotoTurnStatus enter6" + stGameRoomInfo.getEGameState());
+//					TableLogService.getInstance().error1(lFromRoomID
+//							+"," + lGameRoomID
+//							+"," + stGameRoomInfo.getLGameHandID()
+//							+",checkGotoTurnStatus enter6" + stGameRoomInfo.getEGameState());
 					
 					checkGotoTurnStatus(0);
 				}else{
@@ -1626,11 +1626,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				mGameRoomDetailInfos.setCurrent(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), this);
 				break;
 			}
-			//首先判断每个房间的游戏状态
-			TableLogService.getInstance().error1(lFromRoomID
-					+"," + lGameRoomID
-					+"," + stGameRoomInfo.getLGameHandID()
-					+",gameRoomTimeoutHandle end" + stGameRoomInfo.getEGameState());
+//			//首先判断每个房间的游戏状态
+//			TableLogService.getInstance().error1(lFromRoomID
+//					+"," + lGameRoomID
+//					+"," + stGameRoomInfo.getLGameHandID()
+//					+",gameRoomTimeoutHandle end" + stGameRoomInfo.getEGameState());
 		}
 
 	}
@@ -4176,43 +4176,43 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 
 			
 			synchronized(this){
-				TableLogService.getInstance().error1(lFromRoomID
-						+"," + lGameRoomID
-						+"," + stGameRoomInfo.getLGameHandID()
-						+",gotoNextStep " + stGameRoomInfo.getEGameState());
+//				TableLogService.getInstance().error1(lFromRoomID
+//						+"," + lGameRoomID
+//						+"," + stGameRoomInfo.getLGameHandID()
+//						+",gotoNextStep " + stGameRoomInfo.getEGameState());
 				
 				switch (stGameRoomInfo.getEGameState().getNumber()) {
 				case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Flop_VALUE: {
-					TableLogService.getInstance().error1(lFromRoomID
-							+"," + lGameRoomID
-							+"," + stGameRoomInfo.getLGameHandID()
-							+",gotoNextStep1 ROOM_GAME_STATE_Flop_VALUE");
+//					TableLogService.getInstance().error1(lFromRoomID
+//							+"," + lGameRoomID
+//							+"," + stGameRoomInfo.getLGameHandID()
+//							+",gotoNextStep1 ROOM_GAME_STATE_Flop_VALUE");
 					gotoTurnStatus(0,true);
 				}
 					break;
 				case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Turn_VALUE: {
-					TableLogService.getInstance().error1(lFromRoomID
-							+"," + lGameRoomID
-							+"," + stGameRoomInfo.getLGameHandID()
-							+",gotoNextStep1 ROOM_GAME_STATE_Turn_VALUE");
+//					TableLogService.getInstance().error1(lFromRoomID
+//							+"," + lGameRoomID
+//							+"," + stGameRoomInfo.getLGameHandID()
+//							+",gotoNextStep1 ROOM_GAME_STATE_Turn_VALUE");
 					gotoRiverStatus(0,true);
 				}
 					break;
 				case TexasPoker.GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_River_VALUE: {
-					TableLogService.getInstance().error1(lFromRoomID
-							+"," + lGameRoomID
-							+"," + stGameRoomInfo.getLGameHandID()
-							+",gotoNextStep1 ROOM_GAME_STATE_River_VALUE");
+//					TableLogService.getInstance().error1(lFromRoomID
+//							+"," + lGameRoomID
+//							+"," + stGameRoomInfo.getLGameHandID()
+//							+",gotoNextStep1 ROOM_GAME_STATE_River_VALUE");
 					gotoResultStatus(0);
 				}
 					break;
 				}
 				
 				
-				TableLogService.getInstance().error1(lFromRoomID
-						+"," + lGameRoomID
-						+"," + stGameRoomInfo.getLGameHandID()
-						+",gotoNextStep2 " + stGameRoomInfo.getEGameState());
+//				TableLogService.getInstance().error1(lFromRoomID
+//						+"," + lGameRoomID
+//						+"," + stGameRoomInfo.getLGameHandID()
+//						+",gotoNextStep2 " + stGameRoomInfo.getEGameState());
 			}
 
 		

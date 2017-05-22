@@ -857,11 +857,9 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		GetAllBuyinControlsResponse.Builder  stGetAllBuyinControlsResponseBuilder = GetAllBuyinControlsResponse.newBuilder();
 	
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
-		
-		
 
 		if(stGameRoomDetailInfo!=null&&stGameRoomDetailInfo.getStGameRoomInfo()!=null){
-			boolean bClubManager = false;
+			
 			if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLLeagueID() > 0){
 				//如果是俱乐部管理员，则开始
 				LeagueInfo stLeagueInfo = stGameRoomDetailInfo.getStLeagueInfo();
@@ -869,9 +867,8 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 				if(stLeagueInfo!=null){
 					for(ClubBaseInfo stClubBaseInfo:stLeagueInfo.getVClubBaseInfosList()){
 						
-						bClubManager = ClubManager.getInstance().checkClubManager(stClubBaseInfo.getLClubID(),request.getUuid());
-					
-						if(bClubManager){
+						
+						if(stClubBaseInfo.getStCreateUserBaseInfo().getUuid() == request.getUuid()){
 							ArrayList<BuyinControl> vBuyinControls = stGameRoomDetailInfo.getAllBuyinControls(stClubBaseInfo.getLClubID());
 							
 							for(BuyinControl stBuyinControl:vBuyinControls){
@@ -886,37 +883,16 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 			}else{
 				//如果创建牌局的人不是俱乐部的管理员
 				if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
-					//检查创建牌局的用户是否为管理员创建
-					if(ClubManager.getInstance().checkClubManager(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID()
-							,stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid())){
-						//如果是管理员创建牌局，则检查是否为管理员，只要是管理员，就可以获得买入信息
-						bClubManager = stGameRoomDetailInfo.checkClubManager(request.getUuid());
+					if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()){
+						ArrayList<BuyinControl> vBuyinControls = stGameRoomDetailInfo.getAllBuyinControls(0);
 						
-						if(bClubManager){
-							ArrayList<BuyinControl> vBuyinControls = stGameRoomDetailInfo.getAllBuyinControls(0);
-							
-							if(vBuyinControls!=null){
-								stGetAllBuyinControlsResponseBuilder.addAllVBuyinControls(vBuyinControls);
-							}
-							stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-							
-						}else{
-							stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_AUTH_BUYINACTION);
+						if(vBuyinControls!=null){
+							stGetAllBuyinControlsResponseBuilder.addAllVBuyinControls(vBuyinControls);
 						}
+						stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
 						
 					}else{
-						//如果不是管理员创建牌局，则只有房主可以获得买入申请信息
-						if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()){
-							ArrayList<BuyinControl> vBuyinControls = stGameRoomDetailInfo.getAllBuyinControls(0);
-							
-							if(vBuyinControls!=null){
-								stGetAllBuyinControlsResponseBuilder.addAllVBuyinControls(vBuyinControls);
-							}
-							stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-							
-						}else{
-							stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_AUTH_BUYINACTION);
-						}
+						stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_AUTH_BUYINACTION);
 					}
 				}
 				else{
@@ -937,8 +913,6 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		}else{
 			stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);
 		}
-		
-//		System.out.println("stGetAllBuyinControlsResponseBuilder : " + stGetAllBuyinControlsResponseBuilder);
 		
 		return stGetAllBuyinControlsResponseBuilder.build();
 	}
