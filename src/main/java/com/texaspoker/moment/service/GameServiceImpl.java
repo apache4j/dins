@@ -325,7 +325,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 			ERROR_CODE_TYPE rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 			long clubid = request.getLClubID();
 			if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLLeagueID() > 0 
-					&& request.getLClubID() > 0){
+					&& request.getLClubID() == 0){
 				rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
 			}else{
 				if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLLeagueID() == 0){
