@@ -81,12 +81,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	
 	//结账保护
 	public boolean bOver = false;	
-	
-	/**
-	 * 日志相关变量
-	 */
-	Log   mLogFortransaction   =   LogFactory.getLog("fortransaction");
-	
 		
 	/****************************牌局操作函数*******************************/
 	public ERROR_CODE_TYPE startGame(long uuid){
@@ -1015,7 +1009,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 									bSetted = true;
 									//减去用户的银币
 									stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), -popularity);		
-									String sLog = uuid + " " + 0 + " " + 110000 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
+									String sLog = uuid + " " + clubID + " " + 110000 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
 												+ " 0 " + " 0 " + lStacks + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
 									TranscationLogService.getInstance().error(sLog);
 																		
@@ -1069,7 +1063,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 									//减去用户的银币
 									stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), -popularity);
 									
-									String sLog = uuid + " " + 0 + " " + 110000 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
+									String sLog = uuid + " " + clubID + " " + 110000 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
 											+ " 0 " + " 0 " + lStacks + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
 									TranscationLogService.getInstance().error(sLog);
 							
@@ -1742,7 +1736,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 										stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), - popularity);
 										
 										//打印日志
-										String sLog = stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 110000 + " " 
+										String sLog = stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + stUserGameInfoNetBuilder.getLBuyinClubID() + " " 
 													+ stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " 0 " + " 0 " 
 															+ buyStacks + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
 										TranscationLogService.getInstance().error(sLog);
@@ -2936,8 +2930,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							//打印日志
 							UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
 							if(stUserBaseInfoNetBuilder!=null){
-								Log   mLog   =   LogFactory.getLog("fortransaction");
-								mLog.error(uuid + " " + 0 + " " + 430003 + " " + 1 + " 0 " + "0 0 "  + stUserBaseInfoNetBuilder.getLCoin());
+								TranscationLogService.getInstance().error(uuid + " " + 0 + " " + 430003 + " " + 1 + " 0 " + "0 0 "  + stUserBaseInfoNetBuilder.getLCoin());
 							}
 							
 							//首先设置回包
@@ -2976,8 +2969,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 									stGameRoomInfo = stGameRoomInfoBuilder.build();
 									
 									//打印日志
-									Log   mLog   =   LogFactory.getLog("fortransaction");
-									mLog.error(uuid + " " + 0 + " " + 430003 + " " + 1 + " 0 " + "0 "+ stUserGameInfoNet.getIDelayCost() +" "  + stUserBaseInfoNetBuilder.getLCoin());
+									TranscationLogService.getInstance().error(uuid + " " + 0 + " " + 430003 + " " + 1 + " 0 " + "0 "+ stUserGameInfoNet.getIDelayCost() +" "  + stUserBaseInfoNetBuilder.getLCoin());
 									
 									addDelayPlayer(uuid);
 									
@@ -4864,8 +4856,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(uuid, -lFee);
 								
 								//打印日志
-								Log   mLogFortransaction   =   LogFactory.getLog("fortransaction");
-								mLogFortransaction.error(uuid + " " + 0 + " " + 430004 + " 0 " + "0 "+lFee+" "  + stUserBaseInfoNetBuilder.getLPopularity());
+								TranscationLogService.getInstance().error(uuid + " " + 0 + " " + 430004 + " 0 " + "0 "+lFee+" "  + stUserBaseInfoNetBuilder.getLPopularity());
 								
 								if(vTempTableCards.size() == 0){
 									//获取三张牌

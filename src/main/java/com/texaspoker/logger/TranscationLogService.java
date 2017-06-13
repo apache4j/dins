@@ -34,5 +34,12 @@ public class TranscationLogService {
   		mJedis.publish("transaction_log", System.currentTimeMillis() + " " + content);  
   		JedisManager.returnRes(mJedis);
   	}
+  	
+//  	public void errorExtra(String content){
+//  		Jedis mJedis = JedisManager.getJedis();
+//  		mLogTranscation.error(content);
+//  		mJedis.publish("transaction_log_extra", System.currentTimeMillis() + " " + content);  
+//  		JedisManager.returnRes(mJedis);
+//  	}
  
 }  

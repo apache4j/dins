@@ -12,6 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import com.texaspoker.bill.BillManager;
 import com.texaspoker.database.ConnectDatabase;
+import com.texaspoker.logger.TranscationLogService;
 import com.texaspoker.moment.TexasPoker;
 import com.texaspoker.moment.TexasPoker.ChatRoomInfo;
 import com.texaspoker.moment.TexasPoker.GAME_ROOM_GAME_STATE;
@@ -177,7 +178,6 @@ public class QuickGameRoomManager {
 		//设置发送用户
 		UserBaseInfoNet.Builder stFromUserBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
 		
-		Log   mLog   =   LogFactory.getLog("fortransaction");
 		QuickGameRoomResultInfo stQuickGameRoomResultInfo = new QuickGameRoomResultInfo();
 		
 		if(stFromUserBuilder !=null){
@@ -355,7 +355,7 @@ public class QuickGameRoomManager {
 										
 								QuickGameRoomManager.getInstance().addUserCreateQuickGameRoom(stFromUserBuilder.getUuid(), lRoomID);
 								
-								mLog.error(uuid + " " + lRoomID + " " + 110001 + " " + stGameRoomBaseInfoBuilder.getLDuration()
+								TranscationLogService.getInstance().error(uuid + " " + lRoomID + " " + 110001 + " " + stGameRoomBaseInfoBuilder.getLDuration()
 										+ " " + stGameRoomBaseInfoBuilder.getIMinBuyinRatio() 
 										+ " " + stGameRoomBaseInfoBuilder.getIMaxBuyinRatio() + " 200 "  +stFromUserBuilder.getLCoin());
 								

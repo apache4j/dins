@@ -19,6 +19,7 @@ import com.texaspoker.dubbo.game.insurance.InsuranceApi;
 import com.texaspoker.dubbo.game.insurance.InsuranceManager;
 import com.texaspoker.dubbo.game.insurance.OutsInfo;
 import com.texaspoker.logger.TableLogService;
+import com.texaspoker.logger.TranscationLogService;
 import com.texaspoker.moment.TexasPoker;
 import com.texaspoker.moment.TexasPoker.GAME_ACT_TYPE;
 import com.texaspoker.moment.TexasPoker.GAME_ROOM_GAME_STATE;
@@ -4144,10 +4145,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					stUseItemPushMsgBuilder.setSExtra(sExtra);
 					
 					stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), - lCheckPopularity);
-					
-					Log   mLog   =   LogFactory.getLog("fortransaction");
-					mLog.error(stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 430001 + " " + sExtra + " 0 " + "0 "+lCheckPopularity+" "  + stUserBaseInfoNetBuilder.getLPopularity());
-					
+					TranscationLogService.getInstance().error(stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 430001 + " " + sExtra + " 0 " + "0 "+lCheckPopularity+" "  + stUserBaseInfoNetBuilder.getLPopularity());
+					 
 					for(int i = 0; i < stGameRoomInfo.getVUserGameInfosCount();i++){
 						UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
 						
@@ -4181,10 +4180,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					stUserBaseInfoNetBuilder = UserManager.getInstance().addUserCoin(stUserBaseInfoNetBuilder.getUuid(), - 6);
 
 					//打印日志
-					Log   mLog   =   LogFactory.getLog("fortransaction");
-					mLog.error(stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 430002 + " " + sExtra + " 0 " + "0 6 "  + stUserBaseInfoNetBuilder.getLCoin());
+					TranscationLogService.getInstance().error(stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 430002 + " " + sExtra + " 0 " + "0 6 "  + stUserBaseInfoNetBuilder.getLCoin());
 
-					
 					for(int i = 0; i < stGameRoomInfo.getVUserGameInfosCount();i++){
 						UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
 						

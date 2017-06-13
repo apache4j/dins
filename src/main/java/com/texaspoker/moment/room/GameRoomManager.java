@@ -15,6 +15,7 @@ import com.texaspoker.comm.GameFeeUtil;
 import com.texaspoker.comm.TimeoutHashMap;
 import com.texaspoker.database.ConnectDatabase;
 import com.texaspoker.league.LeagueManager;
+import com.texaspoker.logger.TranscationLogService;
 import com.texaspoker.moment.TexasPoker;
 import com.texaspoker.moment.TexasPoker.ChatRoomInfo;
 import com.texaspoker.moment.TexasPoker.GAME_ROOM_GAME_STATE;
@@ -299,7 +300,6 @@ public class GameRoomManager  {
 											
 							// 修改用户的popularity
 							// 修改UserBaseInfo				
-							Log   mLog   =  LogFactory.getLog("fortransaction");
 											
 							// 保存设置
 							stUserBaseInfoNet = UserManager.getInstance().addUserCoin(stUserBaseInfoNet.getUuid(),  - lCoin);
@@ -392,7 +392,7 @@ public class GameRoomManager  {
 							stGameRoomDetailInfo.buyStakcsInRoom(stUserBaseInfoNet.getUuid(),0,gameRoomBaseInfoBuilder.getLChatRoomID());
 
 							// 生成回包
-							mLog.error(stUserBaseInfoNet.getUuid() + " " + gameRoomBaseInfoBuilder.getLGameRoomId() + " " + 110001 + " " + gameRoomBaseInfoBuilder.getLDuration()
+							TranscationLogService.getInstance().error(stUserBaseInfoNet.getUuid() + " " + gameRoomBaseInfoBuilder.getLGameRoomId() + " " + 110001 + " " + gameRoomBaseInfoBuilder.getLDuration()
 												+ " " + gameRoomBaseInfoBuilder.getIMinBuyinRatio() 
 												+ " " + gameRoomBaseInfoBuilder.getIMaxBuyinRatio() + " "+ lCoin +" "  + stUserBaseInfoNet.getLCoin());
 								
