@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import com.texaspoker.apns.APNManager;
 import com.texaspoker.bill.BillManager;
 import com.texaspoker.club.ClubManager;
@@ -993,16 +991,22 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								
 								//玩家购买的筹码
 								if((stUserGameInfoBuilder.getLRemainStacks() +  lStacks) < (this.stGameRoomInfo.getStGameRoomBaseInfo().getIMaxBuyinRatio()/10+1)*stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBuyIn()){
+									//解决连续大忙问题，暂时注释下个版本启用
+//									if(stGameRoomInfo.getStGameRoomBaseInfo().getBStarted() == 1 && stUserGameInfoBuilder.getLRemainStacks() == 0){
+//										stUserGameInfoBuilder.setBJustSit(1);
+//									}
+									
 									long buyStacks = lStacks;
+									
 									stUserGameInfoBuilder.setLRemainStacks(buyStacks+ stUserGameInfoBuilder.getLRemainStacks());
 									stUserGameInfoBuilder.setLBuyinClubID(clubID);
-//									System.out.println("buyBuyinbuyBuyinbuyBuyinbuyBuyin clubid : " + clubID);
+									
 									stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoBuilder);
 									//修改账单信息
 									buyStakcsInRoom(uuid, buyStacks,clubID);
 									
 									if(stUserGameInfoBuilder!=null){
-										BillManager.getInstance().setCurrentStacksInRoom(stUserGameInfoBuilder.getStUserInfo().getUuid(), 
+										setBillCurrentStacksInRoom(stUserGameInfoBuilder.getStUserInfo().getUuid(), 
 												stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
 												, stUserGameInfoBuilder.getLRemainStacks());
 									}
@@ -1045,6 +1049,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							if(stUserGameInfoBuilder!=null){
 								stUserMyGameInfoNetBuilder = stUserGameInfoBuilder;
 								if((stUserGameInfoBuilder.getLRemainStacks() +  lStacks) < (this.stGameRoomInfo.getStGameRoomBaseInfo().getIMaxBuyinRatio()/10+1)*stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBuyIn()){
+									//解决连续大忙问题，暂时注释下个版本启用
+//									if(stGameRoomInfo.getStGameRoomBaseInfo().getBStarted() == 1 && stUserGameInfoBuilder.getLRemainStacks() == 0){
+//										stUserGameInfoBuilder.setBJustSit(1);
+//									}
+									
 									//玩家购买的筹码
 									long buyStacks = lStacks;
 									stUserGameInfoBuilder.setLRemainStacks(buyStacks + stUserGameInfoBuilder.getLRemainStacks());
@@ -1055,7 +1064,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 									buyStakcsInRoom(uuid, buyStacks,clubID);
 									
 									if(stUserGameInfoBuilder!=null){
-										BillManager.getInstance().setCurrentStacksInRoom(stUserGameInfoBuilder.getStUserInfo().getUuid(), 
+										setBillCurrentStacksInRoom(stUserGameInfoBuilder.getStUserInfo().getUuid(), 
 												stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
 												, stUserGameInfoBuilder.getLRemainStacks());
 									}
@@ -1435,6 +1444,21 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						for(long uuid:vPushUsers){
 //							pushAppPushGameFinish(uuid);
 						}
+						
+						Iterator iter = mUserOutStacks.entrySet().iterator(); 
+						while (iter.hasNext()) {
+							Map.Entry entry = (Map.Entry) iter.next(); 
+							Long uuid = (Long) entry.getKey();
+							Long lRemainStacks = (Long) entry.getValue();
+							Long clubid = mUserBuyinClubIDs.get(uuid);	
+							if(clubid == null){
+								clubid = (long)0;
+							}
+
+							String sLog = uuid + " " + clubid + " " + 110002 + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() 
+									+ " 0 " + " 0 " + lRemainStacks + " " + 0 +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+							TranscationLogService.getInstance().error(sLog);
+						}
 					}
 
 					break;
@@ -1722,12 +1746,17 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 									long buyStacks = stUserGameInfoNetBuilder.getLBuyinStacks();
 									
 									if(stUserGameInfoNetBuilder.getLRemainStacks() + buyStacks < (this.stGameRoomInfo.getStGameRoomBaseInfo().getIMaxBuyinRatio()/10+1)*stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBuyIn()){
+										//解决连续大忙问题，暂时注释下个版本启用
+//										if(stGameRoomInfo.getStGameRoomBaseInfo().getBStarted() == 1 && stUserGameInfoNetBuilder.getLRemainStacks() == 0){
+//											stUserGameInfoNetBuilder.setBJustSit(1);
+//										}
+										
 										stUserGameInfoNetBuilder.setLRemainStacks(stUserGameInfoNetBuilder.getLRemainStacks()+buyStacks);
 										
 										buyStakcsInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), buyStacks,stUserGameInfoNetBuilder.getLBuyinClubID());
 										
 										if(stUserGameInfoNetBuilder!=null){
-											BillManager.getInstance().setCurrentStacksInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), 
+											setBillCurrentStacksInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), 
 													stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId()
 													, stUserGameInfoNetBuilder.getLRemainStacks());
 										}
@@ -4627,11 +4656,18 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		//修改账单信息
 		if(BillManager.getInstance().buyStackInRoom(uuid,stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), lBuyinStacks,clubid,sClubName)){
 			mUserBuyining.remove(uuid);
+			
+			Long lRemainStacks = mUserOutStacks.get(uuid);
+			if(lRemainStacks==null){
+				mUserOutStacks.put(uuid, lBuyinStacks);
+			}else{
+				mUserOutStacks.put(uuid, lBuyinStacks+lRemainStacks);
+				
+			}
 		}
 		mUserBuyinStacks.put(uuid, lBuyinStacks);
 		mUserBuyinClubIDs.put(uuid, clubid);
 	}
-	
 	
 	public void saveBuyinStacks(){
 		Iterator iter = mUserBuyining.entrySet().iterator(); 
@@ -4654,6 +4690,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 
 			if(BillManager.getInstance().buyStackInRoom(uuid,stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), lBuyinStacks,clubid,sClubName)){
 				mUserBuyining.remove(uuid);
+				
+				Long lRemainStacks = mUserOutStacks.get(uuid);
+				if(lRemainStacks==null){
+					mUserOutStacks.put(uuid, lBuyinStacks);
+				}else{
+					mUserOutStacks.put(uuid, lBuyinStacks+lRemainStacks);
+					
+				}
 			}
 		}
 	}

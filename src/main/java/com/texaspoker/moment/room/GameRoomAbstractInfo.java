@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import com.texaspoker.bill.BillManager;
 import com.texaspoker.comm.AdvancedTimeoutHashMap;
 import com.texaspoker.comm.TimeoutHashMap;
@@ -127,6 +125,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	//查看是否可以看牌
 	public boolean bShowTableCard = false;
 	public boolean bFirstWaitShowTableCard = true;
+	
+	protected Map<Long,Long> mUserOutStacks =  new HashMap<Long,Long>();
 	
 	protected Set<Integer> mCurrentTableCards = new HashSet<Integer>();
 	/**
@@ -2099,7 +2099,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 									stUserStandByGameInfoBuilder.setLRemainStacks(stUserStandByGameInfoBuilder.getLRemainStacks()+winStacks);
 
 									mapStandByUserGameInfos.put(winUuid, stUserStandByGameInfoBuilder);		
-									BillManager.getInstance().setCurrentStacksInRoom(winUuid, 
+									setBillCurrentStacksInRoom(winUuid, 
 											stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
 											, stUserStandByGameInfoBuilder.getLRemainStacks());
 								}
@@ -2214,7 +2214,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			if(stUserGameInfo.getStUserInfo().getUuid() > 0){
 				System.out.println("结账111 : " + stUserGameInfo.getStUserInfo().getUuid());
 				//设置账单
-				BillManager.getInstance().setCurrentStacksInRoom(stUserGameInfo.getStUserInfo().getUuid(), 
+				setBillCurrentStacksInRoom(stUserGameInfo.getStUserInfo().getUuid(), 
 						stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
 						, stUserGameInfo.getLRemainStacks());
 				vSitdownUsers.add(stUserGameInfo.getStUserInfo().getUuid());
@@ -2230,7 +2230,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 						&& !vSitdownUsers.contains(stUserGameInfoBuilder.getStUserInfo().getUuid())){
 					System.out.println("结账112 : " + stUserGameInfoBuilder.getStUserInfo().getUuid());
 					//设置账单
-					BillManager.getInstance().setCurrentStacksInRoom(stUserGameInfoBuilder.getStUserInfo().getUuid(), 
+					setBillCurrentStacksInRoom(stUserGameInfoBuilder.getStUserInfo().getUuid(), 
 							stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
 							, stUserGameInfoBuilder.getLRemainStacks());
 				}
@@ -2261,6 +2261,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			   return  cardNumberRight - cardNumberLeft;
 		   }
 	};
+	
+	public void setBillCurrentStacksInRoom(long uuid,long roomid,long stacks){
+		BillManager.getInstance().setCurrentStacksInRoom(uuid, roomid, stacks);
+		mUserOutStacks.put(uuid, stacks);
+	}
 	
 	@Override
 	public GameUserResultInfo calculateCardStrength(List<Integer> handCards){
@@ -3516,8 +3521,13 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				}
 				
 				//如果池子大于200倍bb，则需要50%再发一张
-				if(lPotSize > 200*stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds() && stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds() > 50){
-					while(checkOutsCard(drawCard,vAllOuts,50,cardNo,iDrawCardNum)){
+				if(lPotSize >= 200*stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds() && stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds() >= 40){
+					while(checkOutsCard(drawCard,vAllOuts,80,cardNo,iDrawCardNum)){
+						//则70%再发下一张
+						drawCard = mCards[iDrawCardNum++];
+					}
+				}else if(lPotSize >= 100*stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds() && stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds() >= 40){
+					while(checkOutsCard(drawCard,vAllOuts,60,cardNo,iDrawCardNum)){
 						//则70%再发下一张
 						drawCard = mCards[iDrawCardNum++];
 					}
@@ -3862,7 +3872,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 									
 									mapStandByUserGameInfos.put(winUuid, stUserStandByGameInfoBuilder);		
 									
-									BillManager.getInstance().setCurrentStacksInRoom(winUuid, 
+									setBillCurrentStacksInRoom(winUuid, 
 											stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
 											, stUserStandByGameInfoBuilder.getLRemainStacks());
 								}
@@ -3906,7 +3916,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 
 									mapStandByUserGameInfos.put(winUuid, stUserStandByGameInfoBuilder);			
 									
-									BillManager.getInstance().setCurrentStacksInRoom(winUuid, 
+									setBillCurrentStacksInRoom(winUuid, 
 											stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
 											, stUserStandByGameInfoBuilder.getLRemainStacks());
 //									bSettled=true;
@@ -4022,7 +4032,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			if(stUserGameInfo.getStUserInfo().getUuid() > 0){
 				System.out.println("结账113 : " + stUserGameInfo.getStUserInfo().getUuid());
 				//设置账单
-				BillManager.getInstance().setCurrentStacksInRoom(stUserGameInfo.getStUserInfo().getUuid(), 
+				setBillCurrentStacksInRoom(stUserGameInfo.getStUserInfo().getUuid(), 
 						stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
 						, stUserGameInfo.getLRemainStacks());
 				vSitdownUsers.add(stUserGameInfo.getStUserInfo().getUuid());
@@ -4038,7 +4048,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 						&& !vSitdownUsers.contains(stUserGameInfoBuilder.getStUserInfo().getUuid())){
 					System.out.println("结账114 : " + stUserGameInfoBuilder.getStUserInfo().getUuid());
 					//设置账单
-					BillManager.getInstance().setCurrentStacksInRoom(stUserGameInfoBuilder.getStUserInfo().getUuid(), 
+					setBillCurrentStacksInRoom(stUserGameInfoBuilder.getStUserInfo().getUuid(), 
 							stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
 							, stUserGameInfoBuilder.getLRemainStacks());
 				}
