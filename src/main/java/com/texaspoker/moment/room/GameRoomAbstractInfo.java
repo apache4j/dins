@@ -3516,7 +3516,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				}
 				
 				long lPotSize = 0;
-				for(int iSidePotSize:stGameRoomInfo.getVCurrentCardsList()){
+				for(long iSidePotSize:stGameRoomInfo.getVCurrentPotsList()){
 					lPotSize += iSidePotSize;
 				}
 				
