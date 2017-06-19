@@ -3520,6 +3520,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					lPotSize += iSidePotSize;
 				}
 				
+				System.out.println(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + ","+stGameRoomInfo.getLGameHandID()+" checkOutsCard lPotSize : " + lPotSize);
+				
 				//如果池子大于200倍bb，则需要50%再发一张
 				if(lPotSize >= 200*stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds() && stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds() >= 50){
 					while(checkOutsCard(drawCard,vAllOuts,101,cardNo,iDrawCardNum)){
