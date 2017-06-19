@@ -3532,9 +3532,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 						drawCard = mCards[iDrawCardNum++];
 					}
 				}else{
-					if(stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds() >= 50){
-						System.out.println(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + ","+stGameRoomInfo.getLGameHandID()+" checkOutsCard lPotSize1111111111111111 : " + lPotSize);
-					}
+//					if(stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds() >= 50){
+//						System.out.println(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + ","+stGameRoomInfo.getLGameHandID()+" checkOutsCard lPotSize1111111111111111 : " + lPotSize);
+//					}
 					while(checkOutsCard(drawCard,vAllOuts,30,cardNo,iDrawCardNum)){
 						//则50%再发下一张
 						drawCard = mCards[iDrawCardNum++];
