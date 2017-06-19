@@ -3522,12 +3522,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				
 				//如果池子大于200倍bb，则需要50%再发一张
 				if(lPotSize >= 200*stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds() && stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds() >= 50){
-					while(checkOutsCard(drawCard,vAllOuts,101,cardNo,iDrawCardNum)){
+					while(checkOutsCard(drawCard,vAllOuts,40,cardNo,iDrawCardNum)){
 						//则70%再发下一张
 						drawCard = mCards[iDrawCardNum++];
 					}
 				}else if(lPotSize >= 100*stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds() && stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds() >= 50){
-					while(checkOutsCard(drawCard,vAllOuts,101,cardNo,iDrawCardNum)){
+					while(checkOutsCard(drawCard,vAllOuts,35,cardNo,iDrawCardNum)){
 						//则70%再发下一张
 						drawCard = mCards[iDrawCardNum++];
 					}
