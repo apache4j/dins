@@ -1765,7 +1765,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 										stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), - popularity);
 										
 										//打印日志
-										String sLog = stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + stUserGameInfoNetBuilder.getLBuyinClubID() + " " 
+										String sLog = stUserBaseInfoNetBuilder.getUuid() + " " + stUserGameInfoNetBuilder.getLBuyinClubID() + " " + 110000 + " " 
 													+ stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " 0 " + " 0 " 
 															+ buyStacks + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
 										TranscationLogService.getInstance().error(sLog);
@@ -4864,7 +4864,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							pushGameRoomUserMsgsResetThinkingInterval(null,push_uuid,interval);
 						}
 					}
-			
 				}
 				return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 			}else{
