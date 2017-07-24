@@ -249,6 +249,7 @@ public class QuickGameRoomManager {
 							stGameRoomBaseInfoBuilder.setBIPLimit(stGameRoomBaseInfo.getBIPLimit());
 							stGameRoomBaseInfoBuilder.setBGPSLimit(stGameRoomBaseInfo.getBGPSLimit());
 							stGameRoomBaseInfoBuilder.setIThinkingInterval(15);
+							stGameRoomBaseInfoBuilder.setBStraddle(stGameRoomBaseInfo.getBStraddle());
 							
 							stQuickGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
 							stQuickGameRoomInfoBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
@@ -337,6 +338,7 @@ public class QuickGameRoomManager {
 								stGameRoomBaseInfoBuilder.setBGPSLimit(stGameRoomBaseInfo.getBGPSLimit());
 								stGameRoomBaseInfoBuilder.setBIPLimit(stGameRoomBaseInfo.getBIPLimit());
 								stGameRoomBaseInfoBuilder.setIThinkingInterval(15);
+								stGameRoomBaseInfoBuilder.setBStraddle(stGameRoomBaseInfo.getBStraddle());
 								
 								stQuickGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
 								
@@ -422,6 +424,7 @@ public class QuickGameRoomManager {
 									gameRoomBaseInfoBuilder.setBIPLimit(stSettingGameRoomBaseInfoBuilder.getBIPLimit());
 									gameRoomBaseInfoBuilder.setBGPSLimit(stSettingGameRoomBaseInfoBuilder.getBGPSLimit());
 									gameRoomBaseInfoBuilder.setIThinkingInterval(15);
+									gameRoomBaseInfoBuilder.setBStraddle(stSettingGameRoomBaseInfoBuilder.getBStraddle());
 									
 									// 设置房主vip信息
 									gameRoomBaseInfoBuilder.setStCreateUserBaseInfo(UserManager.getInstance().getUserBaseInfo(uuid));
