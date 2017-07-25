@@ -499,8 +499,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							stBuyinControlMsgBuilder.setLBuyinActionID(lCreateTime);
 							stBuyinControlMsgBuilder.setLBuyStacks(lStacks);
 							stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_INVITE);
-							stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
-							stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
+							stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder.getStUserInfo());
+							stBuyinControlMsgBuilder.setStGameRoomBaseInfo(stGameRoomInfo.getStGameRoomBaseInfo());
+							stBuyinControlMsgBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 							stBuyinControlMsgBuilder.setLActionUuid(uuid);
 							stBuyinControlMsgBuilder.setLClubID(clubID);
 							ClubBaseInfo.Builder stClubBaseInfoBuilder = ClubManager.getInstance().getClubBaseInfo(clubID);
@@ -532,8 +533,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						stBuyinControlMsgBuilder.setLBuyinActionID(lCreateTime);
 						stBuyinControlMsgBuilder.setLBuyStacks(lStacks);
 						stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_INVITE);
-						stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
-						stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
+						stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder.getStUserInfo());
+						stBuyinControlMsgBuilder.setStGameRoomBaseInfo(stGameRoomInfo.getStGameRoomBaseInfo());
+						stBuyinControlMsgBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 						stBuyinControlMsgBuilder.setLActionUuid(uuid);
 						stBuyinControlMsgBuilder.setLClubID(clubID);
 						ClubBaseInfo.Builder stClubBaseInfoBuilder = ClubManager.getInstance().getClubBaseInfo(clubID);
@@ -598,9 +600,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						BuyinControlMsg.Builder stBuyinControlMsgBuilder = BuyinControlMsg.newBuilder();
 						stBuyinControlMsgBuilder.setLBuyinActionID(lCreateTime);
 						stBuyinControlMsgBuilder.setLBuyStacks(lStacks);
-						stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
+						stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder.getStUserInfo());
 						stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_DENY);
-						stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
+						stBuyinControlMsgBuilder.setStGameRoomBaseInfo(stGameRoomInfo.getStGameRoomBaseInfo());
+						stBuyinControlMsgBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 						stBuyinControlMsgBuilder.setLActionUuid(lActionedUuid);
 						stBuyinControlMsgBuilder.setLMsgID(lMsgID);
 						if(stUserBaseInfoBuilder!=null){
@@ -624,9 +627,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						BuyinControlMsg.Builder stBuyinControlMsgBuilder = BuyinControlMsg.newBuilder();
 						stBuyinControlMsgBuilder.setLBuyinActionID(lCreateTime);
 						stBuyinControlMsgBuilder.setLBuyStacks(lStacks);
-						stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
+						stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder.getStUserInfo());
 						stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_ACCEPT);
-						stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
+						stBuyinControlMsgBuilder.setStGameRoomBaseInfo(stGameRoomInfo.getStGameRoomBaseInfo());
+						stBuyinControlMsgBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 						stBuyinControlMsgBuilder.setLActionUuid(lActionedUuid);
 						stBuyinControlMsgBuilder.setLMsgID(lMsgID);
 						if(stUserBaseInfoBuilder!=null){
@@ -660,9 +664,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					BuyinControlMsg.Builder stBuyinControlMsgBuilder = BuyinControlMsg.newBuilder();
 					stBuyinControlMsgBuilder.setLBuyinActionID(lCreateTime);
 					stBuyinControlMsgBuilder.setLBuyStacks(lStacks);
-					stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
+					stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder.getStUserInfo());
 					stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_DENY);
-					stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
+					stBuyinControlMsgBuilder.setStGameRoomBaseInfo(stGameRoomInfo.getStGameRoomBaseInfo());
+					stBuyinControlMsgBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 					stBuyinControlMsgBuilder.setLActionUuid(lActionedUuid);
 					stBuyinControlMsgBuilder.setLMsgID(lMsgID);
 					if(stUserBaseInfoBuilder!=null){
@@ -681,8 +686,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stBuyinControlMsgBuilder.setLBuyinActionID(lCreateTime);
 					stBuyinControlMsgBuilder.setLBuyStacks(lStacks);
 					stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_ACCEPT);
-					stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
-					stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
+					stBuyinControlMsgBuilder.setStGameRoomBaseInfo(stGameRoomInfo.getStGameRoomBaseInfo());
+					stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder.getStUserInfo());
+					stBuyinControlMsgBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 					stBuyinControlMsgBuilder.setLActionUuid(lActionedUuid);
 					stBuyinControlMsgBuilder.setLMsgID(lMsgID);
 					if(stUserBaseInfoBuilder!=null){
@@ -740,9 +746,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stBuyinControlMsgBuilder.setLBuyinActionID(lCreateTime);
 					stBuyinControlMsgBuilder.setLBuyStacks(lStacks);
 					stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_DENY);
-					stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
+					stBuyinControlMsgBuilder.setStGameRoomBaseInfo(stGameRoomInfo.getStGameRoomBaseInfo());
 					stBuyinControlMsgBuilder.setLActionUuid(lActionedUuid);
-					stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
+					stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder.getStUserInfo());
+					stBuyinControlMsgBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 					stBuyinControlMsgBuilder.setLMsgID(lMsgID);
 					if(stUserBaseInfoBuilder!=null){
 						stBuyinControlMsgBuilder.setSActionNickname(stUserBaseInfoBuilder.getStrNick());
@@ -778,9 +785,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				stBuyinControlMsgBuilder.setLBuyinActionID(lCreateTime);
 				stBuyinControlMsgBuilder.setLBuyStacks(lStacks);
 				stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_DENY);
-				stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
+				stBuyinControlMsgBuilder.setStGameRoomBaseInfo(stGameRoomInfo.getStGameRoomBaseInfo());
 				stBuyinControlMsgBuilder.setLActionUuid(lActionedUuid);
-				stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
+				stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder.getStUserInfo());
+				stBuyinControlMsgBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 				stBuyinControlMsgBuilder.setLMsgID(lMsgID);
 				if(stUserBaseInfoBuilder!=null){
 					stBuyinControlMsgBuilder.setSActionNickname(stUserBaseInfoBuilder.getStrNick());
@@ -853,7 +861,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				BuyinControlMsg.Builder stBuyinControlMsgBuilder = BuyinControlMsg.newBuilder();
 				stBuyinControlMsgBuilder.setLBuyinActionID(System.currentTimeMillis());
 				stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_DISABLE);
-				stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
+				stBuyinControlMsgBuilder.setStGameRoomBaseInfo(stGameRoomInfo.getStGameRoomBaseInfo());
+				stBuyinControlMsgBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 				if(stUserGameInfoBuilder.getStUserInfo().getUuid() > 0){
 					GameRoomMsgManager.getInstance().sendBuyinControlMsg(stUserGameInfoBuilder.getStUserInfo().getUuid()
 							, stBuyinControlMsgBuilder.build());
@@ -873,7 +882,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				stBuyinControlMsgBuilder.setLBuyinActionID(System.currentTimeMillis());
 				stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_DISABLE);
 	//							stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder);
-				stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
+				stBuyinControlMsgBuilder.setStGameRoomBaseInfo(stGameRoomInfo.getStGameRoomBaseInfo());
+				stBuyinControlMsgBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 					
 				GameRoomMsgManager.getInstance().sendBuyinControlMsg(push_uuid
 							, stBuyinControlMsgBuilder.build());
@@ -898,7 +908,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				BuyinControlMsg.Builder stBuyinControlMsgBuilder = BuyinControlMsg.newBuilder();
 				stBuyinControlMsgBuilder.setLBuyinActionID(System.currentTimeMillis());
 				stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_ENABLE);
-				stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
+				stBuyinControlMsgBuilder.setStGameRoomBaseInfo(stGameRoomInfo.getStGameRoomBaseInfo());
+				stBuyinControlMsgBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 				if(stUserGameInfoBuilder.getStUserInfo().getUuid() > 0)
 					GameRoomMsgManager.getInstance().sendBuyinControlMsg(stUserGameInfoBuilder.getStUserInfo().getUuid()
 								, stBuyinControlMsgBuilder.build());
@@ -909,7 +920,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				BuyinControlMsg.Builder stBuyinControlMsgBuilder = BuyinControlMsg.newBuilder();
 				stBuyinControlMsgBuilder.setLBuyinActionID(System.currentTimeMillis());
 				stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_ENABLE);
-				stBuyinControlMsgBuilder.setStGameRoomInfo(stGameRoomInfo);
+				stBuyinControlMsgBuilder.setStGameRoomBaseInfo(stGameRoomInfo.getStGameRoomBaseInfo());
+				stBuyinControlMsgBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 					
 				GameRoomMsgManager.getInstance().sendBuyinControlMsg(push_uuid
 							, stBuyinControlMsgBuilder.build());
