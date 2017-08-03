@@ -161,16 +161,13 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		if(stLeagueBaseInfo!=null){
 			stGameRoomBaseInfoBuilder.setSLeagueName(stLeagueBaseInfo.getSLeagueName());
 		}
-		System.out.println("createGameRoom begin.");
 		GameRoomIDResultInfo stGameRoomIDResultInfo = GameRoomManager.getInstance().createGameRoom(request.getUuid()
 				,stGameRoomBaseInfoBuilder.build());
-		System.out.println("createGameRoom stGameRoomIDResultInfo. : " + stGameRoomIDResultInfo);
 		if(stGameRoomIDResultInfo.geteErrorCodeType() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
 			if(stGameRoomIDResultInfo.getlGameRoomID() > 0){
 				GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(stGameRoomIDResultInfo.getlGameRoomID());
 				
 				if(stGameRoomDetailInfo!=null){
-					System.out.println("createGameRoom stGameRoomIDResultInfo. : " + stGameRoomDetailInfo.getStGameRoomInfo());
 					stCreateGameRoomResponseBuilder.setStGameRoomBaseInfo(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo());
 					stCreateGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
 				}else{
@@ -613,8 +610,6 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 						}
 					}
 				}
-				
-				
 			}else{
 				stUseDelayItemResponseBuilder.setEErrCode(rst);
 			}

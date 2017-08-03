@@ -504,6 +504,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							stBuyinControlMsgBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 							stBuyinControlMsgBuilder.setLActionUuid(uuid);
 							stBuyinControlMsgBuilder.setLClubID(clubID);
+							stBuyinControlMsgBuilder.setLBuyinTime(stUserGameInfoBuilder.getLBuyinTime());
 							ClubBaseInfo.Builder stClubBaseInfoBuilder = ClubManager.getInstance().getClubBaseInfo(clubID);
 							if(stClubBaseInfoBuilder!=null){
 								stBuyinControlMsgBuilder.setSClubName(stClubBaseInfoBuilder.getSClubName());
@@ -538,6 +539,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						stBuyinControlMsgBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 						stBuyinControlMsgBuilder.setLActionUuid(uuid);
 						stBuyinControlMsgBuilder.setLClubID(clubID);
+						stBuyinControlMsgBuilder.setLBuyinTime(stUserGameInfoBuilder.getLBuyinTime());
 						ClubBaseInfo.Builder stClubBaseInfoBuilder = ClubManager.getInstance().getClubBaseInfo(clubID);
 						if(stClubBaseInfoBuilder!=null){
 							stBuyinControlMsgBuilder.setSClubName(stClubBaseInfoBuilder.getSClubName());
@@ -606,6 +608,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						stBuyinControlMsgBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 						stBuyinControlMsgBuilder.setLActionUuid(lActionedUuid);
 						stBuyinControlMsgBuilder.setLMsgID(lMsgID);
+						stBuyinControlMsgBuilder.setLBuyinTime(stUserGameInfoBuilder.getLBuyinTime());
 						if(stUserBaseInfoBuilder!=null){
 							stBuyinControlMsgBuilder.setSActionNickname(stUserBaseInfoBuilder.getStrNick());
 						}else{
@@ -633,6 +636,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						stBuyinControlMsgBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 						stBuyinControlMsgBuilder.setLActionUuid(lActionedUuid);
 						stBuyinControlMsgBuilder.setLMsgID(lMsgID);
+						stBuyinControlMsgBuilder.setLBuyinTime(stUserGameInfoBuilder.getLBuyinTime());
 						if(stUserBaseInfoBuilder!=null){
 							stBuyinControlMsgBuilder.setSActionNickname(stUserBaseInfoBuilder.getStrNick());
 						}else{
@@ -670,6 +674,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stBuyinControlMsgBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 					stBuyinControlMsgBuilder.setLActionUuid(lActionedUuid);
 					stBuyinControlMsgBuilder.setLMsgID(lMsgID);
+					stBuyinControlMsgBuilder.setLBuyinTime(stUserGameInfoBuilder.getLBuyinTime());
 					if(stUserBaseInfoBuilder!=null){
 						stBuyinControlMsgBuilder.setSActionNickname(stUserBaseInfoBuilder.getStrNick());
 					}else{
@@ -691,6 +696,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stBuyinControlMsgBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 					stBuyinControlMsgBuilder.setLActionUuid(lActionedUuid);
 					stBuyinControlMsgBuilder.setLMsgID(lMsgID);
+					stBuyinControlMsgBuilder.setLBuyinTime(stUserGameInfoBuilder.getLBuyinTime());
 					if(stUserBaseInfoBuilder!=null){
 						stBuyinControlMsgBuilder.setSActionNickname(stUserBaseInfoBuilder.getStrNick());
 					}else{
@@ -751,6 +757,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder.getStUserInfo());
 					stBuyinControlMsgBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 					stBuyinControlMsgBuilder.setLMsgID(lMsgID);
+					stBuyinControlMsgBuilder.setLBuyinTime(stUserGameInfoBuilder.getLBuyinTime());
 					if(stUserBaseInfoBuilder!=null){
 						stBuyinControlMsgBuilder.setSActionNickname(stUserBaseInfoBuilder.getStrNick());
 					}
@@ -790,6 +797,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder.getStUserInfo());
 				stBuyinControlMsgBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 				stBuyinControlMsgBuilder.setLMsgID(lMsgID);
+				stBuyinControlMsgBuilder.setLBuyinTime(stUserGameInfoBuilder.getLBuyinTime());
 				if(stUserBaseInfoBuilder!=null){
 					stBuyinControlMsgBuilder.setSActionNickname(stUserBaseInfoBuilder.getStrNick());
 				}else{
