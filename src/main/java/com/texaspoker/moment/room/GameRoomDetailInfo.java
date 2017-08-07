@@ -3494,7 +3494,23 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						}
 						
 						
-					}else {					
+					}else {			
+						if(stUserGameInfoBuilder.getLRemainStacks() <  stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds()){
+							TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
+									+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+									+"," + stGameRoomInfoBuilder.getLGameHandID()
+									+"," + stUserGameInfoBuilder.getStUserInfo().getUuid() 
+									+"," + "sb" 
+									+"," + stUserGameInfoBuilder.getLRemainStacks() );
+						}else{
+							TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
+									+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+									+"," + stGameRoomInfoBuilder.getLGameHandID()
+									+"," + stUserGameInfoBuilder.getStUserInfo().getUuid() 
+									+"," + "sb" 
+									+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds());
+						}
+						
 						//设置小盲的游戏状态						
 						if(stUserGameInfoBuilder.getLRemainStacks() > 0){
 							stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_BETTING);
@@ -3502,22 +3518,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							stUserGameInfoBuilder.setLActTime(System.currentTimeMillis());
 							stUserGameInfoBuilder.setIDelayLong(0);
 							stUserGameInfoBuilder.setIDelaySingleTime(20);
-							
-							if(stUserGameInfoBuilder.getLRemainStacks() <  stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds()){
-								TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
-										+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-										+"," + stGameRoomInfoBuilder.getLGameHandID()
-										+"," + stUserGameInfoBuilder.getStUserInfo().getUuid() 
-										+"," + "sb" 
-										+"," + stUserGameInfoBuilder.getLRemainStacks() );
-							}else{
-								TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
-										+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-										+"," + stGameRoomInfoBuilder.getLGameHandID()
-										+"," + stUserGameInfoBuilder.getStUserInfo().getUuid() 
-										+"," + "sb" 
-										+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds());
-							}
 							
 							//如果剩余筹码量大于等于小盲注，则按照正常的流程下注,否则按照全下处理
 							if(stUserGameInfoBuilder.getLRemainStacks() >= stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLSmallBlinds()){
@@ -4131,29 +4131,29 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						
 						
 					}else {					
-						//设置小盲的游戏状态						
+						//设置小盲的游戏状态		
+						if(stUserGameInfoBuilder.getLRemainStacks() <  stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds()){
+							TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
+									+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+									+"," + stGameRoomInfoBuilder.getLGameHandID()
+									+"," + stUserGameInfoBuilder.getStUserInfo().getUuid() 
+									+"," + "sb" 
+									+"," + stUserGameInfoBuilder.getLRemainStacks() );
+						}else{
+							TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
+									+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+									+"," + stGameRoomInfoBuilder.getLGameHandID()
+									+"," + stUserGameInfoBuilder.getStUserInfo().getUuid() 
+									+"," + "sb" 
+									+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds());
+						}
+						
 						if(stUserGameInfoBuilder.getLRemainStacks() > 0){
 							stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_BETTING);
 							stUserGameInfoBuilder.setLBettingID(System.currentTimeMillis());
 							stUserGameInfoBuilder.setLActTime(System.currentTimeMillis());
 							stUserGameInfoBuilder.setIDelayLong(0);
 							stUserGameInfoBuilder.setIDelaySingleTime(20);
-							
-							if(stUserGameInfoBuilder.getLRemainStacks() <  stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds()){
-								TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
-										+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-										+"," + stGameRoomInfoBuilder.getLGameHandID()
-										+"," + stUserGameInfoBuilder.getStUserInfo().getUuid() 
-										+"," + "sb" 
-										+"," + stUserGameInfoBuilder.getLRemainStacks() );
-							}else{
-								TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
-										+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-										+"," + stGameRoomInfoBuilder.getLGameHandID()
-										+"," + stUserGameInfoBuilder.getStUserInfo().getUuid() 
-										+"," + "sb" 
-										+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds());
-							}
 							
 							//如果剩余筹码量大于等于小盲注，则按照正常的流程下注,否则按照全下处理
 							if(stUserGameInfoBuilder.getLRemainStacks() >= stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLSmallBlinds()){
