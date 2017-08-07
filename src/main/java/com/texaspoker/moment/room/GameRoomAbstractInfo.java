@@ -3590,7 +3590,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 //					System.out.println(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + ","+stGameRoomInfo.getLGameHandID()+" checkOutsCard drawCard : " + drawCard + " vAllOuts " + vAllOuts + " true " + precentCard+"/"+iPercent);
 					return true;
 				}else{
-					System.out.println(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + ","+stGameRoomInfo.getLGameHandID()+" checkOutsCard drawCard : " + drawCard + " vAllOuts " + vAllOuts + " false "+ precentCard+"/"+iPercent);
+//					System.out.println(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + ","+stGameRoomInfo.getLGameHandID()+" checkOutsCard drawCard : " + drawCard + " vAllOuts " + vAllOuts + " false "+ precentCard+"/"+iPercent);
 					return false;
 				}
 			}
