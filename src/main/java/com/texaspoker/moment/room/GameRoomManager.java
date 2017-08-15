@@ -283,7 +283,7 @@ public class GameRoomManager  {
 						return stGameRoomIDResultInfo;
 					}		
 				}else if(stGameRoomBaseInfo.getEGameRoomSeniorType() == GAME_ROOM_SENIOR_TYPE.GAME_ROOM_SENIOR_TYPE_NORMAL){
-					long lCoin = GameFeeUtil.getLeagueGameFee((int)stGameRoomBaseInfo.getLSmallBlinds());
+					long lCoin = GameFeeUtil.getLeagueGameFee((int)stGameRoomBaseInfo.getLSmallBlinds(),stGameRoomBaseInfo.getIGameRoomUserMaxNums());
 					if(UserManager.getInstance().checkUserCoin(stUserBaseInfoNet.getUuid(), lCoin)){
 						synchronized(RoomIDManager.class){
 							TexasPoker.GameRoomBaseInfo.Builder gameRoomBaseInfoBuilder = stGameRoomBaseInfo.toBuilder();

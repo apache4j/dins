@@ -21,34 +21,53 @@ public class GameFeeUtil {
 		return 10;
 	}
 	
-	public static long getLeagueGameFee(int lSmallBlinds){
+	public static long getLeagueGameFee(int lSmallBlinds,int iMaxPlayers){
+		int rate = 1;
+		if(iMaxPlayers == 2){
+			rate = 2;
+		}
+		
+		long originalStacks = 10;
+		
 		switch(lSmallBlinds){
 		case 1:
-			return 30;
+			originalStacks = 30;
+			break;
 		case 2:
-			return 60;
+			originalStacks = 60;
+			break;
 		case 5:
-			return 120;
+			originalStacks = 120;
+			break;
 		case 10:
-			return 200;
+			originalStacks = 200;
+			break;
 		case 20:
-			return 200;
+			originalStacks = 200;
+			break;
 		case 25:
-			return 200;
+			originalStacks = 200;
+			break;
 		case 50:
-			return 200;
+			originalStacks = 200;
+			break;
 		case 100:
-			return 300;
+			originalStacks = 300;
+			break;
 		case 200:
-			return 400;
+			originalStacks = 400;
+			break;
 		case 300:
-			return 900;
+			originalStacks = 900;
+			break;
 		case 500:
-			return 1500;
+			originalStacks = 1500;
+			break;
 		case 1000:
-			return 4000;
+			originalStacks = 4000;
+			break;
 		}
-		return 10;
+		return originalStacks/rate;
 	}
 	
 	public static int getShowCardItemFee(int lSmallBlinds){
