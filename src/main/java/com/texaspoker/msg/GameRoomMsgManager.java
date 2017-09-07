@@ -164,28 +164,15 @@ public class GameRoomMsgManager {
 		return true;
 	}
 	
-	public boolean sendBuyinControlMsg(Long toUserId,BuyinControlMsg stMsgData){
+	public boolean sendBuyinControlMsg(Long toUserId,BuyinControlMsg stMsgData,long exceptionalUuid){
 		
-		BuyinControlMsgRequest.Builder stBuyinControlMsgRequestBuilder = BuyinControlMsgRequest.newBuilder(); 
-		stBuyinControlMsgRequestBuilder.setUuid(toUserId);
-//		System.out.println("sendBuyinControlMsg toUserId : " + toUserId);
-		stBuyinControlMsgRequestBuilder.addVPushMsgs(stMsgData);
-		
-		msgService.pushBuyinControlMsg(controller, stBuyinControlMsgRequestBuilder.build(),null);
-		
-//		TexasPokerMsgService.MsgService.BlockingInterface blockingMsgService =   TexasPokerMsgService.MsgService.newBlockingStub(channel);
-//		try {
-//			BuyinControlMsgResponse stBuyinControlMsgResponse = blockingMsgService.pushBuyinControlMsg(controller, stBuyinControlMsgRequestBuilder.build());
-//	
-//		    if (stBuyinControlMsgResponse != null) {
-////		    	System.out.println("sendBuyinControlMsg syn game service response:" + stBuyinControlMsgResponse);
-//		    } else {
-////		    	System.out.println("syn echo response null" + controller.errorText());
-//		    }
-//		} catch (ServiceException e) {
-////		   	System.out.println("syn echo error:" + e.getMessage());
-//		} 
-		
+		if(toUserId != exceptionalUuid){
+			BuyinControlMsgRequest.Builder stBuyinControlMsgRequestBuilder = BuyinControlMsgRequest.newBuilder(); 
+			stBuyinControlMsgRequestBuilder.setUuid(toUserId);
+			stBuyinControlMsgRequestBuilder.addVPushMsgs(stMsgData);
+			msgService.pushBuyinControlMsg(controller, stBuyinControlMsgRequestBuilder.build(),null);
+			System.out.println("sendBuyinControlMsg uuid : " + toUserId);
+		}
 		return true;
 	}
 }

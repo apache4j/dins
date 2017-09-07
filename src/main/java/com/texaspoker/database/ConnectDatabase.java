@@ -23,6 +23,7 @@ import com.texaspoker.club.ClubManager;
 import com.texaspoker.comm.TimeoutHashMap;
 import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.logger.TableLogService;
+import com.texaspoker.moment.TexasPoker.BUYIN_CONTROL_STATUS;
 import com.texaspoker.moment.TexasPoker.ChatRoomInfo;
 import com.texaspoker.moment.TexasPoker.GAME_ROOM_GAME_STATE;
 import com.texaspoker.moment.TexasPoker.GAME_ROOM_SENIOR_TYPE;
@@ -214,6 +215,16 @@ public class ConnectDatabase {
 					for(long uuid:vPushUsers){
 						pushAppPush(uuid,stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStrRoomName());
 					}
+					
+					//重新设置买入控制相关
+					//把所有没有审批的买入请求，全部设置为拒绝
+					ConnectDatabase.getInstance().gameoverBuyInControls(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
+					
+					//把实时买入记录拷贝到历史买入记录数据库中
+					ConnectDatabase.getInstance().copyToHistoryBuyInControls(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
+					
+					//把买入记录从实时买入记录中删除
+					ConnectDatabase.getInstance().removeBuyInControls(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
 	             }
 	             
 	             stConnection.close();
@@ -800,6 +811,111 @@ public class ConnectDatabase {
    			}
    			return null;
        }
+    
+    //管理员处理 买入申请  更新入库(管理员处理)
+    public void dealBuyInInfoV2(long gameroomid,long applicantuuid,long manageruuid,String managerNickname,BUYIN_CONTROL_STATUS eBuyinControlStatus,long lActionTime){
+        Connection stConnection = null;
+        try {
+            stConnection = mDatabasePool.getConnection();
+            String insql = "update t_realtime_buyin_info  set buyincontrolstatus = ?,actiontime = ?,manageruuid = ?,managernickname = ? where gameroomid = ? and applicantuuid=? and buyincontrolstatus=1";
+            PreparedStatement ps = stConnection.prepareStatement(insql);
+            
+            ps.setInt(1, eBuyinControlStatus.getNumber());
+            ps.setLong(2, lActionTime);
+            ps.setLong(3, manageruuid);
+            ps.setString(4, managerNickname);
+            ps.setLong(5, gameroomid);
+            ps.setLong(6, applicantuuid);
+            
+            ps.executeUpdate();
+            stConnection.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                if (stConnection != null)
+                    stConnection.close();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        }
+    }
+    
+    public void gameoverBuyInControls(long gameroomid){
+        Connection stConnection = null;
+        try {
+            stConnection = mDatabasePool.getConnection();
+            String insql = "update t_realtime_buyin_info  set buyincontrolstatus = ?,actiontime = ?,manageruuid = ? where gameroomid = ? and buyincontrolstatus=1";
+            PreparedStatement ps = stConnection.prepareStatement(insql);
+            
+            ps.setInt(1, BUYIN_CONTROL_STATUS.BUYIN_CONTROL_STATUS_BUYIN_DENY_VALUE);
+            ps.setLong(2, System.currentTimeMillis());
+            ps.setLong(3, 1000);
+            ps.setLong(4, gameroomid);
+            
+            ps.executeUpdate();
+            stConnection.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                if (stConnection != null)
+                    stConnection.close();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        }
+    }
+    
+    //把实时买入记录复制到历史买入记录中
+    public void copyToHistoryBuyInControls(long gameroomid){
+        Connection stConnection = null;
+        try {
+            stConnection = mDatabasePool.getConnection();
+            String insql = "insert into t_history_buyin_info (gameroomid,gameroomname,gameroomtype,applicantuuid,applicantnickname,applicanticon,applicantshowid,applicantgender"
+            		+ ",manageruuid,managernickname,buyincontrolstatus,buyinstacks,createtime,actiontime,remark,applicantclubid,applicantclubname,dealtype,dealremark) "
+            		+ "select  gameroomid,gameroomname,gameroomtype,applicantuuid,applicantnickname,applicanticon,applicantshowid,applicantgender"
+            		+ ",manageruuid,managernickname,buyincontrolstatus,buyinstacks,createtime,actiontime,remark,applicantclubid,applicantclubname,dealtype,dealremark "
+            		+ "from t_realtime_buyin_info where gameroomid=? "
+            		+ "group by applicantuuid,createtime";
+            
+            PreparedStatement ps = stConnection.prepareStatement(insql);
+            
+            ps.setLong(1, gameroomid);
+            
+            ps.executeUpdate();
+            stConnection.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                if (stConnection != null)
+                    stConnection.close();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        }
+    }
+    
+    //删除牌局的实时买入记录
+    public void removeBuyInControls(long gameroomid){
+        Connection stConnection = null;
+        try {
+            stConnection = mDatabasePool.getConnection();
+            String insql = "delete from t_realtime_buyin_info where gameroomid = ?";
+            PreparedStatement ps = stConnection.prepareStatement(insql);
+            
+            ps.setLong(1, gameroomid);
+            
+            ps.executeUpdate();
+            stConnection.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                if (stConnection != null)
+                    stConnection.close();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        }
+    }
     
 }
  

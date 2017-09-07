@@ -15,6 +15,10 @@ import com.texaspoker.moment.TexasPokerClubService.AddClubMemberRequest;
 import com.texaspoker.moment.TexasPokerClubService.AddClubMemberResponse;
 import com.texaspoker.moment.TexasPokerClubService.AddClubScoreRequest;
 import com.texaspoker.moment.TexasPokerClubService.AddClubScoreResponse;
+import com.texaspoker.moment.TexasPokerClubService.CheckFullByClubidAndLevelRequest;
+import com.texaspoker.moment.TexasPokerClubService.CheckFullByClubidAndLevelResponse;
+import com.texaspoker.moment.TexasPokerClubService.CheckInClubRequest;
+import com.texaspoker.moment.TexasPokerClubService.CheckInClubResponse;
 import com.texaspoker.moment.TexasPokerClubService.ClubGameRequest;
 import com.texaspoker.moment.TexasPokerClubService.ClubInfoClubID;
 import com.texaspoker.moment.TexasPokerClubService.DeleteClubCoverRequest;
@@ -45,7 +49,6 @@ import com.texaspoker.moment.TexasPokerCommon.ClubBaseInfo;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerHttpClub.CLUB_USER_LEVEL;
 import com.texaspoker.moment.TexasPokerHttpClub.ClubInfo;
-import com.texaspoker.moment.TexasPokerHttpClub.ClubUserInfo;
 import com.texaspoker.rpc.client.RpcChannel;
 import com.texaspoker.rpc.client.RpcClient;
 import com.texaspoker.rpc.client.RpcController;
@@ -110,17 +113,6 @@ public class ClubManager {
 	    }
 	}
 	
-	//获取俱乐部信息
-	public void setClubInfo(ClubInfo.Builder stClubInfoBuilder){
-	    try {
-//			System.out.println("getUserBaseInfogetUserBaseInforpc begin.");
-	    	blockingClubService.setClubInfo(controller, stClubInfoBuilder.build());
-	    	
-	    } catch (ServiceException e) {
-	    	NormalLogService.getInstance().error("syn echo error:" + e.getMessage());
-	    }
-	}
-	
 	//删除俱乐部信息
 	public void removeClubInfo(long lClubID){
 		ClubInfoClubID.Builder stClubInfoClubIDBuilder = ClubInfoClubID.newBuilder();
@@ -181,14 +173,25 @@ public class ClubManager {
 	}
 	
 	//检查俱乐部是否已经满员
-	public static boolean checkFull(ClubInfo stClubInfo){
-		boolean bFull = false;
-		if(stClubInfo!=null){			
-			if(stClubInfo.getVClubUserInfosCount()>=stClubInfo.getStClubBaseInfo().getIMaxMembers()){
-				bFull = true;
-			}
-		}
-		return bFull;
+	public boolean checkFull(long clubid,long uuid){
+		CheckFullByClubidAndLevelRequest.Builder stcheckFullByClubidAndLevelRequestBuilder = CheckFullByClubidAndLevelRequest.newBuilder();
+		stcheckFullByClubidAndLevelRequestBuilder.setLClubID(clubid);
+		stcheckFullByClubidAndLevelRequestBuilder.setILevel(0);
+		stcheckFullByClubidAndLevelRequestBuilder.setUuid(uuid);
+	    
+	    try {
+	    	CheckFullByClubidAndLevelResponse stcheckFullByClubidAndLevelResponse = blockingClubService.checkFullByClubidAndLevel(controller, stcheckFullByClubidAndLevelRequestBuilder.build());
+	    	if(stcheckFullByClubidAndLevelResponse!=null && stcheckFullByClubidAndLevelResponse.getEErrorCode() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
+	    		if(stcheckFullByClubidAndLevelResponse.getIStatus() == 1){
+	    			return true;
+	    		}else{
+	    			return false;
+	    		}
+	    	}
+	    } catch (ServiceException e) {
+	    	System.out.println("syn echo error:" + e.getMessage());
+	    }
+	    return false;
 		
 	}
 	
@@ -214,19 +217,23 @@ public class ClubManager {
 
 	//该用户是否在俱乐部中
 	public boolean inClub(long clubID, long uuid) {
-		ClubInfo.Builder stClubInfoBuilder = getClubInfo(clubID);
-
-		boolean bExist = false;
-		for (int i = 0; i < stClubInfoBuilder.getVClubUserInfosCount(); i++) {
-			ClubUserInfo.Builder stTempClubUserInfoBuilder = stClubInfoBuilder
-					.getVClubUserInfosBuilder(i);
-			if (stTempClubUserInfoBuilder.getStUserBaseInfo().getUuid() == uuid) {
-				bExist = true;
-				break;
-			}
-		}
-
-		return bExist;
+		CheckInClubRequest.Builder stCheckInClubRequestBuilder = CheckInClubRequest.newBuilder();
+		stCheckInClubRequestBuilder.setLClubID(clubID);
+		stCheckInClubRequestBuilder.setLClubMemberUuid(uuid);
+	    
+	    try {
+	    	CheckInClubResponse stCheckInClubResponse = blockingClubService.checkInClub(controller, stCheckInClubRequestBuilder.build());
+	    	if(stCheckInClubResponse!=null && stCheckInClubResponse.getEErrorCode() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
+	    		if(stCheckInClubResponse.getBInClub() == 1){
+	    			return true;
+	    		}else{
+	    			return false;
+	    		}
+	    	}
+	    } catch (ServiceException e) {
+	    	System.out.println("syn echo error:" + e.getMessage());
+	    }
+	    return false;
 	}
 	
 	//添加俱乐部基金
@@ -309,7 +316,7 @@ public class ClubManager {
 	    try {
 			SetClubUserLevelResponse response = blockingClubService.setClubUserLevel(controller, stSetClubUserLevelRequestBuilder.build());
 	    	
-	    	if (response != null&&response.getIErrorCode() == 0) {
+	    	if (response != null&&response.getEErrorCode() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS) {
 	    		if(response.getStClubInfo()!=null){
 	    			return response.getStClubInfo().toBuilder();
 	    		}else{
@@ -450,7 +457,7 @@ public class ClubManager {
 	    try {
 	    	AddClubMemberResponse response = blockingClubService.addClubMember(controller, stAddClubMemberRequestBuilder.build());
 	    	
-	    	if (response != null&&response.getIErrorCode() == 0) {
+	    	if (response != null&&response.getEErrorCode() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS) {
 	    		if(response.getStClubInfo()!=null){
 	    			return response.getStClubInfo().toBuilder();
 	    		}else{
@@ -473,7 +480,7 @@ public class ClubManager {
 	    try {
 	    	DeleteClubMemberResponse response = blockingClubService.deleteClubMember(controller, stDeleteClubMemberRequestBuilder.build());
 	    	
-	    	if (response != null&&response.getIErrorCode() == 0) {
+	    	if (response != null&&response.getEErrorCode() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS) {
 	    		if(response.getStClubInfo()!=null){
 	    			return response.getStClubInfo().toBuilder();
 	    		}else{

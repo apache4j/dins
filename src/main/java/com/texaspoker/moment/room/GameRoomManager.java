@@ -3,6 +3,7 @@ package com.texaspoker.moment.room;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -262,7 +263,22 @@ public class GameRoomManager  {
 									,gameRoomBaseInfoBuilder.getLDuration()
 									,gameRoomBaseInfoBuilder.getLSmallBlinds()
 									,gameRoomBaseInfoBuilder.getIAnte());
-						}			
+						}		
+						
+						if(gameRoomBaseInfoBuilder.getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
+							List<Long> vClubManagers = ClubManager.getInstance().getClubManagerUuids(gameRoomBaseInfoBuilder.getLChatRoomID());
+							if(vClubManagers.contains(uuid)){
+								if(vClubManagers!=null){
+									for(long lClubManagerUuid:vClubManagers){
+										stGameRoomDetailInfo.buyStakcsInRoom(lClubManagerUuid,0,gameRoomBaseInfoBuilder.getLChatRoomID());
+									}
+								}
+							}else{
+								stGameRoomDetailInfo.buyStakcsInRoom(uuid,0,gameRoomBaseInfoBuilder.getLChatRoomID());
+							}
+						}else{
+							stGameRoomDetailInfo.buyStakcsInRoom(gameRoomBaseInfoBuilder.getStCreateUserBaseInfo().getUuid(),0,gameRoomBaseInfoBuilder.getLChatRoomID());
+						}
 						
 						TexasPoker.UserGameInfoNet.Builder userSelfGameInfoBuilder = TexasPoker.UserGameInfoNet.newBuilder();
 						
@@ -385,6 +401,21 @@ public class GameRoomManager  {
 							ConnectDatabase.getInstance().insertInGameUser(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId(),uuid);
 
 							BillManager.getInstance().createBillInfo(0,gameRoomBaseInfoBuilder.build());
+							
+							if(gameRoomBaseInfoBuilder.getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
+								List<Long> vClubManagers = ClubManager.getInstance().getClubManagerUuids(gameRoomBaseInfoBuilder.getLChatRoomID());
+								if(vClubManagers.contains(uuid)){
+									if(vClubManagers!=null){
+										for(long lClubManagerUuid:vClubManagers){
+											stGameRoomDetailInfo.buyStakcsInRoom(lClubManagerUuid,0,gameRoomBaseInfoBuilder.getLChatRoomID());
+										}
+									}
+								}else{
+									stGameRoomDetailInfo.buyStakcsInRoom(uuid,0,gameRoomBaseInfoBuilder.getLChatRoomID());
+								}
+							}else{
+								stGameRoomDetailInfo.buyStakcsInRoom(gameRoomBaseInfoBuilder.getStCreateUserBaseInfo().getUuid(),0,gameRoomBaseInfoBuilder.getLChatRoomID());
+							}
 							
 							// 把房间放到房主的房间列表里面
 							UserManager.getInstance().addUserCreateGameRooms(uuid,gameRoomBaseInfoBuilder.getLGameRoomId());

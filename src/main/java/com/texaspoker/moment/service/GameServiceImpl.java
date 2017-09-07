@@ -883,64 +883,64 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		// TODO Auto-generated method stub
 		GetAllBuyinControlsResponse.Builder  stGetAllBuyinControlsResponseBuilder = GetAllBuyinControlsResponse.newBuilder();
 	
-		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
-
-		if(stGameRoomDetailInfo!=null&&stGameRoomDetailInfo.getStGameRoomInfo()!=null){
-			
-			if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLLeagueID() > 0){
-				//如果是俱乐部管理员，则开始
-				LeagueInfo stLeagueInfo = stGameRoomDetailInfo.getStLeagueInfo();
-		
-				if(stLeagueInfo!=null){
-					for(ClubBaseInfo stClubBaseInfo:stLeagueInfo.getVClubBaseInfosList()){
-						
-						
-						if(stClubBaseInfo.getStCreateUserBaseInfo().getUuid() == request.getUuid()){
-							ArrayList<BuyinControl> vBuyinControls = stGameRoomDetailInfo.getAllBuyinControls(stClubBaseInfo.getLClubID());
-							
-							for(BuyinControl stBuyinControl:vBuyinControls){
-								stGetAllBuyinControlsResponseBuilder.addVBuyinControls(stBuyinControl);
-							}
-						}
-					}
-					stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-				}else{
-					stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_LEAGUE);
-				}
-			}else{
-				//如果创建牌局的人不是俱乐部的管理员
-				if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
-					if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()){
-						ArrayList<BuyinControl> vBuyinControls = stGameRoomDetailInfo.getAllBuyinControls(0);
-						
-						if(vBuyinControls!=null){
-							stGetAllBuyinControlsResponseBuilder.addAllVBuyinControls(vBuyinControls);
-						}
-						stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-						
-					}else{
-						stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_AUTH_BUYINACTION);
-					}
-				}
-				else{
-					//如果不是管理员创建牌局，则只有房主可以获得买入申请信息
-					if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()){
-						ArrayList<BuyinControl> vBuyinControls = stGameRoomDetailInfo.getAllBuyinControls(0);
-						
-						if(vBuyinControls!=null){
-							stGetAllBuyinControlsResponseBuilder.addAllVBuyinControls(vBuyinControls);
-						}
-						stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-						
-					}else{
-						stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_AUTH_BUYINACTION);
-					}
-				}
-			}
-		}else{
-			stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);
-		}
-		
+//		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+//
+//		if(stGameRoomDetailInfo!=null&&stGameRoomDetailInfo.getStGameRoomInfo()!=null){
+//			
+//			if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLLeagueID() > 0){
+//				//如果是俱乐部管理员，则开始
+//				LeagueInfo stLeagueInfo = stGameRoomDetailInfo.getStLeagueInfo();
+//		
+//				if(stLeagueInfo!=null){
+//					for(ClubBaseInfo stClubBaseInfo:stLeagueInfo.getVClubBaseInfosList()){
+//						
+//						
+//						if(stClubBaseInfo.getStCreateUserBaseInfo().getUuid() == request.getUuid()){
+//							ArrayList<BuyinControl> vBuyinControls = stGameRoomDetailInfo.getAllBuyinControls(stClubBaseInfo.getLClubID());
+//							
+//							for(BuyinControl stBuyinControl:vBuyinControls){
+//								stGetAllBuyinControlsResponseBuilder.addVBuyinControls(stBuyinControl);
+//							}
+//						}
+//					}
+//					stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+//				}else{
+//					stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_LEAGUE);
+//				}
+//			}else{
+//				//如果创建牌局的人不是俱乐部的管理员
+//				if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
+//					if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()){
+//						ArrayList<BuyinControl> vBuyinControls = stGameRoomDetailInfo.getAllBuyinControls(0);
+//						
+//						if(vBuyinControls!=null){
+//							stGetAllBuyinControlsResponseBuilder.addAllVBuyinControls(vBuyinControls);
+//						}
+//						stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+//						
+//					}else{
+//						stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_AUTH_BUYINACTION);
+//					}
+//				}
+//				else{
+//					//如果不是管理员创建牌局，则只有房主可以获得买入申请信息
+//					if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()){
+//						ArrayList<BuyinControl> vBuyinControls = stGameRoomDetailInfo.getAllBuyinControls(0);
+//						
+//						if(vBuyinControls!=null){
+//							stGetAllBuyinControlsResponseBuilder.addAllVBuyinControls(vBuyinControls);
+//						}
+//						stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+//						
+//					}else{
+//						stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_AUTH_BUYINACTION);
+//					}
+//				}
+//			}
+//		}else{
+//			stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);
+//		}
+		stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);
 		return stGetAllBuyinControlsResponseBuilder.build();
 	}
 
