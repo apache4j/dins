@@ -398,6 +398,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 				}
 			}
 			
+			System.out.println("buyBuyIn rst : " + rst + "  " + bWaitingBuyinConfirmation);
 			if(rst == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
 				stBuyBuyInResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
 				stBuyBuyInResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
