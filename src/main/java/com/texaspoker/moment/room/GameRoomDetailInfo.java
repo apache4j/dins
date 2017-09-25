@@ -4740,7 +4740,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				}
 				
 				List<Long> vClubManagerUuids = ClubManager.getInstance().getClubManagerUuids(lClubID);
-				System.out.println("sendAllBuyinControls vClubManagerUuids : " + vClubManagerUuids);
 				if(vClubManagerUuids!=null){
 					boolean bClubManager = false;
 					//检查房主是否是房间的管理员
@@ -4759,22 +4758,18 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					//如果房主在俱乐部的管理员中，则给所有俱乐部管理员都push买入控制信息
 					if(bClubManager){
 						for(long lClubManagerUuid:vClubManagerUuids){
-							System.out.println("sendAllBuyinControls lClubManagerUuid : " + lClubManagerUuid);
 							GameRoomMsgManager.getInstance().sendBuyinControlMsg(lClubManagerUuid, stBuyinControlMsg,exceptionalUuid);
 						}
 					}else{
-						System.out.println("sendAllBuyinControls lClubManagerUuid1 : " + stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid());
 						GameRoomMsgManager.getInstance().sendBuyinControlMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
 								, stBuyinControlMsg,exceptionalUuid);
 					}
 				}else{
-					System.out.println("sendAllBuyinControls lClubManagerUuid2 : " + stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid());
 					GameRoomMsgManager.getInstance().sendBuyinControlMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
 							, stBuyinControlMsg,exceptionalUuid);
 				}
 				
 			}else{
-				System.out.println("sendAllBuyinControls lClubManagerUuid3 : " + stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid());
 				GameRoomMsgManager.getInstance().sendBuyinControlMsg(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
 						, stBuyinControlMsg,exceptionalUuid);
 			}

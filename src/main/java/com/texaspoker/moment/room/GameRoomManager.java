@@ -251,7 +251,7 @@ public class GameRoomManager  {
 
 						BillManager.getInstance().createBillInfo(0,gameRoomBaseInfoBuilder.build());
 						
-						stGameRoomDetailInfo.buyStakcsInRoom(stUserBaseInfoNet.getUuid(),0,gameRoomBaseInfoBuilder.getLChatRoomID());
+//						stGameRoomDetailInfo.buyStakcsInRoom(stUserBaseInfoNet.getUuid(),0,gameRoomBaseInfoBuilder.getLChatRoomID());
 						// 把房间放到房主的房间列表里面
 						UserManager.getInstance().addUserCreateGameRooms(uuid,gameRoomBaseInfoBuilder.getLGameRoomId());
 				
@@ -265,20 +265,20 @@ public class GameRoomManager  {
 									,gameRoomBaseInfoBuilder.getIAnte());
 						}		
 						
-						if(gameRoomBaseInfoBuilder.getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
-							List<Long> vClubManagers = ClubManager.getInstance().getClubManagerUuids(gameRoomBaseInfoBuilder.getLChatRoomID());
-							if(vClubManagers.contains(uuid)){
-								if(vClubManagers!=null){
-									for(long lClubManagerUuid:vClubManagers){
-										stGameRoomDetailInfo.buyStakcsInRoom(lClubManagerUuid,0,gameRoomBaseInfoBuilder.getLChatRoomID());
-									}
-								}
-							}else{
-								stGameRoomDetailInfo.buyStakcsInRoom(uuid,0,gameRoomBaseInfoBuilder.getLChatRoomID());
-							}
-						}else{
-							stGameRoomDetailInfo.buyStakcsInRoom(gameRoomBaseInfoBuilder.getStCreateUserBaseInfo().getUuid(),0,gameRoomBaseInfoBuilder.getLChatRoomID());
-						}
+//						if(gameRoomBaseInfoBuilder.getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
+//							List<Long> vClubManagers = ClubManager.getInstance().getClubManagerUuids(gameRoomBaseInfoBuilder.getLChatRoomID());
+//							if(vClubManagers.contains(uuid)){
+//								if(vClubManagers!=null){
+//									for(long lClubManagerUuid:vClubManagers){
+//										stGameRoomDetailInfo.buyStakcsInRoom(lClubManagerUuid,0,gameRoomBaseInfoBuilder.getLChatRoomID());
+//									}
+//								}
+//							}else{
+//								stGameRoomDetailInfo.buyStakcsInRoom(uuid,0,gameRoomBaseInfoBuilder.getLChatRoomID());
+//							}
+//						}else{
+//							stGameRoomDetailInfo.buyStakcsInRoom(gameRoomBaseInfoBuilder.getStCreateUserBaseInfo().getUuid(),0,gameRoomBaseInfoBuilder.getLChatRoomID());
+//						}
 						
 						TexasPoker.UserGameInfoNet.Builder userSelfGameInfoBuilder = TexasPoker.UserGameInfoNet.newBuilder();
 						
@@ -402,25 +402,25 @@ public class GameRoomManager  {
 
 							BillManager.getInstance().createBillInfo(0,gameRoomBaseInfoBuilder.build());
 							
-							if(gameRoomBaseInfoBuilder.getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
-								List<Long> vClubManagers = ClubManager.getInstance().getClubManagerUuids(gameRoomBaseInfoBuilder.getLChatRoomID());
-								if(vClubManagers.contains(uuid)){
-									if(vClubManagers!=null){
-										for(long lClubManagerUuid:vClubManagers){
-											stGameRoomDetailInfo.buyStakcsInRoom(lClubManagerUuid,0,gameRoomBaseInfoBuilder.getLChatRoomID());
-										}
-									}
-								}else{
-									stGameRoomDetailInfo.buyStakcsInRoom(uuid,0,gameRoomBaseInfoBuilder.getLChatRoomID());
-								}
-							}else{
-								stGameRoomDetailInfo.buyStakcsInRoom(gameRoomBaseInfoBuilder.getStCreateUserBaseInfo().getUuid(),0,gameRoomBaseInfoBuilder.getLChatRoomID());
-							}
+//							if(gameRoomBaseInfoBuilder.getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
+//								List<Long> vClubManagers = ClubManager.getInstance().getClubManagerUuids(gameRoomBaseInfoBuilder.getLChatRoomID());
+//								if(vClubManagers.contains(uuid)){
+//									if(vClubManagers!=null){
+//										for(long lClubManagerUuid:vClubManagers){
+//											stGameRoomDetailInfo.buyStakcsInRoom(lClubManagerUuid,0,gameRoomBaseInfoBuilder.getLChatRoomID());
+//										}
+//									}
+//								}else{
+//									stGameRoomDetailInfo.buyStakcsInRoom(uuid,0,gameRoomBaseInfoBuilder.getLChatRoomID());
+//								}
+//							}else{
+//								stGameRoomDetailInfo.buyStakcsInRoom(gameRoomBaseInfoBuilder.getStCreateUserBaseInfo().getUuid(),0,gameRoomBaseInfoBuilder.getLChatRoomID());
+//							}
 							
 							// 把房间放到房主的房间列表里面
 							UserManager.getInstance().addUserCreateGameRooms(uuid,gameRoomBaseInfoBuilder.getLGameRoomId());
 							
-							stGameRoomDetailInfo.buyStakcsInRoom(stUserBaseInfoNet.getUuid(),0,gameRoomBaseInfoBuilder.getLChatRoomID());
+//							stGameRoomDetailInfo.buyStakcsInRoom(stUserBaseInfoNet.getUuid(),0,gameRoomBaseInfoBuilder.getLChatRoomID());
 
 							// 生成回包
 							TranscationLogService.getInstance().error(stUserBaseInfoNet.getUuid() + " " + gameRoomBaseInfoBuilder.getLGameRoomId() + " " + 110001 + " " + gameRoomBaseInfoBuilder.getLDuration()
@@ -451,14 +451,14 @@ public class GameRoomManager  {
 							userSelfGameInfoBuilder.setBGameDealer(0);
 							userSelfGameInfoBuilder.setIDelaySingleTime(20);
 							
-							//设置联盟中的各个俱乐部的管理员进行买入
-							if(stGameRoomDetailInfo.getStLeagueInfo()!=null){
-								//联盟牌局给联盟里面的每个俱乐部添加游戏
-								for(ClubBaseInfo stClubBaseInfo:stGameRoomDetailInfo.getStLeagueInfo().getVClubBaseInfosList()){																																									
-									//把每个俱乐部的创建者放入账单
-									stGameRoomDetailInfo.buyStakcsInRoom(stClubBaseInfo.getStCreateUserBaseInfo().getUuid(),0,stClubBaseInfo.getLClubID());
-								}
-							}
+//							//设置联盟中的各个俱乐部的管理员进行买入
+//							if(stGameRoomDetailInfo.getStLeagueInfo()!=null){
+//								//联盟牌局给联盟里面的每个俱乐部添加游戏
+//								for(ClubBaseInfo stClubBaseInfo:stGameRoomDetailInfo.getStLeagueInfo().getVClubBaseInfosList()){																																									
+//									//把每个俱乐部的创建者放入账单
+//									stGameRoomDetailInfo.buyStakcsInRoom(stClubBaseInfo.getStCreateUserBaseInfo().getUuid(),0,stClubBaseInfo.getLClubID());
+//								}
+//							}
 							
 							stGameRoomIDResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
 							stGameRoomIDResultInfo.setlGameRoomID(gameRoomBaseInfoBuilder.getLGameRoomId());

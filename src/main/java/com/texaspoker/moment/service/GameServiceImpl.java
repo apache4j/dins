@@ -358,20 +358,17 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 						//如果是俱乐部局，则首先检查创建牌局的是否为俱乐部管理员
 						if(ClubManager.getInstance().checkClubManager(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID()
 								,stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid())){
-							System.out.println("俱乐部管理员创建牌局 clubid : " + clubid + " uuid : " + request.getUuid());
+							
 							//如果买入的人再买入的俱乐部里面是管理员的话，则直接买入成功
 							if(ClubManager.getInstance().checkClubManager(clubid,request.getUuid())){
-								System.out.println("管理员买入，直接买");
 								rst = stGameRoomDetailInfo.buyBuyin(request.getUuid(),clubid, request.getLStacks());
 								bWaitingBuyinConfirmation = 0;
 							}else{
 								//发送买入控制的push
-								System.out.println("非管理员买入");
 								rst = stGameRoomDetailInfo.buyBuyinControl(request.getUuid(),clubid,request.getLStacks());
 								bWaitingBuyinConfirmation = 1;
 							}
 						}else{
-							System.out.println("非俱乐部管理员创建牌局");
 							//如果是俱乐部局，但是不是管理员创建的牌局，则只有房主可以不进行买入控制，直接买入
 							if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()){
 								rst = stGameRoomDetailInfo.buyBuyin(request.getUuid(),clubid, request.getLStacks());
@@ -384,12 +381,10 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 						}
 					}else{
 						//如果不是俱乐部局，则检查买入的是否为牌局创建者，如果是牌局创建者，则直接买入成功
-						System.out.println("快速局买入");
 						if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()){
 							rst = stGameRoomDetailInfo.buyBuyin(request.getUuid(),clubid, request.getLStacks());
 							bWaitingBuyinConfirmation = 0;
 						}else{
-							System.out.println("买入申请");
 							//发送买入控制的push
 							rst = stGameRoomDetailInfo.buyBuyinControl(request.getUuid(),clubid,request.getLStacks());
 							bWaitingBuyinConfirmation = 1;
@@ -398,7 +393,6 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 				}
 			}
 			
-			System.out.println("buyBuyIn rst : " + rst + "  " + bWaitingBuyinConfirmation);
 			if(rst == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
 				stBuyBuyInResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
 				stBuyBuyInResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
