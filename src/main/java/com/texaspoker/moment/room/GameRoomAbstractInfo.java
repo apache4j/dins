@@ -121,6 +121,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	protected boolean bPause = false;
 	protected boolean bStarted = false;
 	protected int iGameRoomUserMaxNums = 0;
+	
+	//留座离桌超时map
+	protected TimeoutHashMap<Long,Long> mTemporarilyLeaveUsersTimeout; //房间相关的数据
+	
+	//下手进入留座离桌的队列
+	protected Map<Long,Long>  mTemporarilyLeaveUsers = new HashMap<Long,Long>(); 
 
 	//查看是否可以看牌
 	public boolean bShowTableCard = false;
@@ -149,6 +155,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 		vTestTableCards.add(29);
 		vTestTableCards.add(0);
 		vTestTableCards.add(40);
+		
+		mTemporarilyLeaveUsersTimeout =  new TimeoutHashMap<Long,Long>();
+		mTemporarilyLeaveUsersTimeout.setTimeout(180000);
 	}
 	
 	@Override  
@@ -4406,4 +4415,161 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			}
 		}
 	}
+	
+	//留座离桌操作
+	public long userTemporarilyLeave(long uuid){
+		synchronized(this){
+			for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount() ; i++){
+				UserGameInfoNet stUserGameInfo = stGameRoomInfo.getVUserGameInfos(i);
+
+				//找到离开房间的用户
+				if(stUserGameInfo.getStUserInfo().getUuid() == uuid){
+					
+					
+					if(stUserGameInfo.getEGameState()==USER_GAME_STATE.USER_GAME_STATE_FOLD
+							|| stUserGameInfo.getEGameState()==USER_GAME_STATE.USER_GAME_STATE_WAIT
+							|| stUserGameInfo.getEGameState()==USER_GAME_STATE.USER_GAME_STATE_STANDBY){
+						//生成留座离桌时间
+						long lLeaveTime = System.currentTimeMillis();
+						//获取牌局对象
+						GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+						
+						//获取托管用户信息
+						TexasPoker.UserGameInfoNet.Builder userGameInfoBuilder = stUserGameInfo.toBuilder();
+						
+						//设置为托管状态
+						userGameInfoBuilder.setBTemporarilyLeave(1);
+						userGameInfoBuilder.setLTemporarilyLeaveTime(lLeaveTime);
+						userGameInfoBuilder.setBDelegate(0);
+						userGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
+						
+						//将用户设置回房间
+						stGameRoomInfoBuilder.setVUserGameInfos(i, userGameInfoBuilder);	
+						
+						stGameRoomInfo = stGameRoomInfoBuilder.build();
+					
+						userGameInfoBuilder.clearVCurrentHands();
+						
+						//给牌桌上其他用户push托管信息
+						for(int j = 0 ; j < stGameRoomInfo.getVUserGameInfosCount(); j++){
+							UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(j);
+							
+							if(stUserGameInfoNet.getStUserInfo().getUuid() > 0){		
+								pushGameRoomUserMsgs(userGameInfoBuilder.build(),stUserGameInfoNet.getStUserInfo().getUuid(),
+										GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_TEMPORARILY_LEAVE,i);
+							}
+						}
+							
+						//给旁观的人发送托管消息
+						for (long push_uuid  : mStandBys) {
+							pushGameRoomUserMsgs(userGameInfoBuilder.build(),push_uuid,GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_TEMPORARILY_LEAVE,i);
+						}
+						mTemporarilyLeaveUsersTimeout.setCurrent(uuid, uuid);
+						return lLeaveTime;
+					}else if(iCouldPlayNum == 1 && stUserGameInfo.getEGameState()==USER_GAME_STATE.USER_GAME_STATE_READY){
+						//生成留座离桌时间
+						long lLeaveTime = System.currentTimeMillis();
+						//获取牌局对象
+						GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+						
+						//获取托管用户信息
+						TexasPoker.UserGameInfoNet.Builder userGameInfoBuilder = stUserGameInfo.toBuilder();
+						
+						//设置为托管状态
+						userGameInfoBuilder.setBTemporarilyLeave(1);
+						userGameInfoBuilder.setLTemporarilyLeaveTime(lLeaveTime);
+						userGameInfoBuilder.setBDelegate(0);
+						userGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
+						
+						//将用户设置回房间
+						stGameRoomInfoBuilder.setVUserGameInfos(i, userGameInfoBuilder);	
+						
+						stGameRoomInfo = stGameRoomInfoBuilder.build();
+					
+						userGameInfoBuilder.clearVCurrentHands();
+						
+						//给牌桌上其他用户push托管信息
+						for(int j = 0 ; j < stGameRoomInfo.getVUserGameInfosCount(); j++){
+							UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(j);
+							
+							if(stUserGameInfoNet.getStUserInfo().getUuid() > 0){		
+								pushGameRoomUserMsgs(userGameInfoBuilder.build(),stUserGameInfoNet.getStUserInfo().getUuid(),
+										GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_TEMPORARILY_LEAVE,i);
+							}
+						}
+							
+						//给旁观的人发送托管消息
+						for (long push_uuid  : mStandBys) {
+							pushGameRoomUserMsgs(userGameInfoBuilder.build(),push_uuid,GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_TEMPORARILY_LEAVE,i);
+						}
+						mTemporarilyLeaveUsersTimeout.setCurrent(uuid, uuid);
+						return lLeaveTime;
+					}
+					else{
+						//本手结束后变换状态
+						mTemporarilyLeaveUsers.put(uuid,uuid);
+						return 0;
+					}
+					
+				}
+			}
+			//说明用户不在牌桌上
+			return -1;
+		}
+	}
+	
+	//取消留座离桌操作
+	public boolean userReturnTemporarilyLeave(long uuid){
+		synchronized(this){
+			for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount() ; i++){
+				UserGameInfoNet stUserGameInfo = stGameRoomInfo.getVUserGameInfos(i);
+
+				//找到离开房间的用户
+				if(stUserGameInfo.getStUserInfo().getUuid() == uuid){
+					//获取牌局对象
+					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+					
+					//获取托管用户信息
+					TexasPoker.UserGameInfoNet.Builder userGameInfoBuilder = stUserGameInfo.toBuilder();
+					
+					//设置为托管状态
+					userGameInfoBuilder.setBTemporarilyLeave(0);
+					userGameInfoBuilder.setLTemporarilyLeaveTime(0);
+					userGameInfoBuilder.setBDelegate(0);
+					if(stGameRoomInfo.getStGameRoomBaseInfo().getBStarted() == 1){
+						userGameInfoBuilder.setBJustSit(1);
+					}
+					
+					//将用户设置回房间
+					stGameRoomInfoBuilder.setVUserGameInfos(i, userGameInfoBuilder);	
+					
+					stGameRoomInfo = stGameRoomInfoBuilder.build();
+				
+					userGameInfoBuilder.clearVCurrentHands();
+					
+					//给牌桌上其他用户push托管信息
+					for(int j = 0 ; j < stGameRoomInfo.getVUserGameInfosCount(); j++){
+						UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(j);
+						
+						if(stUserGameInfoNet.getStUserInfo().getUuid() > 0){		
+							pushGameRoomUserMsgs(userGameInfoBuilder.build(),stUserGameInfoNet.getStUserInfo().getUuid(),
+									GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_TEMPORARILY_LEAVE_RETURN,i);
+						}
+					}
+						
+					//给旁观的人发送托管消息
+					for (long push_uuid  : mStandBys) {
+						pushGameRoomUserMsgs(userGameInfoBuilder.build(),push_uuid,GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_TEMPORARILY_LEAVE_RETURN,i);
+					}
+					mTemporarilyLeaveUsersTimeout.removeKey(uuid);
+					mTemporarilyLeaveUsers.remove(uuid);
+					return true;
+				}
+			
+			}
+			//说明用户不在牌桌上
+			return false;
+		}
+	}
+	
 }

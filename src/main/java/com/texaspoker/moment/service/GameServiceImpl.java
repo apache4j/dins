@@ -110,6 +110,8 @@ import com.texaspoker.moment.TexasPokerGameService.UserDelegateRequest;
 import com.texaspoker.moment.TexasPokerGameService.UserDelegateResponse;
 import com.texaspoker.moment.TexasPokerGameService.UserInsuranceSettingRequest;
 import com.texaspoker.moment.TexasPokerGameService.UserInsuranceSettingResponse;
+import com.texaspoker.moment.TexasPokerGameService.UserTemporarilyLeaveRequest;
+import com.texaspoker.moment.TexasPokerGameService.UserTemporarilyLeaveResponse;
 import com.texaspoker.moment.TexasPokerHttpLeague.LeagueBaseInfo;
 import com.texaspoker.moment.TexasPokerHttpLeague.LeagueInfo;
 import com.texaspoker.moment.room.GameRoomDetailInfo;
@@ -1630,6 +1632,51 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 	@Override
 	public void showTableCards(RpcController arg0, ShowTableCardsRequest arg1,
 			RpcCallback<ShowTableCardsResponse> arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public UserTemporarilyLeaveResponse userTemporarilyLeave(RpcController arg0, UserTemporarilyLeaveRequest request)
+			throws ServiceException {
+		// TODO Auto-generated method stub
+		UserTemporarilyLeaveResponse.Builder  stUserTemporarilyLeaveResponseBuilder = UserTemporarilyLeaveResponse.newBuilder();
+		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+		if(stGameRoomDetailInfo!=null){
+			
+			if(request.getBTemporarilyLeave() == 1){
+				//进入留座离桌状态
+				long lLeaveTime = stGameRoomDetailInfo.userTemporarilyLeave(request.getUuid());
+				if(lLeaveTime > 0){
+					//进入留座离桌状态
+					stUserTemporarilyLeaveResponseBuilder.setBTemporarilyLeave(1);
+					stUserTemporarilyLeaveResponseBuilder.setLTemporarilyLeaveTime(lLeaveTime);
+					stUserTemporarilyLeaveResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);	
+				}else if(lLeaveTime == 0){
+					//下手进入留座离桌状态
+					stUserTemporarilyLeaveResponseBuilder.setBTemporarilyLeave(0);
+					stUserTemporarilyLeaveResponseBuilder.setLTemporarilyLeaveTime(0);
+					stUserTemporarilyLeaveResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_TEMPORARILY_LEAVE_LATER);	
+				}else{
+					stUserTemporarilyLeaveResponseBuilder.setBTemporarilyLeave(0);
+					stUserTemporarilyLeaveResponseBuilder.setLTemporarilyLeaveTime(0);
+					stUserTemporarilyLeaveResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_TEMPORARILY_LEAVE_NOT_IN_TABLE);	
+				}
+			}else{
+				//解除留座离桌状态
+				stGameRoomDetailInfo.userReturnTemporarilyLeave(request.getUuid());
+				stUserTemporarilyLeaveResponseBuilder.setBTemporarilyLeave(0);
+				stUserTemporarilyLeaveResponseBuilder.setLTemporarilyLeaveTime(0);
+				stUserTemporarilyLeaveResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);	
+			}
+		}
+		
+		return stUserTemporarilyLeaveResponseBuilder.build();
+	}
+
+	@Override
+	public void userTemporarilyLeave(RpcController arg0, UserTemporarilyLeaveRequest arg1,
+			RpcCallback<UserTemporarilyLeaveResponse> arg2) {
 		// TODO Auto-generated method stub
 		
 	}
