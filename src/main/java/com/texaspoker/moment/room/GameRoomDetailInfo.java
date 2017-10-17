@@ -64,6 +64,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	private Map<Long,Long> mUserBuyining = new ConcurrentHashMap<Long,Long>();
 	
 	//如果是联盟局，保存联盟信息
+	private boolean bStartGamePush = false;
+	
+	//如果是联盟局，保存联盟信息
 	private LeagueInfo stLeagueInfo;
 	
 	//重新设置的思考时间间隔
@@ -1192,6 +1195,23 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		return LBSManager.getInstance().verifyLocationToOthers(uuid, vOtherUuids,getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
 	}
 	
+	private boolean checkTableFull(){
+		boolean bTableFull = true;
+		for(UserGameInfoNet stUserGameInfoNet:this.stGameRoomInfo.getVUserGameInfosList()){
+			if(stUserGameInfoNet.getStUserInfo().getUuid() == 0){
+				bTableFull = false;
+				break;
+			}
+		}
+		
+		return bTableFull;
+	}
+	
+	private void tableFullPush(long toUuid){
+		pushGameRoomUserMsgs(null,toUuid,
+				GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_FULL_TABLE,0);
+	}
+	
 	public ERROR_CODE_TYPE  sitdown(long uuid,int iPos){
 		synchronized(this){
 			if(this.stGameRoomInfo.getStGameRoomBaseInfo().getBGamePause() == 1){
@@ -1267,6 +1287,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								
 							UserManager.getInstance().setUserInTable(uuid,stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 							
+							if(getGameStarted() == false && bStartGamePush == false && checkTableFull() == true){
+								//发送满桌提示给房主
+								tableFullPush(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid());
+								bStartGamePush = true;
+							}
+							
 							eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 						}else{															
 							stUserMyGameInfoNetBuilder.clearVCurrentHands();
@@ -1300,6 +1326,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							addNorChargeList(stUserBaseInfoBuilder.getUuid());
 								
 							UserManager.getInstance().setUserInTable(uuid,stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+							
+							if(getGameStarted() == false && bStartGamePush == false && checkTableFull() == true){
+								//发送满桌提示给房主
+								tableFullPush(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid());
+								bStartGamePush = true;
+							}
 								
 							eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 						}
