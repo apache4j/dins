@@ -2348,7 +2348,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				if(stUserGameInfoBuilder.getStUserInfo().getUuid() > 0&&stUserGameInfoBuilder.getLRemainStacks() > 0){
 					//如果是小盲，并且用户刚刚坐下，则用户不能参加牌局
 					
-					if(stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1
+					if((stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1)
 							||stUserGameInfoBuilder.getBTemporarilyLeave() == 1){
 						//设置游戏的用户状态
 						stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_WAIT);
@@ -2465,7 +2465,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				if(stUserGameInfoBuilder.getStUserInfo().getUuid() > 0&&stUserGameInfoBuilder.getLRemainStacks() > 0){
 					//如果是小盲，并且用户刚刚坐下，则用户不能参加牌局
 					
-					if(stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1
+					if((stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1)
 							||stUserGameInfoBuilder.getBTemporarilyLeave() == 1){
 						//设置游戏的用户状态
 						stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_WAIT);
@@ -2576,7 +2576,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stUserGameInfoBuilder.setIDelaySingleTime(20);
 					
 
-					if(stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1
+					if((stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1)
 							||stUserGameInfoBuilder.getBTemporarilyLeave() == 1){
 						//直接跳过，不发牌
 						stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_WAIT);
@@ -2651,7 +2651,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				if(stUserGameInfoBuilder.getStUserInfo().getUuid() > 0&&stUserGameInfoBuilder.getLRemainStacks() > 0){
 					//如果是小盲，并且用户刚刚坐下，则用户不能参加牌局
 					
-					if(stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1
+					if((stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1)
 							||stUserGameInfoBuilder.getBTemporarilyLeave() == 1){
 						//设置游戏的用户状态
 						stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_WAIT);
@@ -2762,7 +2762,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stUserGameInfoBuilder.setIDelaySingleTime(20);
 					
 
-					if(stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1
+					if((stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1)
 							||stUserGameInfoBuilder.getBTemporarilyLeave() == 1){
 						//直接跳过，不发牌
 						stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_WAIT);
