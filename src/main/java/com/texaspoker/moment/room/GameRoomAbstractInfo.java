@@ -4265,6 +4265,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					TexasPoker.UserGameInfoNet.Builder userGameInfoBuilder = stUserGameInfo.toBuilder();
 					
 					//设置为托管状态
+					userGameInfoBuilder.setBTemporarilyLeave(0);
+					userGameInfoBuilder.setLTemporarilyLeaveTime(0);
 					userGameInfoBuilder.setBDelegate(1);
 					userGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 					
@@ -4391,6 +4393,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					
 					//解除用户代理状态
 					stUserGameInfoNetBuilder.setBDelegate(0);
+					stUserGameInfoNetBuilder.setBTemporarilyLeave(0);
+					stUserGameInfoNetBuilder.setLTemporarilyLeaveTime(0);
 					
 					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 					stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);

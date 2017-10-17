@@ -218,6 +218,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						
 						//解除用户代理状态
 						stUserGameInfoBuilder.setBDelegate(0);
+						stUserGameInfoBuilder.setBTemporarilyLeave(0);
+						stUserGameInfoBuilder.setLTemporarilyLeaveTime(0);
+						stUserGameInfoBuilder.setBKickedInGame(0);
 						
 						mapStandByUserGameInfos.put(uuid, stUserGameInfoBuilder.clone());
 						mPlayers.remove(uuid);
@@ -1945,6 +1948,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
 					}
 					
+					if(stUserGameInfoNetBuilder.getBTemporarilyLeave() == 1){
+						stUserGameInfoNetBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_WAIT);
+						stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+					}
+					
 				}
 			}			
 		}
@@ -2340,7 +2348,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				if(stUserGameInfoBuilder.getStUserInfo().getUuid() > 0&&stUserGameInfoBuilder.getLRemainStacks() > 0){
 					//如果是小盲，并且用户刚刚坐下，则用户不能参加牌局
 					
-					if(stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1){
+					if(stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1
+							||stUserGameInfoBuilder.getBTemporarilyLeave() == 1){
 						//设置游戏的用户状态
 						stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 						stUserGameInfoBuilder.setBGameDealer(0);
@@ -2456,7 +2465,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				if(stUserGameInfoBuilder.getStUserInfo().getUuid() > 0&&stUserGameInfoBuilder.getLRemainStacks() > 0){
 					//如果是小盲，并且用户刚刚坐下，则用户不能参加牌局
 					
-					if(stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1){
+					if(stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1
+							||stUserGameInfoBuilder.getBTemporarilyLeave() == 1){
 						//设置游戏的用户状态
 						stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 						stUserGameInfoBuilder.setBGameDealer(0);
@@ -2566,7 +2576,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stUserGameInfoBuilder.setIDelaySingleTime(20);
 					
 
-					if(stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1){
+					if(stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1
+							||stUserGameInfoBuilder.getBTemporarilyLeave() == 1){
 						//直接跳过，不发牌
 						stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 					}
@@ -2640,7 +2651,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				if(stUserGameInfoBuilder.getStUserInfo().getUuid() > 0&&stUserGameInfoBuilder.getLRemainStacks() > 0){
 					//如果是小盲，并且用户刚刚坐下，则用户不能参加牌局
 					
-					if(stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1){
+					if(stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1
+							||stUserGameInfoBuilder.getBTemporarilyLeave() == 1){
 						//设置游戏的用户状态
 						stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 						stUserGameInfoBuilder.setBGameDealer(0);
@@ -2750,7 +2762,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stUserGameInfoBuilder.setIDelaySingleTime(20);
 					
 
-					if(stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1){
+					if(stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1
+							||stUserGameInfoBuilder.getBTemporarilyLeave() == 1){
 						//直接跳过，不发牌
 						stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 					}
@@ -4533,7 +4546,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			
 			if(stUserGameInfoBuilder.getStUserInfo().getUuid() > 0
 					&&stUserGameInfoBuilder.getLRemainStacks() > 0
-					&&stUserGameInfoBuilder.getBJustSit() == 0){
+					&&stUserGameInfoBuilder.getBJustSit() == 0
+					&&stUserGameInfoBuilder.getBTemporarilyLeave() == 0){
 				mDealPos =  userIndex;
 				return;
 			}	
