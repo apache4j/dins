@@ -13,6 +13,7 @@ import com.texaspoker.moment.TexasPokerAPNService.BuyinPushRequest;
 import com.texaspoker.moment.TexasPokerAPNService.CreateGameRoomPushRequest;
 import com.texaspoker.moment.TexasPokerAPNService.EmptyGameRoomPushRequest;
 import com.texaspoker.moment.TexasPokerAPNService.EnterGameRoomPushRequest;
+import com.texaspoker.moment.TexasPokerAPNService.FullGameRoomPushRequest;
 import com.texaspoker.moment.TexasPokerAPNService.GameOverPushRequest;
 import com.texaspoker.moment.TexasPokerAPNService.StartGameRoomPushRequest;
 import com.texaspoker.rpc.client.RpcChannel;
@@ -184,6 +185,20 @@ public class APNManager  {
 			stEmptyGameRoomPushRequestBuilder.setSGameRoomName(strGameRoomName);
 
 			apnService.emptyGameRoomPush(controller, stEmptyGameRoomPushRequestBuilder.build(),null);
+
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	public void fullGameRoomPush(long uuid,String gameRoomName){
+		try{
+			
+			FullGameRoomPushRequest.Builder stFullGameRoomPushRequestBuilder = FullGameRoomPushRequest.newBuilder();
+			stFullGameRoomPushRequestBuilder.addUuid(uuid);
+			stFullGameRoomPushRequestBuilder.setRoomname(gameRoomName);
+
+			apnService.fullGameRoomPush(controller, stFullGameRoomPushRequestBuilder.build(),null);
 
 		}catch(Exception e){
 			e.printStackTrace();
