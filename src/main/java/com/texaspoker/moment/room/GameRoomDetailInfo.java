@@ -1211,7 +1211,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	}
 	
 	private void tableFullPush(long toUuid){
-		pushGameRoomUserMsgs(null,toUuid,
+		pushFullGameRoomUserMsgs(null,toUuid,
 				GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_FULL_TABLE,0);
 		APNManager.getInstance().fullGameRoomPush(toUuid, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName());
 	}

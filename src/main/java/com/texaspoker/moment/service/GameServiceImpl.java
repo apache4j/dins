@@ -198,6 +198,12 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 //					System.out.println("enterGameRoom : " + stGameRoomDetailInfo.getStGameRoomInfo());
 					stEnterGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
 					stEnterGameRoomResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
+					if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.QUICK_GAME_ROOM){
+						QuickGameRoomInfo.Builder stQuickGameRoomInfoBuilder = QuickGameRoomManager.getInstance().getQuickGameRoomInfoByRoomID(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID());
+						if(stQuickGameRoomInfoBuilder!=null && stQuickGameRoomInfoBuilder.getSCryptCode()!=null){
+							stEnterGameRoomResponseBuilder.setSCryptCode(stQuickGameRoomInfoBuilder.getSCryptCode());
+						}
+					}
 				}else{
 					stEnterGameRoomResponseBuilder.setEErrCode(eErrorCodeType);
 				}

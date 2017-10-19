@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import com.texaspoker.bill.BillManager;
+import com.texaspoker.club.ClubManager;
 import com.texaspoker.comm.AdvancedTimeoutHashMap;
 import com.texaspoker.comm.TimeoutHashMap;
 import com.texaspoker.dubbo.game.insurance.InsuranceApi;
@@ -31,6 +32,8 @@ import com.texaspoker.moment.TexasPoker.SCGameRoomStateChange;
 import com.texaspoker.moment.TexasPoker.USER_GAME_STATE;
 import com.texaspoker.moment.TexasPoker.UseItemPushMsg;
 import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
+import com.texaspoker.moment.TexasPokerCommon.CREATE_ROOM_TYPE;
+import com.texaspoker.moment.TexasPokerCommon.ClubBaseInfo;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
 import com.texaspoker.msg.GameRoomMsgManager;
@@ -1055,6 +1058,90 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 			}
 		}
 		return eErrorCode;
+	}
+	
+	/****************************Push相关函数*******************************/
+	@Override
+	public void pushFullGameRoomUserMsgs(UserGameInfoNet stFromUserGamenfo,
+			long stToUserUuid,GAME_ROOM_MESSAGE_TYPE eGameRoomMessageType ,int pos){
+		
+		//给被邀请用户发通知
+		TexasPoker.GameRoomPushMsg.Builder stGameRoomPushMsgBuilder = TexasPoker.GameRoomPushMsg.newBuilder() ;
+			
+		//获取时间
+		long curTime = System.currentTimeMillis();
+			
+		// 设置msg id
+		stGameRoomPushMsgBuilder.setLMsgID(curTime);
+		// 设置发送时间
+		stGameRoomPushMsgBuilder.setLCreateTime(curTime);
+		
+		// 设置发送人的userbaseinfo
+		if(stFromUserGamenfo!=null){
+			stGameRoomPushMsgBuilder.setStFromUser(stFromUserGamenfo);
+		}
+		
+		// 设置消息内容，暂时没有什么具体用处
+		stGameRoomPushMsgBuilder.setSMsg("");
+		
+		stGameRoomPushMsgBuilder.setIPos(pos);
+		
+		if(stGameRoomInfo.getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
+			
+			ClubBaseInfo.Builder stClubBaseInfoBuilder = ClubManager.getInstance().getClubBaseInfo(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID());
+			if(stClubBaseInfoBuilder!=null && stClubBaseInfoBuilder.getLClubID() > 0){
+				stGameRoomPushMsgBuilder.setLClubID(stClubBaseInfoBuilder.getLClubID());
+				stGameRoomPushMsgBuilder.setSClubName(stClubBaseInfoBuilder.getSClubName());
+			}
+		}
+
+		
+		// 设置 好友类型
+		stGameRoomPushMsgBuilder.setEGameMessageType(eGameRoomMessageType);
+		
+		checkAllAllin();
+			
+		if(stGameRoomInfo!=null){
+			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+			for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount() ; i ++){
+				UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+				if(stUserGameInfoNetBuilder.getStUserInfo().getUuid()!=stToUserUuid){
+					
+					if(stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN && bAllAllin == true){
+						continue;
+					}
+					
+					if(stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
+							|| (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)){
+						if(stUserGameInfoNetBuilder.getBShowCardOne()==1||stUserGameInfoNetBuilder.getBShowCardTwo()==1){
+                                         		continue;
+                                       	 	}
+						if(stUserGameInfoNetBuilder.getEGameState()==USER_GAME_STATE.USER_GAME_STATE_FOLD){
+							stUserGameInfoNetBuilder.clearVCurrentHands();
+						}else{
+							if(bFlodResult==true){
+                                                                stUserGameInfoNetBuilder.clearVCurrentHands();
+                                                        }
+						}
+					}else{
+						stUserGameInfoNetBuilder.clearVCurrentHands();
+					}
+				}
+				stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+			}
+			
+			stGameRoomPushMsgBuilder.setStGameRoomInfo(stGameRoomInfoBuilder);
+		}
+			
+		
+		TexasPoker.GameRoomPushMsg stGameRoomPushMsg = stGameRoomPushMsgBuilder
+				.build();
+	
+		UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(stToUserUuid);
+		if(stUserBaseInfoNetBuilder!=null){			
+			//发送push
+			GameRoomMsgManager.getInstance().sendGameRoomMsg(stToUserUuid,stGameRoomPushMsg);
+		}
 	}
 	
 	/****************************Push相关函数*******************************/

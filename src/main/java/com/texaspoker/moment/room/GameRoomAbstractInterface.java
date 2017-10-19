@@ -188,4 +188,7 @@ public interface GameRoomAbstractInterface {
 	
 	public void pushGameRoomUserMsgsResetThinkingInterval(UserGameInfoNet stFromUserGamenfo,
 			long stToUserUuid,int iThinkingInterval);
+	
+	public void pushFullGameRoomUserMsgs(UserGameInfoNet stFromUserGamenfo,
+			long stToUserUuid,GAME_ROOM_MESSAGE_TYPE eGameRoomMessageType ,int pos);
 }

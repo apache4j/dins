@@ -196,7 +196,7 @@ public class APNManager  {
 			
 			FullGameRoomPushRequest.Builder stFullGameRoomPushRequestBuilder = FullGameRoomPushRequest.newBuilder();
 			stFullGameRoomPushRequestBuilder.addUuid(uuid);
-			stFullGameRoomPushRequestBuilder.setRoomname(gameRoomName);
+			stFullGameRoomPushRequestBuilder.setSRoomName(gameRoomName);
 
 			apnService.fullGameRoomPush(controller, stFullGameRoomPushRequestBuilder.build(),null);
 
