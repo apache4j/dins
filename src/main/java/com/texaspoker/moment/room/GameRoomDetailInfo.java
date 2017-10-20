@@ -1755,6 +1755,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		stGameRoomInfoBuilder.clearStGameResultInfo();
 		
 		stGameRoomInfoBuilder.setBAllAllin(0);
+		System.out.println("iCouldPlayNum 111111: " + mTemporarilyLeaveUsers.keySet());
 		//���������������������������������
 		for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount();i++){
 			UserGameInfoNet.Builder stUserGameInfoNetBuilder =  stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
@@ -1958,7 +1959,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				}
 			}			
 		}
-		System.out.println("iCouldPlayNum 111111: " + iCouldPlayNum);
+		
 		if(iThinkingInterval > 0){
 			GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = stGameRoomInfoBuilder.getStGameRoomBaseInfoBuilder();
 			stGameRoomBaseInfoBuilder.setIThinkingInterval(iThinkingInterval);
