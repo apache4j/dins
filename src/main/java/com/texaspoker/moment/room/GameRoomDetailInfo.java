@@ -1567,8 +1567,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						//首先设置牌局的状态
 						stGameRoomInfoBuilder.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameStart);
 						stGameRoomInfoBuilder.setBStateChange(1);	
-						mGameHandID++;
-						stGameRoomInfoBuilder.setLGameHandID(mGameHandID);
+
 						
 						//最后把最新的牌局信息push给每一个进入牌局的用户
 						stGameRoomInfo = stGameRoomInfoBuilder.build();
@@ -1588,6 +1587,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				mCurrentTableCards.clear();
 				
 				if(iCouldPlayNum >=2){
+					//增加handid
+					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+					mGameHandID++;
+					stGameRoomInfoBuilder.setLGameHandID(mGameHandID);
+					stGameRoomInfo = stGameRoomInfoBuilder.build();
+					
 					TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
 							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
 							+"," + stGameRoomInfo.getLGameHandID()
