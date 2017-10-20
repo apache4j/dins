@@ -1959,7 +1959,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				}
 			}			
 		}
-		
+		System.out.println("iCouldPlayNum 111112: " + iCouldPlayNum);
 		if(iThinkingInterval > 0){
 			GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = stGameRoomInfoBuilder.getStGameRoomBaseInfoBuilder();
 			stGameRoomBaseInfoBuilder.setIThinkingInterval(iThinkingInterval);
