@@ -1561,6 +1561,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					}
 					
 					resetGameRoom();
+					System.out.println("iCouldPlayNum : " + iCouldPlayNum);
 					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 					if(iCouldPlayNum>= 2 && getGameStarted() == true){
 						//首先设置牌局的状态
@@ -1957,7 +1958,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				}
 			}			
 		}
-		
+		System.out.println("iCouldPlayNum 111111: " + iCouldPlayNum);
 		if(iThinkingInterval > 0){
 			GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = stGameRoomInfoBuilder.getStGameRoomBaseInfoBuilder();
 			stGameRoomBaseInfoBuilder.setIThinkingInterval(iThinkingInterval);
