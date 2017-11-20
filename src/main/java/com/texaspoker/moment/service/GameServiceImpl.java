@@ -1028,6 +1028,8 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		GetQuickGameRoomInfoResponse.Builder  stGetQuickGameRoomInfoRequestBuilder = GetQuickGameRoomInfoResponse.newBuilder();
 		
 		QuickGameRoomInfo.Builder stQuickGameRoomInfoBuilder = QuickGameRoomManager.getInstance().getQuickGameRoomInfoByRoomID(request.getLQuickGameRoomID());
+		System.out.println("getQuickGameRoomInfo quickgameroomid : " + request.getLQuickGameRoomID());
+		System.out.println("getQuickGameRoomInfo quickgameroominfo : " + stQuickGameRoomInfoBuilder);
 		if(stQuickGameRoomInfoBuilder!=null){
 			stGetQuickGameRoomInfoRequestBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);	
 			stGetQuickGameRoomInfoRequestBuilder.setStQuickGameRoomInfo(stQuickGameRoomInfoBuilder);
