@@ -220,6 +220,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						stUserGameInfoBuilder.setBDelegate(0);
 						stUserGameInfoBuilder.setBTemporarilyLeave(0);
 						stUserGameInfoBuilder.setLTemporarilyLeaveTime(0);
+						mTemporarilyLeaveUsersTimeout.removeKey(uuid);
+						mTemporarilyLeaveUsers.remove(uuid);
 						stUserGameInfoBuilder.setBKickedInGame(0);
 						
 						mapStandByUserGameInfos.put(uuid, stUserGameInfoBuilder.clone());
@@ -1561,7 +1563,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					}
 					
 					resetGameRoom();
-					System.out.println("iCouldPlayNum : " + iCouldPlayNum);
 					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 					if(iCouldPlayNum>= 2 && getGameStarted() == true){
 						//首先设置牌局的状态
@@ -1760,7 +1761,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		stGameRoomInfoBuilder.clearStGameResultInfo();
 		
 		stGameRoomInfoBuilder.setBAllAllin(0);
-		System.out.println("iCouldPlayNum 111111: " + mTemporarilyLeaveUsers.keySet());
 		//���������������������������������
 		for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount();i++){
 			UserGameInfoNet.Builder stUserGameInfoNetBuilder =  stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
@@ -1964,7 +1964,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				}
 			}			
 		}
-		System.out.println("iCouldPlayNum 111112: " + iCouldPlayNum);
 		if(iThinkingInterval > 0){
 			GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = stGameRoomInfoBuilder.getStGameRoomBaseInfoBuilder();
 			stGameRoomBaseInfoBuilder.setIThinkingInterval(iThinkingInterval);
@@ -3338,7 +3337,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		
 		int userRole=1;//0 代表deal 1代表小盲 2代表大盲 3代表普通
 		int iLoop=0;
-		
 		if(iCouldPlayNum > 2){
 			for(int j = mSmallBlindPos ; iLoop < iGameRoomUserMaxNums;iLoop++,j++ ){
 				int userIndex = 0;
@@ -4612,7 +4610,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			//判断这个位置是否有用户坐下，没有用户坐下，则过掉这个用户
 			if(stUserGameInfoBuilder.getStUserInfo().getUuid() > 0&&stUserGameInfoBuilder.getLRemainStacks() > 0){
 				//如果是小盲，并且用户刚刚坐下，则用户不能参加牌局
-				if(stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1){
+				if((stUserGameInfoBuilder.getBJustSit() == 1 && userRole == 1)
+					||stUserGameInfoBuilder.getBTemporarilyLeave() == 1){
 					
 				}else{
 					//设置用户的较色状态

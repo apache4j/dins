@@ -706,8 +706,15 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		QuickGameRoomResultInfo stQuickGameRoomResultInfo = QuickGameRoomManager.getInstance().createQuickGameRoom(request.getUuid(), request.getStGameRoomBaseInfo());
 		
 		if(stQuickGameRoomResultInfo.geteErrorCodeType() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
-			stCreateQuickGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-			stCreateQuickGameRoomResponseBuilder.setStQuickGameRoomInfo(stQuickGameRoomResultInfo.getStQuickGameRoomInfo());
+			long lQuickGameRoomID = stQuickGameRoomResultInfo.getStQuickGameRoomInfo().getStChatRoomInfo().getStChatRoomBaseInfo().getLChatRoomId();
+			GameRoomResultInfo stGameRoomResultInfo = QuickGameRoomManager.getInstance().startQuickGameRoom(request.getUuid(), lQuickGameRoomID);
+			
+			if(stGameRoomResultInfo.geteErrorCodeType() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
+				stCreateQuickGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+				stCreateQuickGameRoomResponseBuilder.setStQuickGameRoomInfo(QuickGameRoomManager.getInstance().getQuickGameRoomInfoByRoomID(lQuickGameRoomID));
+			}else{
+				stCreateQuickGameRoomResponseBuilder.setEErrCode(stGameRoomResultInfo.geteErrorCodeType());
+			}	
 		}else{
 			stCreateQuickGameRoomResponseBuilder.setEErrCode(stQuickGameRoomResultInfo.geteErrorCodeType());
 		}	

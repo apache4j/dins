@@ -4354,6 +4354,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					//设置为托管状态
 					userGameInfoBuilder.setBTemporarilyLeave(0);
 					userGameInfoBuilder.setLTemporarilyLeaveTime(0);
+					mTemporarilyLeaveUsersTimeout.removeKey(uuid);
+					mTemporarilyLeaveUsers.remove(uuid);
 					userGameInfoBuilder.setBDelegate(1);
 					userGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 					
@@ -4482,7 +4484,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					stUserGameInfoNetBuilder.setBDelegate(0);
 					stUserGameInfoNetBuilder.setBTemporarilyLeave(0);
 					stUserGameInfoNetBuilder.setLTemporarilyLeaveTime(0);
-					
+					mTemporarilyLeaveUsersTimeout.removeKey(uuid);
+					mTemporarilyLeaveUsers.remove(uuid);	
 					GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 					stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
 					stGameRoomInfo = stGameRoomInfoBuilder.build();
@@ -4626,6 +4629,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					//设置为托管状态
 					userGameInfoBuilder.setBTemporarilyLeave(0);
 					userGameInfoBuilder.setLTemporarilyLeaveTime(0);
+					mTemporarilyLeaveUsersTimeout.removeKey(uuid);
+					mTemporarilyLeaveUsers.remove(uuid);
 					userGameInfoBuilder.setBDelegate(0);
 					if(stGameRoomInfo.getStGameRoomBaseInfo().getBStarted() == 1){
 						userGameInfoBuilder.setBJustSit(1);
