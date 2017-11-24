@@ -711,8 +711,6 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 			
 			if(stGameRoomResultInfo.geteErrorCodeType() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
 				stCreateQuickGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-				System.out.println("CreateQuickGameRoomResponse lQuickGameRoomID : " + lQuickGameRoomID);
-				System.out.println("CreateQuickGameRoomResponse quickgameroominfo : " + QuickGameRoomManager.getInstance().getQuickGameRoomInfoByRoomID(lQuickGameRoomID));
 				stCreateQuickGameRoomResponseBuilder.setStQuickGameRoomInfo(QuickGameRoomManager.getInstance().getQuickGameRoomInfoByRoomID(lQuickGameRoomID));
 			}else{
 				stCreateQuickGameRoomResponseBuilder.setEErrCode(stGameRoomResultInfo.geteErrorCodeType());

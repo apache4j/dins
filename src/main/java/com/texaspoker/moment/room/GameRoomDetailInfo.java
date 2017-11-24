@@ -1978,7 +1978,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			if(stUserGameInfoNetBuilder!=null){
 				//踢人消息
 				kickUserPush(stUserGameInfoNetBuilder,0,0);
-				return;
 			}
 		}
 		mUserForceStandupUser.clear();

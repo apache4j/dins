@@ -6,6 +6,7 @@ import org.apache.commons.logging.LogFactory;
 import redis.clients.jedis.Jedis;
 
 import com.texaspoker.jedis.JedisManager;
+import com.texaspoker.kafka.TransactionLogKafkaProducer;
 
 public class TranscationLogService {   
 	Log   mLogTranscation;
@@ -29,17 +30,18 @@ public class TranscationLogService {
   	}
   	
   	public void error(String content){
+  		long stamp = System.currentTimeMillis();
   		Jedis mJedis = JedisManager.getJedis();
   		mLogTranscation.error(content);
   		mJedis.publish("transaction_log", System.currentTimeMillis() + " " + content);  
   		JedisManager.returnRes(mJedis);
+  		
+  		try {
+            TransactionLogKafkaProducer.send(stamp, "transaction_log", content);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
   	}
   	
-//  	public void errorExtra(String content){
-//  		Jedis mJedis = JedisManager.getJedis();
-//  		mLogTranscation.error(content);
-//  		mJedis.publish("transaction_log_extra", System.currentTimeMillis() + " " + content);  
-//  		JedisManager.returnRes(mJedis);
-//  	}
  
 }  
