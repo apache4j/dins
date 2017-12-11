@@ -191,7 +191,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 
 		try{
 			GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
-			System.out.println("enterGameRoom gameroomid : " + request.getLGameRoomID());
+
 			if(stGameRoomDetailInfo!=null){
 				ERROR_CODE_TYPE eErrorCodeType =  stGameRoomDetailInfo.enterGameRoom(request.getUuid());
 				if(eErrorCodeType == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
@@ -1026,8 +1026,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		GetQuickGameRoomInfoResponse.Builder  stGetQuickGameRoomInfoRequestBuilder = GetQuickGameRoomInfoResponse.newBuilder();
 		
 		QuickGameRoomInfo.Builder stQuickGameRoomInfoBuilder = QuickGameRoomManager.getInstance().getQuickGameRoomInfoByRoomID(request.getLQuickGameRoomID());
-		System.out.println("getQuickGameRoomInfo quickgameroomid : " + request.getLQuickGameRoomID());
-		System.out.println("getQuickGameRoomInfo quickgameroominfo : " + stQuickGameRoomInfoBuilder);
+
 		if(stQuickGameRoomInfoBuilder!=null){
 			stGetQuickGameRoomInfoRequestBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);	
 			stGetQuickGameRoomInfoRequestBuilder.setStQuickGameRoomInfo(stQuickGameRoomInfoBuilder);

@@ -551,18 +551,13 @@ public class QuickGameRoomManager {
 	public QuickGameRoomResultInfo enterQuickGameRoom(long uuid,String sCryptCode){
 		//加入快速房间逻辑
 		Long lQuickGameRoomID = QuickGameRoomManager.getInstance().getQuickGameRoomInfoByCode(sCryptCode);
-		System.out.println("enterQuickGameRoom sCryptCode : " + sCryptCode);
-		System.out.println("enterQuickGameRoom lQuickGameRoomID : " + lQuickGameRoomID);
+
 		QuickGameRoomResultInfo stQuickGameRoomResultInfo = new QuickGameRoomResultInfo();
 		if(lQuickGameRoomID!=null){
 			//如果快速房间存在，则读取房间基本信息
 			
 			QuickGameRoomInfo.Builder stQuickGameRoomInfoBuilder = QuickGameRoomManager.getInstance().getQuickGameRoomInfoByRoomID(lQuickGameRoomID);
-			if(stQuickGameRoomInfoBuilder!=null){
-				System.out.println("enterQuickGameRoom lQuickGameRoomID not null ");
-			}else{
-				System.out.println("enterQuickGameRoom lQuickGameRoomID null ");
-			}
+			
 			if(stQuickGameRoomInfoBuilder!=null&&stQuickGameRoomInfoBuilder.getEQuickGameRoomStatus()!=QUICK_GAME_ROOM_STATUS.QUICK_GAME_ROOM_FINISH){
 				//首先把用户加到聊天室中
 				UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
