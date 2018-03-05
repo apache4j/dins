@@ -1505,10 +1505,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 						for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount();i++){
 						    UserGameInfoNet.Builder stUserGameInfoNetBuilder =  stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
-						    UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), stUserGameInfoNetBuilder.getLRemainStacks());
-	                        String sLog = stUserGameInfoNetBuilder.getStUserInfo().getUuid() + " " + 0 + " " + 110003 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
-	                                + " 0 " + " 0 " + stUserGameInfoNetBuilder.getLRemainStacks() + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
-	                        TranscationLogService.getInstance().error(sLog);
+						    if(stUserGameInfoNetBuilder.getStUserInfoBuilder().getUuid() > 0 && stUserGameInfoNetBuilder.getLRemainStacks() > 0){
+						        UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), stUserGameInfoNetBuilder.getLRemainStacks());
+	                            String sLog = stUserGameInfoNetBuilder.getStUserInfo().getUuid() + " " + 0 + " " + 110003 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
+	                                    + " 0 " + " 0 " + stUserGameInfoNetBuilder.getLRemainStacks() + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+	                            TranscationLogService.getInstance().error(sLog);
+						    }
 						}
 					    				
 						pushAllGameRoomUserMsgs(null,GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_OVER);
