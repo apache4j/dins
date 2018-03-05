@@ -317,6 +317,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				
 				//各种站起push
 				if(stUserMyGameInfoNetBuilder!=null){
+				    //返还玩家金币
+				    if(stUserMyGameInfoNetBuilder.getLRemainStacks() > 0){
+				        UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserMyGameInfoNetBuilder.getStUserInfo().getUuid(), stUserMyGameInfoNetBuilder.getLRemainStacks());
+				        String sLog = uuid + " " + 0 + " " + 110003 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
+                                + " 0 " + " 0 " + stUserMyGameInfoNetBuilder.getLRemainStacks() + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+                        TranscationLogService.getInstance().error(sLog);
+				    }
+				    
 						for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
 							UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
 
@@ -1112,12 +1120,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 									if(stUserGameInfoBuilder!=null){
 										setBillCurrentStacksInRoom(stUserGameInfoBuilder.getStUserInfo().getUuid(), 
 												stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-												, stUserGameInfoBuilder.getLRemainStacks());
+												,stUserGameInfoBuilder.getLRemainStacks());
 									}
-									
-									//减去用户的银币
-									stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), -popularity);
-									
+									//玩家不在桌只扣除服务费
+									long  fee = (GameFeeUtil.getServiceFeeRat((int)stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds()))*lStacks/100;
+									//减去用户的银币,只扣除服务费
+									stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), -fee);
 									String sLog = uuid + " " + clubID + " " + 110000 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
 											+ " 0 " + " 0 " + lStacks + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
 									TranscationLogService.getInstance().error(sLog);
@@ -1261,88 +1269,96 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					if(stUserMyGameInfoNetBuilder!=null){
 						//获取人气值，查看是否还有足够的人气值
 						UserBaseInfoNet.Builder stUserBaseInfoBuilder =  UserManager.getInstance().getUserBaseInfo(stUserMyGameInfoNetBuilder.getStUserInfo().getUuid());
+						if(stUserBaseInfoBuilder.getLPopularity() >= stUserMyGameInfoNetBuilder.getLRemainStacks()){
+						    //减去玩家金币
+						    stUserBaseInfoBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoBuilder.getUuid(), -stUserMyGameInfoNetBuilder.getLRemainStacks());
+                            
+                            String sLog = stUserBaseInfoBuilder.getUuid() + " " + stUserMyGameInfoNetBuilder.getLBuyinClubID() + " " + 110003 + " " 
+                                        + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " 0 " + " 0 " 
+                                                + stUserMyGameInfoNetBuilder.getLRemainStacks() + " " + stUserBaseInfoBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+                            TranscationLogService.getInstance().error(sLog);
+						    if(inNoChargeList(stUserBaseInfoBuilder.getUuid()) || stUserBaseInfoBuilder.getUuid() == stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()){
+	                            //先检查是否在别的游戏中
 
-						if(inNoChargeList(stUserBaseInfoBuilder.getUuid()) || stUserBaseInfoBuilder.getUuid() == stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()){
-							//先检查是否在别的游戏中
-
-							//不需要付费
-							stUserMyGameInfoNetBuilder.clearVCurrentHands();
-							stUserMyGameInfoNetBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_NORMAL);
-							stUserMyGameInfoNetBuilder.setBGameDealer(0);
-							if(stGameRoomInfo.getStGameRoomBaseInfo().getBStarted() == 1){
-								stUserMyGameInfoNetBuilder.setBJustSit(1);
-							}
-								
-							UserGameInfoNet.Builder stUserMyTempGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(iPos);	
-							if(stUserMyTempGameInfoNetBuilder!=null){
-								stUserMyGameInfoNetBuilder.setEGameState(stUserMyTempGameInfoNetBuilder.getEGameState());
-								stUserMyGameInfoNetBuilder.setLBetStacks(stUserMyTempGameInfoNetBuilder.getLBetStacks());
-							}
-							//在该位置下坐下
-							stGameRoomInfoBuilder.setVUserGameInfos(iPos, stUserMyGameInfoNetBuilder);
-									
-							//设置座位和用户的对应关系
-							mPlayers.add(stUserMyGameInfoNetBuilder.getStUserInfo().getUuid());
-							setUserPos(stUserMyGameInfoNetBuilder.getStUserInfo().getUuid(), iPos);
-								
-								
-							//从旁观人中删除该用户
-							removeAllStandByStatusUuid(uuid);
-									
-							stGameRoomInfo =  stGameRoomInfoBuilder.build();
-								
-							UserManager.getInstance().setUserInTable(uuid,stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
-							
-							if(getGameStarted() == false && bStartGamePush == false && checkTableFull() == true){
-								//发送满桌提示给房主
-								tableFullPush(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid());
-								bStartGamePush = true;
-							}
-							
-							eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
-						}else{															
-							stUserMyGameInfoNetBuilder.clearVCurrentHands();
-							stUserMyGameInfoNetBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_NORMAL);
-							stUserMyGameInfoNetBuilder.setBGameDealer(0);
-							stUserMyGameInfoNetBuilder.setStUserInfo(stUserBaseInfoBuilder);
-							if(stGameRoomInfo.getStGameRoomBaseInfo().getBStarted() == 1){
-								stUserMyGameInfoNetBuilder.setBJustSit(1);
-							}
-								
-							UserGameInfoNet.Builder stUserMyTempGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(iPos);
-							if(stUserMyTempGameInfoNetBuilder!=null){
-								stUserMyGameInfoNetBuilder.setEGameState(stUserMyTempGameInfoNetBuilder.getEGameState());
-								stUserMyGameInfoNetBuilder.setLBetStacks(stUserMyTempGameInfoNetBuilder.getLBetStacks());
-							}
-								
-							//在该位置下坐下
-							stGameRoomInfoBuilder.setVUserGameInfos(iPos, stUserMyGameInfoNetBuilder);
-									
-							//设置座位和用户的对应关系
-							mPlayers.add(stUserMyGameInfoNetBuilder.getStUserInfo().getUuid());
-		
-							setUserPos(stUserMyGameInfoNetBuilder.getStUserInfo().getUuid(), iPos);
-								
-							//从旁观人中删除该用户
-							removeAllStandByStatusUuid(uuid);
-									
-							stGameRoomInfo =  stGameRoomInfoBuilder.build();
-								
-							//把用户放到nocahrge队列里面
-							addNorChargeList(stUserBaseInfoBuilder.getUuid());
-								
-							UserManager.getInstance().setUserInTable(uuid,stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
-							
-							if(getGameStarted() == false && bStartGamePush == false && checkTableFull() == true){
-								//发送满桌提示给房主
-								tableFullPush(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid());
-								bStartGamePush = true;
-							}
-								
-							eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
+	                            //不需要付费
+	                            stUserMyGameInfoNetBuilder.clearVCurrentHands();
+	                            stUserMyGameInfoNetBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_NORMAL);
+	                            stUserMyGameInfoNetBuilder.setBGameDealer(0);
+	                            if(stGameRoomInfo.getStGameRoomBaseInfo().getBStarted() == 1){
+	                                stUserMyGameInfoNetBuilder.setBJustSit(1);
+	                            }
+	                                
+	                            UserGameInfoNet.Builder stUserMyTempGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(iPos);  
+	                            if(stUserMyTempGameInfoNetBuilder!=null){
+	                                stUserMyGameInfoNetBuilder.setEGameState(stUserMyTempGameInfoNetBuilder.getEGameState());
+	                                stUserMyGameInfoNetBuilder.setLBetStacks(stUserMyTempGameInfoNetBuilder.getLBetStacks());
+	                            }
+	                            //在该位置下坐下
+	                            stGameRoomInfoBuilder.setVUserGameInfos(iPos, stUserMyGameInfoNetBuilder);
+	                                    
+	                            //设置座位和用户的对应关系
+	                            mPlayers.add(stUserMyGameInfoNetBuilder.getStUserInfo().getUuid());
+	                            setUserPos(stUserMyGameInfoNetBuilder.getStUserInfo().getUuid(), iPos);
+	                                
+	                                
+	                            //从旁观人中删除该用户
+	                            removeAllStandByStatusUuid(uuid);
+	                                    
+	                            stGameRoomInfo =  stGameRoomInfoBuilder.build();
+	                                
+	                            UserManager.getInstance().setUserInTable(uuid,stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+	                            
+	                            if(getGameStarted() == false && bStartGamePush == false && checkTableFull() == true){
+	                                //发送满桌提示给房主
+	                                tableFullPush(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid());
+	                                bStartGamePush = true;
+	                            }
+	                            
+	                            eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
+	                        }else{                                                          
+	                            stUserMyGameInfoNetBuilder.clearVCurrentHands();
+	                            stUserMyGameInfoNetBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_NORMAL);
+	                            stUserMyGameInfoNetBuilder.setBGameDealer(0);
+	                            stUserMyGameInfoNetBuilder.setStUserInfo(stUserBaseInfoBuilder);
+	                            if(stGameRoomInfo.getStGameRoomBaseInfo().getBStarted() == 1){
+	                                stUserMyGameInfoNetBuilder.setBJustSit(1);
+	                            }
+	                                
+	                            UserGameInfoNet.Builder stUserMyTempGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(iPos);
+	                            if(stUserMyTempGameInfoNetBuilder!=null){
+	                                stUserMyGameInfoNetBuilder.setEGameState(stUserMyTempGameInfoNetBuilder.getEGameState());
+	                                stUserMyGameInfoNetBuilder.setLBetStacks(stUserMyTempGameInfoNetBuilder.getLBetStacks());
+	                            }
+	                                
+	                            //在该位置下坐下
+	                            stGameRoomInfoBuilder.setVUserGameInfos(iPos, stUserMyGameInfoNetBuilder);
+	                                    
+	                            //设置座位和用户的对应关系
+	                            mPlayers.add(stUserMyGameInfoNetBuilder.getStUserInfo().getUuid());
+	        
+	                            setUserPos(stUserMyGameInfoNetBuilder.getStUserInfo().getUuid(), iPos);
+	                                
+	                            //从旁观人中删除该用户
+	                            removeAllStandByStatusUuid(uuid);
+	                                    
+	                            stGameRoomInfo =  stGameRoomInfoBuilder.build();
+	                                
+	                            //把用户放到nocahrge队列里面
+	                            addNorChargeList(stUserBaseInfoBuilder.getUuid());
+	                                
+	                            UserManager.getInstance().setUserInTable(uuid,stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+	                            
+	                            if(getGameStarted() == false && bStartGamePush == false && checkTableFull() == true){
+	                                //发送满桌提示给房主
+	                                tableFullPush(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid());
+	                                bStartGamePush = true;
+	                            }
+	                            eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
+	                        }
+						}else{
+						    eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY;
 						}
-					}
-					else{
+					}else{
 						eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_USER;
 					}
 				}else{
@@ -1484,8 +1500,17 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								+"," + 0
 								+"," + "closetable" );
 												
-						BillManager.getInstance().finishGameRoomAndReturn(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
-						
+//						BillManager.getInstance().finishGameRoomAndReturn(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+						//只返还在桌玩家金币
+						GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+						for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount();i++){
+						    UserGameInfoNet.Builder stUserGameInfoNetBuilder =  stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+						    UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), stUserGameInfoNetBuilder.getLRemainStacks());
+	                        String sLog = stUserGameInfoNetBuilder.getStUserInfo().getUuid() + " " + 0 + " " + 110003 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
+	                                + " 0 " + " 0 " + stUserGameInfoNetBuilder.getLRemainStacks() + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+	                        TranscationLogService.getInstance().error(sLog);
+						}
+					    				
 						pushAllGameRoomUserMsgs(null,GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_OVER);
 						bOver = true;
 						//房间到时，删除房间

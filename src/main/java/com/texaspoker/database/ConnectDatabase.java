@@ -190,7 +190,7 @@ public class ConnectDatabase {
 	            	UserManager.getInstance().addUserCreateGameRooms(stGameRoomInfoBuild.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(), stGameRoomInfoBuild.getStGameRoomBaseInfo().getLGameRoomId());
 	            	//加载gameroom邀请人员信息
 	            	 
-	            	BillManager.getInstance().finishGameRoomAndReturn(stGameRoomBaseInfo.getLGameRoomId());
+//	            	BillManager.getInstance().finishGameRoomAndReturn(stGameRoomBaseInfo.getLGameRoomId());
 	            		            	
 					TableLogService.getInstance().error(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID()
 								+"," +stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId()
