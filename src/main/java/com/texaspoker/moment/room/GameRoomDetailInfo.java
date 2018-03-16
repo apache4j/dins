@@ -3363,6 +3363,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		
 		int userRole=1;//0 代表deal 1代表小盲 2代表大盲 3代表普通
 		int iLoop=0;
+		
+		vPosPriority.clear();
+		
 		if(iCouldPlayNum > 2){
 			for(int j = mSmallBlindPos ; iLoop < iGameRoomUserMaxNums;iLoop++,j++ ){
 				int userIndex = 0;
@@ -3404,7 +3407,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					vHandList.add(stUserGameInfoBuilder.getStUserInfo().getUuid());
 					mHandPos.put(userIndex, stUserGameInfoBuilder.getStUserInfo().getUuid());
 					
-					
+					//设置牌手位置优先级数据
+                    if(!vPosPriority.contains(stUserGameInfoBuilder.getStUserInfo().getUuid())){
+                        vPosPriority.add(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                    }
+                    
 					String content = stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
 							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
 							+"," + stGameRoomInfo.getLGameHandID()
@@ -3612,6 +3619,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					vHandList.add(stUserGameInfoBuilder.getStUserInfo().getUuid());
 					mHandPos.put(j, stUserGameInfoBuilder.getStUserInfo().getUuid());
 					
+					//设置牌手位置优先级数据
+                    if(!vPosPriority.contains(stUserGameInfoBuilder.getStUserInfo().getUuid())){
+                        vPosPriority.add(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                    }
 					
 					String content = stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
 							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -3749,6 +3760,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		
 		int userRole=1;//0 代表deal 1代表小盲 2代表大盲 3代表普通
 		int iLoop=0;
+		
+		vPosPriority.clear();
+		
 		if(iCouldPlayNum > 3){
 			for(int j = mSmallBlindPos ; iLoop < iGameRoomUserMaxNums;iLoop++,j++ ){
 				int userIndex = 0;
@@ -3790,6 +3804,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					vHandList.add(stUserGameInfoBuilder.getStUserInfo().getUuid());
 					mHandPos.put(userIndex, stUserGameInfoBuilder.getStUserInfo().getUuid());
 					
+					//设置牌手位置优先级数据
+                    if(!vPosPriority.contains(stUserGameInfoBuilder.getStUserInfo().getUuid())){
+                        vPosPriority.add(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                    }
 					
 					String content = stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
 							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -4040,6 +4058,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					vHandList.add(stUserGameInfoBuilder.getStUserInfo().getUuid());
 					mHandPos.put(userIndex, stUserGameInfoBuilder.getStUserInfo().getUuid());
 					
+					//设置牌手位置优先级数据
+                    if(!vPosPriority.contains(stUserGameInfoBuilder.getStUserInfo().getUuid())){
+                        vPosPriority.add(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                    }
 					
 					String content = stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
 							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -4248,6 +4270,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					vHandList.add(stUserGameInfoBuilder.getStUserInfo().getUuid());
 					mHandPos.put(j, stUserGameInfoBuilder.getStUserInfo().getUuid());
 					
+					//设置牌手位置优先级数据
+                    if(!vPosPriority.contains(stUserGameInfoBuilder.getStUserInfo().getUuid())){
+                        vPosPriority.add(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                    }
 					
 					String content = stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
 							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()

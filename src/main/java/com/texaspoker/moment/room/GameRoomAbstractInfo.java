@@ -17,6 +17,7 @@ import com.texaspoker.comm.TimeoutHashMap;
 import com.texaspoker.dubbo.game.insurance.InsuranceApi;
 import com.texaspoker.dubbo.game.insurance.InsuranceManager;
 import com.texaspoker.dubbo.game.insurance.OutsInfo;
+import com.texaspoker.logger.NormalLogService;
 import com.texaspoker.logger.TableLogService;
 import com.texaspoker.logger.TranscationLogService;
 import com.texaspoker.moment.TexasPoker;
@@ -138,6 +139,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 	protected Map<Long,Long> mUserOutStacks =  new HashMap<Long,Long>();
 	
 	protected Set<Integer> mCurrentTableCards = new HashSet<Integer>();
+	
+	//打牌位置优先级  
+    protected ArrayList<Long> vPosPriority = new ArrayList<Long>();
+    
 	/**
 	 * 初始化函数
 	 */
@@ -964,7 +969,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 							&& stUserGameInfoBuilder.getEGameState()!=USER_GAME_STATE.USER_GAME_STATE_WAIT){							
 
 							
-							if( stUserGameInfoBuilder.getLRemainStacks() > 0 &&bAllAllin==false){
+							if( stUserGameInfoBuilder.getLRemainStacks() > 0 && checkAllAllin()==false){
 								//���������������������������������������������������������������������
 								stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_BETTING);
 								stUserGameInfoBuilder.setLBettingID(System.currentTimeMillis());
@@ -2170,7 +2175,21 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 				GamePotResultInfo.Builder  stGamePotResultInfoBuilder = GamePotResultInfo.newBuilder();
 				
 				long winStacks = stGameRoomInfo.getVCurrentPots(index)/winnerIDArray.size();
+				long winLeftStacks = stGameRoomInfo.getVCurrentPots(index)%winnerIDArray.size();
+				
 				lSingleMaxPot += stGameRoomInfo.getVCurrentPots(index);
+				
+				
+				Map<Long,Integer> mPosPriority = new HashMap<Long,Integer>();
+                int iArrangePosPriority = 1; 
+                for(int i = 0; i < vPosPriority.size() ; i++){
+                    long uuid = vPosPriority.get(i);
+                    if(winnerUuidArray.contains(uuid)){
+                        mPosPriority.put(uuid, iArrangePosPriority);
+                        iArrangePosPriority++;
+                    }
+                }
+                
 				for(int i = 0 ; i < winnerIDArray.size() ; i++){
 					int userPos  =  winnerIDArray.get(i);
 					long winUuid = winnerUuidArray.get(i);
@@ -2178,11 +2197,20 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					for(int j = 0 ; j < stGameRoomInfo.getVUserGameInfosCount();j++){
 						if(j == userPos){
 							UserGameInfoNet.Builder stUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(j).toBuilder();
+							//查看用户的位置优先级数
+                            int iPosPriority = mPosPriority.get(winUuid);
+                            int iExtraWinStacks = 0;
+                            NormalLogService.getInstance().error("mtt calculateWinner gameroomid : 35");
+                            //如果这个数据小于等于剩余可分筹码
+                            if(iPosPriority <= winLeftStacks){
+                                //则获胜的筹码加1
+                                iExtraWinStacks=1;
+                            }
 							if(stUserGameInfoBuilder.getStUserInfo().getUuid() > 0 && stUserGameInfoBuilder.getStUserInfo().getUuid() == winUuid ){		
 								stGamePotResultInfoBuilder.addStUserWiner(stUserGameInfoBuilder.getStUserInfo());
-								stGamePotResultInfoBuilder.addLUserPots(winStacks);
+								stGamePotResultInfoBuilder.addLUserPots(winStacks+iExtraWinStacks);
 																			
-								stUserGameInfoBuilder.setLRemainStacks(stUserGameInfoBuilder.getLRemainStacks()+winStacks);
+								stUserGameInfoBuilder.setLRemainStacks(stUserGameInfoBuilder.getLRemainStacks()+winStacks+iExtraWinStacks);
 
 								stGameRoomInfoBuilder.setVUserGameInfos(j, stUserGameInfoBuilder.build());		
 							}
@@ -2190,9 +2218,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 								UserGameInfoNet.Builder stUserStandByGameInfoBuilder = mapStandByUserGameInfos.get(winUuid);
 								if(stUserStandByGameInfoBuilder != null){
 									stGamePotResultInfoBuilder.addStUserWiner(stUserStandByGameInfoBuilder.getStUserInfo());
-									stGamePotResultInfoBuilder.addLUserPots(winStacks);
+									stGamePotResultInfoBuilder.addLUserPots(winStacks+iExtraWinStacks);
 				
-									stUserStandByGameInfoBuilder.setLRemainStacks(stUserStandByGameInfoBuilder.getLRemainStacks()+winStacks);
+									stUserStandByGameInfoBuilder.setLRemainStacks(stUserStandByGameInfoBuilder.getLRemainStacks()+winStacks+iExtraWinStacks);
 
 									mapStandByUserGameInfos.put(winUuid, stUserStandByGameInfoBuilder);		
 									setBillCurrentStacksInRoom(winUuid, 
@@ -2206,9 +2234,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 
 									if(stUserGameInfoBuilderChange!=null&&stUserGameInfoBuilderChange.getStUserInfo().getUuid()==winUuid){
 										stGamePotResultInfoBuilder.addStUserWiner(stUserGameInfoBuilder.getStUserInfo());
-										stGamePotResultInfoBuilder.addLUserPots(winStacks);
+										stGamePotResultInfoBuilder.addLUserPots(winStacks+iExtraWinStacks);
 
-										stUserGameInfoBuilderChange.setLRemainStacks(stUserGameInfoBuilderChange.getLRemainStacks()+winStacks);
+										stUserGameInfoBuilderChange.setLRemainStacks(stUserGameInfoBuilderChange.getLRemainStacks()+winStacks+iExtraWinStacks);
 
 										stGameRoomInfoBuilder.setVUserGameInfos(chgangeIndex, stUserGameInfoBuilderChange.build());
 									}
