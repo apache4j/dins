@@ -77,4 +77,18 @@ public class TimeoutHashMap<K,V> {
 	public void clear(){
 		mMap.clear();
 	}
+	
+	//这个函数有bug，后面需要改一下
+    public ArrayList<Long> getListKey(){
+        ArrayList<Long> list = new ArrayList<Long>();
+        
+        //遍历map，返回所有Key
+        Iterator iter = mMap.entrySet().iterator(); 
+        while (iter.hasNext()) { 
+            Map.Entry entry = (Map.Entry) iter.next(); 
+            Long  key = (Long) entry.getKey();
+            list.add(key);
+        } 
+        return list;
+    }
 }

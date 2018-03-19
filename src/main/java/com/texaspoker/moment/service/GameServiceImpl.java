@@ -8,6 +8,7 @@ import com.google.protobuf.RpcController;
 import com.google.protobuf.ServiceException;
 import com.texaspoker.club.ClubManager;
 import com.texaspoker.comm.GameFeeUtil;
+import com.texaspoker.comm.TimeoutHashMap;
 import com.texaspoker.league.LeagueManager;
 import com.texaspoker.moment.TexasPoker.BUYIN_CONTROL_TYPE;
 import com.texaspoker.moment.TexasPoker.GAME_ACT_TYPE;
@@ -30,6 +31,8 @@ import com.texaspoker.moment.TexasPokerGameService.BuyinActionRequest;
 import com.texaspoker.moment.TexasPokerGameService.BuyinActionResponse;
 import com.texaspoker.moment.TexasPokerGameService.CancelGameRequest;
 import com.texaspoker.moment.TexasPokerGameService.CancelGameResponse;
+import com.texaspoker.moment.TexasPokerGameService.ClearAllGameRequest;
+import com.texaspoker.moment.TexasPokerGameService.ClearAllGameResponse;
 import com.texaspoker.moment.TexasPokerGameService.CreateGameRoomRequest;
 import com.texaspoker.moment.TexasPokerGameService.CreateGameRoomResponse;
 import com.texaspoker.moment.TexasPokerGameService.CreateQuickGameRoomRequest;
@@ -112,6 +115,8 @@ import com.texaspoker.moment.TexasPokerGameService.UserInsuranceSettingRequest;
 import com.texaspoker.moment.TexasPokerGameService.UserInsuranceSettingResponse;
 import com.texaspoker.moment.TexasPokerGameService.UserTemporarilyLeaveRequest;
 import com.texaspoker.moment.TexasPokerGameService.UserTemporarilyLeaveResponse;
+import com.texaspoker.moment.TexasPokerGameService.UserUnloadStacksRequest;
+import com.texaspoker.moment.TexasPokerGameService.UserUnloadStacksResponse;
 import com.texaspoker.moment.TexasPokerHttpLeague.LeagueBaseInfo;
 import com.texaspoker.moment.TexasPokerHttpLeague.LeagueInfo;
 import com.texaspoker.moment.room.GameRoomDetailInfo;
@@ -1694,4 +1699,48 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		// TODO Auto-generated method stub
 		
 	}
+
+    @Override
+    public UserUnloadStacksResponse userUnloadStacks(RpcController controller,
+            UserUnloadStacksRequest request) throws ServiceException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ClearAllGameResponse clearAllGame(RpcController controller, ClearAllGameRequest request)
+            throws ServiceException {
+        ClearAllGameResponse.Builder response = ClearAllGameResponse.newBuilder();
+        System.out.println("clearAllGame request "+ request);
+        try{
+            TimeoutHashMap<Long,GameRoomDetailInfo> allGameRooms = GameRoomManager.getInstance().mGameRoomDetailInfos;
+            if(allGameRooms != null && allGameRooms.size()>0){
+                System.out.println("当前牌局数量"+allGameRooms.size());
+                for(Long roomid:allGameRooms.getListKey()){
+                    
+                    GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(roomid);
+                    if(stGameRoomDetailInfo!=null){
+                        stGameRoomDetailInfo.cancelGame();
+                    }
+                }
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return response.build();
+    }
+
+    @Override
+    public void userUnloadStacks(RpcController controller, UserUnloadStacksRequest request,
+            RpcCallback<UserUnloadStacksResponse> done) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void clearAllGame(RpcController controller, ClearAllGameRequest request,
+            RpcCallback<ClearAllGameResponse> done) {
+        // TODO Auto-generated method stub
+        
+    }
 }
