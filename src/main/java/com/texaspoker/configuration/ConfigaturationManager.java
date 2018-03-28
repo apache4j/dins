@@ -39,6 +39,9 @@ public class ConfigaturationManager {
 	public static String sStaticJedisAddress;
 	public static String sStaticJedisAccount;
 	
+	public static String sCreditServiceHost;
+    public static int iCreditServicePost;
+    
 	private static ConfigaturationManager instance;
 	
 	//私有的构造函数
@@ -88,7 +91,9 @@ public class ConfigaturationManager {
 		
 		sStaticJedisAddress = stConfigaturation.getValue("static_redis_address");
 		sStaticJedisAccount = stConfigaturation.getValue("static_redis_account");
-	    
+		
+	    sCreditServiceHost = stConfigaturation.getValue("credit_service_host");
+	    iCreditServicePost = Integer.parseInt(stConfigaturation.getValue("credit_service_post"));
 	}
 	
 	//单例模式
