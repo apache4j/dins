@@ -1056,7 +1056,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				        int result = CreditManager.getInstance().buyInToCredit(uuid, stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId(), clubID,
 				                lStacks, getBuyStacks(uuid), iOnTable,  stGameRoomInfoBuilder.getStGameRoomBaseInfo().getStrRoomName(), remainstack);
 				       if(result != 0){
-				           return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_COIN;
+				           CreditDenyPush(lStacks, uuid);
+				           return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
 				       }
 				        
 				    }
@@ -1399,7 +1400,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	                                eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 	                            }
 						    }else{
-						        
+						         //发送拒绝申请买入的push
+						          CreditDenyPush(stUserMyGameInfoNetBuilder.getLRemainStacks(), uuid);
+						          eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
 						    }
 						}else{
 						    eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY;
@@ -2058,6 +2061,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	                                                        + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " 0 " + " 0 " 
 	                                                                + buyStacks + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
 	                                            TranscationLogService.getInstance().error(sLog);
+	                                       }else{
+	                                           CreditDenyPush(stUserGameInfoNetBuilder.getLBuyinStacks(), stUserGameInfoNetBuilder.getStUserInfo().getUuid());
 	                                       }
 	                                    }
 	                                    
@@ -5312,6 +5317,22 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				return false;
 				
 			}
+		}
+		
+		public void CreditDenyPush(long remainStacks,long toUuid){
+		    long timeTamp = System.currentTimeMillis();
+		    BuyinControlMsg.Builder stBuyinControlMsgBuilder = BuyinControlMsg.newBuilder();
+            stBuyinControlMsgBuilder.setLBuyinActionID(timeTamp);
+            stBuyinControlMsgBuilder.setLBuyStacks(remainStacks);
+            stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_DENY);
+            stBuyinControlMsgBuilder.setStGameRoomBaseInfo(stGameRoomInfo.getStGameRoomBaseInfo());
+            stBuyinControlMsgBuilder.setLActionUuid(toUuid);
+            stBuyinControlMsgBuilder.setStFromUser(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo());
+            stBuyinControlMsgBuilder.setEGameRoomType(stGameRoomInfo.getStGameRoomBaseInfo().getEGameRoomType());
+            stBuyinControlMsgBuilder.setLMsgID(timeTamp);
+            stBuyinControlMsgBuilder.setLBuyinTime(timeTamp);
+            stBuyinControlMsgBuilder.setSActionNickname("");
+            GameRoomMsgManager.getInstance().sendBuyinControlMsg(toUuid,stBuyinControlMsgBuilder.build(),0);
 		}
 
 }
