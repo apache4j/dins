@@ -1057,6 +1057,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				                lStacks, getBuyStacks(uuid), iOnTable,  stGameRoomInfoBuilder.getStGameRoomBaseInfo().getStrRoomName(), remainstack);
 				       if(result != 0){
 				           CreditDenyPush(lStacks, uuid);
+				           doStandUpAction(uuid, true);
 				           return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
 				       }
 				        
@@ -1402,6 +1403,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						    }else{
 						         //发送拒绝申请买入的push
 						          CreditDenyPush(stUserMyGameInfoNetBuilder.getLRemainStacks(), uuid);
+						          doStandUpAction(uuid, true);
 						          eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
 						    }
 						}else{
