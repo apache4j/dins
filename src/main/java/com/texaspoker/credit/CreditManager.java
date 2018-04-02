@@ -1,39 +1,18 @@
 package com.texaspoker.credit;
 
-import java.util.List;
-
 import com.google.protobuf.ServiceException;
 import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.logger.NormalLogService;
-import com.texaspoker.moment.TexasPoker.GameRoomBaseInfo;
-import com.texaspoker.moment.TexasPokerBillService;
-import com.texaspoker.moment.TexasPokerBillService.BuyStackInRoomRequest;
-import com.texaspoker.moment.TexasPokerBillService.BuyStackInRoomResponse;
-import com.texaspoker.moment.TexasPokerBillService.CreateBillInfoRequest;
-import com.texaspoker.moment.TexasPokerBillService.FinishGameRoomAndReturnRequest;
-import com.texaspoker.moment.TexasPokerBillService.GetAllBillUsersRequest;
-import com.texaspoker.moment.TexasPokerBillService.GetAllBillUsersResponse;
-import com.texaspoker.moment.TexasPokerBillService.RemoveBillInfoRequest;
-import com.texaspoker.moment.TexasPokerBillService.RemoveBillInfoResponse;
-import com.texaspoker.moment.TexasPokerBillService.SetCurrentStacksInRoomRequest;
-import com.texaspoker.moment.TexasPokerBillService.AddInsuranceBuyinRequest;
-import com.texaspoker.moment.TexasPokerBillService.AddInsuranceGetStackRequest;
-import com.texaspoker.moment.TexasPokerBillService.SetFinalInsuranceInfoRequest;
-import com.texaspoker.moment.TexasPokerBillService.SetGameOverTagRequest;
 import com.texaspoker.moment.TexasPokerClubCreditService;
 import com.texaspoker.moment.TexasPokerClubCreditService.BuyInToCreditRequest;
 import com.texaspoker.moment.TexasPokerClubCreditService.BuyInToCreditResponse;
 import com.texaspoker.moment.TexasPokerClubCreditService.CheckBuyInToCreditRequest;
 import com.texaspoker.moment.TexasPokerClubCreditService.CheckBuyInToCreditResponse;
 import com.texaspoker.moment.TexasPokerClubCreditService.CreateGameToCreditRequest;
-import com.texaspoker.moment.TexasPokerClubCreditService.CreateGameToCreditResponse;
 import com.texaspoker.moment.TexasPokerClubCreditService.FinishToCreditRequest;
 import com.texaspoker.moment.TexasPokerClubCreditService.SitDownToCreditRequest;
 import com.texaspoker.moment.TexasPokerClubCreditService.SitDownToCreditResponse;
 import com.texaspoker.moment.TexasPokerClubCreditService.StandUpToCreditRequest;
-import com.texaspoker.moment.TexasPokerCommon.GAME_ROOM_TYPE;
-import com.texaspoker.moment.room.GameRoomDetailInfo;
-import com.texaspoker.moment.room.GameRoomManager;
 import com.texaspoker.rpc.client.RpcChannel;
 import com.texaspoker.rpc.client.RpcClient;
 import com.texaspoker.rpc.client.RpcController;
@@ -82,7 +61,7 @@ public class CreditManager {
 	
 	
 	public int checkBuyInToCredit(long uuid,long lGameRoomId,long lClubId){
-        int result = 3;
+        int result = 0;
         CheckBuyInToCreditRequest.Builder request = CheckBuyInToCreditRequest.newBuilder();
         request.setUuid(uuid).setLGameRoomId(lGameRoomId).setLClubId(lClubId);
         CheckBuyInToCreditResponse response = null;

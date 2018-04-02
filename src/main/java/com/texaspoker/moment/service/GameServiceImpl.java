@@ -9,6 +9,7 @@ import com.google.protobuf.ServiceException;
 import com.texaspoker.club.ClubManager;
 import com.texaspoker.comm.GameFeeUtil;
 import com.texaspoker.comm.TimeoutHashMap;
+import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.credit.CreditManager;
 import com.texaspoker.league.LeagueManager;
 import com.texaspoker.moment.TexasPoker.BUYIN_CONTROL_TYPE;
@@ -179,10 +180,16 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 					stCreateGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
 					
 					//同步到授信服
-					CreditManager.getInstance().createGameToCredit(request.getUuid(), stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId(),
-					        stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID(), stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLLeagueID(),
-					        (int)stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLBigBlinds(), stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getEGameRoomType().getNumber(),
-					        stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStrRoomName());
+					if(ConfigaturationManager.bClubCredit){
+					    try{
+                            CreditManager.getInstance().createGameToCredit(request.getUuid(), stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId(),
+                                    stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID(), stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLLeagueID(),
+                                    (int)stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLBigBlinds(), stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getEGameRoomType().getNumber(),
+                                    stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStrRoomName());
+					    }catch (Exception e) {
+					        e.printStackTrace();
+                        }
+					}
 				}else{
 					stCreateGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
 				}
@@ -386,15 +393,24 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 							}else{
 								//发送买入控制的push
 							    //仅此处需要进行买入控制，非管理员申请加入管理员创建的俱乐部局
-							    int state = CreditManager.getInstance().checkBuyInToCredit(request.getUuid(), request.getLRoomID(), clubid);
 							    //非授信玩家或者 已经有申请未走授信的买入 继续走原来的一套
-							    if((state == 2 && stGameRoomDetailInfo.usedInGame(request.getUuid())) || state == 0){
-							        rst = stGameRoomDetailInfo.buyBuyinControl(request.getUuid(),clubid,request.getLStacks());
-	                                bWaitingBuyinConfirmation = 1;
+							    if(ConfigaturationManager.bClubCredit){
+							        try{
+							            int state = CreditManager.getInstance().checkBuyInToCredit(request.getUuid(), request.getLRoomID(), clubid);
+	                                    if((state == 2 && stGameRoomDetailInfo.usedInGame(request.getUuid())) || state == 0){
+	                                        rst = stGameRoomDetailInfo.buyBuyinControl(request.getUuid(),clubid,request.getLStacks());
+	                                        bWaitingBuyinConfirmation = 1;
+	                                    }else{
+	                                        //走授信
+	                                        rst = stGameRoomDetailInfo.buyBuyin(request.getUuid(),clubid, request.getLStacks(),true);
+	                                        bWaitingBuyinConfirmation = 0;
+	                                    } 
+							        }catch (Exception e) {
+							            e.printStackTrace();
+                                    }
 							    }else{
-							        //走授信
-							        rst = stGameRoomDetailInfo.buyBuyin(request.getUuid(),clubid, request.getLStacks(),true);
-	                                bWaitingBuyinConfirmation = 0;
+							        rst = stGameRoomDetailInfo.buyBuyinControl(request.getUuid(),clubid,request.getLStacks());
+                                    bWaitingBuyinConfirmation = 1;
 							    }
 							}
 						}else{

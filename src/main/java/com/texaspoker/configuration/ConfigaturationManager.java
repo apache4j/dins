@@ -3,6 +3,8 @@ package com.texaspoker.configuration;
 import java.io.File;
 
 public class ConfigaturationManager {
+    public static boolean bClubCredit  = true;
+    
 	public static String gHttpUrl = "";
 	public static String gDataBaseConfigFile="";
 

@@ -14,6 +14,7 @@ import com.texaspoker.club.ClubManager;
 import com.texaspoker.comm.AdvancedTimeoutHashMap;
 import com.texaspoker.comm.GameFeeUtil;
 import com.texaspoker.comm.TimeoutHashMap;
+import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.credit.CreditManager;
 import com.texaspoker.database.ConnectDatabase;
 import com.texaspoker.dubbo.game.insurance.InsuranceApi;
@@ -324,13 +325,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				        String sLog = uuid + " " + 0 + " " + 110003 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
                                 + " 0 " + " 0 " + stUserMyGameInfoNetBuilder.getLRemainStacks() + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
                         TranscationLogService.getInstance().error(sLog);
-                        try {
-                            if(CreditManager.getInstance().checkBuyInToCredit(uuid, stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stUserMyGameInfoNetBuilder.getLBuyinClubID())==1){
-                                CreditManager.getInstance().standUpToCredit(uuid, stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stUserMyGameInfoNetBuilder.getLBuyinClubID(),
-                                        stUserMyGameInfoNetBuilder.getLRemainStacks(), stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(), getBuyStacks(uuid));
+                        if(ConfigaturationManager.bClubCredit){
+                            try {
+                                if(CreditManager.getInstance().checkBuyInToCredit(uuid, stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stUserMyGameInfoNetBuilder.getLBuyinClubID())==1){
+                                    CreditManager.getInstance().standUpToCredit(uuid, stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stUserMyGameInfoNetBuilder.getLBuyinClubID(),
+                                            stUserMyGameInfoNetBuilder.getLRemainStacks(), stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(), getBuyStacks(uuid));
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                        } catch (Exception e) {
-                            e.printStackTrace();
                         }
 				    }
 				    
@@ -1057,10 +1060,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				                lStacks, getBuyStacks(uuid), iOnTable,  stGameRoomInfoBuilder.getStGameRoomBaseInfo().getStrRoomName(), remainstack);
 				       if(result != 0){
 				           CreditDenyPush(lStacks, uuid);
-				           doStandUpAction(uuid, true);
+				           if(remainstack == 0){
+				               doStandUpAction(uuid, true); 
+				           }
 				           return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
 				       }
-				        
 				    }
 				    
 					eErrorCodeType = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
@@ -1307,10 +1311,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						if(stUserBaseInfoBuilder.getLPopularity() >= stUserMyGameInfoNetBuilder.getLRemainStacks()){
 						    int result = 5;
 						    try {
-	                            if(CreditManager.getInstance().checkBuyInToCredit(uuid, stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stUserMyGameInfoNetBuilder.getLBuyinClubID())==1){
-	                               result = CreditManager.getInstance().sitDownToCredit(uuid, stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stUserMyGameInfoNetBuilder.getLBuyinClubID(),
-	                                        getBuyStacks(uuid), stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(), stUserMyGameInfoNetBuilder.getLRemainStacks());
-	                            }
+						        if(ConfigaturationManager.bClubCredit){
+						            if(CreditManager.getInstance().checkBuyInToCredit(uuid, stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stUserMyGameInfoNetBuilder.getLBuyinClubID())==1){
+		                                   result = CreditManager.getInstance().sitDownToCredit(uuid, stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stUserMyGameInfoNetBuilder.getLBuyinClubID(),
+		                                            getBuyStacks(uuid), stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(), stUserMyGameInfoNetBuilder.getLRemainStacks());
+		                                }
+						        }
 	                        } catch (Exception e) {
 	                            e.printStackTrace();
 	                        }
@@ -1401,9 +1407,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	                                eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 	                            }
 						    }else{
-						         //发送拒绝申请买入的push
+						          //发送拒绝申请买入的push
 						          CreditDenyPush(stUserMyGameInfoNetBuilder.getLRemainStacks(), uuid);
-						          doStandUpAction(uuid, true);
+						          if(stUserMyGameInfoNetBuilder.getLRemainStacks() <= 0){
+						              doStandUpAction(uuid, true);
+						          }
 						          eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
 						    }
 						}else{
@@ -1556,12 +1564,18 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 						for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount();i++){
 						    UserGameInfoNet.Builder stUserGameInfoNetBuilder =  stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
-						    if(CreditManager.getInstance().checkBuyInToCredit(stUserGameInfoNetBuilder.getStUserInfo().getUuid()
-                                    , stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stUserGameInfoNetBuilder.getLBuyinClubID())==1){
-                                CreditManager.getInstance().finishToCredit(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),
-                                        stUserGameInfoNetBuilder.getLBuyinClubID(), stUserGameInfoNetBuilder.getLRemainStacks(), stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(),
-                                        getBuyStacks(stUserGameInfoNetBuilder.getStUserInfo().getUuid()));
-                            }
+						    if(ConfigaturationManager.bClubCredit){
+						        try{
+						            if(CreditManager.getInstance().checkBuyInToCredit(stUserGameInfoNetBuilder.getStUserInfo().getUuid()
+	                                        , stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stUserGameInfoNetBuilder.getLBuyinClubID())==1){
+	                                    CreditManager.getInstance().finishToCredit(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),
+	                                            stUserGameInfoNetBuilder.getLBuyinClubID(), stUserGameInfoNetBuilder.getLRemainStacks(), stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(),
+	                                            getBuyStacks(stUserGameInfoNetBuilder.getStUserInfo().getUuid()));
+	                                } 
+						        }catch (Exception e) {
+						            e.printStackTrace();
+						        }
+						    }
 						    if(stUserGameInfoNetBuilder.getStUserInfoBuilder().getUuid() > 0 && stUserGameInfoNetBuilder.getLRemainStacks() > 0){
 						        UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), stUserGameInfoNetBuilder.getLRemainStacks());
 	                            String sLog = stUserGameInfoNetBuilder.getStUserInfo().getUuid() + " " + 0 + " " + 110003 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
@@ -1994,17 +2008,18 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							
 							if(stUserBaseInfoNetBuilder!= null){
 								if(UserManager.getInstance().checkUserPopularity(stUserBaseInfoNetBuilder.getUuid(), popularity)){
-								    
 									long buyStacks = stUserGameInfoNetBuilder.getLBuyinStacks();
-									
 									if(stUserGameInfoNetBuilder.getLRemainStacks() + buyStacks < (this.stGameRoomInfo.getStGameRoomBaseInfo().getIMaxBuyinRatio()/10+1)*stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBuyIn()){
 										//解决连续大忙问题，暂时注释下个版本启用
 //										if(stGameRoomInfo.getStGameRoomBaseInfo().getBStarted() == 1 && stUserGameInfoNetBuilder.getLRemainStacks() == 0){
 //											stUserGameInfoNetBuilder.setBJustSit(1);
 //										}
-										// zhangp
-									    int state = CreditManager.getInstance().checkBuyInToCredit(stUserBaseInfoNetBuilder.getUuid(), 
-	                                            stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId(), stUserGameInfoNetBuilder.getLBuyinClubID());
+										// zhangp 授信
+									    int state = 0;
+									    if(ConfigaturationManager.bClubCredit){
+									        state = CreditManager.getInstance().checkBuyInToCredit(stUserBaseInfoNetBuilder.getUuid(), 
+	                                                stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId(), stUserGameInfoNetBuilder.getLBuyinClubID());
+									    }
 	                                    //非授信玩家或者 已经有申请未走授信的买入 继续走原来的一套
 	                                    if((state == 2 && usedInGame(stUserBaseInfoNetBuilder.getUuid())) || state == 0){
 	                                        stUserGameInfoNetBuilder.setLRemainStacks(stUserGameInfoNetBuilder.getLRemainStacks()+buyStacks);
