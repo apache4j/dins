@@ -320,9 +320,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				//各种站起push
 				if(stUserMyGameInfoNetBuilder!=null){
 				    //返还玩家金币
-				    if(stUserMyGameInfoNetBuilder.getLRemainStacks() > 0){
+				    if(stUserMyGameInfoNetBuilder.getLRemainStacks() >= 0){
 				        UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserMyGameInfoNetBuilder.getStUserInfo().getUuid(), stUserMyGameInfoNetBuilder.getLRemainStacks());
-				        String sLog = uuid + " " + 0 + " " + 110003 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
+				        String sLog = uuid + " " + 0 + " " + 110004 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
                                 + " 0 " + " 0 " + stUserMyGameInfoNetBuilder.getLRemainStacks() + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
                         TranscationLogService.getInstance().error(sLog);
                         if(ConfigaturationManager.bClubCredit){
@@ -1050,7 +1050,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	                            remainstack = stUserGameInfoBuilder.getLRemainStacks();
 	                        }
 	                    }
-	                    if(iOnTable==1){
+	                    if(iOnTable==0){
 	                        UserGameInfoNet.Builder stUserGameInfoBuilder = mapStandByUserGameInfos.get(uuid);
                             if(stUserGameInfoBuilder!=null){
                                 remainstack = stUserGameInfoBuilder.getLRemainStacks();
@@ -1564,7 +1564,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 						for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount();i++){
 						    UserGameInfoNet.Builder stUserGameInfoNetBuilder =  stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
-						    if(ConfigaturationManager.bClubCredit){
+						    if(ConfigaturationManager.bClubCredit && stUserGameInfoNetBuilder.getStUserInfoBuilder().getUuid() > 0){
 						        try{
 						            if(CreditManager.getInstance().checkBuyInToCredit(stUserGameInfoNetBuilder.getStUserInfo().getUuid()
 	                                        , stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stUserGameInfoNetBuilder.getLBuyinClubID())==1){
@@ -1578,7 +1578,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						    }
 						    if(stUserGameInfoNetBuilder.getStUserInfoBuilder().getUuid() > 0 && stUserGameInfoNetBuilder.getLRemainStacks() > 0){
 						        UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), stUserGameInfoNetBuilder.getLRemainStacks());
-	                            String sLog = stUserGameInfoNetBuilder.getStUserInfo().getUuid() + " " + 0 + " " + 110003 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
+	                            String sLog = stUserGameInfoNetBuilder.getStUserInfo().getUuid() + " " + 0 + " " + 110004 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
 	                                    + " 0 " + " 0 " + stUserGameInfoNetBuilder.getLRemainStacks() + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
 	                            TranscationLogService.getInstance().error(sLog);
 						    }

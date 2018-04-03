@@ -238,16 +238,16 @@ public class BillManager {
 		}
 	}
 	
-	public void finishGameRoomAndReturn(long lBillID){
-		FinishGameRoomAndReturnRequest.Builder stFinishGameRoomAndReturnRequestBuilder = FinishGameRoomAndReturnRequest.newBuilder();
-		stFinishGameRoomAndReturnRequestBuilder.setLBillID(lBillID);
-		
-		try {
-			blockingBillService.finishGameRoomAndReturn(controller, stFinishGameRoomAndReturnRequestBuilder.build());
-		} catch (ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+//	public void finishGameRoomAndReturn(long lBillID){
+//		FinishGameRoomAndReturnRequest.Builder stFinishGameRoomAndReturnRequestBuilder = FinishGameRoomAndReturnRequest.newBuilder();
+//		stFinishGameRoomAndReturnRequestBuilder.setLBillID(lBillID);
+//		
+//		try {
+//			blockingBillService.finishGameRoomAndReturn(controller, stFinishGameRoomAndReturnRequestBuilder.build());
+//		} catch (ServiceException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	}
 }
 
