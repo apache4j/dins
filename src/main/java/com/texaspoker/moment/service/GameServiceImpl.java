@@ -269,7 +269,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLRoomID());
 		if(stGameRoomDetailInfo!=null){
-			ERROR_CODE_TYPE eErrorCodeType = stGameRoomDetailInfo.doStandUpAction(request.getUuid(), false);
+		    ERROR_CODE_TYPE eErrorCodeType = stGameRoomDetailInfo.doStandUpAction(request.getUuid(), false, 0);
 			
 			if(eErrorCodeType == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
 				stStandUpResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);

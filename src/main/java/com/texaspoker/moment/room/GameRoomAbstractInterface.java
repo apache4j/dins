@@ -191,4 +191,6 @@ public interface GameRoomAbstractInterface {
 	
 	public void pushFullGameRoomUserMsgs(UserGameInfoNet stFromUserGamenfo,
 			long stToUserUuid,GAME_ROOM_MESSAGE_TYPE eGameRoomMessageType ,int pos);
+	void pushGameRoomUserMsgs(UserGameInfoNet stFromUserGamenfo,
+            long stToUserUuid,GAME_ROOM_MESSAGE_TYPE eGameRoomMessageType ,int pos,int bCheat);
 }

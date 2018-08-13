@@ -142,10 +142,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	 * @param bAuto 是否为系统自动站起
 	 * @return
 	 */
-	public ERROR_CODE_TYPE doStandUpAction(long uuid,boolean bAuto){
+	public ERROR_CODE_TYPE doStandUpAction(long uuid,boolean bAuto,int type){
 		synchronized(this){
-			
-			
 			if(this.stGameRoomInfo.getStGameRoomBaseInfo().getBGamePause() == 1){
 				boolean bExist = false;
 				for(int i = 0 ; i < stGameRoomInfo.getVUserGameInfosCount();i++){
@@ -178,9 +176,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							}
 						}
 					}
-					
-					
-					
 					if(bPlaying){
 						if(checkAllAllin() == true)
 							return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ALLOW_STANDUP;
@@ -193,10 +188,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 			
 			//站起用户的副本，push使用
 			UserGameInfoNet.Builder stUserMyGameInfoNetBuilder = null;
-			
 			//牌局副本
 			GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-			
 			int pos = 0;
 			boolean bRemoved = false;
 			if(this.containUser(uuid)){
@@ -316,7 +309,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				if(bRemoved==false){
 					return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM;
 				}
-				
 				//各种站起push
 				if(stUserMyGameInfoNetBuilder!=null){
 				    //返还玩家金币
@@ -353,9 +345,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							}
 						}
 						
-						if(bAuto){
+						if(bAuto && type==0){
 							pushGameRoomUserMsgs(stUserMyGameInfoNetBuilder.build(),stUserMyGameInfoNetBuilder.getStUserInfo().getUuid(),
 									GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_STANDUP,pos);
+						}
+						if(bAuto && type==1){
+						    pushGameRoomUserMsgs(stUserMyGameInfoNetBuilder.build(),stUserMyGameInfoNetBuilder.getStUserInfo().getUuid(),
+                                    GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_STANDUP,pos,type);
 						}
 				}
 				
@@ -409,7 +405,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		if(timeoutArray!=null){
 			for(int i = 0 ; i < timeoutArray.size() ; i++){
 				Long uuid = (Long) timeoutArray.get(i);
-				doStandUpAction(uuid, true);
+				doStandUpAction(uuid, true, 0);
 				mTemporarilyLeaveUsersTimeout.removeKey(uuid);
 			}
 		}
@@ -661,7 +657,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								(stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD 
 								||stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_WAIT
 								||stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_READY)){
-							this.doStandUpAction(lActionedUuid, true);
+							this.doStandUpAction(lActionedUuid, true, 0);
 						}
 					}
 					else{
@@ -810,7 +806,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							(stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD 
 							||stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_WAIT
 							||stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_READY)){
-						this.doStandUpAction(lActionedUuid, true);
+						this.doStandUpAction(lActionedUuid, true, 0);
 					}
 					
 					if(auto==true){
@@ -923,7 +919,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							(stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD 
 							||stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_WAIT
 							||stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_READY)){
-						this.doStandUpAction(stUserGameInfoBuilder.getStUserInfo().getUuid(), true);
+						this.doStandUpAction(stUserGameInfoBuilder.getStUserInfo().getUuid(), true, 0);
 					}
 				}
 			}
@@ -1061,7 +1057,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				       if(result != 0){
 				           CreditDenyPush(lStacks, uuid);
 				           if(remainstack == 0){
-				               doStandUpAction(uuid, true); 
+				               doStandUpAction(uuid, true, 0); 
 				           }
 				           return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
 				       }
@@ -1410,7 +1406,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						          //发送拒绝申请买入的push
 						          CreditDenyPush(stUserMyGameInfoNetBuilder.getLRemainStacks(), uuid);
 						          if(stUserMyGameInfoNetBuilder.getLRemainStacks() <= 0){
-						              doStandUpAction(uuid, true);
+						              doStandUpAction(uuid, true, 0);
 						          }
 						          eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
 						    }
@@ -1680,6 +1676,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				break;
 			case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameStart_VALUE:{
 				resetGameRoom();
+				/*
+				 * 检测IP-GPS
+				 */
+				checkIpAndGps();
 				resetCard();
 				reCalculateCouldPlayNum();
 				bShowTableCard = false;
@@ -1887,7 +1887,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					stGameRoomInfo  = stGameRoomInfoBuilder.build();
 					
 					//踢人逻辑，首先把用户站起
-					doStandUpAction(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),true);
+					doStandUpAction(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),true, 0);
 					
 					//踢人消息
 					kickUserPush(stUserGameInfoNetBuilder,i,1);	
@@ -1896,7 +1896,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				}else if(mUserForceStandupUser.containsKey(stUserGameInfoNetBuilder.getStUserInfoBuilder().getUuid())){
 					//踢人逻辑，首先把用户站起
 					stGameRoomInfo  = stGameRoomInfoBuilder.build();
-					doStandUpAction(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),true);
+					doStandUpAction(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),true, 0);
 					
 					//踢人消息
 					forceStandupPush(stUserGameInfoNetBuilder,i);	
@@ -2093,7 +2093,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						if(stUserGameInfoNetBuilder.getBDelegate() == 1){
 							stGameRoomInfo  = stGameRoomInfoBuilder.build();
 							//踢人逻辑，首先把用户站起
-							doStandUpAction(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),true);
+							doStandUpAction(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),true, 0);
 							
 							stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 						}else{
@@ -2446,7 +2446,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 				
 				if( getTimeoutTimesUser(uuid) > 1){
 					removeTimeoutTimesUser(uuid);
-					doStandUpAction(uuid,true);
+					doStandUpAction(uuid,true, 0);
 				}else{
 					
 					
@@ -4858,7 +4858,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					if(stUserGameInfoNet.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_WAIT
 							|| stUserGameInfoNet.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_STANDBY){
 						//没在打牌中，直接踢出,相当于用户离开房间
-						doStandUpAction(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),true);
+						doStandUpAction(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),true, 0);
 						
 						//踢人消息
 						kickUserPush(stUserGameInfoNetBuilder,i,1);
@@ -4901,7 +4901,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 					if(stUserGameInfoNet.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_WAIT
 							|| stUserGameInfoNet.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_STANDBY){
 						//没在打牌中，直接踢出,相当于用户离开房间
-						doStandUpAction(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),true);
+						doStandUpAction(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),true, 0);
 						
 						//踢人消息
 						forceStandupPush(stUserGameInfoNetBuilder,i);
@@ -5351,5 +5351,30 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
             stBuyinControlMsgBuilder.setSActionNickname("");
             GameRoomMsgManager.getInstance().sendBuyinControlMsg(toUuid,stBuyinControlMsgBuilder.build(),0);
 		}
-
+		/**
+	     * 每手开始检测IP-GPS 信息
+	     */
+    private void checkIpAndGps() {
+        GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+        if (stGameRoomInfoBuilder.getStGameRoomBaseInfo().getBIPLimit() != 0
+                || stGameRoomInfoBuilder.getStGameRoomBaseInfo().getBGPSLimit() != 0) {
+            List<Long> tableUuids = new ArrayList<Long>();
+            List<Long> cheatUuids = new ArrayList<Long>();
+            for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
+                tableUuids.add(stGameRoomInfoBuilder.getVUserGameInfosBuilder(i).getStUserInfo()
+                        .getUuid());
+            }
+            if (tableUuids != null && tableUuids.size() > 1) {
+                cheatUuids = LBSManager.getInstance().verifyTablesUuids(tableUuids,
+                        stGameRoomInfoBuilder.getStGameRoomBaseInfo().getBIPLimit(),
+                        stGameRoomInfoBuilder.getStGameRoomBaseInfo().getBGPSLimit(),
+                        stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId(), 0);
+            }
+            if(cheatUuids != null && cheatUuids.size()>0){
+                for(Long  cheatUuid:cheatUuids){
+                    doStandUpAction(cheatUuid, true, 1);
+                }
+            }
+        }
+    }
 }

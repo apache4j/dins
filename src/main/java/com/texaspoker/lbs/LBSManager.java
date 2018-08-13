@@ -1,7 +1,7 @@
 package com.texaspoker.lbs;
 
 import java.util.ArrayList;
-
+import java.util.List;
 import com.google.protobuf.ServiceException;
 import com.texaspoker.moment.TexasPokerLocationService;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
@@ -9,6 +9,8 @@ import com.texaspoker.moment.TexasPokerLocationService.VerifyIPInfoToOthersReq;
 import com.texaspoker.moment.TexasPokerLocationService.VerifyIPInfoToOthersRsp;
 import com.texaspoker.moment.TexasPokerLocationService.VerifyLocationToOthersReq;
 import com.texaspoker.moment.TexasPokerLocationService.VerifyLocationToOthersRsp;
+import com.texaspoker.moment.TexasPokerLocationService.VerifyTablesLocationReq;
+import com.texaspoker.moment.TexasPokerLocationService.VerifyTablesLocationRsp;
 import com.texaspoker.rpc.client.RpcChannel;
 import com.texaspoker.rpc.client.RpcClient;
 import com.texaspoker.rpc.client.RpcController;
@@ -101,6 +103,24 @@ public class LBSManager {
 			e.printStackTrace();
 		}
 		return true;
+	}
+	public List<Long> verifyTablesUuids(List<Long> tableUuids, int bIpLimit, int bGpsLimit,long roomid,int handid){
+	    List<Long> standupList = new ArrayList<Long>();
+	    try{
+	        VerifyTablesLocationReq.Builder  request = VerifyTablesLocationReq.newBuilder();
+	        request.addAllTableUuids(tableUuids)
+	               .setLRoomid(roomid)
+	               .setBIpLimit(bIpLimit)
+	               .setBGpsLimit(bGpsLimit)
+	               .setIHands(handid);
+	        VerifyTablesLocationRsp response = blockingLBSService.verifyTablesLocation(controller, request.build());
+	        if(response!= null && response.getEErrCode().equals(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN)){
+	            standupList = response.getDoubtUuidsList();
+	        }
+	    }catch (Exception e) {
+            e.printStackTrace();
+        }
+	    return standupList;
 	}
 
 }
