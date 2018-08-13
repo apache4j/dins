@@ -5361,6 +5361,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
             List<Long> tableUuids = new ArrayList<Long>();
             List<Long> cheatUuids = new ArrayList<Long>();
             for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
+                if(stGameRoomInfoBuilder.getVUserGameInfosBuilder(i).getStUserInfo()
+                        .getUuid()>0){
+                    tableUuids.add(stGameRoomInfoBuilder.getVUserGameInfosBuilder(i).getStUserInfo()
+                            .getUuid());
+                }
                 tableUuids.add(stGameRoomInfoBuilder.getVUserGameInfosBuilder(i).getStUserInfo()
                         .getUuid());
             }
@@ -5373,7 +5378,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
             }
             if (cheatUuids != null && cheatUuids.size() > 0) {
                 for (Long cheatUuid : cheatUuids) {
-                    doStandUpAction(cheatUuid, true, 1);
+                    if(cheatUuid > 0){
+                        doStandUpAction(cheatUuid, true, 1);
+                    }
                 }
             }
         }
