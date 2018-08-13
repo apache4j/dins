@@ -104,7 +104,7 @@ public class LBSManager {
 		}
 		return true;
 	}
-	public List<Long> verifyTablesUuids(List<Long> tableUuids, int bIpLimit, int bGpsLimit,long roomid,int handid){
+	public List<Long> verifyTablesUuids(List<Long> tableUuids, int bIpLimit, int bGpsLimit,long roomid,long handid){
 	    List<Long> standupList = new ArrayList<Long>();
 	    try{
 	        VerifyTablesLocationReq.Builder  request = VerifyTablesLocationReq.newBuilder();
@@ -112,7 +112,7 @@ public class LBSManager {
 	               .setLRoomid(roomid)
 	               .setBIpLimit(bIpLimit)
 	               .setBGpsLimit(bGpsLimit)
-	               .setIHands(handid);
+	               .setIHands((int)handid);
 	        VerifyTablesLocationRsp response = blockingLBSService.verifyTablesLocation(controller, request.build());
 	        if(response!= null && response.getEErrCode().equals(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN)){
 	            standupList = response.getDoubtUuidsList();

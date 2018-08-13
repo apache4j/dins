@@ -5368,10 +5368,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
                 cheatUuids = LBSManager.getInstance().verifyTablesUuids(tableUuids,
                         stGameRoomInfoBuilder.getStGameRoomBaseInfo().getBIPLimit(),
                         stGameRoomInfoBuilder.getStGameRoomBaseInfo().getBGPSLimit(),
-                        stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId(), 0);
+                        stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId(),
+                        stGameRoomInfoBuilder.getLGameHandID());
             }
-            if(cheatUuids != null && cheatUuids.size()>0){
-                for(Long  cheatUuid:cheatUuids){
+            if (cheatUuids != null && cheatUuids.size() > 0) {
+                for (Long cheatUuid : cheatUuids) {
                     doStandUpAction(cheatUuid, true, 1);
                 }
             }
