@@ -351,7 +351,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						}
 						if(bAuto && type==1){
 						    pushGameRoomUserMsgs(stUserMyGameInfoNetBuilder.build(),stUserMyGameInfoNetBuilder.getStUserInfo().getUuid(),
-                                    GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_STANDUP,pos,type);
+                                    GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_FORCE_STANDUP,pos,type);
 						}
 				}
 				
@@ -5366,8 +5366,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
                     tableUuids.add(stGameRoomInfoBuilder.getVUserGameInfosBuilder(i).getStUserInfo()
                             .getUuid());
                 }
-                tableUuids.add(stGameRoomInfoBuilder.getVUserGameInfosBuilder(i).getStUserInfo()
-                        .getUuid());
             }
             if (tableUuids != null && tableUuids.size() > 1) {
                 cheatUuids = LBSManager.getInstance().verifyTablesUuids(tableUuids,
