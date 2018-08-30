@@ -13,6 +13,7 @@ import com.texaspoker.bill.BillManager;
 import com.texaspoker.club.ClubManager;
 import com.texaspoker.comm.AdvancedTimeoutHashMap;
 import com.texaspoker.comm.GameFeeUtil;
+import com.texaspoker.comm.LocationManager;
 import com.texaspoker.comm.TimeoutHashMap;
 import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.credit.CreditManager;
@@ -5351,33 +5352,37 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
             stBuyinControlMsgBuilder.setSActionNickname("");
             GameRoomMsgManager.getInstance().sendBuyinControlMsg(toUuid,stBuyinControlMsgBuilder.build(),0);
 		}
-		/**
-	     * 每手开始检测IP-GPS 信息
-	     */
+
+    /**
+     * 每手开始检测IP-GPS 信息
+     */
     private void checkIpAndGps() {
         GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
         if (stGameRoomInfoBuilder.getStGameRoomBaseInfo().getBIPLimit() != 0
                 || stGameRoomInfoBuilder.getStGameRoomBaseInfo().getBGPSLimit() != 0) {
-            List<Long> tableUuids = new ArrayList<Long>();
-            List<Long> cheatUuids = new ArrayList<Long>();
-            for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
-                if(stGameRoomInfoBuilder.getVUserGameInfosBuilder(i).getStUserInfo()
-                        .getUuid()>0){
-                    tableUuids.add(stGameRoomInfoBuilder.getVUserGameInfosBuilder(i).getStUserInfo()
-                            .getUuid());
+            //需要判断是否开启全服检测或者针对联盟的检测
+            if(LocationManager.getInstance().checkOpen(stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLLeagueID())){
+                List<Long> tableUuids = new ArrayList<Long>();
+                List<Long> cheatUuids = new ArrayList<Long>();
+                for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
+                    if (stGameRoomInfoBuilder.getVUserGameInfosBuilder(i).getStUserInfo()
+                            .getUuid() > 0) {
+                        tableUuids.add(stGameRoomInfoBuilder.getVUserGameInfosBuilder(i).getStUserInfo()
+                                .getUuid());
+                    }
                 }
-            }
-            if (tableUuids != null && tableUuids.size() > 1) {
-                cheatUuids = LBSManager.getInstance().verifyTablesUuids(tableUuids,
-                        stGameRoomInfoBuilder.getStGameRoomBaseInfo().getBIPLimit(),
-                        stGameRoomInfoBuilder.getStGameRoomBaseInfo().getBGPSLimit(),
-                        stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId(),
-                        stGameRoomInfoBuilder.getLGameHandID());
-            }
-            if (cheatUuids != null && cheatUuids.size() > 0) {
-                for (Long cheatUuid : cheatUuids) {
-                    if(cheatUuid > 0){
-                        doStandUpAction(cheatUuid, true, 1);
+                if (tableUuids != null && tableUuids.size() > 1) {
+                    cheatUuids = LBSManager.getInstance().verifyTablesUuids(tableUuids,
+                            stGameRoomInfoBuilder.getStGameRoomBaseInfo().getBIPLimit(),
+                            stGameRoomInfoBuilder.getStGameRoomBaseInfo().getBGPSLimit(),
+                            stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId(),
+                            stGameRoomInfoBuilder.getLGameHandID());
+                }
+                if (cheatUuids != null && cheatUuids.size() > 0) {
+                    for (Long cheatUuid : cheatUuids) {
+                        if (cheatUuid > 0) {
+                            doStandUpAction(cheatUuid, true, 1);
+                        }
                     }
                 }
             }

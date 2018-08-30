@@ -51,7 +51,7 @@ public class ConnectDatabase {
     ResultSet rs=null;
     
 	private static ConnectDatabase instance; 
-	DataSource mDatabasePool;
+	public DataSource mDatabasePool;
 	
 	//私有的构造函数
 	private ConnectDatabase (){
