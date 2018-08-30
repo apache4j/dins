@@ -57,6 +57,7 @@ public class LocationManager {
                 System.out.println("LocationManager --  reloadSetting >>>"+ leagueid);
                 if(leagueid == 100){
                     bOpen = true;
+                    break;
                 }else if(leagueid > 0){
                     mLeagueids.put(leagueid, leagueid);
                 }
