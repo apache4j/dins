@@ -10,7 +10,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import com.texaspoker.database.ConnectDatabase;
 public class LocationManager {
-    private ConcurrentHashMap<Long, Long>   mLeagueids = new ConcurrentHashMap<>();;
+    private ConcurrentHashMap<Long, Long>   mLeagueids = new ConcurrentHashMap<Long,Long>();;
     private boolean bOpen = false;
     /**
      * 本类实例对象
@@ -20,6 +20,7 @@ public class LocationManager {
      * 私有构造方法
      */
     private LocationManager() {
+        reloadSetting();
         LimitRefreshService stLimitRefreshService = new LimitRefreshService();
         ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
         service.scheduleAtFixedRate(stLimitRefreshService, 100, 10*60*1000, TimeUnit.MILLISECONDS);
