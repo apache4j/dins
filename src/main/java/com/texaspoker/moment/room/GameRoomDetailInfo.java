@@ -5384,6 +5384,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
                             doStandUpAction(cheatUuid, true, 1);
                         }
                     }
+                    resetGameRoom();
                 }
             }
         }
