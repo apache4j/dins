@@ -4660,6 +4660,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface{
 					mTemporarilyLeaveUsersTimeout.removeKey(uuid);
 					mTemporarilyLeaveUsers.remove(uuid);
 					userGameInfoBuilder.setBDelegate(0);
+					//通知保险用户进入代理状态，留座离桌的bug
+                    InsuranceApi.doGameDelegateClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid);
+					
 					if(stGameRoomInfo.getStGameRoomBaseInfo().getBStarted() == 1){
 						userGameInfoBuilder.setBJustSit(1);
 					}
