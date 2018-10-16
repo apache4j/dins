@@ -164,6 +164,8 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		stGameRoomBaseInfoBuilder.setIThinkingInterval(15);
 		stGameRoomBaseInfoBuilder.setBStraddle(request.getStGameRoomBaseInfo().getBStraddle());
 		
+		stGameRoomBaseInfoBuilder.setIAutoStartNum(request.getStGameRoomBaseInfo().getIAutoStartNum());
+		
 		//添加联盟相关信息
 		LeagueBaseInfo stLeagueBaseInfo = LeagueManager.getInstance().getLeagueBaseInfo(stGameRoomBaseInfoBuilder.getLLeagueID());
 		if(stLeagueBaseInfo!=null){
@@ -502,7 +504,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLRoomID());
 
 		if(stGameRoomDetailInfo!=null){
-			stGameRoomDetailInfo.startGame(request.getUuid());
+			stGameRoomDetailInfo.startGame(request.getUuid(),0);
 			
 			stStartGameResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
 			stStartGameResponseBuilder.setLGameRoomID(request.getLRoomID());

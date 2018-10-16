@@ -85,7 +85,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	public boolean bOver = false;	
 		
 	/****************************牌局操作函数*******************************/
-	public ERROR_CODE_TYPE startGame(long uuid){
+	public ERROR_CODE_TYPE startGame(long uuid,int type){
 		synchronized(this){
 			if(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == uuid){
 	
@@ -113,6 +113,16 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							+"," + "opentype" 
 							+"," + 0
 							+"," + stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums());
+					
+					if(type==1){
+					    //自动开局就打日志，尽量不要影响其他牌局
+					    TableLogService.getInstance().error(lFromRoomID
+	                            +"," + lGameRoomID
+	                            +"," + stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() 
+	                            +"," + "autostart" 
+	                            +"," + 0
+	                            +"," + stGameRoomInfo.getStGameRoomBaseInfo().getIAutoStartNum());
+					}
 				}
 
 				GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
@@ -1669,6 +1679,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						stGameRoomInfo = stGameRoomInfoBuilder.build();
 						sendAllGameStateChange(0,null);
 					}
+				    //判断是否满足自动开启的条件。1、开启自动开启2、牌局未开启 3、当前在桌人数大于设定自动开桌人数
+                    if (stGameRoomInfoBuilder.getStGameRoomBaseInfo().getIAutoStartNum() > 0
+                            && getGameStarted() == false
+                            && iCouldPlayNum >= stGameRoomInfoBuilder.getStGameRoomBaseInfo().getIAutoStartNum()) {
+                        //自动开启游戏
+                        startGame(stGameRoomInfoBuilder.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(), 1);
+                    }
 					
 					stGameRoomInfo = stGameRoomInfoBuilder.build();
 					mGameRoomDetailInfos.setCurrent(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), this);
