@@ -251,6 +251,9 @@ public class QuickGameRoomManager {
 							stGameRoomBaseInfoBuilder.setIThinkingInterval(15);
 							stGameRoomBaseInfoBuilder.setBStraddle(stGameRoomBaseInfo.getBStraddle());
 							
+							//加入自动开桌数据
+                            stGameRoomBaseInfoBuilder.setIAutoStartNum(stGameRoomBaseInfo.getIAutoStartNum());
+                            
 							stQuickGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
 							stQuickGameRoomInfoBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 							ChatRoomManager.getInstance().setChatRoomInfo(lRoomID, stChatRoomInfoBuilder.build());
@@ -339,6 +342,8 @@ public class QuickGameRoomManager {
 								stGameRoomBaseInfoBuilder.setBIPLimit(stGameRoomBaseInfo.getBIPLimit());
 								stGameRoomBaseInfoBuilder.setIThinkingInterval(15);
 								stGameRoomBaseInfoBuilder.setBStraddle(stGameRoomBaseInfo.getBStraddle());
+								//加入自动开桌数据
+								stGameRoomBaseInfoBuilder.setIAutoStartNum(stGameRoomBaseInfo.getIAutoStartNum());
 								
 								stQuickGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
 								
@@ -425,6 +430,9 @@ public class QuickGameRoomManager {
 									gameRoomBaseInfoBuilder.setBGPSLimit(stSettingGameRoomBaseInfoBuilder.getBGPSLimit());
 									gameRoomBaseInfoBuilder.setIThinkingInterval(15);
 									gameRoomBaseInfoBuilder.setBStraddle(stSettingGameRoomBaseInfoBuilder.getBStraddle());
+									
+									//加入自动开桌数据
+									gameRoomBaseInfoBuilder.setIAutoStartNum(stSettingGameRoomBaseInfoBuilder.getIAutoStartNum());
 									
 									// 设置房主vip信息
 									gameRoomBaseInfoBuilder.setStCreateUserBaseInfo(UserManager.getInstance().getUserBaseInfo(uuid));

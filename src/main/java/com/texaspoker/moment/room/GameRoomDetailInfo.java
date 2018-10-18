@@ -1515,7 +1515,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 		if(bGameCanceled == true){
 			return true;
 		}
-		
 		if((bStarted == true) &&
 				(System.currentTimeMillis() - stGameRoomInfo.getStGameRoomBaseInfo().getLStartTime() > stGameRoomInfo.getStGameRoomBaseInfo().getLDuration()*1000)){
 			return true;
@@ -1679,16 +1678,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						stGameRoomInfo = stGameRoomInfoBuilder.build();
 						sendAllGameStateChange(0,null);
 					}
-				    //判断是否满足自动开启的条件。1、开启自动开启2、牌局未开启 3、当前在桌人数大于设定自动开桌人数
+					stGameRoomInfo = stGameRoomInfoBuilder.build();
+					mGameRoomDetailInfos.setCurrent(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), this);
+					//判断是否满足自动开启的条件。1、开启自动开启2、牌局未开启 3、当前在桌人数大于设定自动开桌人数
                     if (stGameRoomInfoBuilder.getStGameRoomBaseInfo().getIAutoStartNum() > 0
                             && getGameStarted() == false
                             && iCouldPlayNum >= stGameRoomInfoBuilder.getStGameRoomBaseInfo().getIAutoStartNum()) {
                         //自动开启游戏
                         startGame(stGameRoomInfoBuilder.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(), 1);
                     }
-					
-					stGameRoomInfo = stGameRoomInfoBuilder.build();
-					mGameRoomDetailInfos.setCurrent(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), this);
 				}
 			}
 				break;
