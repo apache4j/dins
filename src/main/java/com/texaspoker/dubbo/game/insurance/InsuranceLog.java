@@ -51,6 +51,8 @@ public class InsuranceLog {
   private final static String ACTION_FLOP = "flop";
   private final static String ACTION_TURN = "turn";
   private final static String ACTION_RIVER = "river";
+  
+  private final static String ACTION_AUTOSTART = "autostart";
 
   public static void onLogMessage(String message) {
 
@@ -87,6 +89,9 @@ public class InsuranceLog {
       // 本手开始
       HandsManager.getInstance().setHandOpen(groupId, roomId, turnId);
       return;
+    }else if (tableLogContentArray[3].equalsIgnoreCase(ACTION_AUTOSTART)) {
+        //自动开桌
+        return;
     }
 
     try {
