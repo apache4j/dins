@@ -143,8 +143,7 @@ public class GameRoomManager  {
 		// 获取创建牌局的用户的vip类型
 		UserBaseInfoNet.Builder stUserBaseInfoNet = UserManager.getInstance().getUserBaseInfo(uuid);
 		// 判断用户是否可以在创建房间
-		if (stGameRoomBaseInfo.getLLeagueID() == 0 
-				&&userPlaysNumber >= GlobalData.getSimultaneousPlays(stUserBaseInfoNet.getEVipType())) {	
+		if (stGameRoomBaseInfo.getLLeagueID() <= 0 && stUserBaseInfoNet.getICreateGameLimit() == 1 && stGameRoomBaseInfo.getBPaidStart() == 0) {
 			// 生成回包
 			stGameRoomIDResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_GAMEROOM_OVERFLOW);
 			return stGameRoomIDResultInfo;
