@@ -214,7 +214,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
             PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 100111");
 			stCreateGameRoomResponseBuilder.setEErrCode(stGameRoomIDResultInfo.geteErrorCodeType());
 		}
-        PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 1001000");
+        PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 1001000 stCreateGameRoomResponseBuilder: >" + stCreateGameRoomResponseBuilder + "<");
 		return stCreateGameRoomResponseBuilder.build();
 	}
 
