@@ -1,50 +1,12 @@
 package com.texaspoker.club;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.protobuf.ServiceException;
 import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.logger.NormalLogService;
+import com.texaspoker.logger.PlayLogService;
 import com.texaspoker.moment.TexasPokerClubService;
-import com.texaspoker.moment.TexasPokerClubService.AddClubFundRequest;
-import com.texaspoker.moment.TexasPokerClubService.AddClubFundResponse;
-import com.texaspoker.moment.TexasPokerClubService.AddClubMaxRequest;
-import com.texaspoker.moment.TexasPokerClubService.AddClubMaxResponse;
-import com.texaspoker.moment.TexasPokerClubService.AddClubMemberRequest;
-import com.texaspoker.moment.TexasPokerClubService.AddClubMemberResponse;
-import com.texaspoker.moment.TexasPokerClubService.AddClubScoreRequest;
-import com.texaspoker.moment.TexasPokerClubService.AddClubScoreResponse;
-import com.texaspoker.moment.TexasPokerClubService.CheckFullByClubidAndLevelRequest;
-import com.texaspoker.moment.TexasPokerClubService.CheckFullByClubidAndLevelResponse;
-import com.texaspoker.moment.TexasPokerClubService.CheckInClubRequest;
-import com.texaspoker.moment.TexasPokerClubService.CheckInClubResponse;
-import com.texaspoker.moment.TexasPokerClubService.ClubGameRequest;
-import com.texaspoker.moment.TexasPokerClubService.ClubInfoClubID;
-import com.texaspoker.moment.TexasPokerClubService.DeleteClubCoverRequest;
-import com.texaspoker.moment.TexasPokerClubService.DeleteClubCoverResponse;
-import com.texaspoker.moment.TexasPokerClubService.DeleteClubMemberRequest;
-import com.texaspoker.moment.TexasPokerClubService.DeleteClubMemberResponse;
-import com.texaspoker.moment.TexasPokerClubService.GetClubBaseInfoRequest;
-import com.texaspoker.moment.TexasPokerClubService.GetClubBaseInfoResponse;
-import com.texaspoker.moment.TexasPokerClubService.GetClubGameRoomsRequest;
-import com.texaspoker.moment.TexasPokerClubService.GetClubGameRoomsResponse;
-import com.texaspoker.moment.TexasPokerClubService.GetClubInfoRequest;
-import com.texaspoker.moment.TexasPokerClubService.GetClubInfoResponse;
-import com.texaspoker.moment.TexasPokerClubService.GetClubManagerUuidsRequest;
-import com.texaspoker.moment.TexasPokerClubService.GetClubManagerUuidsResponse;
-import com.texaspoker.moment.TexasPokerClubService.GetClubSettingRequest;
-import com.texaspoker.moment.TexasPokerClubService.GetClubSettingResponse;
-import com.texaspoker.moment.TexasPokerClubService.SetClubBaseInfoRequest;
-import com.texaspoker.moment.TexasPokerClubService.SetClubBaseInfoResponse;
-import com.texaspoker.moment.TexasPokerClubService.SetClubSettingRequest;
-import com.texaspoker.moment.TexasPokerClubService.SetClubSettingResponse;
-import com.texaspoker.moment.TexasPokerClubService.SetClubUserLevelRequest;
-import com.texaspoker.moment.TexasPokerClubService.SetClubUserLevelResponse;
-import com.texaspoker.moment.TexasPokerClubService.UploadClubCoverRequest;
-import com.texaspoker.moment.TexasPokerClubService.UploadClubCoverResponse;
-import com.texaspoker.moment.TexasPokerClubService.UploadClubIconRequest;
-import com.texaspoker.moment.TexasPokerClubService.UploadClubIconResponse;
+import com.texaspoker.moment.TexasPokerClubService.*;
+import com.texaspoker.moment.TexasPokerCommon;
 import com.texaspoker.moment.TexasPokerCommon.ClubBaseInfo;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerHttpClub.CLUB_USER_LEVEL;
@@ -52,6 +14,9 @@ import com.texaspoker.moment.TexasPokerHttpClub.ClubInfo;
 import com.texaspoker.rpc.client.RpcChannel;
 import com.texaspoker.rpc.client.RpcClient;
 import com.texaspoker.rpc.client.RpcController;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClubManager {	
 	private static ClubManager instance; 
@@ -126,21 +91,6 @@ public class ClubManager {
 	    }
 	}
 	
-	//往俱乐部中添加牌局
-	public void addGameRooms(long clubID,long gameroomid){
-		ClubGameRequest.Builder stClubGameRequestBuilder = ClubGameRequest.newBuilder();
-		stClubGameRequestBuilder.setLClubID(clubID);
-		stClubGameRequestBuilder.setLGameRoomID(gameroomid);
-	    
-	    try {
-//			System.out.println("addGameRoomsaddGameRoomsaddGameRooms     clubID." + clubID);
-//			System.out.println("addGameRoomsaddGameRoomsaddGameRooms gameroomid." + gameroomid);
-			blockingClubService.addClubGameRooms(controller, stClubGameRequestBuilder.build());
-	    } catch (ServiceException e) {
-	    	NormalLogService.getInstance().error("syn echo error:" + e.getMessage());
-	    }
-	}
-	
 	//获取俱乐部中的牌局
 	public ArrayList<Long> getGameRooms(long clubID,long uuid){
 		GetClubGameRoomsRequest.Builder stGetClubGameRoomsRequestBuilder = GetClubGameRoomsRequest.newBuilder();
@@ -158,18 +108,59 @@ public class ClubManager {
 		
 		return null;
 	}
-	
-	//删除俱乐部中的牌局
-	public void removeChatRoomGameRoom(long clubID,long gameroomid){
-		ClubGameRequest.Builder stClubGameRequestBuilder = ClubGameRequest.newBuilder();
-		stClubGameRequestBuilder.setLClubID(clubID);
-		stClubGameRequestBuilder.setLGameRoomID(gameroomid);
-	    
-	    try {
-			blockingClubService.removeClubGameRooms(controller, stClubGameRequestBuilder.build());
-	    } catch (ServiceException e) {
-	    	NormalLogService.getInstance().error("syn echo error:" + e.getMessage());
-	    }
+
+	/**
+	 * 添加俱乐部中的游戏房间
+	 *
+	 * @param cid 俱乐部 ID
+	 * @param rid 游戏房间 ID
+	 * @param lid 联盟 ID
+	 */
+	public void addGameRooms(long cid, long rid, long lid) {
+		PlayLogService.getInstance().debug("ClubManager.addGameRooms - 1001 cid: >" + cid + "< rid: >" + rid + "< lid: >" + lid + "<");
+		ClubGameRequest clubGameRequest = ClubGameRequest.newBuilder()
+				.setLClubID(cid)
+				.setLGameRoomID(rid)
+				.setBLeagueGame(lid > 0 ? 1 : 0)
+				.setEGAMEROOMTYPE(TexasPokerCommon.GAME_ROOM_TYPE.GAME_ROOM_OFC)
+				.setLLeagueID(lid)
+				.build();
+
+		try {
+			PlayLogService.getInstance().debug("clubGameRequest: >" + clubGameRequest + "<");
+			blockingClubService.addClubGameRooms(controller, clubGameRequest);
+		} catch (ServiceException e) {
+			NormalLogService.getInstance().error("ClubManager.addGameRooms - caused exception, e.getMessage(): >" + e.getMessage() + "<");
+			e.printStackTrace();
+		}
+		PlayLogService.getInstance().debug("ClubManager.addGameRooms - 1001000");
+	}
+
+	/**
+	 * 移除俱乐部中的游戏房间
+	 *
+	 * @param cid 俱乐部 ID
+	 * @param rid 游戏房间 ID
+	 * @param lid 联盟 ID
+	 */
+	public void removeChatRoomGameRoom(long cid, long rid, long lid) {
+		PlayLogService.getInstance().debug("ClubManager.removeChatRoomGameRoom - 1001 cid: >" + cid + "< rid: >" + rid + "< lid: >" + lid + "<");
+		ClubGameRequest clubGameRequest = ClubGameRequest.newBuilder()
+				.setLClubID(cid)
+				.setLGameRoomID(rid)
+				.setBLeagueGame(lid > 0 ? 1 : 0)
+				.setEGAMEROOMTYPE(TexasPokerCommon.GAME_ROOM_TYPE.GAME_ROOM_OFC)
+				.setLLeagueID(lid)
+				.build();
+
+		try {
+			PlayLogService.getInstance().debug("clubGameRequest: >" + clubGameRequest + "<");
+			blockingClubService.removeClubGameRooms(controller, clubGameRequest);
+		} catch (ServiceException e) {
+			NormalLogService.getInstance().error("ClubManager.removeChatRoomGameRoom - caused exception, e.getMessage(): >" + e.getMessage() + "<");
+			e.printStackTrace();
+		}
+		PlayLogService.getInstance().debug("ClubManager.removeChatRoomGameRoom - 1001000");
 	}
 	
 	//检查俱乐部是否已经满员
