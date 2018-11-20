@@ -136,6 +136,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 	@Override
 	public CreateGameRoomResponse createGameRoom(RpcController controller,
 			CreateGameRoomRequest request) throws ServiceException {
+        PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 1001 request: >" + request + "<");
 		// TODO Auto-generated method stub
 		CreateGameRoomResponse.Builder  stCreateGameRoomResponseBuilder = CreateGameRoomResponse.newBuilder();
 		GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = GameRoomBaseInfo.newBuilder();
@@ -166,42 +167,54 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		stGameRoomBaseInfoBuilder.setBStraddle(request.getStGameRoomBaseInfo().getBStraddle());
 		
 		stGameRoomBaseInfoBuilder.setIAutoStartNum(request.getStGameRoomBaseInfo().getIAutoStartNum());
-		
+
+        PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 1003");
 		//添加联盟相关信息
 		LeagueBaseInfo stLeagueBaseInfo = LeagueManager.getInstance().getLeagueBaseInfo(stGameRoomBaseInfoBuilder.getLLeagueID());
 		if(stLeagueBaseInfo!=null){
+            PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 1005");
 			stGameRoomBaseInfoBuilder.setSLeagueName(stLeagueBaseInfo.getSLeagueName());
 		}
 		GameRoomIDResultInfo stGameRoomIDResultInfo = GameRoomManager.getInstance().createGameRoom(request.getUuid()
 				,stGameRoomBaseInfoBuilder.build());
 		if(stGameRoomIDResultInfo.geteErrorCodeType() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
+            PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 1007");
 			if(stGameRoomIDResultInfo.getlGameRoomID() > 0){
+                PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 1009");
 				GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(stGameRoomIDResultInfo.getlGameRoomID());
 				
 				if(stGameRoomDetailInfo!=null){
+                    PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 10011");
 					stCreateGameRoomResponseBuilder.setStGameRoomBaseInfo(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo());
 					stCreateGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
 					
 					//同步到授信服
 					if(ConfigaturationManager.bClubCredit){
+                        PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 10013");
 					    try{
+                            PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 10015");
                             CreditManager.getInstance().createGameToCredit(request.getUuid(), stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId(),
                                     stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID(), stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLLeagueID(),
                                     (int)stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLBigBlinds(), stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getEGameRoomType().getNumber(),
                                     stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStrRoomName());
 					    }catch (Exception e) {
+                            PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 1001010101");
 					        e.printStackTrace();
                         }
 					}
 				}else{
+                    PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 10017");
 					stCreateGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
 				}
 			}else{
+                PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 10019");
 				stCreateGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
 			}
 		}else{
+            PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 100111");
 			stCreateGameRoomResponseBuilder.setEErrCode(stGameRoomIDResultInfo.geteErrorCodeType());
 		}
+        PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 1001000");
 		return stCreateGameRoomResponseBuilder.build();
 	}
 
@@ -764,7 +777,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 			stCreateQuickGameRoomResponseBuilder.setEErrCode(stQuickGameRoomResultInfo.geteErrorCodeType());
 		}
 
-		PlayLogService.getInstance().debug("GameServiceImpl.createQuickGameRoom - 1001000");
+		PlayLogService.getInstance().debug("GameServiceImpl.createQuickGameRoom - 1001000 stCreateQuickGameRoomResponseBuilder: >" + stCreateQuickGameRoomResponseBuilder + "<");
 		return stCreateQuickGameRoomResponseBuilder.build();
 	}
 
