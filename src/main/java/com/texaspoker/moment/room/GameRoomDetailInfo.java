@@ -1,13 +1,5 @@
 package com.texaspoker.moment.room;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import com.texaspoker.apns.APNManager;
 import com.texaspoker.bill.BillManager;
 import com.texaspoker.club.ClubManager;
@@ -23,27 +15,15 @@ import com.texaspoker.lbs.LBSManager;
 import com.texaspoker.logger.TableLogService;
 import com.texaspoker.logger.TranscationLogService;
 import com.texaspoker.moment.TexasPoker;
-import com.texaspoker.moment.TexasPoker.BUYIN_CONTROL_MESSAGE_TYPE;
-import com.texaspoker.moment.TexasPoker.BUYIN_CONTROL_STATUS;
-import com.texaspoker.moment.TexasPoker.BuyInsuranceInfo;
-import com.texaspoker.moment.TexasPoker.BuyinControlMsg;
-import com.texaspoker.moment.TexasPoker.GAME_ROOM_GAME_STATE;
-import com.texaspoker.moment.TexasPoker.GAME_ROOM_MESSAGE_TYPE;
-import com.texaspoker.moment.TexasPoker.GameRoomBaseInfo;
-import com.texaspoker.moment.TexasPoker.GameRoomInfo;
-import com.texaspoker.moment.TexasPoker.InsuranceInfo;
-import com.texaspoker.moment.TexasPoker.InsuranceUserInfo;
-import com.texaspoker.moment.TexasPoker.USER_GAME_ROLE;
-import com.texaspoker.moment.TexasPoker.USER_GAME_STATE;
-import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
-import com.texaspoker.moment.TexasPokerCommon.CREATE_ROOM_TYPE;
-import com.texaspoker.moment.TexasPokerCommon.ClubBaseInfo;
-import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
-import com.texaspoker.moment.TexasPokerCommon.GAME_ROOM_TYPE;
-import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
+import com.texaspoker.moment.TexasPoker.*;
+import com.texaspoker.moment.TexasPokerCommon;
+import com.texaspoker.moment.TexasPokerCommon.*;
 import com.texaspoker.moment.TexasPokerHttpLeague.LeagueInfo;
 import com.texaspoker.msg.GameRoomMsgManager;
 import com.texaspoker.user.UserManager;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author afei
@@ -1599,23 +1579,34 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 								,stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 						
 						ChatRoomManager.getInstance().removeChatRoomGameRoom(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID(),stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
-						ClubManager.getInstance().removeChatRoomGameRoom(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID(),stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
-						//修正联盟结束后，俱乐部拥有牌局数量
-						if(stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID() > 0){
-							if(stLeagueInfo!=null){
-								for(ClubBaseInfo stClubBaseInfo:stLeagueInfo.getVClubBaseInfosList()){																											
-									ClubManager.getInstance().removeChatRoomGameRoom(stClubBaseInfo.getLClubID(),stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+						ClubManager.getInstance().removeChatRoomGameRoom(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID(),stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID());
+
+						long coinCost = 0;
+
+						// 联盟相关操作
+						if (stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID() > 0){
+							if (stLeagueInfo != null) {
+								for (TexasPokerCommon.ClubBaseInfo stClubBaseInfo : stLeagueInfo.getVClubBaseInfosList()) {
+									ClubManager.getInstance().removeChatRoomGameRoom(stClubBaseInfo.getLClubID(),
+											stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),
+											stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID());
 								}
 							}
-							
-							if(bStarted == false){
-								//如果牌局没有开始，则返还钻石
-								if(lLeagueCoin > 0){
-									UserManager.getInstance().addUserCoin(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(), lLeagueCoin);
-								}
+
+							if (!bStarted) {// 如果牌局没有开始，则返还钻石
+								coinCost = GameFeeUtil.getLeagueGameFee((int) stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds(), stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums());
+							}
+						} else if (stGameRoomInfo.getStGameRoomBaseInfo().hasBPaidStart() && stGameRoomInfo.getStGameRoomBaseInfo().getBPaidStart() == 1) {
+							// 此时说明非联盟局、并且创建时收取过钻石，应返还扣除数额
+							if (!bStarted) {// 如果牌局没有开始，则返还钻石
+								coinCost = GameFeeUtil.getLeagueGameFee((int) stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds(), stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums()) / 2;
 							}
 						}
-						
+
+						if (coinCost > 0 && coinCost <= 1000) {// 交易数量安全性保护
+							UserManager.getInstance().addUserCoin(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(), coinCost);
+						}
+
 						BillManager.getInstance().setGameOverTag(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),lMaxPot,mGameHandID);
 						saveBuyinStacks();
 						
