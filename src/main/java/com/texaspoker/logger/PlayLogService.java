@@ -5,7 +5,7 @@ public class PlayLogService {
     private static PlayLogService instance;
 
     public PlayLogService() {
-        loggerServicePlay = Log.getLoggerService("ofcplays");
+        loggerServicePlay = Log.getLoggerService("forplays");
     }
 
     //单例模式

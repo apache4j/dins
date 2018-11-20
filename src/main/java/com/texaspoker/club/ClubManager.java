@@ -122,7 +122,7 @@ public class ClubManager {
 				.setLClubID(cid)
 				.setLGameRoomID(rid)
 				.setBLeagueGame(lid > 0 ? 1 : 0)
-				.setEGAMEROOMTYPE(TexasPokerCommon.GAME_ROOM_TYPE.GAME_ROOM_OFC)
+				.setEGAMEROOMTYPE(TexasPokerCommon.GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE)
 				.setLLeagueID(lid)
 				.build();
 
@@ -149,7 +149,7 @@ public class ClubManager {
 				.setLClubID(cid)
 				.setLGameRoomID(rid)
 				.setBLeagueGame(lid > 0 ? 1 : 0)
-				.setEGAMEROOMTYPE(TexasPokerCommon.GAME_ROOM_TYPE.GAME_ROOM_OFC)
+				.setEGAMEROOMTYPE(TexasPokerCommon.GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE)
 				.setLLeagueID(lid)
 				.build();
 
