@@ -219,7 +219,7 @@ public class QuickGameRoomManager {
 
                     // 本地调用
                     setQuickGameRoomInfos(stQuickGameRoomInfo.toBuilder());// 把房间放到管理器里面，用于管理
-                    addUserCreateQuickGameRoom(uuid, lRoomId);// 加入玩家id-房间id列表
+                    setUserQuickGameRoomInfos(uuid, lRoomId);// 加入玩家id-房间id列表
 
                     // UserManager 调用
                     addUserCreateQuickGameRoom(uuid, lRoomId);// 加入玩家参加的房间列表

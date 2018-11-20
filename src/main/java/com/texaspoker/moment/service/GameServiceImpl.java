@@ -12,6 +12,7 @@ import com.texaspoker.comm.TimeoutHashMap;
 import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.credit.CreditManager;
 import com.texaspoker.league.LeagueManager;
+import com.texaspoker.logger.PlayLogService;
 import com.texaspoker.moment.TexasPoker.BUYIN_CONTROL_TYPE;
 import com.texaspoker.moment.TexasPoker.GAME_ACT_TYPE;
 import com.texaspoker.moment.TexasPoker.GameRoomInfo;
@@ -739,25 +740,31 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 	public CreateQuickGameRoomResponse createQuickGameRoom(
 			RpcController controller, CreateQuickGameRoomRequest request)
 			throws ServiceException {
+		PlayLogService.getInstance().debug("GameServiceImpl.createQuickGameRoom - 1001 request: >" + request + "<");
 		// TODO Auto-generated method stub
 		CreateQuickGameRoomResponse.Builder  stCreateQuickGameRoomResponseBuilder = CreateQuickGameRoomResponse.newBuilder();
 
 		QuickGameRoomResultInfo stQuickGameRoomResultInfo = QuickGameRoomManager.getInstance().createQuickGameRoom(request.getUuid(), request.getStGameRoomBaseInfo());
 		
 		if(stQuickGameRoomResultInfo.geteErrorCodeType() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
+			PlayLogService.getInstance().debug("GameServiceImpl.createQuickGameRoom - 1003");
 			long lQuickGameRoomID = stQuickGameRoomResultInfo.getStQuickGameRoomInfo().getStChatRoomInfo().getStChatRoomBaseInfo().getLChatRoomId();
 			GameRoomResultInfo stGameRoomResultInfo = QuickGameRoomManager.getInstance().startQuickGameRoom(request.getUuid(), lQuickGameRoomID);
 			
 			if(stGameRoomResultInfo.geteErrorCodeType() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
+				PlayLogService.getInstance().debug("GameServiceImpl.createQuickGameRoom - 1005");
 				stCreateQuickGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
 				stCreateQuickGameRoomResponseBuilder.setStQuickGameRoomInfo(QuickGameRoomManager.getInstance().getQuickGameRoomInfoByRoomID(lQuickGameRoomID));
 			}else{
+				PlayLogService.getInstance().debug("GameServiceImpl.createQuickGameRoom - 1007");
 				stCreateQuickGameRoomResponseBuilder.setEErrCode(stGameRoomResultInfo.geteErrorCodeType());
 			}	
 		}else{
+			PlayLogService.getInstance().debug("GameServiceImpl.createQuickGameRoom - 1009");
 			stCreateQuickGameRoomResponseBuilder.setEErrCode(stQuickGameRoomResultInfo.geteErrorCodeType());
-		}	
-		
+		}
+
+		PlayLogService.getInstance().debug("GameServiceImpl.createQuickGameRoom - 1001000");
 		return stCreateQuickGameRoomResponseBuilder.build();
 	}
 
