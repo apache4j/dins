@@ -275,6 +275,7 @@ public class QuickGameRoomManager {
                             gameRoomBaseInfoBuilder.setIThinkingInterval(15);
                             gameRoomBaseInfoBuilder.setBStraddle(stSettingGameRoomBaseInfoBuilder.getBStraddle());
                             gameRoomBaseInfoBuilder.setIAutoStartNum(stSettingGameRoomBaseInfoBuilder.getIAutoStartNum());
+                            gameRoomBaseInfoBuilder.setBPaidStart(stSettingGameRoomBaseInfoBuilder.getBPaidStart());
 
                             gameRoomBaseInfoBuilder.setStCreateUserBaseInfo(UserManager.getInstance().getUserBaseInfo(uuid));
                             gameRoomBaseInfoBuilder.setLChatRoomID(lQuickGameRoomID);

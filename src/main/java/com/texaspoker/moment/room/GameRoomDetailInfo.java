@@ -1604,7 +1604,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						}
 
 						if (coinCost > 0 && coinCost <= 1000) {// 交易数量安全性保护
-							UserManager.getInstance().addUserCoin(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(), coinCost);
+							UserBaseInfoNet.Builder userBaseInfoNetBuilder = UserManager.getInstance().addUserCoin(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(), coinCost);
+							TranscationLogService.getInstance().error(userBaseInfoNetBuilder.getUuid() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+									+ " " + 110022 + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLDuration() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getIMinBuyinRatio()
+									+ " " + stGameRoomInfo.getStGameRoomBaseInfo().getIMaxBuyinRatio() + " " + coinCost + " " + userBaseInfoNetBuilder.getLCoin());
 						}
 
 						BillManager.getInstance().setGameOverTag(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),lMaxPot,mGameHandID);
