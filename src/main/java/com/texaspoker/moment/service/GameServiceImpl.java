@@ -167,6 +167,7 @@ public class GameServiceImpl  implements TexasPokerGameService.GameService.Inter
 		stGameRoomBaseInfoBuilder.setBStraddle(request.getStGameRoomBaseInfo().getBStraddle());
 		
 		stGameRoomBaseInfoBuilder.setIAutoStartNum(request.getStGameRoomBaseInfo().getIAutoStartNum());
+		stGameRoomBaseInfoBuilder.setBPaidStart(request.getStGameRoomBaseInfo().getBPaidStart());
 
         PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 1003");
 		//添加联盟相关信息
