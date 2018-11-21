@@ -1,50 +1,28 @@
 package com.texaspoker.database;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import javax.sql.DataSource;
-import org.apache.commons.dbcp.BasicDataSourceFactory;
 import com.texaspoker.apns.APNManager;
 import com.texaspoker.bill.BillManager;
 import com.texaspoker.club.ClubManager;
 import com.texaspoker.comm.TimeoutHashMap;
 import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.logger.TableLogService;
-import com.texaspoker.moment.TexasPoker.BUYIN_CONTROL_STATUS;
-import com.texaspoker.moment.TexasPoker.ChatRoomInfo;
-import com.texaspoker.moment.TexasPoker.GAME_ROOM_GAME_STATE;
-import com.texaspoker.moment.TexasPoker.GAME_ROOM_SENIOR_TYPE;
-import com.texaspoker.moment.TexasPoker.GameRoomBaseInfo;
-import com.texaspoker.moment.TexasPoker.GameRoomInfo;
-import com.texaspoker.moment.TexasPoker.QUICK_GAME_ROOM_STATUS;
-import com.texaspoker.moment.TexasPoker.QuickGameRoomInfo;
-import com.texaspoker.moment.TexasPoker.USER_GAME_ROLE;
-import com.texaspoker.moment.TexasPoker.USER_GAME_STATE;
-import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
-import com.texaspoker.moment.TexasPokerCommon.ID_TYPE;
-import com.texaspoker.moment.TexasPokerCommon.SNG_ROOM_TYPE;
-import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
-import com.texaspoker.moment.TexasPokerCommon.GAME_ROOM_TYPE;
-import com.texaspoker.moment.TexasPokerCommon.CREATE_ROOM_TYPE;
-import com.texaspoker.moment.TexasPokerCommon.VIP_TYPE;
+import com.texaspoker.moment.TexasPoker.*;
+import com.texaspoker.moment.TexasPokerCommon.*;
 import com.texaspoker.moment.room.ChatRoomManager;
 import com.texaspoker.moment.room.GameRoomDetailInfo;
 import com.texaspoker.moment.room.GameRoomManager;
 import com.texaspoker.moment.room.QuickGameRoomManager;
 import com.texaspoker.user.UserManager;
+import org.apache.commons.dbcp.BasicDataSourceFactory;
+
+import javax.sql.DataSource;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.sql.*;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectDatabase {
 	
@@ -206,7 +184,7 @@ public class ConnectDatabase {
 						
 
 					ChatRoomManager.getInstance().removeChatRoomGameRoom(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID(),stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
-					ClubManager.getInstance().removeChatRoomGameRoom(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID(),stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId(), gameRoomRS.getLong("leagueid"));
+                     ClubManager.getInstance().removeChatRoomGameRoom(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID(), stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId(), gameRoomRS.getLong("leagueid"));
 						
 					BillManager.getInstance().setGameOverTag(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId(),stGameRoomDetailInfo.getMaxPot(),stGameRoomDetailInfo.getHandID());	
 					mapGameRoomInfoMap.removeKey(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
