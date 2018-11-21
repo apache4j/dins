@@ -1616,7 +1616,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						}
 						PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 100121 coinCost: >" + coinCost + "<");
 
-						if (coinCost > 0 && coinCost <= 1000) {// 交易数量安全性保护
+						if (coinCost > 0 && coinCost <= 10000) {// 交易数量安全性保护
 							PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 100123");
 							UserBaseInfoNet.Builder userBaseInfoNetBuilder = UserManager.getInstance().addUserCoin(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(), coinCost);
 							TranscationLogService.getInstance().error(userBaseInfoNetBuilder.getUuid() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
