@@ -148,7 +148,7 @@ public class ConnectDatabase {
 	            	 if(stChatRoomInfo!=null){
 	            		 ChatRoomManager.getInstance().addGameRooms(stGameRoomBaseInfo.getLChatRoomID(), stGameRoomBaseInfo.getLGameRoomId());
 	            	 }else{
-	            		 ClubManager.getInstance().addGameRooms(stGameRoomBaseInfo.getLChatRoomID(), stGameRoomBaseInfo.getLGameRoomId(), gameRoomRS.getLong("league_id"));
+	            		 ClubManager.getInstance().addGameRooms(stGameRoomBaseInfo.getLChatRoomID(), stGameRoomBaseInfo.getLGameRoomId(), gameRoomRS.getLong("leagueid"));
 	            	 }
 	            	
 	     			//设置房间的其他玩家，因为现在还没有玩家同意，所以设置9个空用户
@@ -206,7 +206,7 @@ public class ConnectDatabase {
 						
 
 					ChatRoomManager.getInstance().removeChatRoomGameRoom(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID(),stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
-					ClubManager.getInstance().removeChatRoomGameRoom(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID(),stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId(), gameRoomRS.getLong("league_id"));
+					ClubManager.getInstance().removeChatRoomGameRoom(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID(),stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId(), gameRoomRS.getLong("leagueid"));
 						
 					BillManager.getInstance().setGameOverTag(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId(),stGameRoomDetailInfo.getMaxPot(),stGameRoomDetailInfo.getHandID());	
 					mapGameRoomInfoMap.removeKey(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
