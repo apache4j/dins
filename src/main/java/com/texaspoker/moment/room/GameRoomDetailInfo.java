@@ -12,6 +12,7 @@ import com.texaspoker.credit.CreditManager;
 import com.texaspoker.database.ConnectDatabase;
 import com.texaspoker.dubbo.game.insurance.InsuranceApi;
 import com.texaspoker.lbs.LBSManager;
+import com.texaspoker.logger.PlayLogService;
 import com.texaspoker.logger.TableLogService;
 import com.texaspoker.logger.TranscationLogService;
 import com.texaspoker.moment.TexasPoker;
@@ -1503,7 +1504,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	}
 	
 	public void gameRoomTimeoutHandle(TimeoutHashMap<Long,GameRoomDetailInfo> mGameRoomDetailInfos){
-		synchronized(this){			
+		synchronized(this){
 			if(stGameRoomInfo.getStGameRoomBaseInfo().getBGamePause() == 1){
 				if((System.currentTimeMillis() - stGameRoomInfo.getStGameRoomBaseInfo().getLGamePauseTime())/1000 > 600){
 					this.resumeGame(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid());
@@ -1532,10 +1533,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 
 				boolean bGameOver = checkGameOver();
 				if(bGameOver){
+					PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 1001");
 					if(bOver == true){
+						PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 1003");
 						bOver = true;
 						mGameRoomDetailInfos.removeKey(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
-					}else{						
+					}else{
+						PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 1005");
 						TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
 								+"," +stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
 								+"," + stGameRoomInfo.getLGameHandID()
@@ -1546,20 +1550,25 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						//只返还在桌玩家金币
 						GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 						for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount();i++){
+							PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 1007");
 						    UserGameInfoNet.Builder stUserGameInfoNetBuilder =  stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
 						    if(ConfigaturationManager.bClubCredit && stUserGameInfoNetBuilder.getStUserInfoBuilder().getUuid() > 0){
+								PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 1009");
 						        try{
 						            if(CreditManager.getInstance().checkBuyInToCredit(stUserGameInfoNetBuilder.getStUserInfo().getUuid()
 	                                        , stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stUserGameInfoNetBuilder.getLBuyinClubID())==1){
+										PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 10011");
 	                                    CreditManager.getInstance().finishToCredit(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),
 	                                            stUserGameInfoNetBuilder.getLBuyinClubID(), stUserGameInfoNetBuilder.getLRemainStacks(), stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(),
 	                                            getBuyStacks(stUserGameInfoNetBuilder.getStUserInfo().getUuid()));
 	                                } 
 						        }catch (Exception e) {
+									PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 10013");
 						            e.printStackTrace();
 						        }
 						    }
 						    if(stUserGameInfoNetBuilder.getStUserInfoBuilder().getUuid() > 0 && stUserGameInfoNetBuilder.getLRemainStacks() > 0){
+								PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 10015");
 						        UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), stUserGameInfoNetBuilder.getLRemainStacks());
 	                            String sLog = stUserGameInfoNetBuilder.getStUserInfo().getUuid() + " " + 0 + " " + 110004 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() 
 	                                    + " 0 " + " 0 " + stUserGameInfoNetBuilder.getLRemainStacks() + " " + stUserBaseInfoNetBuilder.getLPopularity() +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
@@ -1579,11 +1588,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						ClubManager.getInstance().removeChatRoomGameRoom(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID(),stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID());
 
 						long coinCost = 0;
-
+						PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 10017");
 						// 联盟相关操作
 						if (stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID() > 0) {
+							PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 10019");
 							if (stLeagueInfo != null) {
+								PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 100111");
 								for (TexasPokerCommon.ClubBaseInfo stClubBaseInfo : stLeagueInfo.getVClubBaseInfosList()) {
+									PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 100113");
 									ClubManager.getInstance().removeChatRoomGameRoom(stClubBaseInfo.getLClubID(),
 											stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),
 											stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID());
@@ -1591,21 +1603,27 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 							}
 
 							if (!bStarted) {// 如果牌局没有开始，则返还钻石
+								PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 100115");
 								coinCost = GameFeeUtil.getLeagueGameFee((int) stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds(), stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums());
 							}
 						} else if (stGameRoomInfo.getStGameRoomBaseInfo().hasBPaidStart() && stGameRoomInfo.getStGameRoomBaseInfo().getBPaidStart() == 1) {
+							PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 100117");
 							// 此时说明非联盟局、并且创建时收取过钻石，应返还扣除数额
 							if (!bStarted) {// 如果牌局没有开始，则返还钻石
+								PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 100119");
 								coinCost = GameFeeUtil.getLeagueGameFee((int) stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds(), stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums()) / 2;
 							}
 						}
+						PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 100121 coinCost: >" + coinCost + "<");
 
 						if (coinCost > 0 && coinCost <= 1000) {// 交易数量安全性保护
+							PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 100123");
 							UserBaseInfoNet.Builder userBaseInfoNetBuilder = UserManager.getInstance().addUserCoin(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(), coinCost);
 							TranscationLogService.getInstance().error(userBaseInfoNetBuilder.getUuid() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
 									+ " " + 110022 + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLDuration() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getIMinBuyinRatio()
 									+ " " + stGameRoomInfo.getStGameRoomBaseInfo().getIMaxBuyinRatio() + " " + coinCost + " " + userBaseInfoNetBuilder.getLCoin());
 						}
+						PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 100125");
 
 						BillManager.getInstance().setGameOverTag(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),lMaxPot,mGameHandID);
 						saveBuyinStacks();
@@ -1641,6 +1659,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						
 						//把买入记录从实时买入记录中删除
 						ConnectDatabase.getInstance().removeBuyInControls(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+						PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 1001000");
 					}
 
 					break;
