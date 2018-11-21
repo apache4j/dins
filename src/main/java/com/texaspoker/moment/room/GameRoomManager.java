@@ -139,7 +139,7 @@ public class GameRoomManager {
                     } else {// 允许创建
                         isLimitPaidStart = true;
                         stUserBaseInfoNet = UserManager.getInstance().addUserCoin(stUserBaseInfoNet.getUuid(), -coinCost);
-                        TranscationLogService.getInstance().error(stUserBaseInfoNet.getUuid() + " " + stGameRoomBaseInfo.getLGameRoomId() + " " + 110002 + " " + stGameRoomBaseInfo.getLDuration()
+                        TranscationLogService.getInstance().error(stUserBaseInfoNet.getUuid() + " " + stGameRoomBaseInfo.getLGameRoomId() + " " + 110011 + " " + stGameRoomBaseInfo.getLDuration()
                                 + " " + stGameRoomBaseInfo.getIMinBuyinRatio()
                                 + " " + stGameRoomBaseInfo.getIMaxBuyinRatio() + " " + coinCost + " " + stUserBaseInfoNet.getLCoin());
                     }

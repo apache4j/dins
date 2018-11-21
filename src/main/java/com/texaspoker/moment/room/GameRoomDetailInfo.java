@@ -54,11 +54,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 	
 	//重新设置的思考时间间隔
 	int iThinkingInterval = 0;
-	
-	//创建联盟局花费的钻石
-	public long lLeagueCoin = 0;
-	
-	//是否已经结算用户数据结构
+
+    //是否已经结算用户数据结构
 	private ConcurrentHashMap<Long,Long> mapUserNoCharge = new ConcurrentHashMap<Long,Long>();
 	
 	//结账保护
@@ -1584,7 +1581,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo{
 						long coinCost = 0;
 
 						// 联盟相关操作
-						if (stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID() > 0){
+						if (stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID() > 0) {
 							if (stLeagueInfo != null) {
 								for (TexasPokerCommon.ClubBaseInfo stClubBaseInfo : stLeagueInfo.getVClubBaseInfosList()) {
 									ClubManager.getInstance().removeChatRoomGameRoom(stClubBaseInfo.getLClubID(),
