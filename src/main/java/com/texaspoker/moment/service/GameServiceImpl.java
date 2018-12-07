@@ -123,7 +123,6 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
             if (stGameRoomDetailInfo != null) {
                 ERROR_CODE_TYPE eErrorCodeType = stGameRoomDetailInfo.enterGameRoom(request.getUuid());
                 if (eErrorCodeType == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS) {
-//					System.out.println("enterGameRoom : " + stGameRoomDetailInfo.getStGameRoomInfo());
                     stEnterGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
                     stEnterGameRoomResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
                     if (stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.QUICK_GAME_ROOM) {
@@ -138,9 +137,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
             } else {
                 stEnterGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
             }
-
         } catch (Exception e) {
-//			System.out.println("out1gService throw unexpected exception, : " + request.getUuid());
             e.printStackTrace();
         }
 
@@ -192,8 +189,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     @Override
     public GameActionResponse gameAction(RpcController controller, GameActionRequest request) throws ServiceException {
         GameActionResponse.Builder stGameActionResponseBuilder = GameActionResponse.newBuilder();
-
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLRoomID());
+
         if (stGameRoomDetailInfo != null) {
 
             //获取游戏房间信息
@@ -204,24 +201,20 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
             ERROR_CODE_TYPE rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 
             switch (request.getEGameActType().getNumber()) {
-                case GAME_ACT_TYPE.GAME_ACT_TYPE_FOLD_VALUE: {
+                case GAME_ACT_TYPE.GAME_ACT_TYPE_FOLD_VALUE:
                     rst = stGameRoomDetailInfo.doFlodAction(request.getUuid(), request.getLBettingID(), false);
-                }
-                break;
-                case GAME_ACT_TYPE.GAME_ACT_TYPE_CHECK_VALUE: {
+                    break;
+                case GAME_ACT_TYPE.GAME_ACT_TYPE_CHECK_VALUE:
                     rst = stGameRoomDetailInfo.doCheckAction(request.getUuid(), request.getLBettingID());
-                }
-                break;
-                case GAME_ACT_TYPE.GAME_ACT_TYPE_CALL_VALUE: {
+                    break;
+                case GAME_ACT_TYPE.GAME_ACT_TYPE_CALL_VALUE:
                     rst = stGameRoomDetailInfo.doCallAction(request.getUuid(), request.getLStacks(), request.getLBettingID());
-                }
-                break;
+                    break;
                 case GAME_ACT_TYPE.GAME_ACT_TYPE_BET_VALUE:
                 case GAME_ACT_TYPE.GAME_ACT_TYPE_RAISE_VALUE:
-                case GAME_ACT_TYPE.GAME_ACT_TYPE_ALLIN_VALUE: {
+                case GAME_ACT_TYPE.GAME_ACT_TYPE_ALLIN_VALUE:
                     rst = stGameRoomDetailInfo.doRaiseAction(request.getUuid(), request.getEGameActType(), request.getLStacks(), request.getLBettingID());
-                }
-                break;
+                    break;
             }
 
             if (rst == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS) {
@@ -356,8 +349,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     @Override
     public LeaveGameRoomResponse leaveGameRoom(RpcController controller, LeaveGameRoomRequest request) throws ServiceException {
         LeaveGameRoomResponse.Builder stLeaveGameRoomResponseBuilderBuilder = LeaveGameRoomResponse.newBuilder();
-
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLRoomID());
+
         if (stGameRoomDetailInfo != null) {
             stGameRoomDetailInfo.leaveGameRoom(request.getUuid());
             stLeaveGameRoomResponseBuilderBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
@@ -371,10 +364,9 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     @Override
     public ShowCardResponse showCard(RpcController controller, ShowCardRequest request) throws ServiceException {
         ShowCardResponse.Builder stShowCardResponseBuilder = ShowCardResponse.newBuilder();
-
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
-        if (stGameRoomDetailInfo != null) {
 
+        if (stGameRoomDetailInfo != null) {
             ERROR_CODE_TYPE rst = stGameRoomDetailInfo.showcard(request.getLHandID(), request.getUuid(), request.getBShowCardOne(), request.getBShowCardTwo());
 
             if (rst == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS) {
@@ -393,7 +385,6 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     @Override
     public StartGameResponse startGame(RpcController controller, StartGameRequest request) throws ServiceException {
         StartGameResponse.Builder stStartGameResponseBuilder = StartGameResponse.newBuilder();
-
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLRoomID());
 
         if (stGameRoomDetailInfo != null) {
@@ -412,7 +403,6 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     @Override
     public BuyinActionResponse buyinAction(RpcController controller, BuyinActionRequest request) throws ServiceException {
         BuyinActionResponse.Builder stBuyinActionResponseBuilder = BuyinActionResponse.newBuilder();
-
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
 
         if (stGameRoomDetailInfo != null) {
@@ -476,8 +466,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     @Override
     public PauseGameResponse pauseGame(RpcController controller, PauseGameRequest request) throws ServiceException {
         PauseGameResponse.Builder stPauseGameResponseBuilder = PauseGameResponse.newBuilder();
-
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+
         if (stGameRoomDetailInfo != null) {
             ERROR_CODE_TYPE rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
             if (stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBGamePause() == 0
@@ -506,8 +496,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     @Override
     public UseItemResponse useItem(RpcController controller, UseItemRequest request) throws ServiceException {
         UseItemResponse.Builder stUseItemResponseBuilder = UseItemResponse.newBuilder();
-
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLRoomID());
+
         if (stGameRoomDetailInfo != null) {
             ERROR_CODE_TYPE rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
             rst = stGameRoomDetailInfo.useItem(request.getUuid(), request.getTouuid(), request.getLMsgID(), request.getIItemID(), request.getSExtra());
@@ -528,8 +518,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     @Override
     public UseDelayItemResponse useDelayItem(RpcController controller, UseDelayItemRequest request) throws ServiceException {
         UseDelayItemResponse.Builder stUseDelayItemResponseBuilder = UseDelayItemResponse.newBuilder();
-
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+
         if (stGameRoomDetailInfo != null) {
             ERROR_CODE_TYPE rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
             rst = stGameRoomDetailInfo.useDelayItem(request.getUuid(), request.getLBettingID());
@@ -564,8 +554,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     @Override
     public SetBuyinControlStateResponse setBuyinControlState(RpcController controller, SetBuyinControlStateRequest request) throws ServiceException {
         SetBuyinControlStateResponse.Builder stSetBuyinControlStateResponseBuilder = SetBuyinControlStateResponse.newBuilder();
-
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+
         if (stGameRoomDetailInfo != null) {
             //检查用户设置权限
             if (stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()) {
@@ -591,8 +581,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     @Override
     public ResetBuyinRatioResponse resetBuyinRatio(RpcController controller, ResetBuyinRatioRequest request) throws ServiceException {
         ResetBuyinRatioResponse.Builder stResetBuyinRatioResponseBuilder = ResetBuyinRatioResponse.newBuilder();
-
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+
         if (stGameRoomDetailInfo != null) {
             if (stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()) {
                 ERROR_CODE_TYPE rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
@@ -618,7 +608,6 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     public CreateQuickGameRoomResponse createQuickGameRoom(RpcController controller, CreateQuickGameRoomRequest request) throws ServiceException {
         PlayLogService.getInstance().debug("GameServiceImpl.createQuickGameRoom - 1001 request: >" + request + "<");
         CreateQuickGameRoomResponse.Builder stCreateQuickGameRoomResponseBuilder = CreateQuickGameRoomResponse.newBuilder();
-
         QuickGameRoomResultInfo stQuickGameRoomResultInfo = QuickGameRoomManager.getInstance().createQuickGameRoom(request.getUuid(), request.getStGameRoomBaseInfo());
 
         if (stQuickGameRoomResultInfo.geteErrorCodeType() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS) {
@@ -660,7 +649,6 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     @Override
     public StartQuickRoomGameResponse startQuickRoomGame(RpcController controller, StartQuickRoomGameRequest request) throws ServiceException {
         StartQuickRoomGameResponse.Builder stStartQuickRoomGameResponseBuilder = StartQuickRoomGameResponse.newBuilder();
-
         GameRoomResultInfo stGameRoomResultInfo = QuickGameRoomManager.getInstance().startQuickGameRoom(request.getUuid(), request.getLQuickGameRoomID());
 
         if (stGameRoomResultInfo.geteErrorCodeType() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS) {
@@ -676,7 +664,6 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     @Override
     public QuitQuickGameRoomResponse quitQuickGameRoom(RpcController controller, QuitQuickGameRoomRequest request) throws ServiceException {
         QuitQuickGameRoomResponse.Builder stQuitQuickGameRoomResponseBuilder = QuitQuickGameRoomResponse.newBuilder();
-
         QuickGameRoomResultInfo stQuickGameRoomResultInfo = QuickGameRoomManager.getInstance().quitQuickGameRoom(request.getUuid(), request.getLQuickGameRoomID());
 
         if (stQuickGameRoomResultInfo.geteErrorCodeType() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS) {
@@ -691,8 +678,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     @Override
     public SetStandByUserGameInfosResponse setStandByUserGameInfos(RpcController controller, SetStandByUserGameInfosRequest request) throws ServiceException {
         SetStandByUserGameInfosResponse.Builder stSetStandByUserGameInfosResponseBuilder = SetStandByUserGameInfosResponse.newBuilder();
-
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+
         if (stGameRoomDetailInfo != null) {
             stGameRoomDetailInfo.setStandByUserGameInfos(request.getStUserGameInfoNet().getStUserInfo().getUuid(), request.getStUserGameInfoNet().toBuilder());
             stSetStandByUserGameInfosResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
@@ -706,8 +693,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     @Override
     public RemoveStandByUserGameInfosResponse removeStandByUserGameInfos(RpcController controller, RemoveStandByUserGameInfosRequest request) throws ServiceException {
         RemoveStandByUserGameInfosResponse.Builder stRemoveStandByUserGameInfosResponseBuilder = RemoveStandByUserGameInfosResponse.newBuilder();
-
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+
         if (stGameRoomDetailInfo != null) {
             stGameRoomDetailInfo.removeStandByUserGameInfos(request.getUuid());
             stRemoveStandByUserGameInfosResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
@@ -721,8 +708,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     @Override
     public GetStandByUserGameInfosResponse getStandByUserGameInfos(RpcController controller, GetStandByUserGameInfosRequest request) throws ServiceException {
         GetStandByUserGameInfosResponse.Builder stGetStandByUserGameInfosResponseBuilder = GetStandByUserGameInfosResponse.newBuilder();
-
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+
         if (stGameRoomDetailInfo != null) {
             UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomDetailInfo.getStandByUserGameInfos(request.getUuid());
 
@@ -742,8 +729,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     @Override
     public GetGameRoomInfoResponse getGameRoomInfo(RpcController controller, GetGameRoomInfoRequest request) throws ServiceException {
         GetGameRoomInfoResponse.Builder stGetGameRoomInfoResponseBuilder = GetGameRoomInfoResponse.newBuilder();
-
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+
         if (stGameRoomDetailInfo != null) {
             GameRoomInfo stGameRoomInfo = stGameRoomDetailInfo.getStGameRoomInfo();
             if (stGameRoomInfo != null) {
@@ -775,8 +762,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     @Override
     public SetGameRoomInfoResponse setGameRoomInfo(RpcController controller, SetGameRoomInfoRequest request) throws ServiceException {
         SetGameRoomInfoResponse.Builder stSetGameRoomInfoResponseBuilder = SetGameRoomInfoResponse.newBuilder();
-
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+
         if (stGameRoomDetailInfo != null
                 && request.getStGameRoomInfo() != null
                 && request.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId() == request.getLGameRoomID()) {
@@ -799,64 +786,6 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     @Override
     public GetAllBuyinControlsResponse getAllBuyinControls(RpcController controller, GetAllBuyinControlsRequest request) throws ServiceException {
         GetAllBuyinControlsResponse.Builder stGetAllBuyinControlsResponseBuilder = GetAllBuyinControlsResponse.newBuilder();
-
-//		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
-//
-//		if(stGameRoomDetailInfo!=null&&stGameRoomDetailInfo.getStGameRoomInfo()!=null){
-//			
-//			if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLLeagueID() > 0){
-//				//如果是俱乐部管理员，则开始
-//				LeagueInfo stLeagueInfo = stGameRoomDetailInfo.getStLeagueInfo();
-//		
-//				if(stLeagueInfo!=null){
-//					for(ClubBaseInfo stClubBaseInfo:stLeagueInfo.getVClubBaseInfosList()){
-//						
-//						
-//						if(stClubBaseInfo.getStCreateUserBaseInfo().getUuid() == request.getUuid()){
-//							ArrayList<BuyinControl> vBuyinControls = stGameRoomDetailInfo.getAllBuyinControls(stClubBaseInfo.getLClubID());
-//							
-//							for(BuyinControl stBuyinControl:vBuyinControls){
-//								stGetAllBuyinControlsResponseBuilder.addVBuyinControls(stBuyinControl);
-//							}
-//						}
-//					}
-//					stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-//				}else{
-//					stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_LEAGUE);
-//				}
-//			}else{
-//				//如果创建牌局的人不是俱乐部的管理员
-//				if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM){
-//					if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()){
-//						ArrayList<BuyinControl> vBuyinControls = stGameRoomDetailInfo.getAllBuyinControls(0);
-//						
-//						if(vBuyinControls!=null){
-//							stGetAllBuyinControlsResponseBuilder.addAllVBuyinControls(vBuyinControls);
-//						}
-//						stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-//						
-//					}else{
-//						stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_AUTH_BUYINACTION);
-//					}
-//				}
-//				else{
-//					//如果不是管理员创建牌局，则只有房主可以获得买入申请信息
-//					if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()){
-//						ArrayList<BuyinControl> vBuyinControls = stGameRoomDetailInfo.getAllBuyinControls(0);
-//						
-//						if(vBuyinControls!=null){
-//							stGetAllBuyinControlsResponseBuilder.addAllVBuyinControls(vBuyinControls);
-//						}
-//						stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-//						
-//					}else{
-//						stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_AUTH_BUYINACTION);
-//					}
-//				}
-//			}
-//		}else{
-//			stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);
-//		}
         stGetAllBuyinControlsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);
         return stGetAllBuyinControlsResponseBuilder.build();
     }
@@ -864,17 +793,15 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     @Override
     public GetStandByUuidsResponse getStandByUuids(RpcController controller, GetStandByUuidsRequest request) throws ServiceException {
         GetStandByUuidsResponse.Builder stGetStandByUuidsResponseBuilder = GetStandByUuidsResponse.newBuilder();
-
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+
         if (stGameRoomDetailInfo != null && stGameRoomDetailInfo.getStGameRoomInfo() != null) {
             ArrayList<Long> vStandingByUuids = new ArrayList<Long>(stGameRoomDetailInfo.getStandByUuids());
-//			System.out.println("getStandByUuids vStandingByUuids : " + vStandingByUuids);
             if (vStandingByUuids != null) {
                 stGetStandByUuidsResponseBuilder.addAllVStandingByUuids(vStandingByUuids);
             }
 
             ArrayList<Long> vAllUuids = new ArrayList<Long>(stGameRoomDetailInfo.getAllStandByUuids());
-//			System.out.println("getStandByUuids vAllUuids : " + vAllUuids);
             for (long lUuid : vAllUuids) {
                 if (!vStandingByUuids.contains(lUuid)) {
                     stGetStandByUuidsResponseBuilder.addVStandByUuids(lUuid);
@@ -886,16 +813,14 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
             stGetStandByUuidsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);
         }
 
-//		System.out.println("getStandByUuids : " + stGetStandByUuidsResponseBuilder);
-
         return stGetStandByUuidsResponseBuilder.build();
     }
 
     @Override
     public GetLastHandIDResponse getLastHandID(RpcController controller, GetLastHandIDRequest request) throws ServiceException {
         GetLastHandIDResponse.Builder stGetLastHandIDResponse = GetLastHandIDResponse.newBuilder();
-
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+
         if (stGameRoomDetailInfo != null && stGameRoomDetailInfo.getStGameRoomInfo() != null) {
             long lHandID = stGameRoomDetailInfo.getLastHandID();
             stGetLastHandIDResponse.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
@@ -910,7 +835,6 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     @Override
     public GetQuickGameRoomInfoResponse getQuickGameRoomInfo(RpcController controller, GetQuickGameRoomInfoRequest request) throws ServiceException {
         GetQuickGameRoomInfoResponse.Builder stGetQuickGameRoomInfoRequestBuilder = GetQuickGameRoomInfoResponse.newBuilder();
-
         QuickGameRoomInfo.Builder stQuickGameRoomInfoBuilder = QuickGameRoomManager.getInstance().getQuickGameRoomInfoByRoomID(request.getLQuickGameRoomID());
 
         if (stQuickGameRoomInfoBuilder != null) {
@@ -927,7 +851,6 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     public SetQuickGameRoomInfoResponse setQuickGameRoomInfo(RpcController controller, SetQuickGameRoomInfoRequest request) throws ServiceException {
         SetQuickGameRoomInfoResponse.Builder stSetQuickGameRoomInfoRequestBuilder = SetQuickGameRoomInfoResponse.newBuilder();
 
-
         if (request.getStQuickGameRoomInfo() != null) {
             QuickGameRoomManager.getInstance().setQuickGameRoomInfos(request.getStQuickGameRoomInfo().toBuilder());
             stSetQuickGameRoomInfoRequestBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
@@ -941,7 +864,6 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
 
     @Override
     public GetUserQuickGameRoomInfosResponse getUserQuickGameRoomInfos(RpcController controller, GetUserQuickGameRoomInfosRequest request) throws ServiceException {
-        //		System.out.println("getUserQuickGameRoomInfos uuid : " + request.getUuid());
         GetUserQuickGameRoomInfosResponse.Builder stGetUserQuickGameRoomInfosResponseBuilder = GetUserQuickGameRoomInfosResponse.newBuilder();
         Set<Long> vQuickRooms = QuickGameRoomManager.getInstance().getUserQuickGameRoomInfos(request.getUuid());
         if (vQuickRooms != null) {
@@ -989,10 +911,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     @Override
     public BuyInsuranceDelayResponse buyInsuranceDelay(RpcController controller, BuyInsuranceDelayRequest request) throws ServiceException {
         BuyInsuranceDelayResponse.Builder stBuyInsuranceDelayResponseBuilder = BuyInsuranceDelayResponse.newBuilder();
-
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
 
-//		System.out.println("buyInsuranceDelay request.getUuid() : " + request.getUuid() + " gameroomid : " + request.getLGameHandID());
         if (stGameRoomDetailInfo != null) {
             InsuranceUserInfo stInsuranceUserInfo = stGameRoomDetailInfo.buyInsuranceDealy(request.getUuid(), request.getLGameHandID(), request.getEGameRoomStatus());
 
@@ -1033,7 +953,6 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     public GetGameSettingResponse getGameSetting(RpcController controller, GetGameSettingRequest request) throws ServiceException {
         GetGameSettingResponse.Builder stGetGameSettingResponseBuilder = GetGameSettingResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
-//		System.out.println("getGameSetting : " + request.getLGameRoomID() + "  " + stGameRoomDetailInfo);
         int bNotBuyInsurance = stGameRoomDetailInfo.getGameSetting(request.getUuid());
 
         stGetGameSettingResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
@@ -1134,7 +1053,6 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
             stSetPreActionResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);
         }
 
-//		System.out.println("setPreAction 1: " + request.getEPreUserGameState());
         return stSetPreActionResponseBuilder.build();
     }
 
