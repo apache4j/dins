@@ -29,10 +29,8 @@ import java.util.Set;
 public class GameServiceImpl implements TexasPokerGameService.GameService.Interface, TexasPokerGameService.GameService.BlockingInterface {
 
     @Override
-    public CreateGameRoomResponse createGameRoom(RpcController controller,
-                                                 CreateGameRoomRequest request) throws ServiceException {
+    public CreateGameRoomResponse createGameRoom(RpcController controller, CreateGameRoomRequest request) throws ServiceException {
         PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 1001 request: >" + request + "<");
-        // TODO Auto-generated method stub
         CreateGameRoomResponse.Builder stCreateGameRoomResponseBuilder = CreateGameRoomResponse.newBuilder();
         GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = GameRoomBaseInfo.newBuilder();
         stGameRoomBaseInfoBuilder.setStrRoomName(request.getStGameRoomBaseInfo().getStrRoomName());
@@ -116,9 +114,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public EnterGameRoomResponse enterGameRoom(RpcController controller,
-                                               EnterGameRoomRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public EnterGameRoomResponse enterGameRoom(RpcController controller, EnterGameRoomRequest request) throws ServiceException {
         EnterGameRoomResponse.Builder stEnterGameRoomResponseBuilder = EnterGameRoomResponse.newBuilder();
 
         try {
@@ -152,9 +148,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public SitDownResponse sitDown(RpcController controller,
-                                   SitDownRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public SitDownResponse sitDown(RpcController controller, SitDownRequest request) throws ServiceException {
         SitDownResponse.Builder stSitDownResponseBuilder = SitDownResponse.newBuilder();
 
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLRoomID());
@@ -175,9 +169,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public StandUpResponse standup(RpcController controller,
-                                   StandUpRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public StandUpResponse standup(RpcController controller, StandUpRequest request) throws ServiceException {
         StandUpResponse.Builder stStandUpResponseBuilder = StandUpResponse.newBuilder();
 
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLRoomID());
@@ -198,9 +190,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public GameActionResponse gameAction(RpcController controller,
-                                         GameActionRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public GameActionResponse gameAction(RpcController controller, GameActionRequest request) throws ServiceException {
         GameActionResponse.Builder stGameActionResponseBuilder = GameActionResponse.newBuilder();
 
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLRoomID());
@@ -268,9 +258,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public BuyBuyInResponse buyBuyIn(RpcController controller,
-                                     BuyBuyInRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public BuyBuyInResponse buyBuyIn(RpcController controller, BuyBuyInRequest request) throws ServiceException {
         int bWaitingBuyinConfirmation = 0;
         BuyBuyInResponse.Builder stBuyBuyInResponseBuilder = BuyBuyInResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLRoomID());
@@ -366,9 +354,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public LeaveGameRoomResponse leaveGameRoom(RpcController controller,
-                                               LeaveGameRoomRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public LeaveGameRoomResponse leaveGameRoom(RpcController controller, LeaveGameRoomRequest request) throws ServiceException {
         LeaveGameRoomResponse.Builder stLeaveGameRoomResponseBuilderBuilder = LeaveGameRoomResponse.newBuilder();
 
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLRoomID());
@@ -383,9 +369,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public ShowCardResponse showCard(RpcController controller,
-                                     ShowCardRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public ShowCardResponse showCard(RpcController controller, ShowCardRequest request) throws ServiceException {
         ShowCardResponse.Builder stShowCardResponseBuilder = ShowCardResponse.newBuilder();
 
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
@@ -407,9 +391,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public StartGameResponse startGame(RpcController controller,
-                                       StartGameRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public StartGameResponse startGame(RpcController controller, StartGameRequest request) throws ServiceException {
         StartGameResponse.Builder stStartGameResponseBuilder = StartGameResponse.newBuilder();
 
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLRoomID());
@@ -428,9 +410,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public BuyinActionResponse buyinAction(RpcController controller,
-                                           BuyinActionRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public BuyinActionResponse buyinAction(RpcController controller, BuyinActionRequest request) throws ServiceException {
         BuyinActionResponse.Builder stBuyinActionResponseBuilder = BuyinActionResponse.newBuilder();
 
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
@@ -443,7 +423,6 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
                 if (stLeagueInfo != null) {
                     boolean bClubManager = false;
                     for (ClubBaseInfo stClubBaseInfo : stLeagueInfo.getVClubBaseInfosList()) {
-
                         bClubManager = ClubManager.getInstance().checkClubManager(stClubBaseInfo.getLClubID(), request.getUuid());
 
                         if (bClubManager) {
@@ -495,9 +474,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public PauseGameResponse pauseGame(RpcController controller,
-                                       PauseGameRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public PauseGameResponse pauseGame(RpcController controller, PauseGameRequest request) throws ServiceException {
         PauseGameResponse.Builder stPauseGameResponseBuilder = PauseGameResponse.newBuilder();
 
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
@@ -527,9 +504,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public UseItemResponse useItem(RpcController controller,
-                                   UseItemRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public UseItemResponse useItem(RpcController controller, UseItemRequest request) throws ServiceException {
         UseItemResponse.Builder stUseItemResponseBuilder = UseItemResponse.newBuilder();
 
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLRoomID());
@@ -551,9 +526,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public UseDelayItemResponse useDelayItem(RpcController controller,
-                                             UseDelayItemRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public UseDelayItemResponse useDelayItem(RpcController controller, UseDelayItemRequest request) throws ServiceException {
         UseDelayItemResponse.Builder stUseDelayItemResponseBuilder = UseDelayItemResponse.newBuilder();
 
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
@@ -589,10 +562,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public SetBuyinControlStateResponse setBuyinControlState(
-            RpcController controller, SetBuyinControlStateRequest request)
-            throws ServiceException {
-        // TODO Auto-generated method stub
+    public SetBuyinControlStateResponse setBuyinControlState(RpcController controller, SetBuyinControlStateRequest request) throws ServiceException {
         SetBuyinControlStateResponse.Builder stSetBuyinControlStateResponseBuilder = SetBuyinControlStateResponse.newBuilder();
 
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
@@ -619,9 +589,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public ResetBuyinRatioResponse resetBuyinRatio(RpcController controller,
-                                                   ResetBuyinRatioRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public ResetBuyinRatioResponse resetBuyinRatio(RpcController controller, ResetBuyinRatioRequest request) throws ServiceException {
         ResetBuyinRatioResponse.Builder stResetBuyinRatioResponseBuilder = ResetBuyinRatioResponse.newBuilder();
 
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
@@ -647,11 +615,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public CreateQuickGameRoomResponse createQuickGameRoom(
-            RpcController controller, CreateQuickGameRoomRequest request)
-            throws ServiceException {
+    public CreateQuickGameRoomResponse createQuickGameRoom(RpcController controller, CreateQuickGameRoomRequest request) throws ServiceException {
         PlayLogService.getInstance().debug("GameServiceImpl.createQuickGameRoom - 1001 request: >" + request + "<");
-        // TODO Auto-generated method stub
         CreateQuickGameRoomResponse.Builder stCreateQuickGameRoomResponseBuilder = CreateQuickGameRoomResponse.newBuilder();
 
         QuickGameRoomResultInfo stQuickGameRoomResultInfo = QuickGameRoomManager.getInstance().createQuickGameRoom(request.getUuid(), request.getStGameRoomBaseInfo());
@@ -679,10 +644,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public EnterQuickGameRoomResponse enterQuickGameRoom(
-            RpcController controller, EnterQuickGameRoomRequest request)
-            throws ServiceException {
-        // TODO Auto-generated method stub
+    public EnterQuickGameRoomResponse enterQuickGameRoom(RpcController controller, EnterQuickGameRoomRequest request) throws ServiceException {
         EnterQuickGameRoomResponse.Builder stEnterQuickGameRoomResponseBuilder = EnterQuickGameRoomResponse.newBuilder();
         QuickGameRoomResultInfo stQuickGameRoomResultInfo = QuickGameRoomManager.getInstance().enterQuickGameRoom(request.getUuid(), request.getSCryptCode());
         if (stQuickGameRoomResultInfo.geteErrorCodeType() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS) {
@@ -696,10 +658,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public StartQuickRoomGameResponse startQuickRoomGame(
-            RpcController controller, StartQuickRoomGameRequest request)
-            throws ServiceException {
-        // TODO Auto-generated method stub
+    public StartQuickRoomGameResponse startQuickRoomGame(RpcController controller, StartQuickRoomGameRequest request) throws ServiceException {
         StartQuickRoomGameResponse.Builder stStartQuickRoomGameResponseBuilder = StartQuickRoomGameResponse.newBuilder();
 
         GameRoomResultInfo stGameRoomResultInfo = QuickGameRoomManager.getInstance().startQuickGameRoom(request.getUuid(), request.getLQuickGameRoomID());
@@ -715,10 +674,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public QuitQuickGameRoomResponse quitQuickGameRoom(
-            RpcController controller, QuitQuickGameRoomRequest request)
-            throws ServiceException {
-        // TODO Auto-generated method stub
+    public QuitQuickGameRoomResponse quitQuickGameRoom(RpcController controller, QuitQuickGameRoomRequest request) throws ServiceException {
         QuitQuickGameRoomResponse.Builder stQuitQuickGameRoomResponseBuilder = QuitQuickGameRoomResponse.newBuilder();
 
         QuickGameRoomResultInfo stQuickGameRoomResultInfo = QuickGameRoomManager.getInstance().quitQuickGameRoom(request.getUuid(), request.getLQuickGameRoomID());
@@ -733,10 +689,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public SetStandByUserGameInfosResponse setStandByUserGameInfos(
-            RpcController controller, SetStandByUserGameInfosRequest request)
-            throws ServiceException {
-        // TODO Auto-generated method stub
+    public SetStandByUserGameInfosResponse setStandByUserGameInfos(RpcController controller, SetStandByUserGameInfosRequest request) throws ServiceException {
         SetStandByUserGameInfosResponse.Builder stSetStandByUserGameInfosResponseBuilder = SetStandByUserGameInfosResponse.newBuilder();
 
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
@@ -751,10 +704,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public RemoveStandByUserGameInfosResponse removeStandByUserGameInfos(
-            RpcController controller, RemoveStandByUserGameInfosRequest request)
-            throws ServiceException {
-        // TODO Auto-generated method stub
+    public RemoveStandByUserGameInfosResponse removeStandByUserGameInfos(RpcController controller, RemoveStandByUserGameInfosRequest request) throws ServiceException {
         RemoveStandByUserGameInfosResponse.Builder stRemoveStandByUserGameInfosResponseBuilder = RemoveStandByUserGameInfosResponse.newBuilder();
 
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
@@ -769,10 +719,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public GetStandByUserGameInfosResponse getStandByUserGameInfos(
-            RpcController controller, GetStandByUserGameInfosRequest request)
-            throws ServiceException {
-        // TODO Auto-generated method stub
+    public GetStandByUserGameInfosResponse getStandByUserGameInfos(RpcController controller, GetStandByUserGameInfosRequest request) throws ServiceException {
         GetStandByUserGameInfosResponse.Builder stGetStandByUserGameInfosResponseBuilder = GetStandByUserGameInfosResponse.newBuilder();
 
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
@@ -792,11 +739,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         return stGetStandByUserGameInfosResponseBuilder.build();
     }
 
-
     @Override
-    public GetGameRoomInfoResponse getGameRoomInfo(RpcController controller,
-                                                   GetGameRoomInfoRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public GetGameRoomInfoResponse getGameRoomInfo(RpcController controller, GetGameRoomInfoRequest request) throws ServiceException {
         GetGameRoomInfoResponse.Builder stGetGameRoomInfoResponseBuilder = GetGameRoomInfoResponse.newBuilder();
 
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
@@ -829,9 +773,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public SetGameRoomInfoResponse setGameRoomInfo(RpcController controller,
-                                                   SetGameRoomInfoRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public SetGameRoomInfoResponse setGameRoomInfo(RpcController controller, SetGameRoomInfoRequest request) throws ServiceException {
         SetGameRoomInfoResponse.Builder stSetGameRoomInfoResponseBuilder = SetGameRoomInfoResponse.newBuilder();
 
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
@@ -850,17 +792,12 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public GiveMoneyResponse giveMoney(RpcController controller,
-                                       GiveMoneyRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public GiveMoneyResponse giveMoney(RpcController controller, GiveMoneyRequest request) throws ServiceException {
         return null;
     }
 
     @Override
-    public GetAllBuyinControlsResponse getAllBuyinControls(
-            RpcController controller, GetAllBuyinControlsRequest request)
-            throws ServiceException {
-        // TODO Auto-generated method stub
+    public GetAllBuyinControlsResponse getAllBuyinControls(RpcController controller, GetAllBuyinControlsRequest request) throws ServiceException {
         GetAllBuyinControlsResponse.Builder stGetAllBuyinControlsResponseBuilder = GetAllBuyinControlsResponse.newBuilder();
 
 //		GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
@@ -925,9 +862,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public GetStandByUuidsResponse getStandByUuids(RpcController controller,
-                                                   GetStandByUuidsRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public GetStandByUuidsResponse getStandByUuids(RpcController controller, GetStandByUuidsRequest request) throws ServiceException {
         GetStandByUuidsResponse.Builder stGetStandByUuidsResponseBuilder = GetStandByUuidsResponse.newBuilder();
 
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
@@ -957,9 +892,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public GetLastHandIDResponse getLastHandID(RpcController controller,
-                                               GetLastHandIDRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public GetLastHandIDResponse getLastHandID(RpcController controller, GetLastHandIDRequest request) throws ServiceException {
         GetLastHandIDResponse.Builder stGetLastHandIDResponse = GetLastHandIDResponse.newBuilder();
 
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
@@ -975,10 +908,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public GetQuickGameRoomInfoResponse getQuickGameRoomInfo(
-            RpcController controller, GetQuickGameRoomInfoRequest request)
-            throws ServiceException {
-        // TODO Auto-generated method stub
+    public GetQuickGameRoomInfoResponse getQuickGameRoomInfo(RpcController controller, GetQuickGameRoomInfoRequest request) throws ServiceException {
         GetQuickGameRoomInfoResponse.Builder stGetQuickGameRoomInfoRequestBuilder = GetQuickGameRoomInfoResponse.newBuilder();
 
         QuickGameRoomInfo.Builder stQuickGameRoomInfoBuilder = QuickGameRoomManager.getInstance().getQuickGameRoomInfoByRoomID(request.getLQuickGameRoomID());
@@ -994,10 +924,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public SetQuickGameRoomInfoResponse setQuickGameRoomInfo(
-            RpcController controller, SetQuickGameRoomInfoRequest request)
-            throws ServiceException {
-        // TODO Auto-generated method stub
+    public SetQuickGameRoomInfoResponse setQuickGameRoomInfo(RpcController controller, SetQuickGameRoomInfoRequest request) throws ServiceException {
         SetQuickGameRoomInfoResponse.Builder stSetQuickGameRoomInfoRequestBuilder = SetQuickGameRoomInfoResponse.newBuilder();
 
 
@@ -1013,11 +940,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
 
 
     @Override
-    public GetUserQuickGameRoomInfosResponse getUserQuickGameRoomInfos(
-            RpcController controller, GetUserQuickGameRoomInfosRequest request)
-            throws ServiceException {
-        // TODO Auto-generated method stub
-//		System.out.println("getUserQuickGameRoomInfos uuid : " + request.getUuid());
+    public GetUserQuickGameRoomInfosResponse getUserQuickGameRoomInfos(RpcController controller, GetUserQuickGameRoomInfosRequest request) throws ServiceException {
+        //		System.out.println("getUserQuickGameRoomInfos uuid : " + request.getUuid());
         GetUserQuickGameRoomInfosResponse.Builder stGetUserQuickGameRoomInfosResponseBuilder = GetUserQuickGameRoomInfosResponse.newBuilder();
         Set<Long> vQuickRooms = QuickGameRoomManager.getInstance().getUserQuickGameRoomInfos(request.getUuid());
         if (vQuickRooms != null) {
@@ -1031,246 +955,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public void createGameRoom(RpcController controller,
-                               CreateGameRoomRequest request,
-                               RpcCallback<CreateGameRoomResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void enterGameRoom(RpcController controller,
-                              EnterGameRoomRequest request,
-                              RpcCallback<EnterGameRoomResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void sitDown(RpcController controller, SitDownRequest request,
-                        RpcCallback<SitDownResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void standup(RpcController controller, StandUpRequest request,
-                        RpcCallback<StandUpResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void gameAction(RpcController controller, GameActionRequest request,
-                           RpcCallback<GameActionResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void buyBuyIn(RpcController controller, BuyBuyInRequest request,
-                         RpcCallback<BuyBuyInResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void leaveGameRoom(RpcController controller,
-                              LeaveGameRoomRequest request,
-                              RpcCallback<LeaveGameRoomResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void showCard(RpcController controller, ShowCardRequest request,
-                         RpcCallback<ShowCardResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void startGame(RpcController controller, StartGameRequest request,
-                          RpcCallback<StartGameResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void buyinAction(RpcController controller,
-                            BuyinActionRequest request, RpcCallback<BuyinActionResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void pauseGame(RpcController controller, PauseGameRequest request,
-                          RpcCallback<PauseGameResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void useItem(RpcController controller, UseItemRequest request,
-                        RpcCallback<UseItemResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void useDelayItem(RpcController controller,
-                             UseDelayItemRequest request, RpcCallback<UseDelayItemResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void setBuyinControlState(RpcController controller,
-                                     SetBuyinControlStateRequest request,
-                                     RpcCallback<SetBuyinControlStateResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void resetBuyinRatio(RpcController controller,
-                                ResetBuyinRatioRequest request,
-                                RpcCallback<ResetBuyinRatioResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void createQuickGameRoom(RpcController controller,
-                                    CreateQuickGameRoomRequest request,
-                                    RpcCallback<CreateQuickGameRoomResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void enterQuickGameRoom(RpcController controller,
-                                   EnterQuickGameRoomRequest request,
-                                   RpcCallback<EnterQuickGameRoomResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void startQuickRoomGame(RpcController controller,
-                                   StartQuickRoomGameRequest request,
-                                   RpcCallback<StartQuickRoomGameResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void setStandByUserGameInfos(RpcController controller,
-                                        SetStandByUserGameInfosRequest request,
-                                        RpcCallback<SetStandByUserGameInfosResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void removeStandByUserGameInfos(RpcController controller,
-                                           RemoveStandByUserGameInfosRequest request,
-                                           RpcCallback<RemoveStandByUserGameInfosResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void getStandByUserGameInfos(RpcController controller,
-                                        GetStandByUserGameInfosRequest request,
-                                        RpcCallback<GetStandByUserGameInfosResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void quitQuickGameRoom(RpcController controller,
-                                  QuitQuickGameRoomRequest request,
-                                  RpcCallback<QuitQuickGameRoomResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void getGameRoomInfo(RpcController controller,
-                                GetGameRoomInfoRequest request,
-                                RpcCallback<GetGameRoomInfoResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void setGameRoomInfo(RpcController controller,
-                                SetGameRoomInfoRequest request,
-                                RpcCallback<SetGameRoomInfoResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void giveMoney(RpcController controller, GiveMoneyRequest request,
-                          RpcCallback<GiveMoneyResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void getAllBuyinControls(RpcController controller,
-                                    GetAllBuyinControlsRequest request,
-                                    RpcCallback<GetAllBuyinControlsResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void getStandByUuids(RpcController controller,
-                                GetStandByUuidsRequest request,
-                                RpcCallback<GetStandByUuidsResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void getLastHandID(RpcController controller,
-                              GetLastHandIDRequest request,
-                              RpcCallback<GetLastHandIDResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void getQuickGameRoomInfo(RpcController controller,
-                                     GetQuickGameRoomInfoRequest request,
-                                     RpcCallback<GetQuickGameRoomInfoResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void setQuickGameRoomInfo(RpcController controller,
-                                     SetQuickGameRoomInfoRequest request,
-                                     RpcCallback<SetQuickGameRoomInfoResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void getUserQuickGameRoomInfos(RpcController controller,
-                                          GetUserQuickGameRoomInfosRequest request,
-                                          RpcCallback<GetUserQuickGameRoomInfosResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public HelloGameResponse helloGame(RpcController controller,
-                                       HelloGameRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public HelloGameResponse helloGame(RpcController controller, HelloGameRequest request) throws ServiceException {
         HelloGameResponse.Builder stHelloGameResponseBuilder = HelloGameResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
         if (stGameRoomDetailInfo != null) {
@@ -1282,16 +967,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public void helloGame(RpcController controller, HelloGameRequest request,
-                          RpcCallback<HelloGameResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public BuyInsuranceResponse buyInsurance(RpcController controller,
-                                             BuyInsuranceRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public BuyInsuranceResponse buyInsurance(RpcController controller, BuyInsuranceRequest request) throws ServiceException {
         BuyInsuranceResponse.Builder stBuyInsuranceResponseBuilder = BuyInsuranceResponse.newBuilder();
         stBuyInsuranceResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
@@ -1311,11 +987,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public BuyInsuranceDelayResponse buyInsuranceDelay(
-            RpcController controller, BuyInsuranceDelayRequest request)
-            throws ServiceException {
-        // TODO Auto-generated method stub
-
+    public BuyInsuranceDelayResponse buyInsuranceDelay(RpcController controller, BuyInsuranceDelayRequest request) throws ServiceException {
         BuyInsuranceDelayResponse.Builder stBuyInsuranceDelayResponseBuilder = BuyInsuranceDelayResponse.newBuilder();
 
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
@@ -1340,10 +1012,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public CreatorInsuranceSettingResponse creatorInsuranceSetting(
-            RpcController controller, CreatorInsuranceSettingRequest request)
-            throws ServiceException {
-        // TODO Auto-generated method stub
+    public CreatorInsuranceSettingResponse creatorInsuranceSetting(RpcController controller, CreatorInsuranceSettingRequest request) throws ServiceException {
         CreatorInsuranceSettingResponse.Builder stCreatorInsuranceSettingResponseBuilder = CreatorInsuranceSettingResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
         ERROR_CODE_TYPE eErrorCodeType = stGameRoomDetailInfo.creatorInsuranceSetting(request.getUuid(), request.getLSettedUuid(), request.getBCanInsurance());
@@ -1352,10 +1021,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public UserInsuranceSettingResponse userInsuranceSetting(
-            RpcController controller, UserInsuranceSettingRequest request)
-            throws ServiceException {
-        // TODO Auto-generated method stub
+    public UserInsuranceSettingResponse userInsuranceSetting(RpcController controller, UserInsuranceSettingRequest request) throws ServiceException {
         UserInsuranceSettingResponse.Builder stUserInsuranceSettingResponseBuilder = UserInsuranceSettingResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
         ERROR_CODE_TYPE eErrorCodeType = stGameRoomDetailInfo.userInsuranceSetting(request.getUuid(), request.getBDefaultInsurance());
@@ -1364,40 +1030,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public void buyInsurance(RpcController controller,
-                             BuyInsuranceRequest request, RpcCallback<BuyInsuranceResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void buyInsuranceDelay(RpcController controller,
-                                  BuyInsuranceDelayRequest request,
-                                  RpcCallback<BuyInsuranceDelayResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void creatorInsuranceSetting(RpcController controller,
-                                        CreatorInsuranceSettingRequest request,
-                                        RpcCallback<CreatorInsuranceSettingResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void userInsuranceSetting(RpcController controller,
-                                     UserInsuranceSettingRequest request,
-                                     RpcCallback<UserInsuranceSettingResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public GetGameSettingResponse getGameSetting(RpcController controller,
-                                                 GetGameSettingRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public GetGameSettingResponse getGameSetting(RpcController controller, GetGameSettingRequest request) throws ServiceException {
         GetGameSettingResponse.Builder stGetGameSettingResponseBuilder = GetGameSettingResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
 //		System.out.println("getGameSetting : " + request.getLGameRoomID() + "  " + stGameRoomDetailInfo);
@@ -1409,17 +1042,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public void getGameSetting(RpcController controller,
-                               GetGameSettingRequest request,
-                               RpcCallback<GetGameSettingResponse> done) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public KickUserGameRoomResponse kickUserGameRoom(RpcController arg0,
-                                                     KickUserGameRoomRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public KickUserGameRoomResponse kickUserGameRoom(RpcController arg0, KickUserGameRoomRequest request) throws ServiceException {
         KickUserGameRoomResponse.Builder stKickUserGameRoomResponseBuilder = KickUserGameRoomResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
         if (stGameRoomDetailInfo != null) {
@@ -1431,9 +1054,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public UserDelegateResponse userDelegate(RpcController arg0,
-                                             UserDelegateRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public UserDelegateResponse userDelegate(RpcController arg0, UserDelegateRequest request) throws ServiceException {
         UserDelegateResponse.Builder stUserDelegateResponseBuilder = UserDelegateResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
         if (stGameRoomDetailInfo != null) {
@@ -1450,24 +1071,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public void kickUserGameRoom(RpcController arg0,
-                                 KickUserGameRoomRequest arg1,
-                                 RpcCallback<KickUserGameRoomResponse> arg2) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void userDelegate(RpcController arg0, UserDelegateRequest arg1,
-                             RpcCallback<UserDelegateResponse> arg2) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public CancelGameResponse cancelGame(RpcController arg0,
-                                         CancelGameRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public CancelGameResponse cancelGame(RpcController arg0, CancelGameRequest request) throws ServiceException {
         CancelGameResponse.Builder stCancelGameResponseBuilder = CancelGameResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
         if (stGameRoomDetailInfo != null) {
@@ -1479,16 +1083,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public void cancelGame(RpcController arg0, CancelGameRequest arg1,
-                           RpcCallback<CancelGameResponse> arg2) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public ForceStandupResponse forceStandup(RpcController arg0, ForceStandupRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
-        // TODO Auto-generated method stub
         ForceStandupResponse.Builder stForceStandupResponseBuilder = ForceStandupResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
         if (stGameRoomDetailInfo != null) {
@@ -1500,9 +1095,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public SetGameThinkingIntervalResponse setGameThinkingInterval(RpcController arg0,
-                                                                   SetGameThinkingIntervalRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public SetGameThinkingIntervalResponse setGameThinkingInterval(RpcController arg0, SetGameThinkingIntervalRequest request) throws ServiceException {
         SetGameThinkingIntervalResponse.Builder stSetGameThinkingIntervalResponseBuilder = SetGameThinkingIntervalResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
         if (stGameRoomDetailInfo != null) {
@@ -1516,7 +1109,6 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
 
     @Override
     public SetStraddleResponse setStraddle(RpcController arg0, SetStraddleRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
         SetStraddleResponse.Builder stSetStraddleResponseBuilder = SetStraddleResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
         if (stGameRoomDetailInfo != null) {
@@ -1528,27 +1120,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public void forceStandup(RpcController arg0, ForceStandupRequest arg1, RpcCallback<ForceStandupResponse> arg2) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void setGameThinkingInterval(RpcController arg0, SetGameThinkingIntervalRequest arg1,
-                                        RpcCallback<SetGameThinkingIntervalResponse> arg2) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void setStraddle(RpcController arg0, SetStraddleRequest arg1, RpcCallback<SetStraddleResponse> arg2) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public SetPreActionResponse setPreAction(RpcController arg0, SetPreActionRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
         SetPreActionResponse.Builder stSetPreActionResponseBuilder = SetPreActionResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
         if (stGameRoomDetailInfo != null) {
@@ -1567,9 +1139,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public ShowTableCardsResponse showTableCards(RpcController arg0, ShowTableCardsRequest request)
-            throws ServiceException {
-        // TODO Auto-generated method stub
+    public ShowTableCardsResponse showTableCards(RpcController arg0, ShowTableCardsRequest request) throws ServiceException {
         ShowTableCardsResponse.Builder stShowTableCardsResponseBuilder = ShowTableCardsResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
         if (stGameRoomDetailInfo != null) {
@@ -1594,22 +1164,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public void setPreAction(RpcController arg0, SetPreActionRequest arg1, RpcCallback<SetPreActionResponse> arg2) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void showTableCards(RpcController arg0, ShowTableCardsRequest arg1,
-                               RpcCallback<ShowTableCardsResponse> arg2) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public UserTemporarilyLeaveResponse userTemporarilyLeave(RpcController arg0, UserTemporarilyLeaveRequest request)
-            throws ServiceException {
-        // TODO Auto-generated method stub
+    public UserTemporarilyLeaveResponse userTemporarilyLeave(RpcController arg0, UserTemporarilyLeaveRequest request) throws ServiceException {
         UserTemporarilyLeaveResponse.Builder stUserTemporarilyLeaveResponseBuilder = UserTemporarilyLeaveResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
         if (stGameRoomDetailInfo != null) {
@@ -1645,22 +1200,12 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public void userTemporarilyLeave(RpcController arg0, UserTemporarilyLeaveRequest arg1,
-                                     RpcCallback<UserTemporarilyLeaveResponse> arg2) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public UserUnloadStacksResponse userUnloadStacks(RpcController controller,
-                                                     UserUnloadStacksRequest request) throws ServiceException {
-        // TODO Auto-generated method stub
+    public UserUnloadStacksResponse userUnloadStacks(RpcController controller, UserUnloadStacksRequest request) throws ServiceException {
         return null;
     }
 
     @Override
-    public ClearAllGameResponse clearAllGame(RpcController controller, ClearAllGameRequest request)
-            throws ServiceException {
+    public ClearAllGameResponse clearAllGame(RpcController controller, ClearAllGameRequest request) throws ServiceException {
         ClearAllGameResponse.Builder response = ClearAllGameResponse.newBuilder();
         System.out.println("clearAllGame request " + request);
         try {
@@ -1682,16 +1227,194 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
-    public void userUnloadStacks(RpcController controller, UserUnloadStacksRequest request,
-                                 RpcCallback<UserUnloadStacksResponse> done) {
-        // TODO Auto-generated method stub
-
+    public void createGameRoom(RpcController controller, CreateGameRoomRequest request, RpcCallback<CreateGameRoomResponse> done) {
     }
 
     @Override
-    public void clearAllGame(RpcController controller, ClearAllGameRequest request,
-                             RpcCallback<ClearAllGameResponse> done) {
-        // TODO Auto-generated method stub
+    public void enterGameRoom(RpcController controller, EnterGameRoomRequest request, RpcCallback<EnterGameRoomResponse> done) {
+    }
 
+    @Override
+    public void sitDown(RpcController controller, SitDownRequest request, RpcCallback<SitDownResponse> done) {
+    }
+
+    @Override
+    public void standup(RpcController controller, StandUpRequest request, RpcCallback<StandUpResponse> done) {
+    }
+
+    @Override
+    public void gameAction(RpcController controller, GameActionRequest request, RpcCallback<GameActionResponse> done) {
+    }
+
+    @Override
+    public void buyBuyIn(RpcController controller, BuyBuyInRequest request, RpcCallback<BuyBuyInResponse> done) {
+    }
+
+    @Override
+    public void leaveGameRoom(RpcController controller, LeaveGameRoomRequest request, RpcCallback<LeaveGameRoomResponse> done) {
+    }
+
+    @Override
+    public void showCard(RpcController controller, ShowCardRequest request, RpcCallback<ShowCardResponse> done) {
+    }
+
+    @Override
+    public void startGame(RpcController controller, StartGameRequest request, RpcCallback<StartGameResponse> done) {
+    }
+
+    @Override
+    public void buyinAction(RpcController controller, BuyinActionRequest request, RpcCallback<BuyinActionResponse> done) {
+    }
+
+    @Override
+    public void setBuyinControlState(RpcController controller, SetBuyinControlStateRequest request, RpcCallback<SetBuyinControlStateResponse> done) {
+    }
+
+    @Override
+    public void pauseGame(RpcController controller, PauseGameRequest request, RpcCallback<PauseGameResponse> done) {
+    }
+
+    @Override
+    public void useItem(RpcController controller, UseItemRequest request, RpcCallback<UseItemResponse> done) {
+    }
+
+    @Override
+    public void useDelayItem(RpcController controller, UseDelayItemRequest request, RpcCallback<UseDelayItemResponse> done) {
+    }
+
+    @Override
+    public void resetBuyinRatio(RpcController controller, ResetBuyinRatioRequest request, RpcCallback<ResetBuyinRatioResponse> done) {
+    }
+
+    @Override
+    public void createQuickGameRoom(RpcController controller, CreateQuickGameRoomRequest request, RpcCallback<CreateQuickGameRoomResponse> done) {
+    }
+
+    @Override
+    public void enterQuickGameRoom(RpcController controller, EnterQuickGameRoomRequest request, RpcCallback<EnterQuickGameRoomResponse> done) {
+    }
+
+    @Override
+    public void startQuickRoomGame(RpcController controller, StartQuickRoomGameRequest request, RpcCallback<StartQuickRoomGameResponse> done) {
+    }
+
+    @Override
+    public void quitQuickGameRoom(RpcController controller, QuitQuickGameRoomRequest request, RpcCallback<QuitQuickGameRoomResponse> done) {
+    }
+
+    @Override
+    public void giveMoney(RpcController controller, GiveMoneyRequest request, RpcCallback<GiveMoneyResponse> done) {
+    }
+
+    @Override
+    public void setStandByUserGameInfos(RpcController controller, SetStandByUserGameInfosRequest request, RpcCallback<SetStandByUserGameInfosResponse> done) {
+    }
+
+    @Override
+    public void removeStandByUserGameInfos(RpcController controller, RemoveStandByUserGameInfosRequest request, RpcCallback<RemoveStandByUserGameInfosResponse> done) {
+    }
+
+    @Override
+    public void getStandByUserGameInfos(RpcController controller, GetStandByUserGameInfosRequest request, RpcCallback<GetStandByUserGameInfosResponse> done) {
+    }
+
+    @Override
+    public void getGameRoomInfo(RpcController controller, GetGameRoomInfoRequest request, RpcCallback<GetGameRoomInfoResponse> done) {
+    }
+
+    @Override
+    public void setGameRoomInfo(RpcController controller, SetGameRoomInfoRequest request, RpcCallback<SetGameRoomInfoResponse> done) {
+    }
+
+    @Override
+    public void getAllBuyinControls(RpcController controller, GetAllBuyinControlsRequest request, RpcCallback<GetAllBuyinControlsResponse> done) {
+    }
+
+    @Override
+    public void getStandByUuids(RpcController controller, GetStandByUuidsRequest request, RpcCallback<GetStandByUuidsResponse> done) {
+    }
+
+    @Override
+    public void getLastHandID(RpcController controller, GetLastHandIDRequest request, RpcCallback<GetLastHandIDResponse> done) {
+    }
+
+    @Override
+    public void getQuickGameRoomInfo(RpcController controller, GetQuickGameRoomInfoRequest request, RpcCallback<GetQuickGameRoomInfoResponse> done) {
+    }
+
+    @Override
+    public void setQuickGameRoomInfo(RpcController controller, SetQuickGameRoomInfoRequest request, RpcCallback<SetQuickGameRoomInfoResponse> done) {
+    }
+
+    @Override
+    public void getUserQuickGameRoomInfos(RpcController controller, GetUserQuickGameRoomInfosRequest request, RpcCallback<GetUserQuickGameRoomInfosResponse> done) {
+    }
+
+    @Override
+    public void helloGame(RpcController controller, HelloGameRequest request, RpcCallback<HelloGameResponse> done) {
+    }
+
+    @Override
+    public void buyInsurance(RpcController controller, BuyInsuranceRequest request, RpcCallback<BuyInsuranceResponse> done) {
+    }
+
+    @Override
+    public void creatorInsuranceSetting(RpcController controller, CreatorInsuranceSettingRequest request, RpcCallback<CreatorInsuranceSettingResponse> done) {
+    }
+
+    @Override
+    public void userInsuranceSetting(RpcController controller, UserInsuranceSettingRequest request, RpcCallback<UserInsuranceSettingResponse> done) {
+    }
+
+    @Override
+    public void buyInsuranceDelay(RpcController controller, BuyInsuranceDelayRequest request, RpcCallback<BuyInsuranceDelayResponse> done) {
+    }
+
+    @Override
+    public void getGameSetting(RpcController controller, GetGameSettingRequest request, RpcCallback<GetGameSettingResponse> done) {
+    }
+
+    @Override
+    public void userDelegate(RpcController controller, UserDelegateRequest request, RpcCallback<UserDelegateResponse> done) {
+    }
+
+    @Override
+    public void userTemporarilyLeave(RpcController controller, UserTemporarilyLeaveRequest request, RpcCallback<UserTemporarilyLeaveResponse> done) {
+    }
+
+    @Override
+    public void kickUserGameRoom(RpcController controller, KickUserGameRoomRequest request, RpcCallback<KickUserGameRoomResponse> done) {
+    }
+
+    @Override
+    public void cancelGame(RpcController controller, CancelGameRequest request, RpcCallback<CancelGameResponse> done) {
+    }
+
+    @Override
+    public void setGameThinkingInterval(RpcController controller, SetGameThinkingIntervalRequest request, RpcCallback<SetGameThinkingIntervalResponse> done) {
+    }
+
+    @Override
+    public void forceStandup(RpcController controller, ForceStandupRequest request, RpcCallback<ForceStandupResponse> done) {
+    }
+
+    @Override
+    public void setStraddle(RpcController controller, SetStraddleRequest request, RpcCallback<SetStraddleResponse> done) {
+    }
+
+    @Override
+    public void showTableCards(RpcController controller, ShowTableCardsRequest request, RpcCallback<ShowTableCardsResponse> done) {
+    }
+
+    @Override
+    public void setPreAction(RpcController controller, SetPreActionRequest request, RpcCallback<SetPreActionResponse> done) {
+    }
+
+    @Override
+    public void userUnloadStacks(RpcController controller, UserUnloadStacksRequest request, RpcCallback<UserUnloadStacksResponse> done) {
+    }
+
+    @Override
+    public void clearAllGame(RpcController controller, ClearAllGameRequest request, RpcCallback<ClearAllGameResponse> done) {
     }
 }
