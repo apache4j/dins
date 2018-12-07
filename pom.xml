@@ -1,371 +1,371 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.texaspoker.server</groupId>
-	<artifactId>TexasPokerInsuranceGameService</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
+    <groupId>com.texaspoker.server</groupId>
+    <artifactId>TexasPokerInsuranceGameService</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
-	<description>protobuf rpc based on java netty4</description>
- 
- 	<properties>
-		<spring.version>3.2.2.RELEASE</spring.version>
-  	</properties>
-  	
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
-					<encoding>utf-8</encoding>
-				</configuration>
-				<version>2.3.2</version>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>net.ju-n.maven.plugins</groupId>
-				<artifactId>maven-checksum-plugin</artifactId>
-				<version>1.0</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>artifacts</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<xmlSummary>true</xmlSummary>
-					<xmlSummaryFile>artifacts-checksums.xml</xmlSummaryFile>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
-	
-	<dependencies>
-	    
-	    	    <dependency>
-      		<groupId>junit</groupId>
-      		<artifactId>junit</artifactId>
-      		<version>3.8.1</version>
-      		<scope>test</scope>
-    	</dependency>
-    	
-   	<dependency>
-      	<groupId>com.texaspoker.moment</groupId>
-     	 <artifactId>netengine</artifactId>
-      	<version>1.2.0</version>
-    </dependency>
-    
-    	<dependency>
-			<groupId>org.apache.kafka</groupId>
-			<artifactId>kafka-clients</artifactId>
-			<version>0.11.0.0</version>
-		</dependency>
+    <description>protobuf rpc based on java netty4</description>
 
-		<dependency>
-			<groupId>com.kafka.kafkautil</groupId>
-			<artifactId>kafkautil</artifactId>
-			<version>1.0</version>
-		</dependency>
-		
-    	<dependency>
-		<groupId>com.alibaba</groupId>
-        <artifactId>dubbo</artifactId>
-        <version>2.5.4-SNAPSHOT</version>
-        <exclusions>
-            <exclusion>
-                <artifactId>spring</artifactId>
-              	<groupId>org.springframework</groupId>
-       		</exclusion>
-        </exclusions>
-    </dependency>
-    
-    	<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.34</version>
-		</dependency>
-		
-		<dependency>
-   			<groupId>redis.clients</groupId>
-   			<artifactId>jedis</artifactId>
-   			<version>2.7.2</version>
-   			<type>jar</type>
-   			<scope>compile</scope>
-		</dependency>
-	
-	    <dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.6.1</version>
-		</dependency>
-     
-		<dependency>  
-			<groupId>com.google.protobuf</groupId>
-			<artifactId>protobuf-java</artifactId>
-			<version>2.6.1</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>1.2</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-core</artifactId>
-			<version>1.1.3</version>
-		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>1.1.3</version>
-		</dependency>
+    <properties>
+        <spring.version>3.2.2.RELEASE</spring.version>
+    </properties>
 
-		<dependency>
-			<groupId>com.texaspoker.moment</groupId>
-			<artifactId>netprotocol</artifactId>
-			<version>2.6.9.8</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>io.netty</groupId>
-			<artifactId>netty-all</artifactId>
-			<version>4.0.24.Final</version>
-			<scope>compile</scope>
-		</dependency>
-		
-		   	<dependency>
-      <groupId>com.nio.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.7.5</version>
-    </dependency>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                    <encoding>utf-8</encoding>
+                </configuration>
+                <version>2.3.2</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>net.ju-n.maven.plugins</groupId>
+                <artifactId>maven-checksum-plugin</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>artifacts</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <xmlSummary>true</xmlSummary>
+                    <xmlSummaryFile>artifacts-checksums.xml</xmlSummaryFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
-   <dependency>
-      <groupId>com.nio.slf4j</groupId>
-      <artifactId>slf4j-jdk14</artifactId>
-      <version>1.7.5</version>
-    </dependency>
-    
-	<dependency>  
-      	<groupId>com.javapns</groupId>
-    	<artifactId>JavaPNS</artifactId>
-    	<version>2.2</version>
-    </dependency> 
-    
-    <dependency>
-		<groupId>commons-pool</groupId>
-		<artifactId>commons-pool</artifactId>
-		<version>1.6</version>
-	</dependency>
-	
-	<dependency>
-		<groupId>commons-dbcp</groupId>
-		<artifactId>commons-dbcp</artifactId>
-		<version>1.4</version>
-	</dependency>
-	
-	   <dependency>
-      <groupId>com.nio.slf4j</groupId>
-      <artifactId>slf4j-jdk14</artifactId>
-      <version>1.7.5</version>
-    </dependency>
-    
-    	<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-webmvc</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-tx</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-jdbc</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-orm</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context-support</artifactId>
-      <version>${spring.version}</version>
-    </dependency>
-		<dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-web</artifactId>
-      <version>${spring.version}</version>
-    </dependency>
-    
-    	<dependency>
-			<groupId>com.github.sgroschupf</groupId>
-			<artifactId>zkclient</artifactId>
-			<version>0.1</version>
-		</dependency>
-    
-    <dependency>
-		<groupId>com.tencent.xg</groupId>
-		<artifactId>xinge-core</artifactId>
-		<version>1.1.4</version>
-	</dependency>	
-	
-    <dependency>
-		<groupId>log4j</groupId>
-		<artifactId>log4j</artifactId>
-		<version>1.2.17</version>
-	</dependency>
-    
-   <dependency>  
-      <groupId>com.bcprov</groupId>
-      <artifactId>bcprov-jdk15</artifactId>
-      <version>146</version>
-    </dependency> 
-    
-    <dependency>
-		<groupId>net.coobird</groupId>
-		<artifactId>thumbnailator</artifactId>
-		<version>0.4.7</version>
-	</dependency>
-	
-<dependency>
-<groupId>org.apache.zookeeper</groupId>
-<artifactId>zookeeper</artifactId>
-<version>3.3.3</version>
-</dependency>
-	</dependencies>
+    <dependencies>
 
-	<profiles>
-	    <profile>
-			<id>demo-server</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.1.1</version>
-						<executions>
-							<execution>
-								<phase>test</phase>
-								<goals>
-									<goal>java</goal>
-								</goals>
-								<configuration>
-									<mainClass>com.texaspoker.rpc.demo.PokerServer</mainClass>
-									<arguments>
-									    <argument>127.0.0.1</argument>
-										<argument>54321</argument>
-									</arguments>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>demo-client</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.1.1</version>
-						<executions>
-							<execution>
-								<phase>test</phase>
-								<goals>
-									<goal>java</goal>
-								</goals>
-								<configuration>
-									<mainClass>com.texaspoker.connector.demo.PokerClient</mainClass>
-									<arguments>
-										<argument>127.0.0.1</argument>
-										<argument>54321</argument>
-									</arguments>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>prof-server</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.1.1</version>
-						<executions>
-							<execution>
-								<phase>test</phase>
-								<goals>
-									<goal>java</goal>
-								</goals>
-								<configuration>
-									<mainClass>com.texaspoker.rpc.demo.EchoServer</mainClass>
-									<arguments>
-										<argument>127.0.0.1</argument>
-										<argument>54321</argument>
-										<argument>1000</argument>
-									</arguments>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>prof-client</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.1.1</version>
-						<executions>
-							<execution>
-								<phase>test</phase>
-								<goals>
-									<goal>java</goal>
-								</goals>
-								<configuration>
-									<mainClass>com.texaspoker.rpc.prof.TestController</mainClass>
-									<arguments>
-										<argument>127.0.0.1</argument>
-										<argument>54321</argument>
-										<argument>1000</argument>
-									</arguments>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		
-	</profiles>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
 
-	<name>TexasPokerInsuranceGameService</name>
+        <dependency>
+            <groupId>com.texaspoker.moment</groupId>
+            <artifactId>netengine</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>0.11.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kafka.kafkautil</groupId>
+            <artifactId>kafkautil</artifactId>
+            <version>1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dubbo</artifactId>
+            <version>2.5.4-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.34</version>
+        </dependency>
+
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>2.7.2</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.6.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>2.6.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.1.3</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.1.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.texaspoker.moment</groupId>
+            <artifactId>netprotocol</artifactId>
+            <version>2.6.9.8</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.0.24.Final</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.nio.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.nio.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.javapns</groupId>
+            <artifactId>JavaPNS</artifactId>
+            <version>2.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
+            <version>1.6</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+            <version>1.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.nio.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.sgroschupf</groupId>
+            <artifactId>zkclient</artifactId>
+            <version>0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.tencent.xg</groupId>
+            <artifactId>xinge-core</artifactId>
+            <version>1.1.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.bcprov</groupId>
+            <artifactId>bcprov-jdk15</artifactId>
+            <version>146</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.coobird</groupId>
+            <artifactId>thumbnailator</artifactId>
+            <version>0.4.7</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <version>3.3.3</version>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>demo-server</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.1.1</version>
+                        <executions>
+                            <execution>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>com.texaspoker.rpc.demo.PokerServer</mainClass>
+                                    <arguments>
+                                        <argument>127.0.0.1</argument>
+                                        <argument>54321</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>demo-client</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.1.1</version>
+                        <executions>
+                            <execution>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>com.texaspoker.connector.demo.PokerClient</mainClass>
+                                    <arguments>
+                                        <argument>127.0.0.1</argument>
+                                        <argument>54321</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>prof-server</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.1.1</version>
+                        <executions>
+                            <execution>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>com.texaspoker.rpc.demo.EchoServer</mainClass>
+                                    <arguments>
+                                        <argument>127.0.0.1</argument>
+                                        <argument>54321</argument>
+                                        <argument>1000</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>prof-client</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.1.1</version>
+                        <executions>
+                            <execution>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>com.texaspoker.rpc.prof.TestController</mainClass>
+                                    <arguments>
+                                        <argument>127.0.0.1</argument>
+                                        <argument>54321</argument>
+                                        <argument>1000</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+    </profiles>
+
+    <name>TexasPokerInsuranceGameService</name>
 </project>
