@@ -32,83 +32,53 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     public CreateGameRoomResponse createGameRoom(RpcController controller, CreateGameRoomRequest request) throws ServiceException {
         PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 1001 request: >" + request + "<");
         CreateGameRoomResponse.Builder stCreateGameRoomResponseBuilder = CreateGameRoomResponse.newBuilder();
-        GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = GameRoomBaseInfo.newBuilder();
-        stGameRoomBaseInfoBuilder.setStrRoomName(request.getStGameRoomBaseInfo().getStrRoomName());
-        stGameRoomBaseInfoBuilder.setLDuration(request.getStGameRoomBaseInfo().getLDuration());
-        stGameRoomBaseInfoBuilder.setBPrivateRoom(request.getStGameRoomBaseInfo().getBPrivateRoom());
-        stGameRoomBaseInfoBuilder.setLChatRoomID(request.getStGameRoomBaseInfo().getLChatRoomID());
-        stGameRoomBaseInfoBuilder.setBBuyIn(1);
-        stGameRoomBaseInfoBuilder.setLSmallBlinds(request.getStGameRoomBaseInfo().getLSmallBlinds());
-        stGameRoomBaseInfoBuilder.setLBigBlinds(request.getStGameRoomBaseInfo().getLBigBlinds());
-        stGameRoomBaseInfoBuilder.setLBuyIn(request.getStGameRoomBaseInfo().getLBuyIn());
-        stGameRoomBaseInfoBuilder.setLCreateTime(System.currentTimeMillis());
-        stGameRoomBaseInfoBuilder.setLDuration(request.getStGameRoomBaseInfo().getLDuration());
-        stGameRoomBaseInfoBuilder.setECreateRoomType(request.getStGameRoomBaseInfo().getECreateRoomType());
-        stGameRoomBaseInfoBuilder.setIMaxBuyinRatio(request.getStGameRoomBaseInfo().getIMaxBuyinRatio());
-        stGameRoomBaseInfoBuilder.setIMinBuyinRatio(request.getStGameRoomBaseInfo().getIMinBuyinRatio());
-        stGameRoomBaseInfoBuilder.setEGameRoomSeniorType(request.getStGameRoomBaseInfo().getEGameRoomSeniorType());
-        stGameRoomBaseInfoBuilder.setBBuyinControl(request.getStGameRoomBaseInfo().getBBuyinControl());
-        stGameRoomBaseInfoBuilder.setLGameRoomId(0);
-        stGameRoomBaseInfoBuilder.setIGameRoomUserMaxNums(request.getStGameRoomBaseInfo().getIGameRoomUserMaxNums());
-        stGameRoomBaseInfoBuilder.setStCreateUserBaseInfo(UserManager.getInstance().getUserBaseInfo(request.getUuid()));
-        stGameRoomBaseInfoBuilder.setIAnte(request.getStGameRoomBaseInfo().getIAnte());
-        stGameRoomBaseInfoBuilder.setBInsurance(1);
-        stGameRoomBaseInfoBuilder.setBIPLimit(request.getStGameRoomBaseInfo().getBIPLimit());
-        stGameRoomBaseInfoBuilder.setBGPSLimit(request.getStGameRoomBaseInfo().getBGPSLimit());
-        stGameRoomBaseInfoBuilder.setLLeagueID(request.getStGameRoomBaseInfo().getLLeagueID());
-        stGameRoomBaseInfoBuilder.setIThinkingInterval(15);
-        stGameRoomBaseInfoBuilder.setBStraddle(request.getStGameRoomBaseInfo().getBStraddle());
+        GameRoomBaseInfo transferredGameRoomBaseInfo = request.getStGameRoomBaseInfo().toBuilder()
+                .setBBuyIn(1)
+                .setLCreateTime(System.currentTimeMillis())
+                .setLGameRoomId(0)
+                .setStCreateUserBaseInfo(UserManager.getInstance().getUserBaseInfo(request.getUuid()))
+                .setBInsurance(1)
+                .setIThinkingInterval(15)
+                .build();
 
-        stGameRoomBaseInfoBuilder.setIAutoStartNum(request.getStGameRoomBaseInfo().getIAutoStartNum());
-        stGameRoomBaseInfoBuilder.setBPaidStart(request.getStGameRoomBaseInfo().getBPaidStart());
-        stGameRoomBaseInfoBuilder.setBCredit(request.getStGameRoomBaseInfo().getBCredit());
-
-        PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 1003");
         //添加联盟相关信息
-        LeagueBaseInfo stLeagueBaseInfo = LeagueManager.getInstance().getLeagueBaseInfo(stGameRoomBaseInfoBuilder.getLLeagueID());
+        LeagueBaseInfo stLeagueBaseInfo = LeagueManager.getInstance().getLeagueBaseInfo(transferredGameRoomBaseInfo.getLLeagueID());
         if (stLeagueBaseInfo != null) {
-            PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 1005");
-            stGameRoomBaseInfoBuilder.setSLeagueName(stLeagueBaseInfo.getSLeagueName());
+            transferredGameRoomBaseInfo = transferredGameRoomBaseInfo.toBuilder().setSLeagueName(stLeagueBaseInfo.getSLeagueName()).build();
         }
-        GameRoomIDResultInfo stGameRoomIDResultInfo = GameRoomManager.getInstance().createGameRoom(request.getUuid()
-                , stGameRoomBaseInfoBuilder.build());
-        if (stGameRoomIDResultInfo.geteErrorCodeType() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS) {
-            PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 1007");
-            if (stGameRoomIDResultInfo.getlGameRoomID() > 0) {
-                PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 1009");
-                GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(stGameRoomIDResultInfo.getlGameRoomID());
 
-                if (stGameRoomDetailInfo != null) {
-                    PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 10011");
-                    stCreateGameRoomResponseBuilder.setStGameRoomBaseInfo(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo());
-                    stCreateGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+        GameRoomIDResultInfo stGameRoomIDResultInfo = GameRoomManager.getInstance().createGameRoom(request.getUuid(), transferredGameRoomBaseInfo);
+        if (stGameRoomIDResultInfo.geteErrorCodeType() != ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS) {// 存在 ERROR
+            return stCreateGameRoomResponseBuilder.setEErrCode(stGameRoomIDResultInfo.geteErrorCodeType()).build();
+        }
 
-                    //同步到授信服
-                    if (ConfigaturationManager.bClubCredit) {
-                        PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 10013");
-                        try {
-                            PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 10015");
-                            CreditManager.getInstance().createGameToCredit(request.getUuid(), stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId(),
-                                    stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID(), stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLLeagueID(),
-                                    (int) stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLBigBlinds(), stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getEGameRoomType().getNumber(),
-                                    stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStrRoomName());
-                        } catch (Exception e) {
-                            PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 1001010101");
-                            e.printStackTrace();
-                        }
-                    }
-                } else {
-                    PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 10017");
-                    stCreateGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
-                }
-            } else {
-                PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 10019");
-                stCreateGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
+        if (stGameRoomIDResultInfo.getlGameRoomID() <= 0) {// 房间 ID 异常
+            return stCreateGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN).build();
+        }
+
+        GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(stGameRoomIDResultInfo.getlGameRoomID());
+        if (stGameRoomDetailInfo == null) {
+            return stCreateGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN).build();
+        }
+
+        stCreateGameRoomResponseBuilder.setStGameRoomBaseInfo(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo());
+        stCreateGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+
+        //同步到授信服
+        if (ConfigaturationManager.bClubCredit) {
+            try {
+                CreditManager.getInstance().createGameToCredit(request.getUuid(),
+                        stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId(),
+                        stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID(),
+                        stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLLeagueID(),
+                        (int) stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLBigBlinds(),
+                        stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getEGameRoomType().getNumber(),
+                        stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStrRoomName());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } else {
-            PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 100111");
-            stCreateGameRoomResponseBuilder.setEErrCode(stGameRoomIDResultInfo.geteErrorCodeType());
         }
+
         PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 1001000 stCreateGameRoomResponseBuilder: >" + stCreateGameRoomResponseBuilder + "<");
         return stCreateGameRoomResponseBuilder.build();
     }
