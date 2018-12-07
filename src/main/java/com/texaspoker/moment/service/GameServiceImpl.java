@@ -63,6 +63,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
 
         stGameRoomBaseInfoBuilder.setIAutoStartNum(request.getStGameRoomBaseInfo().getIAutoStartNum());
         stGameRoomBaseInfoBuilder.setBPaidStart(request.getStGameRoomBaseInfo().getBPaidStart());
+        stGameRoomBaseInfoBuilder.setBCredit(request.getStGameRoomBaseInfo().getBCredit());
 
         PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 1003");
         //添加联盟相关信息
@@ -287,8 +288,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
                     }
                 }
 
-                //不需要买入控制
-                if (stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBBuyinControl() == 0) {
+                //不需要买入控制 授信牌局没有买入控制
+                if (stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBBuyinControl() == 0 || stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBCredit() == 1) {
                     rst = stGameRoomDetailInfo.buyBuyin(request.getUuid(), clubid, request.getLStacks(), false);
                     bWaitingBuyinConfirmation = 1;
                 } else {
