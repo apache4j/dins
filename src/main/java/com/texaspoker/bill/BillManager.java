@@ -237,5 +237,57 @@ public class BillManager {
 //			e.printStackTrace();
 //		}
 //	}
+
+    /**
+     * 站起锁水,玩家站起时调用
+     * @param uuid
+     * @param roomid
+     */
+    public void standUpToBill(long uuid, long roomid){
+        StandUpToBillRequest.Builder stStandUpToBillRequest = StandUpToBillRequest.newBuilder();
+        stStandUpToBillRequest.setUuid(uuid);
+        stStandUpToBillRequest.setLGameRoomID(roomid);
+
+        try {
+            blockingBillService.standUpToBill(controller, stStandUpToBillRequest.build());
+        } catch (ServiceException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 到点抽水,一手结束后进行抽水
+     * @param uuid
+     * @param roomid
+     * @return
+     */
+    public List<UserRemainstackAfterDraw> drawBill(long uuid, long roomid){
+        DrawBillRequest.Builder stDrawBillRequest = DrawBillRequest.newBuilder();
+        stDrawBillRequest.setUuid(uuid);
+        stDrawBillRequest.setLGameRoomID(roomid);
+
+        DrawBillResponse stDrawBillResponse = null;
+        try {
+            stDrawBillResponse = blockingBillService.drawBill(controller, stDrawBillRequest.build());
+            if (stDrawBillResponse != null && stDrawBillResponse.getIErrorCode() == 0){
+                return stDrawBillResponse.getVUserRemainstackAfterDrawsList();
+            } else {
+                return null;
+            }
+        } catch (ServiceException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 玩家离座时间超过限制,玩家阶段性结束
+     * @param uuid
+     * @param roomid
+     */
+    public void checkOutBill(long uuid, long roomid){
+
+    }
+
 }
 

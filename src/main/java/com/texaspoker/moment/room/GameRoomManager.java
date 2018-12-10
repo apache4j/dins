@@ -5,6 +5,7 @@ import com.texaspoker.bill.BillManager;
 import com.texaspoker.club.ClubManager;
 import com.texaspoker.comm.GameFeeUtil;
 import com.texaspoker.comm.TimeoutHashMap;
+import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.database.ConnectDatabase;
 import com.texaspoker.league.LeagueManager;
 import com.texaspoker.logger.TranscationLogService;
@@ -29,9 +30,18 @@ public class GameRoomManager {
         return mGameRoomDetailInfos.timeout();
     }
 
+    public TimeoutHashMap<Long, Long> mGameRoomDraw; // 房间抽水计时map lGameRoomID-lGameRoomID
+
+    ArrayList<Long> getTimeOutGameRoomDraw() {
+        return mGameRoomDraw.timeout();
+    }
+
     private GameRoomManager() {
         mGameRoomDetailInfos = new TimeoutHashMap<>();
         mGameRoomDetailInfos.setTimeout(800);
+
+        mGameRoomDraw = new TimeoutHashMap<>();
+        mGameRoomDraw.setTimeout(ConfigaturationManager.iDrawTime * 60 * 60 * 1000); // 设置房间抽水时间间隔
     }
 
     public static GameRoomManager getInstance() {
@@ -54,6 +64,10 @@ public class GameRoomManager {
         GameRoomServiceWait stGameRoomServiceWait = new GameRoomServiceWait();
         ScheduledExecutorService service2 = Executors.newSingleThreadScheduledExecutor();
         service2.scheduleAtFixedRate(stGameRoomServiceWait, 100, 1500, TimeUnit.MILLISECONDS);
+
+        GameRoomDrawService stGameRoomDrawService = new GameRoomDrawService();
+        ScheduledExecutorService service3 = Executors.newSingleThreadScheduledExecutor();
+        service3.scheduleAtFixedRate(stGameRoomDrawService, 100, 1500, TimeUnit.MILLISECONDS);
     }
 
     public GameRoomDetailInfo getGameRoomDetailInfo(long lGameRoomID) {
@@ -62,6 +76,10 @@ public class GameRoomManager {
 
     public void setGameRoomDetailInfo(GameRoomDetailInfo stGameRoomDetailInfo) {
         mGameRoomDetailInfos.setCurrent(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId(), stGameRoomDetailInfo);
+    }
+
+    public void setmGameRoomDraw(Long lGameRoomID){
+        mGameRoomDraw.setCurrent(lGameRoomID, lGameRoomID);
     }
 
     /**
@@ -218,6 +236,17 @@ public class GameRoomManager {
                 stGameRoomDetailInfo.setiGameRoomUserMaxNums(createdGameRoomBaseInfo.getIGameRoomUserMaxNums());
                 stGameRoomDetailInfo.lGameRoomID = createdGameRoomBaseInfo.getLGameRoomId();
                 stGameRoomDetailInfo.lFromRoomID = createdGameRoomBaseInfo.getLChatRoomID();
+
+                // 判断当前牌局是否为授信牌局
+                if (stGameRoomBaseInfo.hasBCredit() && stGameRoomBaseInfo.getBCredit() == 1 && ClubManager.getInstance().getClubBaseInfo(stGameRoomBaseInfo.getLChatRoomID()).getLCreditLeagueID() > 0 ){
+
+                    // 01.添加牌局授信标识
+                    stGameRoomDetailInfo.bCredit = true;
+
+                    // 02.将牌局放入抽水map
+                    setmGameRoomDraw(createdGameRoomBaseInfo.getLGameRoomId());
+
+                }
 
                 // GameRoomManager 调用
                 setGameRoomDetailInfo(stGameRoomDetailInfo);

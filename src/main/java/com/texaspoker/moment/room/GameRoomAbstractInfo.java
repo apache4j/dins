@@ -12,6 +12,7 @@ import com.texaspoker.logger.TableLogService;
 import com.texaspoker.logger.TranscationLogService;
 import com.texaspoker.moment.TexasPoker;
 import com.texaspoker.moment.TexasPoker.*;
+import com.texaspoker.moment.TexasPokerBillService;
 import com.texaspoker.moment.TexasPokerCommon.CREATE_ROOM_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.ClubBaseInfo;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
@@ -124,6 +125,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
     //打牌位置优先级
     protected ArrayList<Long> vPosPriority = new ArrayList<Long>();
+
+    //是否为授信牌局
+    public boolean bCredit = false;
+
+    //是否本手结束抽水
+    public boolean bDraw = false;
 
     /**
      * 初始化函数
@@ -2343,6 +2350,41 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         }
 
         bFlodResult = false;
+
+        // 一手结束后,如果为授信牌局且这手结束抽水,进行抽水操作,同步玩家LRemainStacks字段
+        if (bCredit && bDraw){
+
+            // 01.抽水操作
+            List<TexasPokerBillService.UserRemainstackAfterDraw> userRemainstackAfterDrawList = BillManager.getInstance().drawBill(1001L,stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+
+            // 02.玩家抽水后余额同步玩家lRemainStacks字段
+            for (int k = 0; k < this.iGameRoomUserMaxNums; k++) {
+                UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(k).toBuilder();
+
+                // 只考虑当前在桌进行游戏的玩家,旁观玩家有锁水和超时机制
+                if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0) {
+                    for (TexasPokerBillService.UserRemainstackAfterDraw userRemainstackAfterDraw : userRemainstackAfterDrawList) {
+
+                        if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() == userRemainstackAfterDraw.getUuid()) {
+                            stResetUserGameInfoBuilder.setLRemainStacks(userRemainstackAfterDraw.getLRemainstacks());
+                            break;
+                        }
+                    }
+                }
+
+                stGameRoomInfoBuilder.setVUserGameInfos(k, stResetUserGameInfoBuilder);
+            }
+
+            // 03.修改抽水标志位为false
+            bDraw = false;
+        }
+
+        // 一手结束,检测玩家是否处于超时,进行阶段性处理
+        if (bCredit){
+
+        }
+
+
     }
 
 

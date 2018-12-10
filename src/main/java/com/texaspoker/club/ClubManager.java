@@ -9,6 +9,7 @@ import com.texaspoker.moment.TexasPokerClubService.*;
 import com.texaspoker.moment.TexasPokerCommon;
 import com.texaspoker.moment.TexasPokerCommon.ClubBaseInfo;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
+import com.texaspoker.moment.TexasPokerHttpClub.*;
 import com.texaspoker.moment.TexasPokerHttpClub.CLUB_USER_LEVEL;
 import com.texaspoker.moment.TexasPokerHttpClub.ClubInfo;
 import com.texaspoker.rpc.client.RpcChannel;
@@ -545,5 +546,61 @@ public class ClubManager {
         }
 
         return false;
+    }
+
+    /**
+     * 获取俱乐部玩家信息
+     * @param lClubID
+     * @param uuid
+     * @return
+     */
+    public ClubUserInfo.Builder getClubUserInfo(long lClubID, long uuid){
+        GetClubUserInfoRequest.Builder stGetClubUserInfoRequest = GetClubUserInfoRequest.newBuilder();
+        stGetClubUserInfoRequest.setUuid(uuid);
+        stGetClubUserInfoRequest.setLClubID(lClubID);
+
+        try {
+            GetClubUserInfoResponse response = blockingClubService.getClubUserInfo(controller, stGetClubUserInfoRequest.build());
+
+            if (response != null && response.getEErrorCode() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
+                if (response.getStClubUserInfo() != null){
+                    return response.getStClubUserInfo().toBuilder();
+                } else {
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        } catch (ServiceException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 更新玩家联盟币 买入为正值 带出为负值
+     * @param lClubID
+     * @param uuid
+     * @param lDcredit
+     * @return
+     */
+    public ERROR_CODE_TYPE updateUserCreditInGame(long lClubID, long uuid, long lDcredit){
+        UpdateUserCreditInGameRequest.Builder stUpdateUserCreditInGameRequest = UpdateUserCreditInGameRequest.newBuilder();
+        stUpdateUserCreditInGameRequest.setUuid(uuid);
+        stUpdateUserCreditInGameRequest.setLClubID(lClubID);
+        stUpdateUserCreditInGameRequest.setLDcredit(lDcredit);
+
+        UpdateUserCreditInGameResponse response = null;
+        try {
+            response = blockingClubService.updateUserCreditInGame(controller, stUpdateUserCreditInGameRequest.build());
+            if (response != null){
+                return response.getEErrorCode();
+            } else {
+                return null;
+            }
+        } catch (ServiceException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

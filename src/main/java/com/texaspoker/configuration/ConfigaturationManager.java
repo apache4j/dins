@@ -3,7 +3,7 @@ package com.texaspoker.configuration;
 import java.io.File;
 
 public class ConfigaturationManager {
-    public static boolean bClubCredit  = true;
+    public static boolean bClubCredit  = false; // 屏蔽老版本授信
     
 	public static String gHttpUrl = "";
 	public static String gDataBaseConfigFile="";
@@ -43,6 +43,9 @@ public class ConfigaturationManager {
 	
 	public static String sCreditServiceHost;
     public static int iCreditServicePost;
+
+	//抽水间隔,时间单位为小时
+	public static int iDrawTime;
     
 	private static ConfigaturationManager instance;
 	
@@ -96,6 +99,8 @@ public class ConfigaturationManager {
 		
 	    sCreditServiceHost = stConfigaturation.getValue("credit_service_host");
 	    iCreditServicePost = Integer.parseInt(stConfigaturation.getValue("credit_service_post"));
+
+		iDrawTime = Integer.parseInt(stConfigaturation.getValue("draw_time"));
 	}
 	
 	//单例模式
