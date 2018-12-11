@@ -286,7 +286,32 @@ public class BillManager {
      * @param roomid
      */
     public void checkOutBill(long uuid, long roomid){
+        CheckOutBillRequest.Builder stCheckOutBillRequest = CheckOutBillRequest.newBuilder();
+        stCheckOutBillRequest.setUuid(uuid);
+        stCheckOutBillRequest.setLGameRoomID(roomid);
 
+        try {
+            blockingBillService.checkOutBill(controller, stCheckOutBillRequest.build());
+        } catch (ServiceException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 玩家坐下未超时,解除锁水
+     * @param uuid
+     * @param roomid
+     */
+    public void sitDownToBill(long uuid, long roomid){
+        SitDownToBillRequest.Builder stSitDownToBillRequest = SitDownToBillRequest.newBuilder();
+        stSitDownToBillRequest.setLGameRoomID(roomid);
+        stSitDownToBillRequest.setUuid(uuid);
+
+        try {
+            blockingBillService.sitDownToBill(controller, stSitDownToBillRequest.build());
+        } catch (ServiceException e) {
+            e.printStackTrace();
+        }
     }
 
 }

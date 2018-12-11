@@ -554,17 +554,17 @@ public class ClubManager {
      * @param uuid
      * @return
      */
-    public ClubUserInfo.Builder getClubUserInfo(long lClubID, long uuid){
-        GetClubUserInfoRequest.Builder stGetClubUserInfoRequest = GetClubUserInfoRequest.newBuilder();
-        stGetClubUserInfoRequest.setUuid(uuid);
-        stGetClubUserInfoRequest.setLClubID(lClubID);
+    public ClubUserCrditInfo.Builder getClubUserCreditInfo(long lClubID, long uuid){
+        GetClubUserCreditInfoRequest.Builder stGetClubUserCreditInfoRequest = GetClubUserCreditInfoRequest.newBuilder();
+        stGetClubUserCreditInfoRequest.setUuid(uuid);
+        stGetClubUserCreditInfoRequest.setLClubID(lClubID);
 
         try {
-            GetClubUserInfoResponse response = blockingClubService.getClubUserInfo(controller, stGetClubUserInfoRequest.build());
+            GetClubUserCreditInfoResponse response = blockingClubService.getClubUserCreditInfo(controller, stGetClubUserCreditInfoRequest.build());
 
             if (response != null && response.getEErrorCode() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
-                if (response.getStClubUserInfo() != null){
-                    return response.getStClubUserInfo().toBuilder();
+                if (response.getStClubUserCrditInfo() != null){
+                    return response.getStClubUserCrditInfo().toBuilder();
                 } else {
                     return null;
                 }
@@ -601,6 +601,57 @@ public class ClubManager {
         } catch (ServiceException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    /**
+     * 授信俱乐部是否冻结
+     * @param lClubID
+     * @return
+     */
+    public boolean isCreditClubFrozen(long lClubID){
+        IsCreditClubFrozenRequest.Builder stIsCreditClubFrozenRequest = IsCreditClubFrozenRequest.newBuilder();
+        stIsCreditClubFrozenRequest.setLClubID(lClubID);
+
+        IsCreditClubFrozenResponse response = null;
+        try {
+            response = blockingClubService.isCreditClubFrozen(controller, stIsCreditClubFrozenRequest.build());
+            if (response != null && response.getIErrorCode() == 0){
+                return true;
+            } else {
+                return false;
+            }
+        } catch (ServiceException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+    }
+
+    /**
+     * 检查用户授信余额是否足够
+     * @param lClubID
+     * @param uuid
+     * @param lCredit
+     * @return
+     */
+    public boolean checkClubUserCredit(long lClubID, long uuid, long lCredit){
+        CheckClubUserCreditRequest.Builder stCheckClubUserCreditRequest = CheckClubUserCreditRequest.newBuilder();
+        stCheckClubUserCreditRequest.setUuid(uuid);
+        stCheckClubUserCreditRequest.setLClubID(lClubID);
+        stCheckClubUserCreditRequest.setLCredit(lCredit);
+
+        CheckClubUserCreditResponse response = null;
+        try {
+            response = blockingClubService.checkClubUserCredit(controller, stCheckClubUserCreditRequest.build());
+            if (response != null && response.getIErrorCode() == 1){
+                return true;
+            } else {
+                return false;
+            }
+        } catch (ServiceException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }

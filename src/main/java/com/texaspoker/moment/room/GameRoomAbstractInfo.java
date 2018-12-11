@@ -4,6 +4,7 @@ import com.texaspoker.bill.BillManager;
 import com.texaspoker.club.ClubManager;
 import com.texaspoker.comm.AdvancedTimeoutHashMap;
 import com.texaspoker.comm.TimeoutHashMap;
+import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.dubbo.game.insurance.InsuranceApi;
 import com.texaspoker.dubbo.game.insurance.InsuranceManager;
 import com.texaspoker.dubbo.game.insurance.OutsInfo;
@@ -132,6 +133,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
     //是否本手结束抽水
     public boolean bDraw = false;
 
+    //玩家离开牌桌计时map
+    public TimeoutHashMap<Long, Long> mUserLeaveTime;
+
     /**
      * 初始化函数
      */
@@ -155,6 +159,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
         mTemporarilyLeaveUsersTimeout = new TimeoutHashMap<Long, Long>();
         mTemporarilyLeaveUsersTimeout.setTimeout(180000);
+
+        mUserLeaveTime = new TimeoutHashMap<Long, Long>();
+        mUserLeaveTime.setTimeout(ConfigaturationManager.iDrawTime * 60 * 60 * 1000); // 玩家离开牌桌超时map
     }
 
     @Override
@@ -2351,7 +2358,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
         bFlodResult = false;
 
-        // 一手结束后,如果为授信牌局且这手结束抽水,进行抽水操作,同步玩家LRemainStacks字段
+        // 一手结束后,如果为授信牌局且这手结束抽水,进行抽水操作,同步玩家LRemainStacks字段,检查玩家买入俱乐部是否冻结,若冻结强制站起玩家
         if (bCredit && bDraw){
 
             // 01.抽水操作
@@ -2377,14 +2384,37 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
             // 03.修改抽水标志位为false
             bDraw = false;
+
+            // 04.检查玩家买入俱乐部是否冻结,若冻结强制站起玩家
+            for (int k = 0; k < this.iGameRoomUserMaxNums; k++) {
+                UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(k).toBuilder();
+
+                // 只考虑当前在桌进行游戏的玩家
+                if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0) {
+                    if (ClubManager.getInstance().isCreditClubFrozen(stResetUserGameInfoBuilder.getLBuyinClubID())){
+                        //玩家买入俱乐部冻结,强制站起
+                        GameRoomDetailInfo gameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(stGameRoomInfo.getStSNGGameRoomBaseInfo().getLGameRoomId());
+                        gameRoomDetailInfo.forceStandup(stResetUserGameInfoBuilder.getStUserInfo().getUuid());
+                    }
+                }
+            }
+
         }
 
         // 一手结束,检测玩家是否处于超时,进行阶段性处理
         if (bCredit){
+            ArrayList<Long> uuidList = mUserLeaveTime.timeout();
+            for (Long uuid : uuidList){
 
+                // 01.通知账单服,玩家阶段性结束
+                BillManager.getInstance().checkOutBill(uuid, stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+
+                // 02.清除玩家在牌局的数据
+                mapStandByUserGameInfos.remove(uuid);
+                removeAllStandByStatusUuid(uuid);
+                removeStandByUuid(uuid);
+            }
         }
-
-
     }
 
 
