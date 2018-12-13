@@ -7,14 +7,14 @@
  */
 package com.texaspoker.dubbo.game.insurance;
 
+import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import org.apache.log4j.Logger;
 
 /**
  * 类名称:InsuranceManager
@@ -108,8 +108,18 @@ public class InsuranceManager {
     for (Map.Entry<Long, Long> resultEntry : insuranceInfo.hand_user_result_totals.entrySet()) {
       long uuid = resultEntry.getKey();
       long totals = resultEntry.getValue();
-      if (totals > 0) {
-        InsuranceApi.setInsuranceGetStack(roomId, uuid, totals);
+
+      //统计用户买入账单,用于bill服保险再分配计算
+      long userTotalBuys = 0;
+      ConcurrentMap<Long, Long> potsBuys = insuranceInfo.hand_user_buy_totals.get(uuid);
+      if (potsBuys != null) {
+        for (Long potBuy : potsBuys.values()) {
+          userTotalBuys += potBuy;
+        }
+      }
+
+      if (totals >= 0) {
+        InsuranceApi.setInsuranceGetStack(roomId, uuid, totals, userTotalBuys);
         logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",totalresult:" + totals);
       }
     }

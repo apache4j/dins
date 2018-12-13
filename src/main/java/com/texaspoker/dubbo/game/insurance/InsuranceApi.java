@@ -7,23 +7,18 @@
  */
 package com.texaspoker.dubbo.game.insurance;
 
-import java.util.List;
-import java.util.Map;
-
-import org.apache.log4j.Logger;
-
 import com.texaspoker.bill.BillManager;
 import com.texaspoker.logger.TableLogService;
 import com.texaspoker.moment.TexasPoker;
-import com.texaspoker.moment.TexasPoker.BuyInsuranceInfo;
-import com.texaspoker.moment.TexasPoker.GameRoomInfo;
-import com.texaspoker.moment.TexasPoker.INSURANCE_ACT;
-import com.texaspoker.moment.TexasPoker.INSURANCE_BET_STATUS;
-import com.texaspoker.moment.TexasPoker.UserGameInfoNet;
+import com.texaspoker.moment.TexasPoker.*;
 import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
 import com.texaspoker.moment.room.GameRoomDetailInfo;
 import com.texaspoker.moment.room.GameRoomManager;
 import com.texaspoker.user.UserManager;
+import org.apache.log4j.Logger;
+
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -202,8 +197,8 @@ public class InsuranceApi {
   }
 
   // billserver保险赔付接口
-  public static void setInsuranceGetStack(long lGameRoomID, long uuid, long getstacks) {
-    BillManager.getInstance().addInsuranceGetStacks(uuid, lGameRoomID, getstacks);
+  public static void setInsuranceGetStack(long lGameRoomID, long uuid, long getstacks, long lInsuranceBuyin) {
+    BillManager.getInstance().addInsuranceGetStacks(uuid, lGameRoomID, getstacks, lInsuranceBuyin);
   }
 
   // 保险代理人账单信息接口

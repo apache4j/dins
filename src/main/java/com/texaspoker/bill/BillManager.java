@@ -142,7 +142,7 @@ public class BillManager {
         }
     }
 
-    public void addInsuranceGetStacks(long uuid, long roomid, long stacks) {
+    public void addInsuranceGetStacks(long uuid, long roomid, long stacks, long lInsuranceBuyin) {
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(roomid);
 
         if (stGameRoomDetailInfo != null
@@ -153,6 +153,7 @@ public class BillManager {
             stAddInsuranceGetStackRequestBuilder.setUuid(uuid);
             stAddInsuranceGetStackRequestBuilder.setLBillID(roomid);
             stAddInsuranceGetStackRequestBuilder.setLGetStacks(stacks);
+            stAddInsuranceGetStackRequestBuilder.setLInsuranceBuyin(lInsuranceBuyin);
 
             billService.addInsuranceGetStack(controller, stAddInsuranceGetStackRequestBuilder.build(), null);
 

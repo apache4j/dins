@@ -1045,7 +1045,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                 //授信牌局玩家买入俱乐部,需要判断当前俱乐部是否被冻结,若冻结玩家不能买入
                 if (this.bCredit){
-                    if (ClubManager.getInstance().isCreditClubFrozen(clubID)){
+                    if (ClubManager.getInstance().isLimitCreditClubBuyIn(clubID)){
                         //买入俱乐部冻结
                         return ERROR_CODE_TYPE.ERROR_CODE_TYPE_CLUB_HAS_BEAN_FROZEN;
                     }
@@ -1337,7 +1337,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                         //授信牌局,检查玩家买入俱乐部是否冻结
                         if (bCredit) {
-                            if (ClubManager.getInstance().isCreditClubFrozen(stUserMyGameInfoNetBuilder.getLBuyinClubID())){
+                            if (ClubManager.getInstance().isLimitCreditClubBuyIn(stUserMyGameInfoNetBuilder.getLBuyinClubID())){
                                 //买入俱乐部冻结
                                 return ERROR_CODE_TYPE.ERROR_CODE_TYPE_CLUB_HAS_BEAN_FROZEN;
                             } else {

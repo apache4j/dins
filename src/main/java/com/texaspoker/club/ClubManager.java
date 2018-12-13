@@ -589,6 +589,7 @@ public class ClubManager {
         stUpdateUserCreditInGameRequest.setUuid(uuid);
         stUpdateUserCreditInGameRequest.setLClubID(lClubID);
         stUpdateUserCreditInGameRequest.setLDcredit(lDcredit);
+        stUpdateUserCreditInGameRequest.setBUpdateBalance(0);
 
         UpdateUserCreditInGameResponse response = null;
         try {
@@ -605,7 +606,7 @@ public class ClubManager {
     }
 
     /**
-     * 授信俱乐部是否冻结
+     * 授信俱乐部是否冻结 踢人时检测使用
      * @param lClubID
      * @return
      */
@@ -626,6 +627,29 @@ public class ClubManager {
             return false;
         }
 
+    }
+
+    /**
+     * 授信俱乐部是否冻结 坐下,买入时检测使用
+     * @param lClubID
+     * @return
+     */
+    public boolean isLimitCreditClubBuyIn(long lClubID){
+        IsLimitCreditClubBuyInRequest.Builder stIsLimitCreditClubBuyInRequest = IsLimitCreditClubBuyInRequest.newBuilder();
+        stIsLimitCreditClubBuyInRequest.setLClubID(lClubID);
+
+        IsLimitCreditClubBuyInResponse response = null;
+        try {
+            response = blockingClubService.isLimitCreditClubBuyIn(controller, stIsLimitCreditClubBuyInRequest.build());
+            if (response != null && response.getIErrorCode() == 0){
+                return true;
+            } else {
+                return false;
+            }
+        } catch (ServiceException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     /**
