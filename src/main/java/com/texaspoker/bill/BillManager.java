@@ -6,6 +6,7 @@ import com.texaspoker.logger.NormalLogService;
 import com.texaspoker.moment.TexasPoker.GameRoomBaseInfo;
 import com.texaspoker.moment.TexasPokerBillService;
 import com.texaspoker.moment.TexasPokerBillService.*;
+import com.texaspoker.moment.TexasPokerCommon;
 import com.texaspoker.moment.TexasPokerCommon.GAME_ROOM_TYPE;
 import com.texaspoker.moment.room.GameRoomDetailInfo;
 import com.texaspoker.moment.room.GameRoomManager;
@@ -299,19 +300,26 @@ public class BillManager {
     }
 
     /**
-     * 玩家坐下未超时,解除锁水
+     * 玩家坐下未超时,解除锁水 会检查玩家联盟币是否够上桌
      * @param uuid
      * @param roomid
      */
-    public void sitDownToBill(long uuid, long roomid){
+    public TexasPokerCommon.ERROR_CODE_TYPE sitDownToBill(long uuid, long roomid){
         SitDownToBillRequest.Builder stSitDownToBillRequest = SitDownToBillRequest.newBuilder();
         stSitDownToBillRequest.setLGameRoomID(roomid);
         stSitDownToBillRequest.setUuid(uuid);
 
+        SitDownToBillResponse response = null;
         try {
-            blockingBillService.sitDownToBill(controller, stSitDownToBillRequest.build());
+            response = blockingBillService.sitDownToBill(controller, stSitDownToBillRequest.build());
+            if (response != null){
+                return response.getEErrorCode();
+            } else {
+                return null;
+            }
         } catch (ServiceException e) {
             e.printStackTrace();
+            return null;
         }
     }
 

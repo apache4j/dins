@@ -314,6 +314,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         // 02.通知bill服锁水
                         BillManager.getInstance().standUpToBill(stUserMyGameInfoNetBuilder.getStUserInfo().getUuid(), stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId());
 
+                        // 03.日志打印
+                        String sLog = uuid + " " + 0 + " " + 120004 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId()
+                                + " 0 " + " 0 " + stUserMyGameInfoNetBuilder.getLRemainStacks() + " " + ClubManager.getInstance().getClubUserCreditInfo(stUserMyGameInfoNetBuilder.getLBuyinClubID(), uuid) + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+                        TranscationLogService.getInstance().error(sLog);
+
                     } else {
                         //返还玩家金币
                         if (stUserMyGameInfoNetBuilder.getLRemainStacks() >= 0) {
@@ -1347,8 +1352,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                     //玩家在超时map中,玩家这次以新玩家身份进入,在超时map中清除
                                     mUserLeaveTime.removeKey(uuid);
                                 } else {
-                                    //玩家未超时,进行解除锁水操作
-                                    BillManager.getInstance().sitDownToBill(uuid, stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+                                    //玩家未超时,进行解除锁水操作 会检测玩家是否够上桌条件
+                                    ERROR_CODE_TYPE errorCodeType = BillManager.getInstance().sitDownToBill(uuid, stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+                                    if (errorCodeType != ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
+                                        return errorCodeType;
+                                    }
                                 }
                             }
                         }
@@ -1363,7 +1371,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         }
 
                         //授信牌局检查玩家联盟币,非授信牌局检查玩家德扑币
-                        if ((stUserBaseInfoBuilder.getLPopularity() >= stUserMyGameInfoNetBuilder.getLRemainStacks() && !bCredit) || (bCredit && clubUserCrditInfo.getDCreditBalance()*100 >= stUserMyGameInfoNetBuilder.getLRemainStacks())) {
+                        if ((stUserBaseInfoBuilder.getLPopularity() >= stUserMyGameInfoNetBuilder.getLRemainStacks() && !bCredit) || (bCredit)) {
                             int result = 5;
                             try {
                                 if (ConfigaturationManager.bClubCredit) {
@@ -1378,9 +1386,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             if (result == 5 || result == 0) {
 
                                 if (bCredit){
-                                    //减去玩家联盟币
-                                    ClubManager.getInstance().updateUserCreditInGame(stUserMyGameInfoNetBuilder.getLBuyinClubID(), uuid, stUserMyGameInfoNetBuilder.getLRemainStacks());
-
+                                    //玩家联盟币已经减了,此时只做日志打印操作
                                     String sLog = stUserBaseInfoBuilder.getUuid() + " " + stUserMyGameInfoNetBuilder.getLBuyinClubID() + " " + 120003 + " "
                                             + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " 0 " + " 0 "
                                             + stUserMyGameInfoNetBuilder.getLRemainStacks() + " " + clubUserCrditInfo.getDCreditBalance() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
