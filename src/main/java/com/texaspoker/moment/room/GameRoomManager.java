@@ -5,7 +5,6 @@ import com.texaspoker.bill.BillManager;
 import com.texaspoker.club.ClubManager;
 import com.texaspoker.comm.GameFeeUtil;
 import com.texaspoker.comm.TimeoutHashMap;
-import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.database.ConnectDatabase;
 import com.texaspoker.league.LeagueManager;
 import com.texaspoker.logger.TranscationLogService;
@@ -41,7 +40,8 @@ public class GameRoomManager {
         mGameRoomDetailInfos.setTimeout(800);
 
         mGameRoomDraw = new TimeoutHashMap<>();
-        mGameRoomDraw.setTimeout(ConfigaturationManager.iDrawTime * 60 * 60 * 1000); // 设置房间抽水时间间隔
+        //mGameRoomDraw.setTimeout(ConfigaturationManager.iDrawTime * 60 * 60 * 1000); // 设置房间抽水时间间隔
+        mGameRoomDraw.setTimeout(3 * 60 * 1000);
     }
 
     public static GameRoomManager getInstance() {
@@ -244,7 +244,7 @@ public class GameRoomManager {
                     stGameRoomDetailInfo.bCredit = true;
 
                     // 02.将牌局放入抽水map
-                    setmGameRoomDraw(createdGameRoomBaseInfo.getLGameRoomId());
+                    //setmGameRoomDraw(createdGameRoomBaseInfo.getLGameRoomId());
 
                 }
 

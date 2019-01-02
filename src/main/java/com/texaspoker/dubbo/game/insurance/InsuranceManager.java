@@ -104,8 +104,9 @@ public class InsuranceManager {
         logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",totalbuys:" + userTotalBuys);
       }
     }
+
     // 写入用户赔付账单
-    for (Map.Entry<Long, Long> resultEntry : insuranceInfo.hand_user_result_totals.entrySet()) {
+    /*for (Map.Entry<Long, Long> resultEntry : insuranceInfo.hand_user_result_totals.entrySet()) {
       long uuid = resultEntry.getKey();
       long totals = resultEntry.getValue();
 
@@ -122,7 +123,27 @@ public class InsuranceManager {
         InsuranceApi.setInsuranceGetStack(roomId, uuid, totals, userTotalBuys);
         logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",totalresult:" + totals);
       }
+    }*/
+
+    // TODO: 2018/12/20 写入用户赔付账单 tom
+    for (Long uuid : insuranceInfo.hand_user_buy_totals.keySet()){
+      long totals = insuranceInfo.hand_user_result_totals.get(uuid) == null ? 0L : insuranceInfo.hand_user_result_totals.get(uuid);
+
+      //统计用户买入账单,用于bill服保险再分配计算
+      long userTotalBuys = 0;
+      ConcurrentMap<Long, Long> potsBuys = insuranceInfo.hand_user_buy_totals.get(uuid);
+      if (potsBuys != null) {
+        for (Long potBuy : potsBuys.values()) {
+          userTotalBuys += potBuy;
+        }
+      }
+
+      if (totals >= 0) {
+        InsuranceApi.setInsuranceGetStack(roomId, uuid, totals, userTotalBuys);
+        logger.debug("roomId:" + roomId + ",uuid:" + uuid + ",totalresult:" + totals);
+      }
     }
+
     // 写入代理人账单
     InsuranceApi.setInsuranceGame(roomId, insuranceInfo.getShopTotal());
     // 这一手结束后，清空保险的信息

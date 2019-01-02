@@ -123,7 +123,11 @@ public class BillManager {
             stSetCurrentStacksInRoomRequestBuilder.setLStacks(stacks);
             stSetCurrentStacksInRoomRequestBuilder.setISNGRank(0);
 
-            billService.setCurrentStacksInRoom(controller, stSetCurrentStacksInRoomRequestBuilder.build(), null);
+            try {
+                blockingBillService.setCurrentStacksInRoom(controller, stSetCurrentStacksInRoomRequestBuilder.build());
+            } catch (ServiceException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -245,10 +249,11 @@ public class BillManager {
      * @param uuid
      * @param roomid
      */
-    public void standUpToBill(long uuid, long roomid){
+    public void standUpToBill(long uuid, long roomid, long lBetStacks){
         StandUpToBillRequest.Builder stStandUpToBillRequest = StandUpToBillRequest.newBuilder();
         stStandUpToBillRequest.setUuid(uuid);
         stStandUpToBillRequest.setLGameRoomID(roomid);
+        stStandUpToBillRequest.setLBetStacks(lBetStacks);
 
         try {
             blockingBillService.standUpToBill(controller, stStandUpToBillRequest.build());

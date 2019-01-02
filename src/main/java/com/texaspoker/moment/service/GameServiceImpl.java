@@ -360,6 +360,11 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         if (stGameRoomDetailInfo != null) {
             stGameRoomDetailInfo.startGame(request.getUuid(), 0);
 
+            //授信牌局需要将牌局加入到抽水计时机制
+            if (stGameRoomDetailInfo.bCredit){
+                GameRoomManager.getInstance().setmGameRoomDraw(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
+            }
+
             stStartGameResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
             stStartGameResponseBuilder.setLGameRoomID(request.getLRoomID());
             stStartGameResponseBuilder.setLStartTime(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLStartTime());

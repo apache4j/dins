@@ -668,7 +668,7 @@ public class ClubManager {
         CheckClubUserCreditResponse response = null;
         try {
             response = blockingClubService.checkClubUserCredit(controller, stCheckClubUserCreditRequest.build());
-            if (response != null && response.getIErrorCode() == 1){
+            if (response != null && response.getIErrorCode() == 0){
                 return true;
             } else {
                 return false;
