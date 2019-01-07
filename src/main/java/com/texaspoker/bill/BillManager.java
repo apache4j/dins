@@ -160,7 +160,11 @@ public class BillManager {
             stAddInsuranceGetStackRequestBuilder.setLGetStacks(stacks);
             stAddInsuranceGetStackRequestBuilder.setLInsuranceBuyin(lInsuranceBuyin);
 
-            billService.addInsuranceGetStack(controller, stAddInsuranceGetStackRequestBuilder.build(), null);
+            try {
+                blockingBillService.addInsuranceGetStack(controller, stAddInsuranceGetStackRequestBuilder.build());
+            } catch (ServiceException e) {
+                e.printStackTrace();
+            }
 
         }
     }
