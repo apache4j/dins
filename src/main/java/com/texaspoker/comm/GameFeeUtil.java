@@ -20,14 +20,25 @@ public class GameFeeUtil {
 		}
 		return 10;
 	}
-	
-	public static long getLeagueGameFee(int lSmallBlinds,int iMaxPlayers){
+
+	/**
+	 * 钻石收费
+	 * @param lSmallBlinds
+	 * @param iMaxPlayers
+	 * @param type 0 普通牌局  1 授信牌局
+     * @return
+     */
+	public static long getLeagueGameFee(int lSmallBlinds,int iMaxPlayers,int type){
 		int rate = 1;
 		if(iMaxPlayers == 2){
 			rate = 2;
 		}
 		
 		long originalStacks = 10;
+
+		if (type == 1){
+			lSmallBlinds = lSmallBlinds/100;
+		}
 		
 		switch(lSmallBlinds){
 		case 1:
@@ -69,8 +80,19 @@ public class GameFeeUtil {
 		}
 		return originalStacks/rate;
 	}
-	
-	public static int getShowCardItemFee(int lSmallBlinds){
+
+	/**
+	 * 打赏看牌扣币
+	 * @param lSmallBlinds
+	 * @param type 0 普通牌局  1 授信牌局
+     * @return
+     */
+	public static int getShowCardItemFee(int lSmallBlinds, int type){
+
+		if (type == 1){
+			lSmallBlinds = lSmallBlinds/100;
+		}
+
 		switch(lSmallBlinds){
 		case 1:
 			return 10;

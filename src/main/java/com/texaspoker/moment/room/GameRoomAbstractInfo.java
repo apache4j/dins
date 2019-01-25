@@ -4,6 +4,7 @@ import com.texaspoker.bill.BillManager;
 import com.texaspoker.club.ClubManager;
 import com.texaspoker.comm.AdvancedTimeoutHashMap;
 import com.texaspoker.comm.TimeoutHashMap;
+import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.dubbo.game.insurance.InsuranceApi;
 import com.texaspoker.dubbo.game.insurance.InsuranceManager;
 import com.texaspoker.dubbo.game.insurance.OutsInfo;
@@ -34,7 +35,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
     //结束的位置
     protected int mEndPos;
 
-    protected boolean bFlodResult = false;
+    private boolean bFlodResult = false;
 
     protected ArrayList<Integer> vTableCards = new ArrayList<Integer>();
 
@@ -162,12 +163,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         mTemporarilyLeaveUsersTimeout.setTimeout(180000);
 
         mUserLeaveTime = new TimeoutHashMap<Long, Long>();
-        //mUserLeaveTime.setTimeout(ConfigaturationManager.iDrawTime * 60 * 60 * 1000); // 玩家离开牌桌超时map
-        mUserLeaveTime.setTimeout(3 * 60 * 1000);
+        mUserLeaveTime.setTimeout(ConfigaturationManager.iDrawTime * 60 * 60 * 1000); // 玩家离开牌桌超时map
 
         mUserLeaveTimeMap = new TimeoutHashMap<Long, Long>();
-        //mUserLeaveTimeMap.setTimeout(ConfigaturationManager.iDrawTime * 60 * 60 * 1000); // 玩家离开牌桌超时辅助map
-        mUserLeaveTimeMap.setTimeout(3 * 60 * 1000);
+        mUserLeaveTimeMap.setTimeout(ConfigaturationManager.iDrawTime * 60 * 60 * 1000); // 玩家离开牌桌超时辅助map
 
     }
 

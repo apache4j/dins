@@ -1036,7 +1036,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         ShowTableCardsResponse.Builder stShowTableCardsResponseBuilder = ShowTableCardsResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
         if (stGameRoomDetailInfo != null) {
-            long lFee = GameFeeUtil.getShowCardItemFee((int) stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLSmallBlinds());
+            long lFee = GameFeeUtil.getShowCardItemFee((int) stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLSmallBlinds(), stGameRoomDetailInfo.bCredit ? 1 : 0);
             if (UserManager.getInstance().checkUserPopularity(request.getUuid(), lFee)) {
                 List<Integer> vTableCards = stGameRoomDetailInfo.showTableCards(request.getUuid(), request.getLGameHandID(), lFee);
 

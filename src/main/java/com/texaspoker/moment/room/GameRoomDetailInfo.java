@@ -87,13 +87,21 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             + "," + stGameRoomInfo.getEGameRoomType().getNumber()
                             + "," + stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName());
 
-
-                    TableLogService.getInstance().error(lFromRoomID
-                            + "," + lGameRoomID
-                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
-                            + "," + "opentype"
-                            + "," + 0
-                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums());
+                    if (bCredit) {
+                        TableLogService.getInstance().error(lFromRoomID
+                                + "," + lGameRoomID
+                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
+                                + "," + "opentype"
+                                + "," + 1
+                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums());
+                    } else {
+                        TableLogService.getInstance().error(lFromRoomID
+                                + "," + lGameRoomID
+                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
+                                + "," + "opentype"
+                                + "," + 0
+                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums());
+                    }
 
                     if (type == 1) {
                         //自动开局就打日志，尽量不要影响其他牌局
@@ -313,14 +321,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         mUserLeaveTimeMap.setCurrent(stUserMyGameInfoNetBuilder.getStUserInfo().getUuid(), stUserMyGameInfoNetBuilder.getStUserInfo().getUuid());
 
                         // 02.通知bill服锁水
-                        BillManager.getInstance().standUpToBill(stUserMyGameInfoNetBuilder.getStUserInfo().getUuid(), stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId(), bFlodResult ? 0 : stUserMyGameInfoNetBuilder.getLBetStacks());
+                        BillManager.getInstance().standUpToBill(stUserMyGameInfoNetBuilder.getStUserInfo().getUuid(), stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId(), stUserMyGameInfoNetBuilder.getLRemainStacks());
 
                         // 03.日志打印
                         String sLog = uuid + " " + 0 + " " + 910004 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId()
                                 + " 0 " + " 0 " + stUserMyGameInfoNetBuilder.getLRemainStacks() + " " + (stUserMyGameInfoNetBuilder.getLBuyinClubID() > 0 ? ClubManager.getInstance().getClubUserCreditInfo(stUserMyGameInfoNetBuilder.getLBuyinClubID(), uuid).getLCreditBalance() : 0) + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
                         TranscationLogService.getInstance().error(sLog);
-
-                        System.out.println("GameRoomDetailInfo.doStandUpAction - 玩家离开牌桌 " + uuid);
 
                     } else {
                         //返还玩家金币
@@ -363,6 +369,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_STANDUP, pos);
                     }
                     if (bAuto && type == 1) {
+                        pushGameRoomUserMsgs(stUserMyGameInfoNetBuilder.build(), stUserMyGameInfoNetBuilder.getStUserInfo().getUuid(),
+                                GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_FORCE_STANDUP, pos, type);
+                    }
+                    if (bAuto && type == 2) {
                         pushGameRoomUserMsgs(stUserMyGameInfoNetBuilder.build(), stUserMyGameInfoNetBuilder.getStUserInfo().getUuid(),
                                 GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_FORCE_STANDUP, pos, type);
                     }
@@ -1045,10 +1055,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                 //授信牌局玩家买入俱乐部,需要判断当前俱乐部是否被冻结,若冻结玩家不能买入
                 if (this.bCredit){
-                    System.out.println("GameRoomDetailInfo.buyBuyin - isLimitCreditClubBuyIn " + ClubManager.getInstance().isLimitCreditClubBuyIn(clubID));
-                    if (ClubManager.getInstance().isLimitCreditClubBuyIn(clubID)){
+                    eErrorCodeType = ClubManager.getInstance().isLimitCreditClubBuyIn(clubID);
+                    if (eErrorCodeType != ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
                         //买入俱乐部冻结
-                        return ERROR_CODE_TYPE.ERROR_CODE_TYPE_CLUB_HAS_BEAN_FROZEN;
+                        return eErrorCodeType;
                     }
 
                     //玩家买入时必须在座位上检测,安全性保护
@@ -1059,9 +1069,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                 //区分授信牌局和非授信牌局,如果是授信牌局扣除玩家在俱乐部内的联盟币,非授信牌局扣除玩家自身的德扑币
                 //检查用户德扑币是否充足或联盟币是否充足
-                System.out.println("GameRoomDetailInfo.buyBuyin - popularity" + popularity);
-                System.out.println("GameRoomDetailInfo.buyBuyin - lStacks" + lStacks);
-                System.out.println("GameRoomDetailInfo.buyBuyin - checkClubUserCredit " + ClubManager.getInstance().checkClubUserCredit(clubID, uuid, lStacks));
                 if ((UserManager.getInstance().checkUserPopularity(stUserBaseInfoNetBuilder.getUuid(), popularity) && !this.bCredit)
                         || (this.bCredit && ClubManager.getInstance().checkClubUserCredit(clubID, uuid, lStacks))) {
                     if (bCredit) {
@@ -1118,7 +1125,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                     if (this.bCredit){
                                         eErrorCodeType = ClubManager.getInstance().updateUserCreditInGame(clubID, uuid, lStacks);
                                         if (eErrorCodeType != ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
-                                            System.out.println("GameRoomDetailInfo.buyBuyin-updateUserCreditInGame " + eErrorCodeType);
                                             return eErrorCodeType;
                                         }
                                     }
@@ -1142,7 +1148,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                     //授信局减去玩家联盟币,非授信局减去用户的银币
                                     if (this.bCredit){
                                         //用户联盟币已减完,只做日志打印
-                                        System.out.println("GameRoomDetailInfo.buyBuyin-" + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + "-" + clubID + "-" + uuid + "-" + lStacks );
                                         TexasPokerHttpClub.ClubUserCrditInfo.Builder stClubUserCrditInfo = ClubManager.getInstance().getClubUserCreditInfo(clubID, uuid);
                                         String sLog = uuid + " " + clubID + " " + 910000 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId()
                                                 + " 0 " + " 0 " + lStacks + " " + stClubUserCrditInfo.getLCreditBalance() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
@@ -1240,7 +1245,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     }
                 } else {
                     if (this.bCredit){
-                        eErrorCodeType = ERROR_CODE_TYPE.ERROR_CODE_TYPE_LEAGUE_CREDIT_NOT_ENOUGH;
+                        eErrorCodeType = ERROR_CODE_TYPE.ERROR_CODE_TYPE_LEAGUE_CREDIT_NOT_ENOUGH_BUYIN;
                     } else {
                         eErrorCodeType = ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY;
                     }
@@ -1359,22 +1364,21 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                         //授信牌局,检查玩家买入俱乐部是否冻结
                         if (bCredit) {
-                            if (ClubManager.getInstance().isLimitCreditClubBuyIn(stUserMyGameInfoNetBuilder.getLBuyinClubID())){
+                            eErrorCode = ClubManager.getInstance().isLimitCreditClubBuyIn(stUserMyGameInfoNetBuilder.getLBuyinClubID());
+                            if (eErrorCode != ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
                                 //买入俱乐部冻结
-                                return ERROR_CODE_TYPE.ERROR_CODE_TYPE_CLUB_HAS_BEAN_FROZEN;
+                                return eErrorCode;
                             } else {
-                                //检测玩家是否超时
-                                mUserLeaveTime.removeKey(uuid);
-                                mUserLeaveTimeMap.removeKey(uuid);
 
                                 //进行解除锁水操作 会检测玩家是否够上桌条件
-                                System.out.println("GameRoomDetailInfo.sitdown - sitDownToBill request " + "uuid " + uuid + " roomid " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
                                 ERROR_CODE_TYPE errorCodeType = BillManager.getInstance().sitDownToBill(uuid, stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
-                                System.out.println("GameRoomDetailInfo.sitdown - sitDownToBill response " + errorCodeType);
                                 if (errorCodeType != ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
                                     return errorCodeType;
                                 }
 
+                                //检测玩家是否超时
+                                mUserLeaveTime.removeKey(uuid);
+                                mUserLeaveTimeMap.removeKey(uuid);
                             }
                         }
 
@@ -1398,7 +1402,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             if (result == 5 || result == 0) {
 
                                 if (bCredit){
-                                    System.out.println("GameRoomDetailInfo.sitdown-玩家坐下" + uuid + "-" + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
                                     if (stUserMyGameInfoNetBuilder.getLBuyinClubID() == 0){
                                         //玩家首次坐下,此时没有买入俱乐部不能获取当前玩家在俱乐部的联盟币 标识为0
                                         String sLog = stUserBaseInfoBuilder.getUuid() + " " + stUserMyGameInfoNetBuilder.getLBuyinClubID() + " " + 910003 + " "
@@ -1623,7 +1626,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                         // 01.通知账单服,玩家阶段性结束
                         BillManager.getInstance().checkOutBill(uuid, stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
-                        System.out.println("GameRoomDetailInfo.gameRoomTimeoutHandle - 该玩家阶段性结束了" + uuid);
 
                         // 02.清除玩家在牌局的数据
                         TexasPoker.UserGameInfoNet.Builder userGameInfoNet = mapStandByUserGameInfos.get(uuid);
@@ -1647,8 +1649,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         // 04.mUserLeaveTimeMap清除超时玩家
                         mUserLeaveTimeMap.removeKey(uuid);
 
-
-                        System.out.println("GameRoomDetailInfo.gameRoomTimeoutHandle - 清除玩家数据后的旁观map " + mapStandByUserGameInfos);
                     }
             }
 
@@ -1699,10 +1699,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //如果为授信牌局,在牌局结束时在抽一次水
                             if (bCredit) {
 
-                                System.out.println("GameRoomDetailInfo.gameRoomTimeoutHandle - 牌局结束进行抽水操作 " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
                                 // 01.抽水操作
                                 List<TexasPokerBillService.UserRemainstackAfterDraw> userRemainstackAfterDrawList = BillManager.getInstance().drawBill(1001L,stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
-                                System.out.println("GameRoomDetailInfo.gameRoomTimeoutHandle - userRemainstackAfterDrawList " + userRemainstackAfterDrawList);
 
                                 ArrayList<Long> vSitdownUsers = new ArrayList<Long>();
 
@@ -1715,9 +1713,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                         for (TexasPokerBillService.UserRemainstackAfterDraw userRemainstackAfterDraw : userRemainstackAfterDrawList) {
 
                                             if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() == userRemainstackAfterDraw.getUuid()) {
-                                                System.out.println("GameRoomDetailInfo.gameRoomTimeoutHandle - 抽水前 " + stResetUserGameInfoBuilder.getLRemainStacks());
                                                 stResetUserGameInfoBuilder.setLRemainStacks(userRemainstackAfterDraw.getLRemainstacks());
-                                                System.out.println("GameRoomDetailInfo.gameRoomTimeoutHandle - 抽水后 " + stResetUserGameInfoBuilder.getLRemainStacks());
                                                 vSitdownUsers.add(stResetUserGameInfoBuilder.getStUserInfo().getUuid());
                                                 break;
                                             }
@@ -1730,9 +1726,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //旁观玩家
                                 for (TexasPokerBillService.UserRemainstackAfterDraw userRemainstackAfterDraw : userRemainstackAfterDrawList){
                                     if (mapStandByUserGameInfos.containsKey(userRemainstackAfterDraw.getUuid()) && !vSitdownUsers.contains(userRemainstackAfterDraw.getUuid())){
-                                        System.out.println("GameRoomDetailInfo.gameRoomTimeoutHandle - 抽水前 " + mapStandByUserGameInfos.get(userRemainstackAfterDraw.getUuid()).getLRemainStacks());
                                         mapStandByUserGameInfos.get(userRemainstackAfterDraw.getUuid()).setLRemainStacks(userRemainstackAfterDraw.getLRemainstacks());
-                                        System.out.println("GameRoomDetailInfo.gameRoomTimeoutHandle - 抽水后 " + mapStandByUserGameInfos.get(userRemainstackAfterDraw.getUuid()).getLRemainStacks());
                                     }
                                 }
                             }
@@ -1761,7 +1755,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                                     // 授信牌桌返还联盟币,普通牌桌返还德扑币
                                     if (bCredit) {
-                                        System.out.println("GameRoomDetailInfo.gameRoomTimeoutHandle - updateUserCreditInGame 牌局结束更新玩家联盟币" + stUserGameInfoNetBuilder.getStUserInfoBuilder().getUuid() + " - " + stUserGameInfoNetBuilder.getLRemainStacks());
                                         ClubManager.getInstance().updateUserCreditInGame(stUserGameInfoNetBuilder.getLBuyinClubID(), stUserGameInfoNetBuilder.getStUserInfoBuilder().getUuid(), -stUserGameInfoNetBuilder.getLRemainStacks());
                                         String sLog = stUserGameInfoNetBuilder.getStUserInfo().getUuid() + " " + 0 + " " + 910004 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId()
                                                 + " 0 " + " 0 " + stUserGameInfoNetBuilder.getLRemainStacks()+ " " + ClubManager.getInstance().getClubUserCreditInfo(stUserGameInfoNetBuilder.getLBuyinClubID(), stUserGameInfoNetBuilder.getStUserInfoBuilder().getUuid()).getLCreditBalance() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
@@ -1803,14 +1796,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                                 if (!bStarted) {// 如果牌局没有开始，则返还钻石
                                     PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 100115");
-                                    coinCost = GameFeeUtil.getLeagueGameFee((int) stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds(), stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums());
+                                    coinCost = GameFeeUtil.getLeagueGameFee((int) stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds(), stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums(), bCredit ? 1 : 0);
                                 }
                             } else if (stGameRoomInfo.getStGameRoomBaseInfo().hasBPaidStart() && stGameRoomInfo.getStGameRoomBaseInfo().getBPaidStart() == 1) {
                                 PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 100117");
                                 // 此时说明非联盟局、并且创建时收取过钻石，应返还扣除数额
                                 if (!bStarted) {// 如果牌局没有开始，则返还钻石
                                     PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 100119");
-                                    coinCost = GameFeeUtil.getLeagueGameFee((int) stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds(), stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums()) / 2;
+                                    coinCost = GameFeeUtil.getLeagueGameFee((int) stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds(), stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums(), bCredit ? 1 : 0) / 2;
                                 }
                             }
                             PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 100121 coinCost: >" + coinCost + "<");
@@ -1871,16 +1864,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         break;
                     } else {
 
-                        System.out.println("GameRoomDetailInfo.gameRoomTimeoutHandle - 等待状态-" + "bCredi-" + bCredit + "-bDraw-" + bDraw + "—roomid-" + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
                         //授信牌局需要检测当前是否需要抽水
                         if (bCredit && bDraw){
 
                             GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 
-                            System.out.println("GameRoomDetailInfo.gameRoomTimeoutHandle - 游戏进行抽水操作" + "roomid" + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " 时间戳 " + System.currentTimeMillis());
                             // 01.抽水操作
                             List<TexasPokerBillService.UserRemainstackAfterDraw> userRemainstackAfterDrawList = BillManager.getInstance().drawBill(1001L,stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
-                            System.out.println("GameRoomDetailInfo.gameRoomTimeoutHandle - userRemainstackAfterDrawList " + userRemainstackAfterDrawList);
 
                             ArrayList<Long> vSitdownUsers = new ArrayList<Long>();
 
@@ -1893,9 +1883,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                     for (TexasPokerBillService.UserRemainstackAfterDraw userRemainstackAfterDraw : userRemainstackAfterDrawList) {
 
                                         if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() == userRemainstackAfterDraw.getUuid()) {
-                                            System.out.println("GameRoomDetailInfo.gameRoomTimeoutHandle - 抽水前 uuid-" + stResetUserGameInfoBuilder.getStUserInfo().getUuid() + " " + stResetUserGameInfoBuilder.getLRemainStacks());
                                             stResetUserGameInfoBuilder.setLRemainStacks(userRemainstackAfterDraw.getLRemainstacks());
-                                            System.out.println("GameRoomDetailInfo.gameRoomTimeoutHandle - 抽水后 uuid-" + stResetUserGameInfoBuilder.getStUserInfo().getUuid() + " " + stResetUserGameInfoBuilder.getLRemainStacks());
                                             vSitdownUsers.add(stResetUserGameInfoBuilder.getStUserInfo().getUuid());
                                             break;
                                         }
@@ -1908,16 +1896,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //旁观玩家
                             for (TexasPokerBillService.UserRemainstackAfterDraw userRemainstackAfterDraw : userRemainstackAfterDrawList){
                                 if (mapStandByUserGameInfos.containsKey(userRemainstackAfterDraw.getUuid()) && !vSitdownUsers.contains(userRemainstackAfterDraw.getUuid())){
-                                    System.out.println("GameRoomDetailInfo.gameRoomTimeoutHandle - 抽水前 uuid-" + userRemainstackAfterDraw.getUuid() + " " + mapStandByUserGameInfos.get(userRemainstackAfterDraw.getUuid()).getLRemainStacks());
                                     mapStandByUserGameInfos.get(userRemainstackAfterDraw.getUuid()).setLRemainStacks(userRemainstackAfterDraw.getLRemainstacks());
-                                    System.out.println("GameRoomDetailInfo.gameRoomTimeoutHandle - 抽水后 uuid-" + userRemainstackAfterDraw.getUuid() + " " + mapStandByUserGameInfos.get(userRemainstackAfterDraw.getUuid()).getLRemainStacks());
                                 }
                             }
 
-                            stGameRoomInfo = stGameRoomInfoBuilder.build();
-
                             // 03.修改抽水标志位为false
                             bDraw = false;
+
+                            stGameRoomInfo = stGameRoomInfoBuilder.build();
 
                             // 04.检查玩家买入俱乐部是否冻结,若冻结强制站起玩家
                             for (int k = 0; k < this.iGameRoomUserMaxNums; k++) {
@@ -1927,12 +1913,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0) {
                                     if (ClubManager.getInstance().isCreditClubFrozen(stResetUserGameInfoBuilder.getLBuyinClubID())){
                                         //玩家买入俱乐部冻结,强制站起
-                                        System.out.println("GameRoomAbstractInfo.calculateWinner - 买入俱乐部冻结,玩家强制站起 uuid " + stResetUserGameInfoBuilder.getStUserInfo().getUuid());
                                         GameRoomDetailInfo gameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
-                                        gameRoomDetailInfo.forceStandup(stResetUserGameInfoBuilder.getStUserInfo().getUuid());
+                                        gameRoomDetailInfo.doStandUpAction(stResetUserGameInfoBuilder.getStUserInfo().getUuid(), true, 2);
                                     }
                                 }
                             }
+
+                            sendAllGameStateChange(0, null);
                         }
 
                         //房间没有到时见，继续游戏
@@ -2067,17 +2054,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             + "," + 0
                             + "," + "cleartable");
                     removeAllTimeOutUser();
-                    //mGameRoomDetailInfos.setCurrent(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), this);
-
-                    GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 
                     // 一手结束后,如果为授信牌局且这手结束抽水,进行抽水操作,同步玩家LRemainStacks字段,检查玩家买入俱乐部是否冻结,若冻结强制站起玩家
                     if (bCredit && bDraw){
 
-                        System.out.println("GameRoomAbstractInfo.calculateWinner - 游戏进行抽水操作" + "roomid" + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " 时间戳 " + System.currentTimeMillis());
+                        GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+
                         // 01.抽水操作
                         List<TexasPokerBillService.UserRemainstackAfterDraw> userRemainstackAfterDrawList = BillManager.getInstance().drawBill(1001L,stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
-                        System.out.println("GameRoomAbstractInfo.calculateWinner - userRemainstackAfterDrawList " + userRemainstackAfterDrawList);
 
                         ArrayList<Long> vdownUsers = new ArrayList<Long>();
 
@@ -2090,9 +2074,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 for (TexasPokerBillService.UserRemainstackAfterDraw userRemainstackAfterDraw : userRemainstackAfterDrawList) {
 
                                     if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() == userRemainstackAfterDraw.getUuid()) {
-                                        System.out.println("GameRoomAbstractInfo.calculateWinner - 抽水前 " + stResetUserGameInfoBuilder.getLRemainStacks());
                                         stResetUserGameInfoBuilder.setLRemainStacks(userRemainstackAfterDraw.getLRemainstacks());
-                                        System.out.println("GameRoomAbstractInfo.calculateWinner - 抽水后 " + stResetUserGameInfoBuilder.getLRemainStacks());
                                         vdownUsers.add(stResetUserGameInfoBuilder.getStUserInfo().getUuid());
                                         break;
                                     }
@@ -2105,16 +2087,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         //旁观玩家
                         for (TexasPokerBillService.UserRemainstackAfterDraw userRemainstackAfterDraw : userRemainstackAfterDrawList){
                             if (mapStandByUserGameInfos.containsKey(userRemainstackAfterDraw.getUuid()) && !vdownUsers.contains(userRemainstackAfterDraw.getUuid())){
-                                System.out.println("GameRoomAbstractInfo.calculateWinner - 抽水前 " + mapStandByUserGameInfos.get(userRemainstackAfterDraw.getUuid()).getLRemainStacks());
                                 mapStandByUserGameInfos.get(userRemainstackAfterDraw.getUuid()).setLRemainStacks(userRemainstackAfterDraw.getLRemainstacks());
-                                System.out.println("GameRoomAbstractInfo.calculateWinner - 抽水后 " + mapStandByUserGameInfos.get(userRemainstackAfterDraw.getUuid()).getLRemainStacks());
                             }
                         }
 
-                        stGameRoomInfo = stGameRoomInfoBuilder.build();
-
                         // 03.修改抽水标志位为false
                         bDraw = false;
+
+                        stGameRoomInfo = stGameRoomInfoBuilder.build();
 
                         // 04.检查玩家买入俱乐部是否冻结,若冻结强制站起玩家
                         for (int k = 0; k < this.iGameRoomUserMaxNums; k++) {
@@ -2124,19 +2104,17 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0) {
                                 if (ClubManager.getInstance().isCreditClubFrozen(stResetUserGameInfoBuilder.getLBuyinClubID())){
                                     //玩家买入俱乐部冻结,强制站起
-                                    System.out.println("GameRoomAbstractInfo.calculateWinner - 买入俱乐部冻结,玩家强制站起 uuid " + stResetUserGameInfoBuilder.getStUserInfo().getUuid());
                                     GameRoomDetailInfo gameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
-                                    gameRoomDetailInfo.forceStandup(stResetUserGameInfoBuilder.getStUserInfo().getUuid());
+                                    gameRoomDetailInfo.doStandUpAction(stResetUserGameInfoBuilder.getStUserInfo().getUuid(), true, 2);
                                 }
                             }
                         }
+
+                        sendAllGameStateChange(0, null);
+
                     }
 
-                    stGameRoomInfo = stGameRoomInfoBuilder.build();
-
                     mGameRoomDetailInfos.setCurrent(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), this);
-
-                    sendAllGameStateChange(0, null);
 
                     break;
                 case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop_VALUE: {
@@ -3560,7 +3538,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                 }
 
                 if (containUser(uuid)) {
-                    System.out.println("GameRoomDetailInfo.enterGameRoom - 玩家就在桌子上坐着 " + uuid);
                     //如果用户已经存在房间了，就直接返回
                     for (int i = 0; i < stGameRoomInfo.getVUserGameInfosCount(); i++) {
                         UserGameInfoNet stUserGameInfo = stGameRoomInfo.getVUserGameInfos(i);
@@ -3569,13 +3546,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         }
                     }
                 } else if (mapStandByUserGameInfos.containsKey(uuid)) {
-                    System.out.println("GameRoomDetailInfo.enterGameRoom - 玩家在旁观中 " + uuid);
                     //如果用户已经存在房间了，就直接返回
                     addStandByUuid(uuid);
                     return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
                 } else {
                     //生成新的游戏玩家，放入旁观队列,暂离游戏
-                    System.out.println("GameRoomDetailInfo.enterGameRoom - 新玩家进入 " + uuid);
                     TexasPoker.UserGameInfoNet.Builder userGameInfoBuilder = TexasPoker.UserGameInfoNet.newBuilder();
 
                     UserBaseInfoNet stUserBaseInfo = UserManager.getInstance().getUserBaseInfo(uuid).build();
@@ -5285,7 +5260,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
         }
     }
 
-    //强制站起
+    /**
+     * 强制站起
+     * @param uuid
+     */
     public void forceStandup(long uuid) {
         synchronized (this) {
             for (int i = 0; i < this.stGameRoomInfo.getVUserGameInfosCount(); i++) {
@@ -5304,7 +5282,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     if (stUserGameInfoNet.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_WAIT
                             || stUserGameInfoNet.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_STANDBY) {
                         //没在打牌中，直接踢出,相当于用户离开房间
-                        doStandUpAction(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), true, 0);
+                        doStandUpAction(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), true, -1);
 
                         //踢人消息
                         forceStandupPush(stUserGameInfoNetBuilder, i);
@@ -5407,7 +5385,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
         lBuyinStacks += lBuyStacks;
         mUserBuyining.put(uuid, uuid);
 
-        System.out.println("GameRoomDetailInfo.buyStakcsInRoom - buyintobill request " + "uuid " + uuid + " roomid " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " stacks " + lBuyinStacks + " clubid " + clubid);
         //修改账单信息
         if (BillManager.getInstance().buyStackInRoom(uuid, stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), lBuyinStacks, clubid, sClubName)) {
             mUserBuyining.remove(uuid);

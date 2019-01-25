@@ -30,7 +30,6 @@ public class GameRoomDrawService implements Runnable {
                 if (stGameRoomDetailInfo == null){
                     GameRoomManager.getInstance().mGameRoomDraw.removeKey(timeoutArray.get(i));
                 } else {
-                    System.out.println("GameRoomDrawService.run - 通知这手结束后进行抽水 " + "roomid" + timeoutArray.get(i) + "时间戳" + System.currentTimeMillis());
                     stGameRoomDetailInfo.bDraw = true;
                 }
 

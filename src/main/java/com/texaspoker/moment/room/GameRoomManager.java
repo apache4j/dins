@@ -5,6 +5,7 @@ import com.texaspoker.bill.BillManager;
 import com.texaspoker.club.ClubManager;
 import com.texaspoker.comm.GameFeeUtil;
 import com.texaspoker.comm.TimeoutHashMap;
+import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.database.ConnectDatabase;
 import com.texaspoker.league.LeagueManager;
 import com.texaspoker.logger.TranscationLogService;
@@ -40,8 +41,7 @@ public class GameRoomManager {
         mGameRoomDetailInfos.setTimeout(800);
 
         mGameRoomDraw = new TimeoutHashMap<>();
-        //mGameRoomDraw.setTimeout(ConfigaturationManager.iDrawTime * 60 * 60 * 1000); // 设置房间抽水时间间隔
-        mGameRoomDraw.setTimeout(3 * 60 * 1000);
+        mGameRoomDraw.setTimeout(ConfigaturationManager.iDrawTime * 60 * 60 * 1000); // 设置房间抽水时间间隔
     }
 
     public static GameRoomManager getInstance() {
@@ -61,9 +61,12 @@ public class GameRoomManager {
         ScheduledExecutorService service1 = Executors.newSingleThreadScheduledExecutor();
         service1.scheduleAtFixedRate(stGameRoomService, 100, 1500, TimeUnit.MILLISECONDS);
 
-        GameRoomServiceWait stGameRoomServiceWait = new GameRoomServiceWait();
-        ScheduledExecutorService service2 = Executors.newSingleThreadScheduledExecutor();
-        service2.scheduleAtFixedRate(stGameRoomServiceWait, 100, 1500, TimeUnit.MILLISECONDS);
+        int iTotal = 3;
+        for (int i = 0; i < iTotal; i++){
+            GameRoomServiceWait stGameRoomServiceWait = new GameRoomServiceWait(i,iTotal);
+            ScheduledExecutorService service2 = Executors.newSingleThreadScheduledExecutor();
+            service2.scheduleAtFixedRate(stGameRoomServiceWait, 100, 1500, TimeUnit.MILLISECONDS);
+        }
 
         GameRoomDrawService stGameRoomDrawService = new GameRoomDrawService();
         ScheduledExecutorService service3 = Executors.newSingleThreadScheduledExecutor();
@@ -129,7 +132,7 @@ public class GameRoomManager {
             long coinCost;
             boolean isLimitPaidStart = false;
             if (stGameRoomBaseInfo.hasLLeagueID() && stGameRoomBaseInfo.getLLeagueID() > 0) {// 联盟局的情况处理
-                coinCost = GameFeeUtil.getLeagueGameFee((int) stGameRoomBaseInfo.getLSmallBlinds(), stGameRoomBaseInfo.getIGameRoomUserMaxNums());
+                coinCost = GameFeeUtil.getLeagueGameFee((int) stGameRoomBaseInfo.getLSmallBlinds(), stGameRoomBaseInfo.getIGameRoomUserMaxNums(), (stGameRoomBaseInfo.hasBCredit() && stGameRoomBaseInfo.getBCredit() == 1) ? 1 : 0);
 
                 if (coinCost < 0/* 交易数量安全性保护*/ || !UserManager.getInstance().checkUserCoin(uuid, coinCost)) {// 游戏币不足
                     stGameRoomIDResultInfo.seteErrorCodeType(TexasPokerCommon.ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_COIN);
@@ -148,7 +151,7 @@ public class GameRoomManager {
                 }
             } else {
                 if (stUserBaseInfoNet.getICreateGameLimit() == 1) {
-                    coinCost = GameFeeUtil.getLeagueGameFee((int) stGameRoomBaseInfo.getLSmallBlinds(), stGameRoomBaseInfo.getIGameRoomUserMaxNums()) / 2;
+                    coinCost = GameFeeUtil.getLeagueGameFee((int) stGameRoomBaseInfo.getLSmallBlinds(), stGameRoomBaseInfo.getIGameRoomUserMaxNums(), (stGameRoomBaseInfo.hasBCredit() && stGameRoomBaseInfo.getBCredit() == 1) ? 1 : 0) / 2;
 
                     if (coinCost < 0/* 交易数量安全性保护*/ || !UserManager.getInstance().checkUserCoin(uuid, coinCost)) {// 游戏币不足
                         stGameRoomIDResultInfo.seteErrorCodeType(TexasPokerCommon.ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_COIN);
@@ -184,12 +187,21 @@ public class GameRoomManager {
                             ChatRoomManager.getInstance().addGameRooms(createdGameRoomBaseInfo.getLChatRoomID(), createdGameRoomBaseInfo.getLGameRoomId());
                         break;
                     case CLUB_ROOM:
-                        pushAppCreateMsg(createdGameRoomBaseInfo.getLLeagueID(),// App Push
-                                createdGameRoomBaseInfo.getLChatRoomID(),
-                                createdGameRoomBaseInfo.getStrRoomName(),
-                                createdGameRoomBaseInfo.getLDuration(),
-                                createdGameRoomBaseInfo.getLSmallBlinds(),
-                                createdGameRoomBaseInfo.getIAnte());
+                        if (createdGameRoomBaseInfo.hasBCredit() && createdGameRoomBaseInfo.getBCredit() == 1) {
+                            pushAppCreateMsg(createdGameRoomBaseInfo.getLLeagueID(),// App Push
+                                    createdGameRoomBaseInfo.getLChatRoomID(),
+                                    createdGameRoomBaseInfo.getStrRoomName(),
+                                    createdGameRoomBaseInfo.getLDuration(),
+                                    createdGameRoomBaseInfo.getLSmallBlinds()/100,
+                                    createdGameRoomBaseInfo.getIAnte()/100);
+                        } else {
+                            pushAppCreateMsg(createdGameRoomBaseInfo.getLLeagueID(),// App Push
+                                    createdGameRoomBaseInfo.getLChatRoomID(),
+                                    createdGameRoomBaseInfo.getStrRoomName(),
+                                    createdGameRoomBaseInfo.getLDuration(),
+                                    createdGameRoomBaseInfo.getLSmallBlinds(),
+                                    createdGameRoomBaseInfo.getIAnte());
+                        }
 
                         if (createdGameRoomBaseInfo.getLLeagueID() > 0) {// 俱乐部联盟局
                             TexasPokerHttpLeague.LeagueInfo stLeagueInfo = LeagueManager.getInstance().getLeagueInfo(createdGameRoomBaseInfo.getLLeagueID());
@@ -242,9 +254,6 @@ public class GameRoomManager {
 
                     // 01.添加牌局授信标识
                     stGameRoomDetailInfo.bCredit = true;
-
-                    // 02.将牌局放入抽水map
-                    //setmGameRoomDraw(createdGameRoomBaseInfo.getLGameRoomId());
 
                 }
 

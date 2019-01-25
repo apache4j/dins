@@ -634,21 +634,21 @@ public class ClubManager {
      * @param lClubID
      * @return
      */
-    public boolean isLimitCreditClubBuyIn(long lClubID){
+    public ERROR_CODE_TYPE isLimitCreditClubBuyIn(long lClubID){
         IsLimitCreditClubBuyInRequest.Builder stIsLimitCreditClubBuyInRequest = IsLimitCreditClubBuyInRequest.newBuilder();
         stIsLimitCreditClubBuyInRequest.setLClubID(lClubID);
 
         IsLimitCreditClubBuyInResponse response = null;
         try {
             response = blockingClubService.isLimitCreditClubBuyIn(controller, stIsLimitCreditClubBuyInRequest.build());
-            if (response != null && response.getIErrorCode() == 0){
-                return true;
+            if (response != null){
+                return response.getEErrorCode();
             } else {
-                return false;
+                return null;
             }
         } catch (ServiceException e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 

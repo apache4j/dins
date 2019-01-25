@@ -153,7 +153,7 @@ public class QuickGameRoomManager {
                 long coinCost;
                 boolean isLimitPaidStart = false;
                 if (stFromUserBuilder.getICreateGameLimit() == 1) {
-                    coinCost = GameFeeUtil.getLeagueGameFee((int) stGameRoomBaseInfo.getLSmallBlinds(), stGameRoomBaseInfo.getIGameRoomUserMaxNums()) / 2;
+                    coinCost = GameFeeUtil.getLeagueGameFee((int) stGameRoomBaseInfo.getLSmallBlinds(), stGameRoomBaseInfo.getIGameRoomUserMaxNums(), 0) / 2;
 
                     if (coinCost < 0/* 交易数量安全性保护*/ || !UserManager.getInstance().checkUserCoin(uuid, coinCost)) {// 游戏币不足
                         stQuickGameRoomResultInfo.seteErrorCodeType(TexasPokerCommon.ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_COIN);
