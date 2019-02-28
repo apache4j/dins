@@ -915,6 +915,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             break;
                         }
 
+                        //玩家下注筹码安全性校验
+                        if ((stUserGameInfoBuilder.getLRemainStacks() - lStacks) < 0){
+                            eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
+                            break;
+                        }
+
                         TableLogService.getInstance().error(lFromRoomID
                                 + "," + lGameRoomID
                                 + "," + stGameRoomInfo.getLGameHandID()
@@ -1467,6 +1473,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                 break;
                             }
                         } else if (stUserGameInfoBuilder.getLBetStacks() + betstacks > this.lStepMaxStacks) {
+                            eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
+                            break;
+                        }
+
+                        //玩家下注筹码安全性校验
+                        if ((stUserGameInfoBuilder.getLRemainStacks() - betstacks) < 0){
                             eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
                             break;
                         }
