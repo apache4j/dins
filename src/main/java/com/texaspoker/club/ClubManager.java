@@ -589,7 +589,6 @@ public class ClubManager {
         stUpdateUserCreditInGameRequest.setUuid(uuid);
         stUpdateUserCreditInGameRequest.setLClubID(lClubID);
         stUpdateUserCreditInGameRequest.setLDcredit(lDcredit);
-        stUpdateUserCreditInGameRequest.setBUpdateBalance(0);
 
         UpdateUserCreditInGameResponse response = null;
         try {

@@ -1,5 +1,7 @@
 package com.texaspoker.comm;
 
+import java.math.BigDecimal;
+
 public class GameFeeUtil {
 	
 	public static int getServiceFeeRat(int lSmallBlinds){
@@ -120,5 +122,15 @@ public class GameFeeUtil {
 			return 200;
 		}
 		return 10;
+	}
+
+	/**
+	 * 授信局入座收费 收取德扑币
+	 * @param iSeatFeeRate 费率
+	 * @param lStacks 买入
+     * @return 四舍五入取整  (费率*买入)/1000000
+     */
+	public static int getSeatFee(int iSeatFeeRate, long lStacks){
+		return new BigDecimal((iSeatFeeRate * lStacks)/1000000).setScale(0, BigDecimal.ROUND_HALF_UP).intValue();
 	}
 }

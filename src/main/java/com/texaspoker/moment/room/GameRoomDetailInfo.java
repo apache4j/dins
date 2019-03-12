@@ -1065,6 +1065,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     if (!containUser(uuid)){
                         return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_SITTED;
                     }
+
+                    //玩家入座收费检测德扑币是否足够
+                    if (!UserManager.getInstance().checkUserPopularity(stUserBaseInfoNetBuilder.getUuid(), GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), lStacks))){
+                        return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY;
+                    }
                 }
 
                 //区分授信牌局和非授信牌局,如果是授信牌局扣除玩家在俱乐部内的联盟币,非授信牌局扣除玩家自身的德扑币
@@ -1126,6 +1131,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                         eErrorCodeType = ClubManager.getInstance().updateUserCreditInGame(clubID, uuid, lStacks);
                                         if (eErrorCodeType != ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
                                             return eErrorCodeType;
+                                        } else {
+                                            //扣除入座服务费
+                                            stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), -GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), lStacks));
+                                            String sLog = uuid + " " + clubID + " " + 910005 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId()
+                                                    + " 0 " + " 0 " + lStacks + " " + stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate() + " " + GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), lStacks) + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+                                            TranscationLogService.getInstance().error(sLog);
                                         }
                                     }
 
@@ -1696,8 +1707,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 //						BillManager.getInstance().finishGameRoomAndReturn(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 
                             GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-                            //如果为授信牌局,在牌局结束时在抽一次水
-                            if (bCredit) {
+                            //如果为授信牌局,在牌局结束时在抽一次水,非正常结束不抽水
+                            if (bCredit && !bGameCanceled) {
 
                                 // 01.抽水操作
                                 List<TexasPokerBillService.UserRemainstackAfterDraw> userRemainstackAfterDrawList = BillManager.getInstance().drawBill(1001L,stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
@@ -2262,7 +2273,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                         if (stUserBaseInfoNetBuilder != null) {
                             if ((UserManager.getInstance().checkUserPopularity(stUserBaseInfoNetBuilder.getUuid(), popularity) && !this.bCredit)
-                                    || (this.bCredit && ClubManager.getInstance().checkClubUserCredit(stUserGameInfoNetBuilder.getLBuyinClubID(), stUserGameInfoNetBuilder.getStUserInfo().getUuid(), stUserGameInfoNetBuilder.getLBuyinStacks()))) {
+                                    || (this.bCredit && ClubManager.getInstance().checkClubUserCredit(stUserGameInfoNetBuilder.getLBuyinClubID(), stUserGameInfoNetBuilder.getStUserInfo().getUuid(), stUserGameInfoNetBuilder.getLBuyinStacks())
+                                        && UserManager.getInstance().checkUserPopularity(stUserBaseInfoNetBuilder.getUuid(), GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(),stUserGameInfoNetBuilder.getLBuyinStacks())))) {
 
                                 //zhangp
 
@@ -2279,6 +2291,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                         ERROR_CODE_TYPE eErrorCodeType = ClubManager.getInstance().updateUserCreditInGame(stUserGameInfoNetBuilder.getLBuyinClubID(), stUserGameInfoNetBuilder.getStUserInfo().getUuid(), buyStacks);
                                         if (eErrorCodeType != ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
                                             buyStacks = 0;
+                                        } else {
+                                            //扣除入座服务费
+                                            stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), -GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), buyStacks));
+                                            String sLog = stUserBaseInfoNetBuilder.getUuid() + " " + stUserGameInfoNetBuilder.getLBuyinClubID() + " " + 910005 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId()
+                                                    + " 0 " + " 0 " + buyStacks + " " + stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate() + " " + GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), buyStacks) + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+                                            TranscationLogService.getInstance().error(sLog);
                                         }
                                     }
 
@@ -2374,7 +2392,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                         if (stUserBaseInfoNetBuilder != null) {
                             if ((UserManager.getInstance().checkUserPopularity(stUserBaseInfoNetBuilder.getUuid(), popularity) && !this.bCredit)
-                                    || (this.bCredit && ClubManager.getInstance().checkClubUserCredit(stUserGameInfoNetBuilder.getLBuyinClubID(), stUserGameInfoNetBuilder.getStUserInfo().getUuid(), stUserGameInfoNetBuilder.getLBuyinStacks()))) {
+                                    || (this.bCredit && ClubManager.getInstance().checkClubUserCredit(stUserGameInfoNetBuilder.getLBuyinClubID(), stUserGameInfoNetBuilder.getStUserInfo().getUuid(), stUserGameInfoNetBuilder.getLBuyinStacks())
+                                        && UserManager.getInstance().checkUserPopularity(stUserBaseInfoNetBuilder.getUuid(), GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(),stUserGameInfoNetBuilder.getLBuyinStacks())))) {
 
                                 long buyStacks = stUserGameInfoNetBuilder.getLBuyinStacks();
 
@@ -2389,6 +2408,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                         ERROR_CODE_TYPE eErrorCodeType = ClubManager.getInstance().updateUserCreditInGame(stUserGameInfoNetBuilder.getLBuyinClubID(), stUserGameInfoNetBuilder.getStUserInfo().getUuid(), buyStacks);
                                         if (eErrorCodeType != ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
                                             buyStacks = 0;
+                                        } else {
+                                            //扣除入座服务费
+                                            stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), -GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), buyStacks));
+                                            String sLog = stUserBaseInfoNetBuilder.getUuid() + " " + stUserGameInfoNetBuilder.getLBuyinClubID() + " " + 910005 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId()
+                                                    + " 0 " + " 0 " + buyStacks + " " + stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate() + " " + GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), buyStacks) + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+                                            TranscationLogService.getInstance().error(sLog);
                                         }
                                     }
 

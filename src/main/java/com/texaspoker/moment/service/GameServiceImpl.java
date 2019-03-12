@@ -1120,6 +1120,87 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
+    public GetGameRoomBaseInfoResponse getGameRoomBaseInfo(RpcController rpcController, GetGameRoomBaseInfoRequest request) throws ServiceException {
+        GetGameRoomBaseInfoResponse.Builder response = GetGameRoomBaseInfoResponse.newBuilder();
+        GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomId());
+        if (stGameRoomDetailInfo != null){
+            GameRoomInfo stGameRoomInfo = stGameRoomDetailInfo.getStGameRoomInfo();
+            if (stGameRoomInfo != null && stGameRoomInfo.getStGameRoomBaseInfo() != null){
+                GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = stGameRoomInfo.getStGameRoomBaseInfo().toBuilder();
+                //检测玩家是否在桌
+                if (request.getUuid() > 0){
+                    boolean bUsedInGame = stGameRoomDetailInfo.usedInGame(request.getUuid());
+
+                    if (bUsedInGame) {
+                        stGameRoomBaseInfoBuilder.setBInGame(1);
+                    } else {
+                        stGameRoomBaseInfoBuilder.setBInGame(0);
+                    }
+                }
+                //iGameRoomUserNums字段赋值
+                int iTotal = 0;
+                for (int i = 0; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
+                    UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
+                    if (stUserGameInfoNet.getStUserInfo().getUuid() > 0){
+                        iTotal++;
+                    }
+                }
+                stGameRoomBaseInfoBuilder.setIGameRoomUserNums(iTotal);
+                response.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+                response.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder.build());
+            } else {
+                response.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
+            }
+        } else {
+            response.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);
+        }
+        return response.build();
+    }
+
+    @Override
+    public GetGameRoomBaseInfoListResponse getGameRoomBaseInfoList(RpcController rpcController, GetGameRoomBaseInfoListRequest request) throws ServiceException {
+        GetGameRoomBaseInfoListResponse.Builder response = GetGameRoomBaseInfoListResponse.newBuilder();
+
+        ArrayList<GameRoomBaseInfo> gameRoomBaseInfos = new ArrayList<GameRoomBaseInfo>();
+        ArrayList<Long> roomIds = new ArrayList<Long>(request.getVGameRoomIdsList());
+
+        for (Long roomid : roomIds){
+            GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(roomid);
+            if (stGameRoomDetailInfo != null){
+                GameRoomInfo stGameRoomInfo = stGameRoomDetailInfo.getStGameRoomInfo();
+                if (stGameRoomInfo != null && stGameRoomInfo.getStGameRoomBaseInfo() != null){
+                    GameRoomBaseInfo.Builder stGameRoomBaseInfoBuilder = stGameRoomInfo.getStGameRoomBaseInfo().toBuilder();
+                    //检测玩家是否在桌
+                    if (request.getUuid() > 0){
+                        boolean bUsedInGame = stGameRoomDetailInfo.usedInGame(request.getUuid());
+
+                        if (bUsedInGame) {
+                            stGameRoomBaseInfoBuilder.setBInGame(1);
+                        } else {
+                            stGameRoomBaseInfoBuilder.setBInGame(0);
+                        }
+                    }
+                    //iGameRoomUserNums字段赋值
+                    int iTotal = 0;
+                    for (int i = 0; i < stGameRoomInfo.getVUserGameInfosCount(); i++){
+                        UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
+                        if (stUserGameInfoNet.getStUserInfo().getUuid() > 0){
+                            iTotal++;
+                        }
+                    }
+                    stGameRoomBaseInfoBuilder.setIGameRoomUserNums(iTotal);
+                    gameRoomBaseInfos.add(stGameRoomBaseInfoBuilder.build());
+                }
+            }
+        }
+
+        response.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+        response.addAllVGameRoomBaseInfos(gameRoomBaseInfos);
+
+        return response.build();
+    }
+
+    @Override
     public void createGameRoom(RpcController controller, CreateGameRoomRequest request, RpcCallback<CreateGameRoomResponse> done) {
     }
 
@@ -1309,5 +1390,15 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
 
     @Override
     public void clearAllGame(RpcController controller, ClearAllGameRequest request, RpcCallback<ClearAllGameResponse> done) {
+    }
+
+    @Override
+    public void getGameRoomBaseInfo(RpcController rpcController, GetGameRoomBaseInfoRequest getGameRoomBaseInfoRequest, RpcCallback<GetGameRoomBaseInfoResponse> rpcCallback) {
+
+    }
+
+    @Override
+    public void getGameRoomBaseInfoList(RpcController rpcController, GetGameRoomBaseInfoListRequest getGameRoomBaseInfoListRequest, RpcCallback<GetGameRoomBaseInfoListResponse> rpcCallback) {
+
     }
 }
