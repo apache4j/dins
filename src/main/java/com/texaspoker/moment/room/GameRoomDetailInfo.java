@@ -1134,8 +1134,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                         } else {
                                             //扣除入座服务费
                                             stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), -GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), lStacks));
-                                            String sLog = uuid + " " + clubID + " " + 910005 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId()
-                                                    + " 0 " + " 0 " + lStacks + " " + stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate() + " " + GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), lStacks) + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+                                            String sLog = uuid + " " + clubID + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLLeagueID() + " " + 910005 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId()
+                                                    + " 0 " + " 0 " + lStacks + " " + stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate() + " " + GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), lStacks) + " " + stUserBaseInfoNetBuilder.getLPopularity();
                                             TranscationLogService.getInstance().error(sLog);
                                         }
                                     }
@@ -2294,8 +2294,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                         } else {
                                             //扣除入座服务费
                                             stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), -GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), buyStacks));
-                                            String sLog = stUserBaseInfoNetBuilder.getUuid() + " " + stUserGameInfoNetBuilder.getLBuyinClubID() + " " + 910005 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId()
-                                                    + " 0 " + " 0 " + buyStacks + " " + stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate() + " " + GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), buyStacks) + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+                                            String sLog = stUserBaseInfoNetBuilder.getUuid() + " " + stUserGameInfoNetBuilder.getLBuyinClubID() + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLLeagueID() + " " + 910005 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId()
+                                                    + " 0 " + " 0 " + buyStacks + " " + stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate() + " " + GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), buyStacks) + " " + stUserBaseInfoNetBuilder.getLPopularity();
                                             TranscationLogService.getInstance().error(sLog);
                                         }
                                     }
@@ -2411,8 +2411,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                         } else {
                                             //扣除入座服务费
                                             stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), -GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), buyStacks));
-                                            String sLog = stUserBaseInfoNetBuilder.getUuid() + " " + stUserGameInfoNetBuilder.getLBuyinClubID() + " " + 910005 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId()
-                                                    + " 0 " + " 0 " + buyStacks + " " + stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate() + " " + GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), buyStacks) + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+                                            String sLog = stUserBaseInfoNetBuilder.getUuid() + " " + stUserGameInfoNetBuilder.getLBuyinClubID() + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLLeagueID() + " " + 910005 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId()
+                                                    + " 0 " + " 0 " + buyStacks + " " + stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate() + " " + GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), buyStacks) + " " + stUserBaseInfoNetBuilder.getLPopularity();
                                             TranscationLogService.getInstance().error(sLog);
                                         }
                                     }

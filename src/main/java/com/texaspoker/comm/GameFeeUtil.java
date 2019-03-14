@@ -131,6 +131,6 @@ public class GameFeeUtil {
      * @return 四舍五入取整  (费率*买入)/1000000
      */
 	public static int getSeatFee(int iSeatFeeRate, long lStacks){
-		return new BigDecimal((iSeatFeeRate * lStacks)/1000000).setScale(0, BigDecimal.ROUND_HALF_UP).intValue();
+		return new BigDecimal((double) (iSeatFeeRate * lStacks)/1000000 + "").setScale(0, BigDecimal.ROUND_HALF_UP).intValue();
 	}
 }
