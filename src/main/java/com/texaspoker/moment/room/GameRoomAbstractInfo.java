@@ -921,6 +921,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             break;
                         }
 
+                        //AOF模式校验
+                        if(getStGameRoomInfo().getStGameRoomBaseInfo().getBFullAllIn() == 1 && stUserGameInfoBuilder.getLRemainStacks() != lStacks){
+                            eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
+                            break;
+                        }
+
                         TableLogService.getInstance().error(lFromRoomID
                                 + "," + lGameRoomID
                                 + "," + stGameRoomInfo.getLGameHandID()

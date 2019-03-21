@@ -161,6 +161,19 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         GameActionResponse.Builder stGameActionResponseBuilder = GameActionResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLRoomID());
 
+        //AOF模式
+        if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBFullAllIn()==1
+                &&request.getEGameActType()!=GAME_ACT_TYPE.GAME_ACT_TYPE_ALLIN
+                &&request.getEGameActType()!=GAME_ACT_TYPE.GAME_ACT_TYPE_FOLD){
+            return stGameActionResponseBuilder
+                    .setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN)
+                    .setLBettingID(request.getLBettingID())
+                    .setEGameActType(request.getEGameActType())
+                    .setLGameRoomID(request.getLRoomID())
+                    .setLStacks(request.getLStacks())
+                    .build();
+        }
+
         if (stGameRoomDetailInfo != null) {
 
             //获取游戏房间信息
@@ -939,7 +952,36 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     public KickUserGameRoomResponse kickUserGameRoom(RpcController arg0, KickUserGameRoomRequest request) throws ServiceException {
         KickUserGameRoomResponse.Builder stKickUserGameRoomResponseBuilder = KickUserGameRoomResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
-        if (stGameRoomDetailInfo != null) {
+
+        //俱乐部局踢人检测,俱乐部管理员可以踢本俱乐部买入玩家
+        if (stGameRoomDetailInfo != null && stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM
+                && stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID() > 0){
+
+            for (int i = 0; i < stGameRoomDetailInfo.getStGameRoomInfo().getVUserGameInfosCount(); i++) {
+                UserGameInfoNet stUserGameInfoNet = stGameRoomDetailInfo.getStGameRoomInfo().getVUserGameInfos(i);
+                //被踢玩家有买入
+                if (stUserGameInfoNet != null
+                        && stUserGameInfoNet.getStUserInfo().getUuid() > 0 && stUserGameInfoNet.getLBuyinClubID() > 0
+                        && stUserGameInfoNet.getStUserInfo().getUuid() == request.getLKickUuid()){
+
+                    boolean isClubManager = ClubManager.getInstance().checkClubManager(stUserGameInfoNet.getLBuyinClubID(),request.getUuid());
+
+                    if (isClubManager){
+                        stGameRoomDetailInfo.kickUserInGame(request.getLKickUuid());
+                    }
+                }
+
+                //被踢玩家没有买入
+                if (stUserGameInfoNet != null
+                        && stUserGameInfoNet.getStUserInfo().getUuid() > 0 && stUserGameInfoNet.getLBuyinClubID() == 0
+                        && stUserGameInfoNet.getStUserInfo().getUuid() == request.getLKickUuid()){
+                    stGameRoomDetailInfo.kickUserInGame(request.getLKickUuid());
+                }
+            }
+        }
+
+        //非俱乐部局走之前逻辑
+        if (stGameRoomDetailInfo != null && stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getECreateRoomType() != CREATE_ROOM_TYPE.CLUB_ROOM) {
             stGameRoomDetailInfo.kickUserInGame(request.getLKickUuid());
         }
         stKickUserGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);

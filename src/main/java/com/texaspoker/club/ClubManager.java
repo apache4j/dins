@@ -677,4 +677,30 @@ public class ClubManager {
             return false;
         }
     }
+
+    /**
+     * 授信牌局检测冻结玩家
+     * @param lLeagueID
+     * @param vClubUserCrditInfo
+     * @return 被冻结玩家uuid
+     */
+    public ArrayList<Long> isCreditUserFrozen(long lLeagueID, List<ClubUserCrditInfo> vClubUserCrditInfo){
+        IsCreditUserFrozenRequest.Builder stIsCreditUserFrozenRequest = IsCreditUserFrozenRequest.newBuilder();
+        stIsCreditUserFrozenRequest.setLLeagueID(lLeagueID);
+        stIsCreditUserFrozenRequest.addAllStUserCreditInfos(vClubUserCrditInfo);
+
+        IsCreditUserFrozenResponse response = null;
+        ArrayList<Long> frozenUserList = new ArrayList<Long>();
+        try {
+            response = blockingClubService.isCreditUserFrozen(controller, stIsCreditUserFrozenRequest.build());
+            if (response != null && response.getIErrorCode() == 0){
+                frozenUserList.addAll(response.getLFrozenUuidList());
+                return frozenUserList;
+            }
+        } catch (ServiceException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return null;
+    }
 }

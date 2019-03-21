@@ -24,6 +24,7 @@ import com.texaspoker.moment.TexasPokerHttpClub;
 import com.texaspoker.moment.TexasPokerHttpLeague.LeagueInfo;
 import com.texaspoker.msg.GameRoomMsgManager;
 import com.texaspoker.user.UserManager;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -93,14 +94,16 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 + "," + stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
                                 + "," + "opentype"
                                 + "," + 1
-                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums());
+                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums()
+                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn());
                     } else {
                         TableLogService.getInstance().error(lFromRoomID
                                 + "," + lGameRoomID
                                 + "," + stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid()
                                 + "," + "opentype"
                                 + "," + 0
-                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums());
+                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums()
+                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn());
                     }
 
                     if (type == 1) {
@@ -376,6 +379,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         pushGameRoomUserMsgs(stUserMyGameInfoNetBuilder.build(), stUserMyGameInfoNetBuilder.getStUserInfo().getUuid(),
                                 GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_FORCE_STANDUP, pos, type);
                     }
+                    if (bAuto && type == 3) {
+                        pushGameRoomUserMsgs(stUserMyGameInfoNetBuilder.build(), stUserMyGameInfoNetBuilder.getStUserInfo().getUuid(),
+                                GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_FORCE_STANDUP, pos, type);
+                    }
+
                 }
 
                 //APP push如果当时是满桌的话，就push，已经站起一个用户，所以说明如果只有1个空位，则push
@@ -1053,8 +1061,21 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     }
                 }
 
-                //授信牌局玩家买入俱乐部,需要判断当前俱乐部是否被冻结,若冻结玩家不能买入
+                //授信牌局玩家买入俱乐部,需要判断当前俱乐部是否被冻结,若冻结玩家不能买入,玩家被冻结也不能买入
                 if (this.bCredit){
+                    //检测玩家是否被冻结
+                    List<TexasPokerHttpClub.ClubUserCrditInfo> vClubUserCrditInfo = new ArrayList<TexasPokerHttpClub.ClubUserCrditInfo>();
+                    TexasPokerHttpClub.ClubUserCrditInfo.Builder tClubUserCrditInfo = TexasPokerHttpClub.ClubUserCrditInfo.newBuilder();
+                    tClubUserCrditInfo.setUuid(uuid);
+                    tClubUserCrditInfo.setLClubID(clubID);
+                    vClubUserCrditInfo.add(tClubUserCrditInfo.build());
+
+                    ArrayList<Long> frozenUserList = ClubManager.getInstance().isCreditUserFrozen(stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID(),vClubUserCrditInfo);
+                    if (!CollectionUtils.isEmpty(frozenUserList) && frozenUserList.get(0) == uuid){
+                        return ERROR_CODE_TYPE.ERROR_CODE_TYPE_USER_HAS_BEAN_FROZEN;
+                    }
+
+                    //检测俱乐部是否被冻结
                     eErrorCodeType = ClubManager.getInstance().isLimitCreditClubBuyIn(clubID);
                     if (eErrorCodeType != ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
                         //买入俱乐部冻结
@@ -1373,9 +1394,22 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     //如果玩家在旁观的玩家中，则开始设置坐下玩家信息
                     if (stUserMyGameInfoNetBuilder != null) {
 
-                        //授信牌局,检查玩家买入俱乐部是否冻结
+                        //授信牌局,检查玩家买入俱乐部是否冻结,玩家是否被冻结
                         if (bCredit) {
                             eErrorCode = ClubManager.getInstance().isLimitCreditClubBuyIn(stUserMyGameInfoNetBuilder.getLBuyinClubID());
+
+                            //检测玩家是否被冻结
+                            List<TexasPokerHttpClub.ClubUserCrditInfo> vClubUserCrditInfo = new ArrayList<TexasPokerHttpClub.ClubUserCrditInfo>();
+                            TexasPokerHttpClub.ClubUserCrditInfo.Builder tClubUserCrditInfo = TexasPokerHttpClub.ClubUserCrditInfo.newBuilder();
+                            tClubUserCrditInfo.setUuid(uuid);
+                            tClubUserCrditInfo.setLClubID(stUserMyGameInfoNetBuilder.getLBuyinClubID());
+                            vClubUserCrditInfo.add(tClubUserCrditInfo.build());
+
+                            ArrayList<Long> frozenUserList = ClubManager.getInstance().isCreditUserFrozen(stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLLeagueID(),vClubUserCrditInfo);
+                            if (!CollectionUtils.isEmpty(frozenUserList) && frozenUserList.get(0) == uuid){
+                                return ERROR_CODE_TYPE.ERROR_CODE_TYPE_USER_HAS_BEAN_FROZEN;
+                            }
+
                             if (eErrorCode != ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
                                 //买入俱乐部冻结
                                 return eErrorCode;
@@ -2123,6 +2157,36 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                         sendAllGameStateChange(0, null);
 
+                    }
+
+                    //授信牌局每手结束检测玩家是否冻结,冻结则强制站起
+                    if (bCredit){
+                        GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+                        List<TexasPokerHttpClub.ClubUserCrditInfo> vClubUserCrditInfo = new ArrayList<TexasPokerHttpClub.ClubUserCrditInfo>();
+
+                        //只考虑在桌玩家
+                        for (int k = 0; k < this.iGameRoomUserMaxNums; k++) {
+                            UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(k).toBuilder();
+                            if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0) {
+                                TexasPokerHttpClub.ClubUserCrditInfo.Builder stClubUserCrditInfo = TexasPokerHttpClub.ClubUserCrditInfo.newBuilder();
+                                stClubUserCrditInfo.setUuid(stResetUserGameInfoBuilder.getStUserInfo().getUuid());
+                                stClubUserCrditInfo.setLClubID(stResetUserGameInfoBuilder.getLBuyinClubID());
+
+                                vClubUserCrditInfo.add(stClubUserCrditInfo.build());
+                            }
+                        }
+
+                        if (!CollectionUtils.isEmpty(vClubUserCrditInfo)){
+                            ArrayList<Long> frozenUserList = ClubManager.getInstance().isCreditUserFrozen(stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLLeagueID(),vClubUserCrditInfo);
+
+                            if (!CollectionUtils.isEmpty(frozenUserList)){
+                                for (Long uuid : frozenUserList){
+                                    //玩家被冻结,强制站起
+                                    GameRoomDetailInfo gameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+                                    gameRoomDetailInfo.doStandUpAction(uuid, true, 3);
+                                }
+                            }
+                        }
                     }
 
                     mGameRoomDetailInfos.setCurrent(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), this);
