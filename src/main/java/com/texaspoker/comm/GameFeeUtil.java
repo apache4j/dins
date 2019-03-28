@@ -39,7 +39,7 @@ public class GameFeeUtil {
 		long originalStacks = 10;
 
 		if (type == 1){
-			lSmallBlinds = lSmallBlinds/100;
+			return 0;
 		}
 		
 		switch(lSmallBlinds){

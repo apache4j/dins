@@ -953,35 +953,28 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         KickUserGameRoomResponse.Builder stKickUserGameRoomResponseBuilder = KickUserGameRoomResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
 
-        //俱乐部局踢人检测,俱乐部管理员可以踢本俱乐部买入玩家
+        //联盟局踢人检测,俱乐部管理员可以踢本俱乐部买入玩家,房主可以踢玩家
         if (stGameRoomDetailInfo != null && stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM
-                && stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID() > 0){
+                && stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLLeagueID() > 0 && stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID() > 0){
 
             for (int i = 0; i < stGameRoomDetailInfo.getStGameRoomInfo().getVUserGameInfosCount(); i++) {
                 UserGameInfoNet stUserGameInfoNet = stGameRoomDetailInfo.getStGameRoomInfo().getVUserGameInfos(i);
-                //被踢玩家有买入
+                //买入俱乐部管理员和房主都能踢
                 if (stUserGameInfoNet != null
-                        && stUserGameInfoNet.getStUserInfo().getUuid() > 0 && stUserGameInfoNet.getLBuyinClubID() > 0
+                        && stUserGameInfoNet.getStUserInfo().getUuid() > 0
                         && stUserGameInfoNet.getStUserInfo().getUuid() == request.getLKickUuid()){
 
                     boolean isClubManager = ClubManager.getInstance().checkClubManager(stUserGameInfoNet.getLBuyinClubID(),request.getUuid());
 
-                    if (isClubManager){
+                    if (isClubManager || stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()){
                         stGameRoomDetailInfo.kickUserInGame(request.getLKickUuid());
                     }
-                }
-
-                //被踢玩家没有买入
-                if (stUserGameInfoNet != null
-                        && stUserGameInfoNet.getStUserInfo().getUuid() > 0 && stUserGameInfoNet.getLBuyinClubID() == 0
-                        && stUserGameInfoNet.getStUserInfo().getUuid() == request.getLKickUuid()){
-                    stGameRoomDetailInfo.kickUserInGame(request.getLKickUuid());
                 }
             }
         }
 
-        //非俱乐部局走之前逻辑
-        if (stGameRoomDetailInfo != null && stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getECreateRoomType() != CREATE_ROOM_TYPE.CLUB_ROOM) {
+        //非联盟局只能房主能踢
+        if (stGameRoomDetailInfo != null && stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLLeagueID() <= 0 && stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()) {
             stGameRoomDetailInfo.kickUserInGame(request.getLKickUuid());
         }
         stKickUserGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);

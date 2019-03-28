@@ -144,10 +144,12 @@ public class GameRoomManager {
 
                     return stGameRoomIDResultInfo;
                 } else {// 允许创建
-                    stUserBaseInfoNet = UserManager.getInstance().addUserCoin(stUserBaseInfoNet.getUuid(), -coinCost);
-                    TranscationLogService.getInstance().error(stUserBaseInfoNet.getUuid() + " " + stGameRoomBaseInfo.getLGameRoomId() + " " + 110001 + " " + stGameRoomBaseInfo.getLDuration()
-                            + " " + stGameRoomBaseInfo.getIMinBuyinRatio()
-                            + " " + stGameRoomBaseInfo.getIMaxBuyinRatio() + " " + coinCost + " " + stUserBaseInfoNet.getLCoin());
+                    if (stGameRoomBaseInfo.getBCredit() == 0){
+                        stUserBaseInfoNet = UserManager.getInstance().addUserCoin(stUserBaseInfoNet.getUuid(), -coinCost);
+                        TranscationLogService.getInstance().error(stUserBaseInfoNet.getUuid() + " " + stGameRoomBaseInfo.getLGameRoomId() + " " + 110001 + " " + stGameRoomBaseInfo.getLDuration()
+                                + " " + stGameRoomBaseInfo.getIMinBuyinRatio()
+                                + " " + stGameRoomBaseInfo.getIMaxBuyinRatio() + " " + coinCost + " " + stUserBaseInfoNet.getLCoin());
+                    }
                 }
             } else {
                 if (stUserBaseInfoNet.getICreateGameLimit() == 1) {
@@ -159,10 +161,12 @@ public class GameRoomManager {
                         return stGameRoomIDResultInfo;
                     } else {// 允许创建
                         isLimitPaidStart = true;
-                        stUserBaseInfoNet = UserManager.getInstance().addUserCoin(stUserBaseInfoNet.getUuid(), -coinCost);
-                        TranscationLogService.getInstance().error(stUserBaseInfoNet.getUuid() + " " + stGameRoomBaseInfo.getLGameRoomId() + " " + 110011 + " " + stGameRoomBaseInfo.getLDuration()
-                                + " " + stGameRoomBaseInfo.getIMinBuyinRatio()
-                                + " " + stGameRoomBaseInfo.getIMaxBuyinRatio() + " " + coinCost + " " + stUserBaseInfoNet.getLCoin());
+                        if (stGameRoomBaseInfo.getBCredit() == 0){
+                            stUserBaseInfoNet = UserManager.getInstance().addUserCoin(stUserBaseInfoNet.getUuid(), -coinCost);
+                            TranscationLogService.getInstance().error(stUserBaseInfoNet.getUuid() + " " + stGameRoomBaseInfo.getLGameRoomId() + " " + 110011 + " " + stGameRoomBaseInfo.getLDuration()
+                                    + " " + stGameRoomBaseInfo.getIMinBuyinRatio()
+                                    + " " + stGameRoomBaseInfo.getIMaxBuyinRatio() + " " + coinCost + " " + stUserBaseInfoNet.getLCoin());
+                        }
                     }
                 }
             }

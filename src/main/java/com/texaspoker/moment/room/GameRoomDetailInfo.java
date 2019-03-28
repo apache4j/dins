@@ -1855,10 +1855,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                             if (coinCost > 0 && coinCost <= 10000) {// 交易数量安全性保护
                                 PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 100123");
-                                UserBaseInfoNet.Builder userBaseInfoNetBuilder = UserManager.getInstance().addUserCoin(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(), coinCost);
-                                TranscationLogService.getInstance().error(userBaseInfoNetBuilder.getUuid() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-                                        + " " + 110022 + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLDuration() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getIMinBuyinRatio()
-                                        + " " + stGameRoomInfo.getStGameRoomBaseInfo().getIMaxBuyinRatio() + " " + coinCost + " " + userBaseInfoNetBuilder.getLCoin());
+                                if (!bCredit){
+                                    UserBaseInfoNet.Builder userBaseInfoNetBuilder = UserManager.getInstance().addUserCoin(stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid(), coinCost);
+                                    TranscationLogService.getInstance().error(userBaseInfoNetBuilder.getUuid() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+                                            + " " + 110022 + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLDuration() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getIMinBuyinRatio()
+                                            + " " + stGameRoomInfo.getStGameRoomBaseInfo().getIMaxBuyinRatio() + " " + coinCost + " " + userBaseInfoNetBuilder.getLCoin());
+                                }
                             }
                             PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 100125");
 
