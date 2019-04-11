@@ -179,6 +179,7 @@ public class GameRoomManager {
                         .setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE)
                         .setStCreateUserBaseInfo(stUserBaseInfoNet)
                         .setBPaidStart(isLimitPaidStart ? 1 : 0)
+                        .setBUnloadable(stGameRoomBaseInfo.getBFullAllIn()) //AOF模式下具有卸码功能
                         .build();
 
                 GameRoomDetailInfo stGameRoomDetailInfo = new GameRoomDetailInfo();
@@ -258,6 +259,14 @@ public class GameRoomManager {
 
                     // 01.添加牌局授信标识
                     stGameRoomDetailInfo.bCredit = true;
+
+                    // 02.设置牌局抽水方式
+                    if (stGameRoomBaseInfo.hasBPotDrawCredit() && stGameRoomBaseInfo.getBPotDrawCredit() == 0){
+                        stGameRoomDetailInfo.iDrawType = 1;
+                    }
+                    if (stGameRoomBaseInfo.hasBPotDrawCredit() && stGameRoomBaseInfo.getBPotDrawCredit() == 1){
+                        stGameRoomDetailInfo.iDrawType = 2;
+                    }
 
                 }
 

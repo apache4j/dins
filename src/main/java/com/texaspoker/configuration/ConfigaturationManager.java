@@ -46,6 +46,15 @@ public class ConfigaturationManager {
 
 	//抽水间隔,时间单位为小时
 	public static int iDrawTime;
+
+	//海外版底池抽水,玩家为2人时 抽水上限比例
+	public static int iProportion1 = 50;
+
+	//海外版底池抽水,玩家为3-4人时 抽水上限比例
+	public static int iProportion2 = 75;
+
+	//海外版底池抽水,玩家为>=5人时 抽水上限比例
+	public static int iProportion3 = 100;
     
 	private static ConfigaturationManager instance;
 	

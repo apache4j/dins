@@ -117,7 +117,6 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     @Override
     public SitDownResponse sitDown(RpcController controller, SitDownRequest request) throws ServiceException {
         SitDownResponse.Builder stSitDownResponseBuilder = SitDownResponse.newBuilder();
-
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLRoomID());
         if (stGameRoomDetailInfo != null) {
             ERROR_CODE_TYPE eErrorCodeType = stGameRoomDetailInfo.sitdown(request.getUuid(), request.getIPos());
@@ -131,7 +130,6 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         } else {
             stSitDownResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);
         }
-
         return stSitDownResponseBuilder.build();
     }
 
@@ -374,7 +372,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
             stGameRoomDetailInfo.startGame(request.getUuid(), 0);
 
             //授信牌局需要将牌局加入到抽水计时机制
-            if (stGameRoomDetailInfo.bCredit){
+            if (stGameRoomDetailInfo.bCredit && stGameRoomDetailInfo.iDrawType == 1){
                 GameRoomManager.getInstance().setmGameRoomDraw(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
             }
 
@@ -957,18 +955,26 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         if (stGameRoomDetailInfo != null && stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM
                 && stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLLeagueID() > 0 && stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID() > 0){
 
+            UserGameInfoNet stUserGameInfoNet = null;
             for (int i = 0; i < stGameRoomDetailInfo.getStGameRoomInfo().getVUserGameInfosCount(); i++) {
-                UserGameInfoNet stUserGameInfoNet = stGameRoomDetailInfo.getStGameRoomInfo().getVUserGameInfos(i);
-                //买入俱乐部管理员和房主都能踢
-                if (stUserGameInfoNet != null
-                        && stUserGameInfoNet.getStUserInfo().getUuid() > 0
-                        && stUserGameInfoNet.getStUserInfo().getUuid() == request.getLKickUuid()){
+                if (stGameRoomDetailInfo.getStGameRoomInfo().getVUserGameInfos(i).getStUserInfo().getUuid() == request.getLKickUuid()){
+                    stUserGameInfoNet = stGameRoomDetailInfo.getStGameRoomInfo().getVUserGameInfos(i);
+                    break;
+                }
+            }
 
-                    boolean isClubManager = ClubManager.getInstance().checkClubManager(stUserGameInfoNet.getLBuyinClubID(),request.getUuid());
+            //被踢玩家有买入时,买入俱乐部管理员和房主都能踢
+            if (stUserGameInfoNet != null){
 
-                    if (isClubManager || stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()){
-                        stGameRoomDetailInfo.kickUserInGame(request.getLKickUuid());
-                    }
+                boolean isClubManager = ClubManager.getInstance().checkClubManager(stUserGameInfoNet.getLBuyinClubID(),request.getUuid());
+
+                if (isClubManager || stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()){
+                    stGameRoomDetailInfo.kickUserInGame(request.getLKickUuid());
+                }
+            } else {
+                //被踢玩家是旁观玩家,只能房主踢
+                if (stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() == request.getUuid()){
+                    stGameRoomDetailInfo.kickUserInGame(request.getLKickUuid());
                 }
             }
         }
@@ -1129,7 +1135,16 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
 
     @Override
     public UserUnloadStacksResponse userUnloadStacks(RpcController controller, UserUnloadStacksRequest request) throws ServiceException {
-        return null;
+        TexasPokerGameService.UserUnloadStacksResponse.Builder  stUserUnloadStacksResponseBuilder = TexasPokerGameService.UserUnloadStacksResponse.newBuilder();
+        GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+        System.out.println("GameServiceImpl.userUnloadStacks - request " + request);
+        if(stGameRoomDetailInfo!=null){
+            stUserUnloadStacksResponseBuilder.setEErrCode(stGameRoomDetailInfo.userUnloadStacks(request.getUuid(),request.getLStacks()));
+        }else{
+            stUserUnloadStacksResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);
+        }
+        System.out.println("GameServiceImpl.userUnloadStacks - response " + stUserUnloadStacksResponseBuilder.build());
+        return stUserUnloadStacksResponseBuilder.build();
     }
 
     @Override

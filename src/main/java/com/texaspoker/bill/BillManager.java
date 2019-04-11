@@ -110,7 +110,7 @@ public class BillManager {
         return false;
     }
 
-    public void setCurrentStacksInRoom(long uuid, long roomid, long stacks) {
+    public void setCurrentStacksInRoom(long uuid, long roomid, long stacks, long lUnloadStacks) {
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(roomid);
 
         if (stGameRoomDetailInfo != null
@@ -122,6 +122,7 @@ public class BillManager {
             stSetCurrentStacksInRoomRequestBuilder.setLBillID(roomid);
             stSetCurrentStacksInRoomRequestBuilder.setLStacks(stacks);
             stSetCurrentStacksInRoomRequestBuilder.setISNGRank(0);
+            stSetCurrentStacksInRoomRequestBuilder.setLUnloadStacks(lUnloadStacks);
 
             try {
                 blockingBillService.setCurrentStacksInRoom(controller, stSetCurrentStacksInRoomRequestBuilder.build());
@@ -329,6 +330,23 @@ public class BillManager {
         } catch (ServiceException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    /**
+     * 底池抽水将玩家贡献抽水同步至账单服
+     * @param roomid
+     * @param userPotDrawInfoList
+     */
+    public void setPotDrawCredit(long roomid, List<UserPotDrawInfo> userPotDrawInfoList){
+        SetPotDrawCreditRequest.Builder stSetPotDrawCreditRequest = SetPotDrawCreditRequest.newBuilder();
+        stSetPotDrawCreditRequest.setLGameRoomID(roomid);
+        stSetPotDrawCreditRequest.addAllVUserPotDrawInfos(userPotDrawInfoList);
+
+        try {
+            blockingBillService.setPotDrawCredit(controller, stSetPotDrawCreditRequest.build());
+        } catch (ServiceException e) {
+            e.printStackTrace();
         }
     }
 

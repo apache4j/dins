@@ -3,12 +3,13 @@ package com.texaspoker.moment.room;
 import com.texaspoker.bill.BillManager;
 import com.texaspoker.club.ClubManager;
 import com.texaspoker.comm.AdvancedTimeoutHashMap;
+import com.texaspoker.comm.GameFeeUtil;
 import com.texaspoker.comm.TimeoutHashMap;
 import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.dubbo.game.insurance.InsuranceApi;
 import com.texaspoker.dubbo.game.insurance.InsuranceManager;
 import com.texaspoker.dubbo.game.insurance.OutsInfo;
-import com.texaspoker.logger.NormalLogService;
+import com.texaspoker.logger.PotDrawLogService;
 import com.texaspoker.logger.TableLogService;
 import com.texaspoker.logger.TranscationLogService;
 import com.texaspoker.moment.TexasPoker;
@@ -129,6 +130,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
     //是否为授信牌局
     public boolean bCredit = false;
 
+    //抽水方式 0不抽水 1战绩抽水2小时一抽 2底池抽水
+    public int iDrawType = 0;
+
     //是否本手结束抽水
     public boolean bDraw = false;
 
@@ -137,6 +141,15 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
     //玩家离开牌桌计时辅助map
     public TimeoutHashMap<Long, Long> mUserLeaveTimeMap;
+
+    //是否本手下发flop3张牌
+    public boolean bFlopStatus = false;
+
+    //底池抽水每个玩家的贡献值 玩家uuid-抽水贡献值
+    public Map<Long, Long> mUserDrawStacks = new HashMap<Long, Long>();
+
+    //实际参加游戏的玩家
+    protected int iUserNum = 0;
 
     /**
      * 初始化函数
@@ -153,11 +166,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         vTestHandCards3.add(30);
         vTestHandCards3.add(41);
 
-        vTestTableCards.add(21);
-        vTestTableCards.add(20);
-        vTestTableCards.add(29);
         vTestTableCards.add(0);
-        vTestTableCards.add(40);
+        vTestTableCards.add(9);
+        vTestTableCards.add(10);
+        vTestTableCards.add(11);
+        vTestTableCards.add(12);
 
         mTemporarilyLeaveUsersTimeout = new TimeoutHashMap<Long, Long>();
         mTemporarilyLeaveUsersTimeout.setTimeout(180000);
@@ -537,6 +550,31 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
     protected void gotoFlopAllStatus(long uuid) {
 
         GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+        //AOF模式下且依次看牌此时需要强制将所有在桌玩家手牌下发
+        if (stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
+            for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++){
+                UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+                if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() > 0
+                        && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT
+                        && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_STANDBY){
+                    stUserGameInfoNetBuilder.clearVCurrentHands();
+
+                    ArrayList<Integer> cards = new ArrayList<Integer>();
+                    if (mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null && mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards() != null){
+                        cards.addAll(mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards());
+                    } else {
+                        cards.add(-1);
+                        cards.add(-1);
+                    }
+                    stUserGameInfoNetBuilder.addAllVCurrentHands(cards);
+                }
+                stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+            }
+        }
+        stGameRoomInfo = stGameRoomInfoBuilder.build();
+
+        sendAllGameStateChange(0, null);  //下发push动画过度
+
         if (stGameRoomInfoBuilder.getVCurrentCardsCount() == 0) {
             int card1 = 0;
             int card2 = 0;
@@ -579,6 +617,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             stGameRoomInfoBuilder.setBStateChange(1);
         }
         stGameRoomInfo = stGameRoomInfoBuilder.build();
+        bFlopStatus = true;
     }
 //
 //	public void checkGotoFlopSeparateSatus(long uuid,GAME_ROOM_GAME_STATE eGameRoomState){
@@ -993,6 +1032,13 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             stUserGameInfoBuilder.setLActTime(System.currentTimeMillis());
                             stUserGameInfoBuilder.setIDelayLong(0);
                             stUserGameInfoBuilder.setIDelaySingleTime(20);
+
+                            //如果在AOF模式下依次看牌且游戏状态为ROOM_GAME_STATE_PreFlop_VALUE时给玩家下发手牌
+                            if (stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
+                                stUserGameInfoBuilder.clearVCurrentHands();
+                                stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                            }
+
                             removeAllTimeOutUser();
                             setTimeoutUserCurrent(stUserGameInfoBuilder.getStUserInfo().getUuid());
 
@@ -1904,6 +1950,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                                 stResetUserGameInfoBuilder.setIDelaySingleTime(20);
                                                 stResetUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_BETTING);
                                                 stResetUserGameInfoBuilder.setLBettingID(System.currentTimeMillis());
+                                                //如果在AOF模式下依次看牌且游戏状态为ROOM_GAME_STATE_PreFlop_VALUE时给玩家下发手牌
+                                                if (stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
+                                                    stResetUserGameInfoBuilder.clearVCurrentHands();
+                                                    stResetUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stResetUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                                }
 
                                                 //设置该用户的超时
                                                 removeAllTimeOutUser();
@@ -1989,6 +2040,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             stUserGameInfoBuilder.setLActTime(System.currentTimeMillis());
                             stUserGameInfoBuilder.setIDelayLong(0);
                             stUserGameInfoBuilder.setIDelaySingleTime(20);
+
+                            //如果在AOF模式下依次看牌且游戏状态为ROOM_GAME_STATE_PreFlop_VALUE时给玩家下发手牌
+                            if (stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
+                                stUserGameInfoBuilder.clearVCurrentHands();
+                                stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                            }
 
                             //重置牌局用户超时
                             removeAllTimeOutUser();
@@ -2118,6 +2175,95 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
         GameResultInfo.Builder stGameResultInfoBuilder = GameResultInfo.newBuilder();
         long lSingleMaxPot = 0;
+
+        //统计抽水的池子(所有池子都抽水除了玩家自己贡献的池子)
+        Map<Integer,Long> drawMap = new HashMap<Integer,Long>();
+        for (int index = 0; index < stGameRoomInfoBuilder.getVCurrentPotsCount(); index++){
+            List<GameUserResultInfo> winnerArray = new ArrayList<GameUserResultInfo>();
+            Set<Integer> winnerIDSet = new HashSet<Integer>();
+            Set<Long> winnerUuidSet = new HashSet<Long>();
+
+            List<Integer> winnerIDArray = new ArrayList<Integer>(winnerIDSet);
+            List<Long> winnerUuidArray = new ArrayList<Long>(winnerUuidSet);
+
+            PotInfo stPotInfo = mPotList.get(index);
+            List<Integer> posArray = stPotInfo.playerListpos;
+
+            int maxStrength = 0;
+            for (int i = 0; i < posArray.size(); i++) {
+                int pos = posArray.get(i);
+                long winuuid = stPotInfo.playerList.get(i);
+                GameUserResultInfo stGameUserResultInfo = cardStrengths.get(pos);
+
+                if (stGameUserResultInfo.mCardStrength == maxStrength) {
+
+                    if (winnerArray.size() > 0) {
+                        GameUserResultInfo stMaxGameUserResult = winnerArray.get(winnerArray.size() - 1);
+                        int bMore = CompareSameLevelUser(stGameUserResultInfo, stMaxGameUserResult);
+                        if (bMore > 0) {
+                            winnerArray.clear();
+                            winnerArray.add(stGameUserResultInfo);
+
+                            winnerUuidSet.clear();
+                            winnerUuidArray.clear();
+                            winnerIDSet.clear();
+                            winnerIDArray.clear();
+
+                            winnerIDSet.add(pos);
+                            winnerIDArray.add(pos);
+                            winnerUuidSet.add(winuuid);
+                            winnerUuidArray.add(winuuid);
+                        } else if (bMore == 0) {
+                            if (!winnerUuidSet.contains(winuuid)) {
+                                winnerArray.add(stGameUserResultInfo);
+
+                                winnerIDSet.add(pos);
+                                winnerIDArray.add(pos);
+                                winnerUuidSet.add(winuuid);
+                                winnerUuidArray.add(winuuid);
+                            }
+                        }
+                    } else {
+                        if (!winnerUuidSet.contains(winuuid)) {
+                            winnerArray.add(stGameUserResultInfo);
+
+                            winnerIDSet.add(pos);
+                            winnerIDArray.add(pos);
+                            winnerUuidSet.add(winuuid);
+                            winnerUuidArray.add(winuuid);
+                        }
+                    }
+                } else if (stGameUserResultInfo.mCardStrength > maxStrength) {
+                    winnerArray.clear();
+                    winnerArray.add(stGameUserResultInfo);
+
+                    winnerIDSet.clear();
+                    winnerIDArray.clear();
+                    winnerUuidSet.clear();
+                    winnerUuidArray.clear();
+
+                    winnerIDSet.add(pos);
+                    winnerIDArray.add(pos);
+                    winnerUuidSet.add(winuuid);
+                    winnerUuidArray.add(winuuid);
+
+                    maxStrength = stGameUserResultInfo.mCardStrength;
+                }
+            }
+
+            //若是玩家自己贡献一个池子则不抽水
+            if (stPotInfo.playerList.size() > 1){
+                drawMap.put(index,stGameRoomInfoBuilder.getVCurrentPots(index));
+            }
+        }
+
+        //进行底池抽水 条件 底池抽水,发了Flop3张牌
+        Map<Integer,Long> userDrawStacks = new HashMap<Integer,Long>();
+        if (drawMap != null && drawMap.size() > 0 && bCredit && iDrawType == 2 && bFlopStatus){
+            userDrawStacks = GameFeeUtil.getBottomPump(drawMap,stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds(),stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee(),
+                    stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB(),iUserNum,stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum());
+        }
+
         for (int index = 0; index < stGameRoomInfoBuilder.getVCurrentPotsCount(); index++) {
             List<GameUserResultInfo> winnerArray = new ArrayList<GameUserResultInfo>();
             Set<Integer> winnerIDSet = new HashSet<Integer>();
@@ -2194,8 +2340,60 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             if (winnerIDArray.size() != 0) {
                 GamePotResultInfo.Builder stGamePotResultInfoBuilder = GamePotResultInfo.newBuilder();
 
-                long winStacks = stGameRoomInfo.getVCurrentPots(index) / winnerIDArray.size();
-                long winLeftStacks = stGameRoomInfo.getVCurrentPots(index) % winnerIDArray.size();
+                long winStacks = 0l;
+                long winLeftStacks = 0l;
+
+                //授信牌局 底池抽水且池子有抽水
+                if (bCredit && iDrawType == 2 && bFlopStatus && stPotInfo.playerList.size() > 1){
+                    winStacks = (stGameRoomInfo.getVCurrentPots(index) - userDrawStacks.get(index)) / winnerIDArray.size();
+                    winLeftStacks = (stGameRoomInfo.getVCurrentPots(index) - userDrawStacks.get(index)) % winnerIDArray.size();
+
+                    //记录玩家贡献的抽水
+                    int i = 1; //记录玩家数
+                    long drawStacks = userDrawStacks.get(index) / winnerIDArray.size(); //记录玩家贡献抽水值
+                    long drawLeftStacks = userDrawStacks.get(index) % winnerIDArray.size(); //记录剩余玩家贡献抽水值
+
+                    for (Long winUuid : winnerUuidArray){
+                        //记录抽水日志
+                        StringBuilder drawLog = new StringBuilder("")
+                                .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()) //牌局id
+                                .append(" ").append(stGameRoomInfo.getLGameHandID()) //手数
+                                .append(" ").append(index) //底池编号
+                                .append(" ").append(stGameRoomInfo.getVCurrentPots(index)) //该底池大小
+                                .append(" ").append(userDrawStacks.get(index)) //该底池总抽水值
+                                .append(" ").append(winnerIDArray.size()) //该底池获胜人数
+                                .append(" ").append(winUuid); //玩家uuid
+
+                        if (mUserDrawStacks.get(winUuid) == null){
+                            if (i == winnerUuidArray.size()){
+                                mUserDrawStacks.put(winUuid, drawStacks + drawLeftStacks);
+                                drawLog.append(" ").append(drawStacks + drawLeftStacks); //玩家在该底池贡献抽水
+                            } else {
+                                mUserDrawStacks.put(winUuid, drawStacks);
+                                drawLog.append(" ").append(drawStacks); //玩家在该底池贡献抽水
+                            }
+                        } else {
+                            if (i == winnerUuidArray.size()){
+                                mUserDrawStacks.put(winUuid, mUserDrawStacks.get(winUuid) + drawStacks + drawLeftStacks);
+                                drawLog.append(" ").append(drawStacks + drawLeftStacks); //玩家在该底池贡献抽水
+                            } else {
+                                mUserDrawStacks.put(winUuid, mUserDrawStacks.get(winUuid) + drawStacks);
+                                drawLog.append(" ").append(drawStacks); //玩家在该底池贡献抽水
+                            }
+                        }
+
+                        drawLog.append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee()) //抽水比例 *10000倍
+                            .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB()) //抽水上限 *100倍
+                            .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum()) //是否影响人数上限
+                            .append(" ").append(iUserNum); //实际参人数
+                        PotDrawLogService.getInstance().error(drawLog.toString());
+
+                        i++;
+                    }
+                } else {
+                    winStacks = stGameRoomInfo.getVCurrentPots(index) / winnerIDArray.size();
+                    winLeftStacks = stGameRoomInfo.getVCurrentPots(index) % winnerIDArray.size();
+                }
 
                 lSingleMaxPot += stGameRoomInfo.getVCurrentPots(index);
 
@@ -2220,7 +2418,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             //查看用户的位置优先级数
                             int iPosPriority = mPosPriority.get(winUuid);
                             int iExtraWinStacks = 0;
-                            NormalLogService.getInstance().error("mtt calculateWinner gameroomid : 35");
+                            //NormalLogService.getInstance().error("mtt calculateWinner gameroomid : 35");
                             //如果这个数据小于等于剩余可分筹码
                             if (iPosPriority <= winLeftStacks) {
                                 //则获胜的筹码加1
@@ -2244,7 +2442,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                     mapStandByUserGameInfos.put(winUuid, stUserStandByGameInfoBuilder);
                                     setBillCurrentStacksInRoom(winUuid,
                                             stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-                                            , stUserStandByGameInfoBuilder.getLRemainStacks());
+                                            , stUserStandByGameInfoBuilder.getLRemainStacks(), stUserStandByGameInfoBuilder.getLUnloadStacks());
                                 }
 
                                 for (int chgangeIndex = 0; chgangeIndex < stGameRoomInfo.getVUserGameInfosCount(); chgangeIndex++) {
@@ -2359,7 +2557,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 //设置账单
                 setBillCurrentStacksInRoom(stUserGameInfo.getStUserInfo().getUuid(),
                         stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-                        , stUserGameInfo.getLRemainStacks());
+                        , stUserGameInfo.getLRemainStacks(), stUserGameInfo.getLUnloadStacks());
                 vSitdownUsers.add(stUserGameInfo.getStUserInfo().getUuid());
             }
         }
@@ -2375,7 +2573,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     //设置账单
                     setBillCurrentStacksInRoom(stUserGameInfoBuilder.getStUserInfo().getUuid(),
                             stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-                            , stUserGameInfoBuilder.getLRemainStacks());
+                            , stUserGameInfoBuilder.getLRemainStacks(), stUserGameInfoBuilder.getLUnloadStacks());
                 }
             }
         }
@@ -2407,8 +2605,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         }
     };
 
-    public void setBillCurrentStacksInRoom(long uuid, long roomid, long stacks) {
-        BillManager.getInstance().setCurrentStacksInRoom(uuid, roomid, stacks);
+    public void setBillCurrentStacksInRoom(long uuid, long roomid, long stacks, long lUnloadStacks) {
+        BillManager.getInstance().setCurrentStacksInRoom(uuid, roomid, stacks+lUnloadStacks, lUnloadStacks);
         mUserOutStacks.put(uuid, stacks);
     }
 
@@ -3933,7 +4131,84 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         GameResultInfo.Builder stGameResultInfoBuilder = GameResultInfo.newBuilder();
         long lSingleMaxPot = 0;
 
+        //统计抽水的池子(池子只有1个玩家获胜)
+        Map<Integer,Long> drawMap = new HashMap<Integer,Long>();
         for (int index = 0; index < stGameRoomInfoBuilder.getVCurrentPotsCount(); index++) {
+            List<Integer> winnerIDArray = new ArrayList<Integer>();
+            List<Long> winnerUuidArray = new ArrayList<Long>();
+
+            Set<Integer> winnerIDSet = new HashSet<Integer>();
+            Set<Long> winnerUuidSet = new HashSet<Long>();
+
+            PotInfo stPotInfo = mPotList.get(index);
+            List<Integer> posArray = stPotInfo.playerListpos;
+
+            ArrayList<Long> allFoldUuids = new ArrayList<Long>();
+            ArrayList<Integer> allFoldPos = new ArrayList<Integer>();
+
+            Set<Long> allFoldUuidSet = new HashSet<Long>();
+            Set<Integer> allFoldPosSet = new HashSet<Integer>();
+
+            for (int i = 0; i < posArray.size(); i++) {
+
+                int pos = posArray.get(i);
+                long winuuid = stPotInfo.playerList.get(i);
+
+                UserGameInfoNet stUserGameInfo = stGameRoomInfo.getVUserGameInfos(pos);
+
+                if (stUserGameInfo.getStUserInfo().getUuid() > 0) {
+                    if (stUserGameInfo.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_CALL
+                            || stUserGameInfo.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_CHECK
+                            || stUserGameInfo.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_RAISE
+                            || stUserGameInfo.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_BETTING
+                            || stUserGameInfo.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN
+                            || stUserGameInfo.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_BLIND
+                            || stUserGameInfo.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_READY) {
+                        if (!winnerUuidSet.contains(winuuid)) {
+                            winnerIDSet.add(pos);
+                            winnerIDArray.add(pos);
+                            winnerUuidSet.add(winuuid);
+                            winnerUuidArray.add(winuuid);
+                        }
+                    } else if (stUserGameInfo.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD) {
+                        if (mHandPos.get(pos) != null) {
+                            if (!allFoldUuidSet.contains(mHandPos.get(pos))) {
+                                allFoldUuids.add(mHandPos.get(pos));
+                                allFoldPos.add(pos);
+
+                                allFoldUuidSet.add(mHandPos.get(pos));
+                                allFoldPosSet.add(pos);
+                            }
+                        }
+                    }
+                } else {
+                    if (mHandPos.get(pos) != null) {
+                        if (!allFoldUuidSet.contains(mHandPos.get(pos))) {
+                            allFoldUuids.add(mHandPos.get(pos));
+                            allFoldPos.add(pos);
+
+                            allFoldUuidSet.add(mHandPos.get(pos));
+                            allFoldPosSet.add(pos);
+                        }
+                    }
+                }
+            }
+
+            //若是玩家自己贡献一个池子则不抽水
+            if (stPotInfo.playerList.size() > 1){
+                drawMap.put(index,stGameRoomInfoBuilder.getVCurrentPots(index));
+            }
+        }
+
+        //进行底池抽水 条件 底池抽水,发了Flop3张牌
+        Map<Integer,Long> userDrawStacks = new HashMap<Integer,Long>();
+        if (drawMap != null && drawMap.size() > 0 && bCredit && iDrawType == 2 && bFlopStatus){
+            userDrawStacks = GameFeeUtil.getBottomPump(drawMap,stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds(),stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee(),
+                    stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB(),iUserNum,stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum());
+        }
+
+        for (int index = 0; index < stGameRoomInfoBuilder.getVCurrentPotsCount(); index++) {
+
             List<Integer> winnerIDArray = new ArrayList<Integer>();
             List<Long> winnerUuidArray = new ArrayList<Long>();
 
@@ -3997,7 +4272,56 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             if (winnerIDArray.size() != 0) {
                 GamePotResultInfo.Builder stGamePotResultInfoBuilder = GamePotResultInfo.newBuilder();
 
-                long winStacks = stGameRoomInfo.getVCurrentPots(index) / winnerIDArray.size();
+                long winStacks = 0l;
+
+                //授信牌局 底池抽水且池子有抽水
+                if (bCredit && iDrawType == 2 && bFlopStatus && stPotInfo.playerList.size() > 1){
+                    winStacks = (stGameRoomInfo.getVCurrentPots(index) - userDrawStacks.get(index)) / winnerIDArray.size();
+                    //记录玩家贡献的抽水
+                    int i = 1; //记录玩家数
+                    long drawStacks = userDrawStacks.get(index) / winnerIDArray.size(); //记录玩家贡献抽水值
+                    long drawLeftStacks = userDrawStacks.get(index) % winnerIDArray.size(); //记录剩余玩家贡献抽水值
+                    for (Long winUuid : winnerUuidArray){
+                        //记录抽水日志
+                        StringBuilder drawLog = new StringBuilder("")
+                                .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()) //牌局id
+                                .append(" ").append(stGameRoomInfo.getLGameHandID()) //手数
+                                .append(" ").append(index) //底池编号
+                                .append(" ").append(stGameRoomInfo.getVCurrentPots(index)) //该底池大小
+                                .append(" ").append(userDrawStacks.get(index)) //该底池总抽水值
+                                .append(" ").append(winnerIDArray.size()) //该底池获胜人数
+                                .append(" ").append(winUuid); //玩家uuid
+
+                        if (mUserDrawStacks.get(winUuid) == null){
+                            if (i == winnerUuidArray.size()){
+                                mUserDrawStacks.put(winUuid, drawStacks + drawLeftStacks);
+                                drawLog.append(" ").append(drawStacks + drawLeftStacks); //玩家本底池贡献抽水
+                            } else {
+                                mUserDrawStacks.put(winUuid, drawStacks);
+                                drawLog.append(" ").append(drawStacks); //玩家本底池贡献抽水
+                            }
+                        } else {
+                            if (i == winnerUuidArray.size()){
+                                mUserDrawStacks.put(winUuid, mUserDrawStacks.get(winUuid) + drawStacks + drawLeftStacks);
+                                drawLog.append(" ").append(drawStacks + drawLeftStacks); //玩家本底池贡献抽水
+                            } else {
+                                mUserDrawStacks.put(winUuid, mUserDrawStacks.get(winUuid) + drawStacks);
+                                drawLog.append(" ").append(drawStacks); //玩家本底池贡献抽水
+                            }
+                        }
+
+                        drawLog.append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee()) //抽水比例 *10000倍
+                                .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB()) //抽水上限 *100倍
+                                .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum()) //是否影响人数上限
+                                .append(" ").append(iUserNum); //实际参人数
+                        PotDrawLogService.getInstance().error(drawLog.toString());
+
+                        i++;
+                    }
+                } else {
+                    winStacks = stGameRoomInfo.getVCurrentPots(index) / winnerIDArray.size();
+                }
+
                 lSingleMaxPot += stGameRoomInfo.getVCurrentPots(index);
                 for (int i = 0; i < winnerIDArray.size(); i++) {
                     int userPos = winnerIDArray.get(i);
@@ -4027,7 +4351,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                                     setBillCurrentStacksInRoom(winUuid,
                                             stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-                                            , stUserStandByGameInfoBuilder.getLRemainStacks());
+                                            , stUserStandByGameInfoBuilder.getLRemainStacks(), stUserStandByGameInfoBuilder.getLUnloadStacks());
                                 }
                             }
                         }
@@ -4039,7 +4363,56 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                     GamePotResultInfo.Builder stGamePotResultInfoBuilder = GamePotResultInfo.newBuilder();
 
-                    long winStacks = stGameRoomInfo.getVCurrentPots(index) / allFoldPos.size();
+                    long winStacks = 0l;
+
+                    //授信牌局 底池抽水且池子有抽水
+                    if (bCredit && iDrawType == 2 && bFlopStatus && stPotInfo.playerList.size() > 1){
+                        winStacks = (stGameRoomInfo.getVCurrentPots(index) - userDrawStacks.get(index)) / allFoldPos.size();
+                        //记录玩家贡献的抽水
+                        int i = 1; //记录玩家数
+                        long drawStacks = userDrawStacks.get(index) / allFoldPos.size(); //记录玩家贡献抽水值
+                        long drawLeftStacks = userDrawStacks.get(index) % allFoldPos.size(); //记录剩余玩家贡献抽水值
+                        for (Long winUuid : allFoldUuids){
+                            //记录抽水日志
+                            StringBuilder drawLog = new StringBuilder("")
+                                    .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()) //牌局id
+                                    .append(" ").append(stGameRoomInfo.getLGameHandID()) //手数
+                                    .append(" ").append(index) //底池编号
+                                    .append(" ").append(stGameRoomInfo.getVCurrentPots(index)) //该底池大小
+                                    .append(" ").append(userDrawStacks.get(index)) //该底池总抽水值
+                                    .append(" ").append(allFoldPos.size()) //该底池获胜人数
+                                    .append(" ").append(winUuid); //玩家uuid
+
+                            if (mUserDrawStacks.get(winUuid) == null){
+                                if (i == allFoldUuids.size()){
+                                    mUserDrawStacks.put(winUuid, drawStacks + drawLeftStacks);
+                                    drawLog.append(" ").append(drawStacks + drawLeftStacks); //玩家本底池贡献抽水
+                                } else {
+                                    mUserDrawStacks.put(winUuid, drawStacks);
+                                    drawLog.append(" ").append(drawStacks); //玩家本底池贡献抽水
+                                }
+                            } else {
+                                if (i == allFoldUuids.size()){
+                                    mUserDrawStacks.put(winUuid, mUserDrawStacks.get(winUuid) + drawStacks + drawLeftStacks);
+                                    drawLog.append(" ").append(drawStacks + drawLeftStacks); //玩家本底池贡献抽水
+                                } else {
+                                    mUserDrawStacks.put(winUuid, mUserDrawStacks.get(winUuid) + drawStacks);
+                                    drawLog.append(" ").append(drawStacks); //玩家本底池贡献抽水
+                                }
+                            }
+
+                            drawLog.append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee()) //抽水比例 *10000倍
+                                    .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB()) //抽水上限 *100倍
+                                    .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum()) //是否影响人数上限
+                                    .append(" ").append(iUserNum); //实际参人数
+                            PotDrawLogService.getInstance().error(drawLog.toString());
+
+                            i++;
+                        }
+                    } else {
+                        winStacks = stGameRoomInfo.getVCurrentPots(index) / allFoldPos.size();
+                    }
+
                     lSingleMaxPot += stGameRoomInfo.getVCurrentPots(index);
 
                     for (int i = 0; i < allFoldPos.size(); i++) {
@@ -4070,7 +4443,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                                     setBillCurrentStacksInRoom(winUuid,
                                             stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-                                            , stUserStandByGameInfoBuilder.getLRemainStacks());
+                                            , stUserStandByGameInfoBuilder.getLRemainStacks(), stUserStandByGameInfoBuilder.getLUnloadStacks());
 //									bSettled=true;
                                 }
 //								if(bSettled == false){
@@ -4186,7 +4559,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 //设置账单
                 setBillCurrentStacksInRoom(stUserGameInfo.getStUserInfo().getUuid(),
                         stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-                        , stUserGameInfo.getLRemainStacks());
+                        , stUserGameInfo.getLRemainStacks(), stUserGameInfo.getLUnloadStacks());
                 vSitdownUsers.add(stUserGameInfo.getStUserInfo().getUuid());
             }
         }
@@ -4202,7 +4575,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     //设置账单
                     setBillCurrentStacksInRoom(stUserGameInfoBuilder.getStUserInfo().getUuid(),
                             stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-                            , stUserGameInfoBuilder.getLRemainStacks());
+                            , stUserGameInfoBuilder.getLRemainStacks(), stUserGameInfoBuilder.getLUnloadStacks());
                 }
             }
         }
@@ -4785,6 +5158,42 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         if (stUserBaseInfoNetBuilder != null) {
             //发送push
             GameRoomMsgManager.getInstance().sendGameRoomMsg(stToUserUuid, stGameRoomPushMsg);
+        }
+    }
+
+    public void pushUnloadStacksMsgs(long stToUserUuid,
+                                     GAME_ROOM_MESSAGE_TYPE eGameRoomMessageType, long lUnloadStacks) {
+        //push
+        TexasPoker.GameRoomPushMsg.Builder stGameRoomPushMsgBuilder = TexasPoker.GameRoomPushMsg.newBuilder() ;
+
+        //获取时间
+        long curTime = System.currentTimeMillis();
+
+        // 设置msg id
+        stGameRoomPushMsgBuilder.setLMsgID(curTime);
+        // 设置发送时间
+        stGameRoomPushMsgBuilder.setLCreateTime(curTime);
+
+        // 设置消息内容，暂时没有什么具体用处
+        stGameRoomPushMsgBuilder.setSMsg("");
+
+        stGameRoomPushMsgBuilder.setIPos(0);
+
+        // 设置push类型
+        stGameRoomPushMsgBuilder.setEGameMessageType(eGameRoomMessageType);
+        stGameRoomPushMsgBuilder.setLUnloadStacks(lUnloadStacks);
+
+        if(stGameRoomInfo!=null){
+            GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+            stGameRoomPushMsgBuilder.setStGameRoomInfo(stGameRoomInfoBuilder);
+        }
+
+        TexasPoker.GameRoomPushMsg stGameRoomPushMsg = stGameRoomPushMsgBuilder.build();
+
+        UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(stToUserUuid);
+        if(stUserBaseInfoNetBuilder!=null){
+            //发送push
+            GameRoomMsgManager.getInstance().sendGameRoomMsg(stToUserUuid,stGameRoomPushMsg);
         }
     }
 }
