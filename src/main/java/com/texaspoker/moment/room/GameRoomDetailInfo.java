@@ -12,15 +12,13 @@ import com.texaspoker.credit.CreditManager;
 import com.texaspoker.database.ConnectDatabase;
 import com.texaspoker.dubbo.game.insurance.InsuranceApi;
 import com.texaspoker.lbs.LBSManager;
+import com.texaspoker.league.LeagueManager;
 import com.texaspoker.logger.PlayLogService;
 import com.texaspoker.logger.TableLogService;
 import com.texaspoker.logger.TranscationLogService;
-import com.texaspoker.moment.TexasPoker;
+import com.texaspoker.moment.*;
 import com.texaspoker.moment.TexasPoker.*;
-import com.texaspoker.moment.TexasPokerBillService;
-import com.texaspoker.moment.TexasPokerCommon;
 import com.texaspoker.moment.TexasPokerCommon.*;
-import com.texaspoker.moment.TexasPokerHttpClub;
 import com.texaspoker.moment.TexasPokerHttpLeague.LeagueInfo;
 import com.texaspoker.msg.GameRoomMsgManager;
 import com.texaspoker.user.UserManager;
@@ -553,13 +551,23 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     }
                 }
 
-                if (UserManager.getInstance().checkUserPopularity(stUserBaseInfoNetBuilder.getUuid(), popularity)) {
+                if (bCredit||UserManager.getInstance().checkUserPopularity(stUserBaseInfoNetBuilder.getUuid(), popularity)) {
                     GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 
                     for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
                         //找到购买的筹码
                         UserGameInfoNet.Builder stUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(i).toBuilder();
                         if (stUserGameInfoBuilder.getStUserInfo().getUuid() == uuid) {
+
+                            if(bCredit){
+                                //授信买入流程
+                                ERROR_CODE_TYPE errCode = creditBuyinControl(uuid, clubID, lStacks, stUserBaseInfoNetBuilder,GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
+                                //授信买入检测失败
+                                if (errCode != ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS) return errCode;
+
+                            }
+
+
                             long lCreateTime = System.currentTimeMillis();
                             stUserGameInfoBuilder.setBWaitingBuyinConfirmation(1);
                             stUserGameInfoBuilder.setLBuyinTime(lCreateTime);
@@ -572,6 +580,54 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             mBuyinControlTimeOut.setCurrent(uuid, uuid);
                             mBuyinControlClubIDs.put(uuid, clubID);
 
+
+                            if(!bCredit){
+                                BuyinControlMsg.Builder stBuyinControlMsgBuilder = BuyinControlMsg.newBuilder();
+                                stBuyinControlMsgBuilder.setLBuyinActionID(lCreateTime);
+                                stBuyinControlMsgBuilder.setLBuyStacks(lStacks);
+                                stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_INVITE);
+                                stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder.getStUserInfo());
+                                stBuyinControlMsgBuilder.setStGameRoomBaseInfo(stGameRoomInfo.getStGameRoomBaseInfo());
+                                stBuyinControlMsgBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
+                                stBuyinControlMsgBuilder.setLActionUuid(uuid);
+                                stBuyinControlMsgBuilder.setLClubID(clubID);
+                                stBuyinControlMsgBuilder.setLBuyinTime(stUserGameInfoBuilder.getLBuyinTime());
+                                ClubBaseInfo.Builder stClubBaseInfoBuilder = ClubManager.getInstance().getClubBaseInfo(clubID);
+                                if (stClubBaseInfoBuilder != null) {
+                                    stBuyinControlMsgBuilder.setSClubName(stClubBaseInfoBuilder.getSClubName());
+                                }
+
+                                //首先push给房主
+                                sendAllBuyinControls(stBuyinControlMsgBuilder.build(), clubID, 0);
+
+                                pushAppPushBuyinInvite(stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID(), clubID, stUserBaseInfoNetBuilder.getStrNick());
+                            }
+                            return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
+                        }
+                    }
+
+                    UserGameInfoNet.Builder stUserGameInfoBuilder = mapStandByUserGameInfos.get(uuid);
+                    if (stUserGameInfoBuilder != null) {
+
+                        if(bCredit){
+                            //授信买入流程
+                            ERROR_CODE_TYPE errCode = creditBuyinControl(uuid, clubID, lStacks, stUserBaseInfoNetBuilder,GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
+                            //授信买入检测失败
+                            if (errCode != ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS) return errCode;
+                        }
+
+
+                        long lCreateTime = System.currentTimeMillis();
+                        stUserGameInfoBuilder.setBWaitingBuyinConfirmation(1);
+                        stUserGameInfoBuilder.setLBuyinTime(lCreateTime);
+                        stUserGameInfoBuilder.setLBuyinClubID(clubID);
+                        mapStandByUserGameInfos.put(stUserGameInfoBuilder.getStUserInfo().getUuid(), stUserGameInfoBuilder);
+                        mBuyinControlInfo.put(uuid, lStacks);
+                        mBuyinControlTimes.put(uuid, lCreateTime);
+                        mBuyinControlTimeOut.setCurrent(uuid, uuid);
+                        mBuyinControlClubIDs.put(uuid, clubID);
+
+                        if(!bCredit){
                             BuyinControlMsg.Builder stBuyinControlMsgBuilder = BuyinControlMsg.newBuilder();
                             stBuyinControlMsgBuilder.setLBuyinActionID(lCreateTime);
                             stBuyinControlMsgBuilder.setLBuyStacks(lStacks);
@@ -587,44 +643,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 stBuyinControlMsgBuilder.setSClubName(stClubBaseInfoBuilder.getSClubName());
                             }
 
-                            //首先push给房主
                             sendAllBuyinControls(stBuyinControlMsgBuilder.build(), clubID, 0);
 
                             pushAppPushBuyinInvite(stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID(), clubID, stUserBaseInfoNetBuilder.getStrNick());
-                            return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
                         }
-                    }
-
-                    UserGameInfoNet.Builder stUserGameInfoBuilder = mapStandByUserGameInfos.get(uuid);
-                    if (stUserGameInfoBuilder != null) {
-                        long lCreateTime = System.currentTimeMillis();
-                        stUserGameInfoBuilder.setBWaitingBuyinConfirmation(1);
-                        stUserGameInfoBuilder.setLBuyinTime(lCreateTime);
-                        stUserGameInfoBuilder.setLBuyinClubID(clubID);
-                        mapStandByUserGameInfos.put(stUserGameInfoBuilder.getStUserInfo().getUuid(), stUserGameInfoBuilder);
-                        mBuyinControlInfo.put(uuid, lStacks);
-                        mBuyinControlTimes.put(uuid, lCreateTime);
-                        mBuyinControlTimeOut.setCurrent(uuid, uuid);
-                        mBuyinControlClubIDs.put(uuid, clubID);
-
-                        BuyinControlMsg.Builder stBuyinControlMsgBuilder = BuyinControlMsg.newBuilder();
-                        stBuyinControlMsgBuilder.setLBuyinActionID(lCreateTime);
-                        stBuyinControlMsgBuilder.setLBuyStacks(lStacks);
-                        stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_INVITE);
-                        stBuyinControlMsgBuilder.setStFromUser(stUserGameInfoBuilder.getStUserInfo());
-                        stBuyinControlMsgBuilder.setStGameRoomBaseInfo(stGameRoomInfo.getStGameRoomBaseInfo());
-                        stBuyinControlMsgBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
-                        stBuyinControlMsgBuilder.setLActionUuid(uuid);
-                        stBuyinControlMsgBuilder.setLClubID(clubID);
-                        stBuyinControlMsgBuilder.setLBuyinTime(stUserGameInfoBuilder.getLBuyinTime());
-                        ClubBaseInfo.Builder stClubBaseInfoBuilder = ClubManager.getInstance().getClubBaseInfo(clubID);
-                        if (stClubBaseInfoBuilder != null) {
-                            stBuyinControlMsgBuilder.setSClubName(stClubBaseInfoBuilder.getSClubName());
-                        }
-
-                        sendAllBuyinControls(stBuyinControlMsgBuilder.build(), clubID, 0);
-
-                        pushAppPushBuyinInvite(stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID(), clubID, stUserBaseInfoNetBuilder.getStrNick());
                         return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
                     }
 
@@ -639,6 +661,67 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
         }
     }
 
+    private ERROR_CODE_TYPE creditBuyinControl(long uuid, long clubID, long lStacks, UserBaseInfoNet.Builder stUserBaseInfoNetBuilder,GAME_ROOM_TYPE gameRoomType) {
+//检测用户信息
+        UserBaseInfoNet.Builder stApplyUser = stUserBaseInfoNetBuilder;
+
+
+        //检测俱乐部信息
+        ClubBaseInfo.Builder stClubBase = ClubManager.getInstance().getClubBaseInfo(clubID);
+        if(stClubBase==null)  return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_CLUB;
+        if(stClubBase.getLCreditLeagueID()<=0)return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_CLUB_AUTH;
+
+        //检测联盟
+        TexasPokerHttpLeague.LeagueBaseInfo stLeagueBaseInfo = LeagueManager.getInstance().getLeagueBaseInfo(stClubBase.getLCreditLeagueID());
+        if(stLeagueBaseInfo == null) return ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_LEAGUE;
+
+
+        //检测是否已经申请过联盟币
+        if(ConnectDatabase.getInstance().judgeHasApplayCreditMsg(uuid, clubID))return ERROR_CODE_TYPE.ERROR_CODE_TYPE_WAIT_LAST_APPLY;
+        //如果玩家申请回收校验玩家余额
+
+
+        //开始组包，写入申请
+        TexasPokerHttpClub.ApplayCreditMsg.Builder stApplayCreditMsg = TexasPokerHttpClub.ApplayCreditMsg.newBuilder();
+        stApplayCreditMsg.setLApplicantUuid(stApplyUser.getUuid())
+                .setSApplicantNickname(stApplyUser.getStrNick())
+                .setSApplicantShowid(stApplyUser.getSShowID())
+                .setIApplicantGender(stApplyUser.getIGender())
+                .setSApplicantIcon(stApplyUser.getStrSmallCover())
+                .setLApplicantClubID(stClubBase.getLClubID())
+                .setSApplicantClubName(stClubBase.getSClubName())
+                .setLLeagueID(stLeagueBaseInfo.getLLeagueID())
+                .setSLeagueCreditCoinName(stLeagueBaseInfo.getSLeagueName())
+                .setLManagerUuid(stClubBase.getStCreateUserBaseInfo().getUuid())
+                .setEApplyCreditStatus(TexasPokerHttpClub.APPLY_CREDIT_STATUS.APPLY_CREDIT_STATUS_BUYING)
+                .setLCreditCoid(lStacks)
+                .setLCreateTime(System.currentTimeMillis())
+                .setLGameRoomID(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId())
+                .setIGameType(gameRoomType.getNumber())
+                .setLMsgID(0);
+        ConnectDatabase.getInstance().insertCreditApplyMsgs(stApplayCreditMsg.build());
+
+        //发送push
+        for(Long managerUuid:ClubManager.getInstance().getClubManagerUuids(stClubBase.getLClubID())){
+            pushLeagueCoinApplyMsg(stApplyUser, managerUuid, stApplayCreditMsg.getLCreditCoid(), stApplayCreditMsg.getLCreateTime());
+        }
+        return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
+
+
+    }
+
+
+
+    private void pushLeagueCoinApplyMsg(UserBaseInfoNet.Builder stApplyUser, long toUuid,long applyCoin,long createTime) {
+        TexasPoker.BuyinControlMsg.Builder stBuyinControlMsgBuilder = TexasPoker.BuyinControlMsg.newBuilder();
+        stBuyinControlMsgBuilder.setLBuyinActionID(System.currentTimeMillis());
+        stBuyinControlMsgBuilder.setLBuyStacks(applyCoin);
+        stBuyinControlMsgBuilder.setEBuyinControlMessageTypeDeny(TexasPoker.BUYIN_CONTROL_MESSAGE_TYPE.BUYIN_CONTROL_MESSAGE_TYPE_LEAGUECOIN_APPLY);
+        stBuyinControlMsgBuilder.setStFromUser(stApplyUser);
+        stBuyinControlMsgBuilder.setLActionUuid(toUuid);
+        stBuyinControlMsgBuilder.setLBuyinTime(createTime);
+        GameRoomMsgManager.getInstance().pushLeagueCoinApply(toUuid, stBuyinControlMsgBuilder.build());
+    }
     public ERROR_CODE_TYPE buyinControlActionAccept(long uuid, long lActionedUuid) {
         synchronized (this) {
             if (this.stGameRoomInfo.getStGameRoomBaseInfo().getBGamePause() == 1) {
@@ -888,8 +971,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                 sendAllBuyinControls(stBuyinControlMsgBuilder.build(), stUserGameInfoBuilder.getLBuyinClubID(), lActionedUuid);
 
                 if (auto == true) {
-                    ConnectDatabase.getInstance().dealBuyInInfoV2(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-                            , lActionedUuid, 1000, "", BUYIN_CONTROL_STATUS.BUYIN_CONTROL_STATUS_BUYIN_DENY, System.currentTimeMillis());
+                    if(bCredit){
+                        ConnectDatabase.getInstance().updateCreditApplyMsgs(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid, stUserBaseInfoBuilder.getStrNick(), lActionedUuid, 2);
+                    }else{
+                        ConnectDatabase.getInstance().dealBuyInInfoV2(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+                                , lActionedUuid, 1000, "", BUYIN_CONTROL_STATUS.BUYIN_CONTROL_STATUS_BUYIN_DENY, System.currentTimeMillis());
+                    }
                 }
 
                 return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;

@@ -55,6 +55,9 @@ public class ConfigaturationManager {
 
 	//海外版底池抽水,玩家为>=5人时 抽水上限比例
 	public static int iProportion3 = 100;
+
+	//授信超时
+	public static int iCreditAppyTimeOut;
     
 	private static ConfigaturationManager instance;
 	
@@ -108,6 +111,8 @@ public class ConfigaturationManager {
 		
 	    sCreditServiceHost = stConfigaturation.getValue("credit_service_host");
 	    iCreditServicePost = Integer.parseInt(stConfigaturation.getValue("credit_service_post"));
+
+		iCreditAppyTimeOut = Integer.parseInt(stConfigaturation.getValue("credit_apply_timeout"));
 
 		iDrawTime = Integer.parseInt(stConfigaturation.getValue("draw_time"));
 	}

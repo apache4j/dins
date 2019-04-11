@@ -174,4 +174,15 @@ public class GameRoomMsgManager {
 		}
 		return true;
 	}
+
+	public void pushLeagueCoinApply(Long toUserId,BuyinControlMsg stMsgData) {
+		BuyinControlMsgRequest.Builder stBuyinControlMsgRequestBuilder = BuyinControlMsgRequest.newBuilder();
+		stBuyinControlMsgRequestBuilder.setUuid(toUserId);
+		stBuyinControlMsgRequestBuilder.addVPushMsgs(stMsgData);
+		try {
+			msgService.pushBuyinControlMsg(controller, stBuyinControlMsgRequestBuilder.build(),null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }
