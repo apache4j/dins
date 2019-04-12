@@ -933,8 +933,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     }
 
                     if (auto == true) {
-                        ConnectDatabase.getInstance().dealBuyInInfoV2(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-                                , lActionedUuid, 1000, "", BUYIN_CONTROL_STATUS.BUYIN_CONTROL_STATUS_BUYIN_DENY, System.currentTimeMillis());
+
+                        //授信不修改联盟币申请
+                        if(bCredit){
+                            //ConnectDatabase.getInstance().updateCreditApplyMsgs(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid, stUserBaseInfoBuilder.getStrNick(), lActionedUuid, 2);
+                        }else{
+                            ConnectDatabase.getInstance().dealBuyInInfoV2(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+                                    , lActionedUuid, 1000, "", BUYIN_CONTROL_STATUS.BUYIN_CONTROL_STATUS_BUYIN_DENY, System.currentTimeMillis());
+                        }
                     }
                     return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
                 }
@@ -972,7 +978,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                 if (auto == true) {
                     if(bCredit){
-                        ConnectDatabase.getInstance().updateCreditApplyMsgs(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid, stUserBaseInfoBuilder.getStrNick(), lActionedUuid, 2);
+                        //ConnectDatabase.getInstance().updateCreditApplyMsgs(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid, stUserBaseInfoBuilder.getStrNick(), lActionedUuid, 2);
                     }else{
                         ConnectDatabase.getInstance().dealBuyInInfoV2(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
                                 , lActionedUuid, 1000, "", BUYIN_CONTROL_STATUS.BUYIN_CONTROL_STATUS_BUYIN_DENY, System.currentTimeMillis());
