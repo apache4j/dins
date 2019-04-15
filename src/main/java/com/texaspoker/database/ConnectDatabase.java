@@ -8,6 +8,7 @@ import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.logger.TableLogService;
 import com.texaspoker.moment.TexasPoker.*;
 import com.texaspoker.moment.TexasPokerCommon.*;
+import com.texaspoker.moment.TexasPokerHttpClub;
 import com.texaspoker.moment.room.ChatRoomManager;
 import com.texaspoker.moment.room.GameRoomDetailInfo;
 import com.texaspoker.moment.room.GameRoomManager;
@@ -20,6 +21,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,6 +32,7 @@ public class ConnectDatabase {
     
 	private static ConnectDatabase instance; 
 	public DataSource mDatabasePool;
+	private long timeOut =ConfigaturationManager.getInstance().iCreditAppyTimeOut*60*1000;
 	
 	//私有的构造函数
 	private ConnectDatabase (){
@@ -894,6 +897,127 @@ public class ConnectDatabase {
             }
         }
     }
-    
+
+    public boolean judgeHasApplayCreditMsg(long uuid, long clubID) {
+		boolean hasMsg = false;
+		Connection stConnection = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+//            System.out.println("judgeHasApplayCreditMsg >>>>>>>>>>>>>>>");
+			stConnection = mDatabasePool.getConnection();
+			String queryCreditApplySql = "select count(*) as num from t_credit_apply_info where uuid = ? and clubid =?  and  createtime > ? and applycreditstatus=1";
+			ps = stConnection.prepareStatement(queryCreditApplySql);
+			ps.setLong(1, uuid);
+			ps.setLong(2, clubID);
+			ps.setLong(3, System.currentTimeMillis()-timeOut);
+			rs = ps.executeQuery();
+			if(rs.next()){
+//               System.out.println("judgeHasApplayCreditMsg +" + queryCreditApplySql+ " num"+rs.getLong("num"));
+				if(rs.getLong("num")>0){
+					hasMsg = true;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			release(stConnection, ps, rs);
+		}
+		return hasMsg;
+    }
+
+
+	/**
+	 * 释放资源
+	 * @param autoCloseables
+	 */
+	public void release(AutoCloseable... autoCloseables) {
+		if(autoCloseables!=null){
+			for(AutoCloseable a:autoCloseables){
+				try {
+					if(a!=null){
+						a.close();
+					}
+				}catch (Exception e){
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	public void insertCreditApplyMsgs(TexasPokerHttpClub.ApplayCreditMsg stApplayCreditMsg) {
+
+		Connection stConnection = null;
+		PreparedStatement ps = null;
+		try {
+			stConnection = mDatabasePool.getConnection();
+			String insertCreditApplySql =
+					"INSERT INTO t_credit_apply_info (uuid, nickname, showid, gender,applicanticon, clubid, clubname,leagueid,leaguename,leaguecoinname,"
+							+ "potentialuuid,applycreditstatus,applycreditcoin,createtime,gameroomid,gametype) VALUES "
+							+ "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+			ps = stConnection.prepareStatement(insertCreditApplySql);
+			ps.setLong(1, stApplayCreditMsg.getLApplicantUuid());
+			ps.setString(2, stApplayCreditMsg.getSApplicantNickname());
+			ps.setString(3, stApplayCreditMsg.getSApplicantShowid());
+			ps.setInt(4, stApplayCreditMsg.getIApplicantGender());
+			ps.setString(5, stApplayCreditMsg.getSApplicantIcon());
+			ps.setLong(6, stApplayCreditMsg.getLApplicantClubID());
+			ps.setString(7, stApplayCreditMsg.getSApplicantClubName());
+			ps.setLong(8, stApplayCreditMsg.getLLeagueID());
+			ps.setString(9, stApplayCreditMsg.getSLeagueCreditCoinName());
+			ps.setString(10, stApplayCreditMsg.getSLeagueCreditCoinName());
+			ps.setLong(11, stApplayCreditMsg.getLManagerUuid());
+			ps.setInt(12, TexasPokerHttpClub.APPLY_CREDIT_STATUS.APPLY_CREDIT_STATUS_BUYING_VALUE);
+			ps.setBigDecimal(13, new BigDecimal(String.valueOf(getD100(stApplayCreditMsg.getLCreditCoid()))));
+			ps.setLong(14, stApplayCreditMsg.getLCreateTime());
+			ps.setLong(15, stApplayCreditMsg.getLGameRoomID());
+			ps.setLong(16,stApplayCreditMsg.getIGameType());
+
+			ps.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			release(stConnection, ps, null);
+		}
+	}
+
+
+	private  double getD100(long num){
+		BigDecimal baseDecimal = new BigDecimal(num);
+		BigDecimal offDecimal = new BigDecimal(100);
+		return baseDecimal.divide(offDecimal,2, BigDecimal.ROUND_HALF_UP).doubleValue();
+	}
+
+
+	public boolean updateCreditApplyMsgs(long roomid,long manageUuid, String managernickname,long uuid, int creditApplyStatus) {
+
+
+		boolean result = false;
+		Connection stConnection = null;
+		PreparedStatement ps = null;
+		try {
+			stConnection = mDatabasePool.getConnection();
+			String updateCreditApplySql =
+					"update t_credit_apply_info set manageruuid=?,managernickname=?,applycreditstatus=?,actiontime=? where gameroomid = ? and uuid=? ";
+			ps = stConnection.prepareStatement(updateCreditApplySql);
+			ps.setLong(1, manageUuid);
+			ps.setString(2, managernickname);
+			ps.setInt(3, creditApplyStatus);
+			ps.setLong(4, System.currentTimeMillis());
+			ps.setLong(5,roomid);
+			ps.setLong(6,uuid);
+
+			int rs = ps.executeUpdate();
+			if(rs == 1){
+				result = true;
+//                System.out.println("updateCreditApplyMsgs success - "+ msgid);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			release(stConnection, ps, null);
+		}
+		return result;
+	}
 }
  

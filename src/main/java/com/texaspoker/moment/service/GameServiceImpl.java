@@ -16,6 +16,7 @@ import com.texaspoker.moment.TexasPokerCommon.ClubBaseInfo;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerGameService;
 import com.texaspoker.moment.TexasPokerGameService.*;
+import com.texaspoker.moment.TexasPokerHttpClub;
 import com.texaspoker.moment.TexasPokerHttpLeague.LeagueBaseInfo;
 import com.texaspoker.moment.TexasPokerHttpLeague.LeagueInfo;
 import com.texaspoker.moment.room.*;
@@ -251,9 +252,34 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
                 }
 
                 //不需要买入控制 授信牌局没有买入控制
-                if (stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBBuyinControl() == 0 || stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBCredit() == 1) {
-                    rst = stGameRoomDetailInfo.buyBuyin(request.getUuid(), clubid, request.getLStacks(), false);
-                    bWaitingBuyinConfirmation = 1;
+                if (stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBBuyinControl() == 0
+                        || stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBCredit() == 1) {
+                    //v2.6.15 授信局买入流程
+                    if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBCredit() == 1){
+                        TexasPokerHttpClub.ClubUserCrditInfo.Builder userCreditInfo = ClubManager.getInstance().getClubUserCreditInfo(clubid, request.getUuid());
+
+                        if(userCreditInfo!=null&&userCreditInfo.getLCreditBalance()<request.getLStacks()){
+
+                            //授信买入 先检测入座费是否足够
+
+                            if(UserManager.getInstance().checkUserPopularity(request.getUuid(),
+                                    GameFeeUtil.getSeatFee(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getISeatFeeRate(), request.getLStacks()))){
+                                rst=stGameRoomDetailInfo.buyBuyinControl(request.getUuid(), clubid, request.getLStacks());
+                            }else{
+                                rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY;
+                            }
+
+                            if(rst==ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
+                                bWaitingBuyinConfirmation = 1;
+                            }
+                        }else{
+                            rst =  stGameRoomDetailInfo.buyBuyin(request.getUuid(), clubid, request.getLStacks(),false);
+                        }
+                    }else{
+                        //非授信
+                        rst = stGameRoomDetailInfo.buyBuyin(request.getUuid(),clubid, request.getLStacks(),false);
+                        bWaitingBuyinConfirmation = 1;
+                    }
                 } else {
                     if (stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM) {
 
