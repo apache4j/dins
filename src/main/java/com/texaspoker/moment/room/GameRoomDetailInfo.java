@@ -28,6 +28,8 @@ import org.springframework.util.CollectionUtils;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_SITTED;
+
 /**
  * @author afei
  */
@@ -757,8 +759,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                     ERROR_CODE_TYPE eErrorCodeType = buyBuyin(lActionedUuid, stUserGameInfoBuilder.getLBuyinClubID(), lStacks, false);
 
-                    if (eErrorCodeType == ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY
-                            || eErrorCodeType == ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYIN_MAX_STACKS) {
+                    if(((!bCredit)&&(eErrorCodeType  == ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY ||eErrorCodeType  == ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYIN_MAX_STACKS))
+                            ||(bCredit&&eErrorCodeType!=ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS&&eErrorCodeType!=ERROR_CODE_TYPE_NOT_SITTED)) {
                         eErrorCodeType = ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYINCONTROL_NO_MONEY;
                         BuyinControlMsg.Builder stBuyinControlMsgBuilder = BuyinControlMsg.newBuilder();
                         stBuyinControlMsgBuilder.setLBuyinActionID(lCreateTime);
@@ -822,8 +824,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                 ERROR_CODE_TYPE eErrorCodeType = buyBuyin(lActionedUuid, stUserGameInfoBuilder.getLBuyinClubID(), lStacks, false);
 
-                if (eErrorCodeType == ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY
-                        || eErrorCodeType == ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYIN_MAX_STACKS) {
+                if(((!bCredit)&&(eErrorCodeType  == ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY ||eErrorCodeType  == ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYIN_MAX_STACKS))
+                        ||(bCredit&&eErrorCodeType!=ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS&&eErrorCodeType!=ERROR_CODE_TYPE_NOT_SITTED)){
                     eErrorCodeType = ERROR_CODE_TYPE.ERROR_CODE_TYPE_BUYINCONTROL_NO_MONEY;
                     BuyinControlMsg.Builder stBuyinControlMsgBuilder = BuyinControlMsg.newBuilder();
                     stBuyinControlMsgBuilder.setLBuyinActionID(lCreateTime);
