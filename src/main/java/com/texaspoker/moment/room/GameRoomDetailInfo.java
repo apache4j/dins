@@ -4479,6 +4479,33 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
             sendAllGameStateChange(0, null);
             //设置房间的allin状态
             if (stGameRoomInfo.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result && checkAllAllin() == true) {
+
+                //AOF模式下依次看牌下发手牌保护,如果玩家都为allin状态了直接下发玩家手牌
+                GameRoomInfo.Builder tGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+                if (stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
+                    for (int i = 0; i < tGameRoomInfoBuilder.getVUserGameInfosCount(); i++){
+                        UserGameInfoNet.Builder stUserGameInfoNetBuilder = tGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+                        if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() > 0
+                                && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT
+                                && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_STANDBY){
+                            stUserGameInfoNetBuilder.clearVCurrentHands();
+
+                            ArrayList<Integer> cards = new ArrayList<Integer>();
+                            if (mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null && mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards() != null){
+                                cards.addAll(mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards());
+                            } else {
+                                cards.add(-1);
+                                cards.add(-1);
+                            }
+                            stUserGameInfoNetBuilder.addAllVCurrentHands(cards);
+                        }
+                        tGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+                    }
+                }
+                stGameRoomInfo = tGameRoomInfoBuilder.build();
+
+                sendAllGameStateChange(0, null);  //下发push动画过度
+
                 SidePot();
                 stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
                 stGameRoomInfoBuilder.setBAllAllin(1);
@@ -4670,6 +4697,33 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
             sendAllGameStateChange(0, null);
             //设置房间的allin状态
             if (stGameRoomInfo.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result && checkAllAllin() == true) {
+
+                //AOF模式下依次看牌下发手牌保护,如果玩家都为allin状态了直接下发玩家手牌
+                GameRoomInfo.Builder tGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+                if (stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
+                    for (int i = 0; i < tGameRoomInfoBuilder.getVUserGameInfosCount(); i++){
+                        UserGameInfoNet.Builder stUserGameInfoNetBuilder = tGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+                        if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() > 0
+                                && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT
+                                && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_STANDBY){
+                            stUserGameInfoNetBuilder.clearVCurrentHands();
+
+                            ArrayList<Integer> cards = new ArrayList<Integer>();
+                            if (mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null && mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards() != null){
+                                cards.addAll(mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards());
+                            } else {
+                                cards.add(-1);
+                                cards.add(-1);
+                            }
+                            stUserGameInfoNetBuilder.addAllVCurrentHands(cards);
+                        }
+                        tGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+                    }
+                }
+                stGameRoomInfo = tGameRoomInfoBuilder.build();
+
+                sendAllGameStateChange(0, null);  //下发push动画过度
+
                 SidePot();
                 stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
                 stGameRoomInfoBuilder.setBAllAllin(1);
@@ -4987,6 +5041,33 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
             sendAllGameStateChange(0, null);
             //设置房间的allin状态
             if (stGameRoomInfo.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result && checkAllAllin() == true) {
+
+                //AOF模式下依次看牌下发手牌保护,如果玩家都为allin状态了直接下发玩家手牌
+                GameRoomInfo.Builder tGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+                if (stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
+                    for (int i = 0; i < tGameRoomInfoBuilder.getVUserGameInfosCount(); i++){
+                        UserGameInfoNet.Builder stUserGameInfoNetBuilder = tGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+                        if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() > 0
+                                && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT
+                                && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_STANDBY){
+                            stUserGameInfoNetBuilder.clearVCurrentHands();
+
+                            ArrayList<Integer> cards = new ArrayList<Integer>();
+                            if (mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null && mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards() != null){
+                                cards.addAll(mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards());
+                            } else {
+                                cards.add(-1);
+                                cards.add(-1);
+                            }
+                            stUserGameInfoNetBuilder.addAllVCurrentHands(cards);
+                        }
+                        tGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+                    }
+                }
+                stGameRoomInfo = tGameRoomInfoBuilder.build();
+
+                sendAllGameStateChange(0, null);  //下发push动画过度
+
                 SidePot();
                 stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
                 stGameRoomInfoBuilder.setBAllAllin(1);
@@ -5241,6 +5322,33 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
             sendAllGameStateChange(0, null);
             //设置房间的allin状态
             if (stGameRoomInfo.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result && checkAllAllin() == true) {
+
+                //AOF模式下依次看牌下发手牌保护,如果玩家都为allin状态了直接下发玩家手牌
+                GameRoomInfo.Builder tGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+                if (stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
+                    for (int i = 0; i < tGameRoomInfoBuilder.getVUserGameInfosCount(); i++){
+                        UserGameInfoNet.Builder stUserGameInfoNetBuilder = tGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+                        if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() > 0
+                                && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT
+                                && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_STANDBY){
+                            stUserGameInfoNetBuilder.clearVCurrentHands();
+
+                            ArrayList<Integer> cards = new ArrayList<Integer>();
+                            if (mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null && mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards() != null){
+                                cards.addAll(mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards());
+                            } else {
+                                cards.add(-1);
+                                cards.add(-1);
+                            }
+                            stUserGameInfoNetBuilder.addAllVCurrentHands(cards);
+                        }
+                        tGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+                    }
+                }
+                stGameRoomInfo = tGameRoomInfoBuilder.build();
+
+                sendAllGameStateChange(0, null);  //下发push动画过度
+
                 SidePot();
                 stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
                 stGameRoomInfoBuilder.setBAllAllin(1);
@@ -5431,6 +5539,33 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
             sendAllGameStateChange(0, null);
             //设置房间的allin状态
             if (stGameRoomInfo.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result && checkAllAllin() == true) {
+
+                //AOF模式下依次看牌下发手牌保护,如果玩家都为allin状态了直接下发玩家手牌
+                GameRoomInfo.Builder tGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+                if (stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
+                    for (int i = 0; i < tGameRoomInfoBuilder.getVUserGameInfosCount(); i++){
+                        UserGameInfoNet.Builder stUserGameInfoNetBuilder = tGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+                        if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() > 0
+                                && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT
+                                && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_STANDBY){
+                            stUserGameInfoNetBuilder.clearVCurrentHands();
+
+                            ArrayList<Integer> cards = new ArrayList<Integer>();
+                            if (mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null && mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards() != null){
+                                cards.addAll(mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards());
+                            } else {
+                                cards.add(-1);
+                                cards.add(-1);
+                            }
+                            stUserGameInfoNetBuilder.addAllVCurrentHands(cards);
+                        }
+                        tGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+                    }
+                }
+                stGameRoomInfo = tGameRoomInfoBuilder.build();
+
+                sendAllGameStateChange(0, null);  //下发push动画过度
+
                 SidePot();
                 stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
                 stGameRoomInfoBuilder.setBAllAllin(1);

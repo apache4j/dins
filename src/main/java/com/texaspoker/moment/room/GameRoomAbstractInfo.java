@@ -4075,6 +4075,32 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
     @Override
     public void flodWinProcess() {
+        //AOF模式下依次看牌下发手牌保护,如果玩家在没有下发flop3张牌时结算需要将玩家的所有手牌下发
+        GameRoomInfo.Builder tGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+        if (stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1 && bFlopStatus == false){
+            for (int i = 0; i < tGameRoomInfoBuilder.getVUserGameInfosCount(); i++){
+                UserGameInfoNet.Builder stUserGameInfoNetBuilder = tGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+                if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() > 0
+                        && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT
+                        && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_STANDBY){
+                    stUserGameInfoNetBuilder.clearVCurrentHands();
+
+                    ArrayList<Integer> cards = new ArrayList<Integer>();
+                    if (mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null && mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards() != null){
+                        cards.addAll(mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards());
+                    } else {
+                        cards.add(-1);
+                        cards.add(-1);
+                    }
+                    stUserGameInfoNetBuilder.addAllVCurrentHands(cards);
+                }
+                tGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+            }
+        }
+        stGameRoomInfo = tGameRoomInfoBuilder.build();
+
+        sendAllGameStateChange(0, null);  //下发push动画过度
+
         //分池
         SidePot();
 
