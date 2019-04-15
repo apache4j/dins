@@ -281,6 +281,7 @@ public class QuickGameRoomManager {
                             gameRoomBaseInfoBuilder.setIVPIPlimit(stSettingGameRoomBaseInfoBuilder.getIVPIPlimit());
                             gameRoomBaseInfoBuilder.setBUnloadable(stSettingGameRoomBaseInfoBuilder.getBFullAllIn()); //AOF模式下具有卸码功能
                             gameRoomBaseInfoBuilder.setIMinRemainRatio(stSettingGameRoomBaseInfoBuilder.getIMinRemainRatio());
+                            gameRoomBaseInfoBuilder.setIUnloadRatio(stSettingGameRoomBaseInfoBuilder.getIUnloadRatio());
                             gameRoomBaseInfoBuilder.setBLookCardTurn(stSettingGameRoomBaseInfoBuilder.getBLookCardTurn()); //AOF模式下依次看牌
 
                             gameRoomBaseInfoBuilder.setStCreateUserBaseInfo(UserManager.getInstance().getUserBaseInfo(uuid));
@@ -349,7 +350,7 @@ public class QuickGameRoomManager {
 
                             BillManager.getInstance().createBillInfo(0, gameRoomBaseInfoBuilder.build());
 
-                            stGameRoomDetailInfo.buyStakcsInRoom(stUserBaseInfoNet.getUuid(), 0, gameRoomBaseInfoBuilder.getLChatRoomID());
+                            stGameRoomDetailInfo.buyStakcsInRoom(stUserBaseInfoNet.getUuid(), 0, gameRoomBaseInfoBuilder.getLChatRoomID(), 6);
 
                             stSettingGameRoomBaseInfoBuilder.setLGameRoomId(gameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId());
                             stChatRoomInfoBuilder.addVGameRoomBaseInfos(stSettingGameRoomBaseInfoBuilder);

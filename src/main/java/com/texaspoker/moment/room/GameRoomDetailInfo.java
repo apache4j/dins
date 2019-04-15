@@ -12,6 +12,7 @@ import com.texaspoker.credit.CreditManager;
 import com.texaspoker.database.ConnectDatabase;
 import com.texaspoker.dubbo.game.insurance.InsuranceApi;
 import com.texaspoker.lbs.LBSManager;
+import com.texaspoker.logger.NormalLogService;
 import com.texaspoker.logger.PlayLogService;
 import com.texaspoker.logger.TableLogService;
 import com.texaspoker.logger.TranscationLogService;
@@ -1180,7 +1181,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                                     stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoBuilder);
                                     //修改账单信息
-                                    buyStakcsInRoom(uuid, buyStacks, clubID);
+                                    buyStakcsInRoom(uuid, buyStacks, clubID, 1);
 
                                     if (stUserGameInfoBuilder != null) {
                                         setBillCurrentStacksInRoom(stUserGameInfoBuilder.getStUserInfo().getUuid(),
@@ -1249,7 +1250,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 stUserGameInfoBuilder.setLBuyinClubID(clubID);
 
                                 //修改账单信息
-                                buyStakcsInRoom(uuid, buyStacks, clubID);
+                                buyStakcsInRoom(uuid, buyStacks, clubID, 2);
 
                                 if (stUserGameInfoBuilder != null) {
                                     setBillCurrentStacksInRoom(stUserGameInfoBuilder.getStUserInfo().getUuid(),
@@ -2463,7 +2464,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                                     stUserGameInfoNetBuilder.setLRemainStacks(stUserGameInfoNetBuilder.getLRemainStacks() + buyStacks);
 
-                                    buyStakcsInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), buyStacks, stUserGameInfoNetBuilder.getLBuyinClubID());
+                                    buyStakcsInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), buyStacks, stUserGameInfoNetBuilder.getLBuyinClubID(), 3);
 
 
                                     if (stUserGameInfoNetBuilder != null) {
@@ -2588,7 +2589,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                     if ((state == 2 && usedInGame(stUserBaseInfoNetBuilder.getUuid())) || state == 0) {
                                         stUserGameInfoNetBuilder.setLRemainStacks(stUserGameInfoNetBuilder.getLRemainStacks() + buyStacks);
 
-                                        buyStakcsInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), buyStacks, stUserGameInfoNetBuilder.getLBuyinClubID());
+                                        buyStakcsInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), buyStacks, stUserGameInfoNetBuilder.getLBuyinClubID(), 4);
 
                                         if (stUserGameInfoNetBuilder != null) {
                                             setBillCurrentStacksInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),
@@ -2637,7 +2638,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                         if (result == 0) {
                                             stUserGameInfoNetBuilder.setLRemainStacks(stUserGameInfoNetBuilder.getLRemainStacks() + buyStacks);
 
-                                            buyStakcsInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), buyStacks, stUserGameInfoNetBuilder.getLBuyinClubID());
+                                            buyStakcsInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), buyStacks, stUserGameInfoNetBuilder.getLBuyinClubID(), 5);
 
                                             if (stUserGameInfoNetBuilder != null) {
                                                 setBillCurrentStacksInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),
@@ -5806,7 +5807,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
         this.stLeagueInfo = stLeagueInfo;
     }
 
-    public void buyStakcsInRoom(long uuid, long lBuyStacks, long clubid) {
+    public void buyStakcsInRoom(long uuid, long lBuyStacks, long clubid, int type) {
         Long lBuyinStacks = mUserBuyinStacks.get(uuid);
         if (lBuyinStacks == null) {
             lBuyinStacks = (long) 0;
@@ -5824,6 +5825,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
         lBuyinStacks += lBuyStacks;
         mUserBuyining.put(uuid, uuid);
+
+        NormalLogService.getInstance().error("uuid:" + uuid + " roomid:" + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+                + " lBuyinStacks:" + lBuyinStacks + " lBuyStacks:" + lBuyStacks + " clubid:" + clubid + " type:" + type);
 
         //修改账单信息
         if (BillManager.getInstance().buyStackInRoom(uuid, stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), lBuyinStacks, clubid, sClubName)) {

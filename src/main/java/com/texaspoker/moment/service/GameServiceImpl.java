@@ -1137,13 +1137,11 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     public UserUnloadStacksResponse userUnloadStacks(RpcController controller, UserUnloadStacksRequest request) throws ServiceException {
         TexasPokerGameService.UserUnloadStacksResponse.Builder  stUserUnloadStacksResponseBuilder = TexasPokerGameService.UserUnloadStacksResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
-        System.out.println("GameServiceImpl.userUnloadStacks - request " + request);
         if(stGameRoomDetailInfo!=null){
             stUserUnloadStacksResponseBuilder.setEErrCode(stGameRoomDetailInfo.userUnloadStacks(request.getUuid(),request.getLStacks()));
         }else{
             stUserUnloadStacksResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);
         }
-        System.out.println("GameServiceImpl.userUnloadStacks - response " + stUserUnloadStacksResponseBuilder.build());
         return stUserUnloadStacksResponseBuilder.build();
     }
 
