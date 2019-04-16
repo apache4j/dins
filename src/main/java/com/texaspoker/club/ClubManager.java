@@ -584,7 +584,7 @@ public class ClubManager {
      * @param lDcredit
      * @return
      */
-    public ERROR_CODE_TYPE updateUserCreditInGame(long lClubID, long uuid, long lDcredit, long roomid, long handid, long type){
+    public ERROR_CODE_TYPE updateUserCreditInGame(long lClubID, long uuid, long lDcredit, long roomid, long handid, long type, String roomName){
         UpdateUserCreditInGameRequest.Builder stUpdateUserCreditInGameRequest = UpdateUserCreditInGameRequest.newBuilder();
         stUpdateUserCreditInGameRequest.setUuid(uuid);
         stUpdateUserCreditInGameRequest.setLClubID(lClubID);
@@ -593,6 +593,7 @@ public class ClubManager {
         stUpdateUserCreditInGameRequest.setLHandid(handid);
         stUpdateUserCreditInGameRequest.setEGameRoomType(TexasPokerCommon.GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
         stUpdateUserCreditInGameRequest.setIType(type);
+        stUpdateUserCreditInGameRequest.setSRoomName(roomName);
 
         UpdateUserCreditInGameResponse response = null;
         try {
