@@ -1257,7 +1257,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                                     //授信牌局在写入账单之前先做联盟币更新,防止最大买入和最大允许亏损
                                     if (this.bCredit){
-                                        eErrorCodeType = ClubManager.getInstance().updateUserCreditInGame(clubID, uuid, lStacks, stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stGameRoomInfo.getLGameHandID(), 1, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName());
+                                        eErrorCodeType = ClubManager.getInstance().updateUserCreditInGame(clubID, uuid, lStacks, stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stGameRoomInfo.getLGameHandID(), 1, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(), 0);
                                         if (eErrorCodeType != ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
                                             return eErrorCodeType;
                                         } else {
@@ -1989,7 +1989,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                                     // 授信牌桌返还联盟币,普通牌桌返还德扑币
                                     if (bCredit) {
-                                        ClubManager.getInstance().updateUserCreditInGame(stUserGameInfoNetBuilder.getLBuyinClubID(), stUserGameInfoNetBuilder.getStUserInfoBuilder().getUuid(), -(stUserGameInfoNetBuilder.getLRemainStacks() + stUserGameInfoNetBuilder.getLUnloadStacks()), stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stGameRoomInfo.getLGameHandID(), 5, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName());
+                                        ClubManager.getInstance().updateUserCreditInGame(stUserGameInfoNetBuilder.getLBuyinClubID(), stUserGameInfoNetBuilder.getStUserInfoBuilder().getUuid(), -(stUserGameInfoNetBuilder.getLRemainStacks() + stUserGameInfoNetBuilder.getLUnloadStacks()), stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stGameRoomInfo.getLGameHandID(), 5, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(), 0);
                                         String sLog = stUserGameInfoNetBuilder.getStUserInfo().getUuid() + " " + 0 + " " + 910004 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId()
                                                 + " 0 " + " 0 " + stUserGameInfoNetBuilder.getLRemainStacks()+stUserGameInfoNetBuilder.getLUnloadStacks() + " " + ClubManager.getInstance().getClubUserCreditInfo(stUserGameInfoNetBuilder.getLBuyinClubID(), stUserGameInfoNetBuilder.getStUserInfoBuilder().getUuid()).getLCreditBalance() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
                                         TranscationLogService.getInstance().error(sLog);
@@ -2544,7 +2544,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                                     //授信牌局在写入账单之前先做联盟币更新,防止最大买入和最大允许亏损
                                     if (this.bCredit){
-                                        ERROR_CODE_TYPE eErrorCodeType = ClubManager.getInstance().updateUserCreditInGame(stUserGameInfoNetBuilder.getLBuyinClubID(), stUserGameInfoNetBuilder.getStUserInfo().getUuid(), buyStacks, stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stGameRoomInfo.getLGameHandID(), 1, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName());
+                                        ERROR_CODE_TYPE eErrorCodeType = ClubManager.getInstance().updateUserCreditInGame(stUserGameInfoNetBuilder.getLBuyinClubID(), stUserGameInfoNetBuilder.getStUserInfo().getUuid(), buyStacks, stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stGameRoomInfo.getLGameHandID(), 1, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(), 0);
                                         if (eErrorCodeType != ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
                                             buyStacks = 0;
                                         } else {
@@ -2661,7 +2661,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                                     //授信牌局在写入账单之前先做联盟币更新,防止最大买入和最大允许亏损
                                     if (this.bCredit){
-                                        ERROR_CODE_TYPE eErrorCodeType = ClubManager.getInstance().updateUserCreditInGame(stUserGameInfoNetBuilder.getLBuyinClubID(), stUserGameInfoNetBuilder.getStUserInfo().getUuid(), buyStacks, stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stGameRoomInfo.getLGameHandID(), 1, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName());
+                                        ERROR_CODE_TYPE eErrorCodeType = ClubManager.getInstance().updateUserCreditInGame(stUserGameInfoNetBuilder.getLBuyinClubID(), stUserGameInfoNetBuilder.getStUserInfo().getUuid(), buyStacks, stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stGameRoomInfo.getLGameHandID(), 1, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(), 0);
                                         if (eErrorCodeType != ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
                                             buyStacks = 0;
                                         } else {

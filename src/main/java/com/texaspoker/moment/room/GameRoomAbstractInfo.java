@@ -18,6 +18,7 @@ import com.texaspoker.moment.TexasPokerCommon.CREATE_ROOM_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.ClubBaseInfo;
 import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
+import com.texaspoker.moment.TexasPokerHttpClub;
 import com.texaspoker.msg.GameRoomMsgManager;
 import com.texaspoker.shuffle.ShuffleAlgorithm;
 import com.texaspoker.shuffle.ShuffleCard;
@@ -157,20 +158,20 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
     public GameRoomAbstractInfo() {
         mTimeoutGameUsers = new AdvancedTimeoutHashMap<Long, Long>();
 
-        vTestHandCards1.add(10);
-        vTestHandCards1.add(35);
+        vTestHandCards1.add(24);
+        vTestHandCards1.add(25);
 
-        vTestHandCards2.add(19);
-        vTestHandCards2.add(46);
+        vTestHandCards2.add(23);
+        vTestHandCards2.add(36);
 
         vTestHandCards3.add(30);
         vTestHandCards3.add(41);
 
-        vTestTableCards.add(0);
-        vTestTableCards.add(9);
-        vTestTableCards.add(10);
-        vTestTableCards.add(11);
-        vTestTableCards.add(12);
+        vTestTableCards.add(22);
+        vTestTableCards.add(35);
+        vTestTableCards.add(13);
+        vTestTableCards.add(26);
+        vTestTableCards.add(48);
 
         mTemporarilyLeaveUsersTimeout = new TimeoutHashMap<Long, Long>();
         mTemporarilyLeaveUsersTimeout.setTimeout(180000);
@@ -2549,11 +2550,35 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         stGameRoomInfo = stGameRoomInfoBuilder.build();
         stGameRoomInfo = InsuranceApi.getInsuranceBill(stGameRoomInfo, stGameRoomInfo.getLGameHandID());
         ArrayList<Long> vSitdownUsers = new ArrayList<Long>();
+        TexasPoker.GameRoomInfo.Builder gameBuilder = stGameRoomInfo.toBuilder();
         //设置结果,实时账单信息
         for (int index = 0; index < stGameRoomInfo.getVUserGameInfosCount(); index++) {
-            UserGameInfoNet stUserGameInfo = stGameRoomInfo.getVUserGameInfos(index);
+            UserGameInfoNet.Builder stUserGameInfo = stGameRoomInfo.getVUserGameInfos(index).toBuilder();
             if (stUserGameInfo.getStUserInfo().getUuid() > 0) {
                 System.out.println("结账111 : " + stUserGameInfo.getStUserInfo().getUuid());
+
+                //如果为底池抽水,由于玩家买保险的情况可能导致玩家在桌筹码为负,为负时需要强制买入使玩家筹码量为0
+                if (bCredit && iDrawType == 2 && bFlopStatus && stUserGameInfo.getLRemainStacks() < 0){
+
+                    //强制买入
+                    ClubManager.getInstance().updateUserCreditInGame(stUserGameInfo.getLBuyinClubID(), stUserGameInfo.getStUserInfo().getUuid(),
+                            -stUserGameInfo.getLRemainStacks(), stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stGameRoomInfo.getLGameHandID(), 1, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(), 1);
+
+                    //日志打印
+                    TexasPokerHttpClub.ClubUserCrditInfo.Builder stClubUserCrditInfo = ClubManager.getInstance().getClubUserCreditInfo(stUserGameInfo.getLBuyinClubID(), stUserGameInfo.getStUserInfo().getUuid());
+                    String sLog = stUserGameInfo.getStUserInfo().getUuid() + " " + stUserGameInfo.getLBuyinClubID() + " " + 910000 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId()
+                            + " 0 " + " 1 " + -stUserGameInfo.getLRemainStacks() + " " + stClubUserCrditInfo.getLCreditBalance() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+                    TranscationLogService.getInstance().error(sLog);
+
+                    //修改账单信息
+                    GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+                    stGameRoomDetailInfo.buyStakcsInRoom(stUserGameInfo.getStUserInfo().getUuid(), -stUserGameInfo.getLRemainStacks(), stUserGameInfo.getLBuyinClubID(), 7);
+
+                    stUserGameInfo.setLRemainStacks(0);
+                    gameBuilder.setVUserGameInfos(index, stUserGameInfo);
+
+                }
+
                 //设置账单
                 setBillCurrentStacksInRoom(stUserGameInfo.getStUserInfo().getUuid(),
                         stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -2561,6 +2586,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 vSitdownUsers.add(stUserGameInfo.getStUserInfo().getUuid());
             }
         }
+        stGameRoomInfo = gameBuilder.build();
 
         Iterator iter1 = mapStandByUserGameInfos.entrySet().iterator();
         while (iter1.hasNext()) {
@@ -3953,9 +3979,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         if (bTable) {
             return vTestTableCards.get(time);
         } else {
-            if (uuid == 40732) {
+            if (uuid == 203330) {
                 return vTestHandCards1.get(time);
-            } else if (uuid == 35116) {
+            } else if (uuid == 203334) {
                 return vTestHandCards2.get(time);
             } else {
                 return vTestHandCards3.get(time);
