@@ -283,6 +283,7 @@ public class QuickGameRoomManager {
                             gameRoomBaseInfoBuilder.setIMinRemainRatio(stSettingGameRoomBaseInfoBuilder.getIMinRemainRatio());
                             gameRoomBaseInfoBuilder.setIUnloadRatio(stSettingGameRoomBaseInfoBuilder.getIUnloadRatio());
                             gameRoomBaseInfoBuilder.setBLookCardTurn(stSettingGameRoomBaseInfoBuilder.getBLookCardTurn()); //AOF模式下依次看牌
+                            gameRoomBaseInfoBuilder.setBHiddenDecimal(stSettingGameRoomBaseInfoBuilder.getBHiddenDecimal()); //是否隐藏小数
 
                             gameRoomBaseInfoBuilder.setStCreateUserBaseInfo(UserManager.getInstance().getUserBaseInfo(uuid));
                             gameRoomBaseInfoBuilder.setLChatRoomID(lQuickGameRoomID);
