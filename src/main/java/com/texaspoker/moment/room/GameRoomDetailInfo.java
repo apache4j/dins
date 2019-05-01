@@ -1848,8 +1848,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                     UserGameInfoNet.Builder stUserGameInfoNetBuilder =  stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
                                     if(stUserGameInfoNetBuilder.getStUserInfo().getUuid() > 0 && stUserGameInfoNetBuilder.getBUnloadingStacks() > 0){
                                         //判断是否满足最少在卓筹码的条件
-                                        if(stUserGameInfoNetBuilder.getBUnloadingStacks() < stGameRoomInfoBuilder.getStGameRoomBaseInfo().getIUnloadRatio() * stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds()
-                                                || stUserGameInfoNetBuilder.getLRemainStacks() -stUserGameInfoNetBuilder.getBUnloadingStacks() < stGameRoomInfoBuilder.getStGameRoomBaseInfo().getIMinRemainRatio()*stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds()){
+                                        if(stUserGameInfoNetBuilder.getLRemainStacks() - stUserGameInfoNetBuilder.getBUnloadingStacks() < stGameRoomInfoBuilder.getStGameRoomBaseInfo().getIUnloadRatio() * stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds()){
                                             long lUnloadStacks = stUserGameInfoNetBuilder.getBUnloadingStacks();
                                             //重置状态
                                             stUserGameInfoNetBuilder.setBUnloadingStacks(0);
@@ -2800,8 +2799,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 userUnloadNotDoing.put(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), stUserGameInfoNetBuilder.getStUserInfo().getUuid());
                             }else{
                                 //判断是否满足最少在卓筹码的条件
-                                if(stUserGameInfoNetBuilder.getBUnloadingStacks() < stGameRoomInfoBuilder.getStGameRoomBaseInfo().getIUnloadRatio() * stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds()
-                                        || stUserGameInfoNetBuilder.getLRemainStacks() -stUserGameInfoNetBuilder.getBUnloadingStacks() < stGameRoomInfoBuilder.getStGameRoomBaseInfo().getIMinRemainRatio()*stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds()){
+                                if(stUserGameInfoNetBuilder.getLRemainStacks() - stUserGameInfoNetBuilder.getBUnloadingStacks() < stGameRoomInfoBuilder.getStGameRoomBaseInfo().getIUnloadRatio() * stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds()){
                                     long lUnloadStacks = stUserGameInfoNetBuilder.getBUnloadingStacks();
                                     //重置状态
                                     stUserGameInfoNetBuilder.setBUnloadingStacks(0);
@@ -6474,7 +6472,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         long originStacks = stUserGameInfoBuilder.getLRemainStacks();
 
                         //撤码数量直接以最小带入的倍数计算即可
-                        if(lUnloadStacks < stGameRoomBaseInfo.getIMinBuyinRatio() * stGameRoomBaseInfo.getLBigBlinds() || originStacks -lUnloadStacks < stGameRoomBaseInfo.getIMinRemainRatio()*stGameRoomBaseInfo.getLBigBlinds()){
+                        if(originStacks -lUnloadStacks < stGameRoomBaseInfo.getIUnloadRatio()*stGameRoomBaseInfo.getLBigBlinds()){
                             //带出失败发送push
                             return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNLOAD_STACKS_NOT_ENOUGH;
                         }
