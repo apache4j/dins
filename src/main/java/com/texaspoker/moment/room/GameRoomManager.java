@@ -7,6 +7,7 @@ import com.texaspoker.comm.GameFeeUtil;
 import com.texaspoker.comm.TimeoutHashMap;
 import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.database.ConnectDatabase;
+import com.texaspoker.floplotto.FlopLottoManager;
 import com.texaspoker.league.LeagueManager;
 import com.texaspoker.logger.TranscationLogService;
 import com.texaspoker.moment.TexasPoker;
@@ -283,6 +284,9 @@ public class GameRoomManager {
                 BillManager.getInstance().createBillInfo(0, createdGameRoomBaseInfo);
 
                 UserManager.getInstance().addUserCreateGameRooms(uuid, createdGameRoomBaseInfo.getLGameRoomId());
+
+                //创建野保险房间
+                FlopLottoManager.getInstance().createFlopLotto(stGameRoomDetailInfo.lGameRoomID,stGameRoomBaseInfo.getLLeagueID(),stGameRoomBaseInfo.getBCredit(),stGameRoomBaseInfo.getBLeagueCurrencyPattern(),stGameRoomBaseInfo.getLBigBlinds(),stGameRoomBaseInfo.getStrRoomName(),stGameRoomBaseInfo.getLLeagueID() > 0 ? 3 : 2);
 
                 stGameRoomIDResultInfo.seteErrorCodeType(TexasPokerCommon.ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
                 stGameRoomIDResultInfo.setlGameRoomID(createdGameRoomBaseInfo.getLGameRoomId());

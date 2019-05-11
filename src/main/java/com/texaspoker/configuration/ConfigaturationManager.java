@@ -44,6 +44,9 @@ public class ConfigaturationManager {
 	public static String sCreditServiceHost;
     public static int iCreditServicePost;
 
+	public static String sFlopLottoServiceHost;
+	public static int iFlopLottoServicePost;
+
 	//抽水间隔,时间单位为小时
 	public static int iDrawTime;
 
@@ -111,6 +114,9 @@ public class ConfigaturationManager {
 		
 	    sCreditServiceHost = stConfigaturation.getValue("credit_service_host");
 	    iCreditServicePost = Integer.parseInt(stConfigaturation.getValue("credit_service_post"));
+
+		sFlopLottoServiceHost = stConfigaturation.getValue("floplotto_service_host");
+		iFlopLottoServicePost = Integer.parseInt(stConfigaturation.getValue("floplotto_service_post"));
 
 		iCreditAppyTimeOut = Integer.parseInt(stConfigaturation.getValue("credit_apply_timeout"));
 

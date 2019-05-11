@@ -9,6 +9,7 @@ import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.dubbo.game.insurance.InsuranceApi;
 import com.texaspoker.dubbo.game.insurance.InsuranceManager;
 import com.texaspoker.dubbo.game.insurance.OutsInfo;
+import com.texaspoker.floplotto.FlopLottoManager;
 import com.texaspoker.logger.PotDrawLogService;
 import com.texaspoker.logger.TableLogService;
 import com.texaspoker.logger.TranscationLogService;
@@ -167,10 +168,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         vTestHandCards3.add(30);
         vTestHandCards3.add(41);
 
-        vTestTableCards.add(22);
-        vTestTableCards.add(35);
-        vTestTableCards.add(13);
-        vTestTableCards.add(26);
+        vTestTableCards.add(49);
+        vTestTableCards.add(50);
+        vTestTableCards.add(51);
+        vTestTableCards.add(21);
         vTestTableCards.add(48);
 
         mTemporarilyLeaveUsersTimeout = new TimeoutHashMap<Long, Long>();
@@ -603,6 +604,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             cards.add(card1);
             cards.add(card2);
             cards.add(card3);
+
+            //push野保险3张牌
+            FlopLottoManager.getInstance().pushFlopLottoCards(lGameRoomID,cards,System.currentTimeMillis(),stGameRoomInfo.getLGameHandID());
+
             sendAllGameStateChange(uuid, cards);
 
             TableLogService.getInstance().error(lFromRoomID

@@ -11,9 +11,10 @@ import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.credit.CreditManager;
 import com.texaspoker.database.ConnectDatabase;
 import com.texaspoker.dubbo.game.insurance.InsuranceApi;
+import com.texaspoker.floplotto.FlopLottoManager;
 import com.texaspoker.lbs.LBSManager;
-import com.texaspoker.logger.NormalLogService;
 import com.texaspoker.league.LeagueManager;
+import com.texaspoker.logger.NormalLogService;
 import com.texaspoker.logger.PlayLogService;
 import com.texaspoker.logger.TableLogService;
 import com.texaspoker.logger.TranscationLogService;
@@ -1840,6 +1841,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             mGameRoomDetailInfos.removeKey(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
                         } else {
 
+                            //牌局结束通知野保险结束
+                            FlopLottoManager.getInstance().overFlopLotto(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+
                             //牌局结束 AOF模式下检测卸码
                             if (stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1){
                                 GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
@@ -2230,6 +2234,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                         //重新可以进行牌局的用户，去掉刚坐在小盲位的用户
                         couldPlayNumAfterSetDealer();
+
+                        //刷新野保险下注超时重新计时
+                        FlopLottoManager.getInstance().refreshBetTimeOut(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 
                         if (iCouldPlayNum >= 2) {
                             //每个选手发两张牌,并把游戏的状态设置为FirstRound

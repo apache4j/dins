@@ -3,6 +3,7 @@ package com.texaspoker.moment.room;
 import com.texaspoker.bill.BillManager;
 import com.texaspoker.comm.GameFeeUtil;
 import com.texaspoker.database.ConnectDatabase;
+import com.texaspoker.floplotto.FlopLottoManager;
 import com.texaspoker.logger.TranscationLogService;
 import com.texaspoker.moment.TexasPoker;
 import com.texaspoker.moment.TexasPoker.*;
@@ -373,6 +374,10 @@ public class QuickGameRoomManager {
                                             stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId());
                                 }
                             }
+
+                            //创建野保险房间
+                            FlopLottoManager.getInstance().createFlopLotto(stGameRoomDetailInfo.lGameRoomID,0,0,0,gameRoomBaseInfoBuilder.getLBigBlinds(),gameRoomBaseInfoBuilder.getStrRoomName(),1);
+
                             stGameRoomResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
                             stGameRoomResultInfo.setStGameRoomInfo(gameRoomInfoBuilder.build());
                         }
