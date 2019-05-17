@@ -11,3 +11,5 @@ rsync -zv src/main/java/com/texaspoker/moment/room/GameRoomManager.java root@had
 rsync -zv src/main/java/com/texaspoker/moment/room/QuickGameRoomManager.java root@hades3:/data/pokermaster/carp_2.6.15/texaspokerinsurancegameservice/src/main/java/com/texaspoker/moment/room/
 
 rsync -zv src/main/java/com/texaspoker/floplotto/FlopLottoManager.java root@hades3:/data/pokermaster/carp_2.6.15/texaspokerinsurancegameservice/src/main/java/com/texaspoker/floplotto/
+
+rsync -zv src/main/java/com/texaspoker/moment/service/GameServiceImpl.java root@hades3:/data/pokermaster/carp_2.6.15/texaspokerinsurancegameservice/src/main/java/com/texaspoker/moment/service/

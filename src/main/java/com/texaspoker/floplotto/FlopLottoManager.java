@@ -2,6 +2,7 @@ package com.texaspoker.floplotto;
 
 import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.logger.NormalLogService;
+import com.texaspoker.moment.TexasPokerCommon;
 import com.texaspoker.moment.TexasPokerFlopLottoService;
 import com.texaspoker.rpc.client.RpcChannel;
 import com.texaspoker.rpc.client.RpcClient;
@@ -66,6 +67,7 @@ public class FlopLottoManager {
             request.setStrRoomName(strRoomName);
             request.setIType(iType);
             request.setIGameType(1);
+            request.setEGameRoomType(TexasPokerCommon.GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
 
             flopLottoStub.createFlopLotto(controller, request.build(), null);
         } catch (Exception e){
