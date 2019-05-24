@@ -254,7 +254,7 @@ public class BillManager {
      * @param uuid
      * @param roomid
      */
-    public void standUpToBill(long uuid, long roomid, long lBetStacks, long handid, String roomName){
+    public void standUpToBill(long uuid, long roomid, long lBetStacks, long handid, String roomName, String msgKey){
         StandUpToBillRequest.Builder stStandUpToBillRequest = StandUpToBillRequest.newBuilder();
         stStandUpToBillRequest.setUuid(uuid);
         stStandUpToBillRequest.setLGameRoomID(roomid);
@@ -262,6 +262,7 @@ public class BillManager {
         stStandUpToBillRequest.setEGameType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
         stStandUpToBillRequest.setLHandId(handid);
         stStandUpToBillRequest.setSRoomName(roomName);
+        stStandUpToBillRequest.setMsgKey(msgKey);
 
         try {
             blockingBillService.standUpToBill(controller, stStandUpToBillRequest.build());
@@ -317,13 +318,14 @@ public class BillManager {
      * @param uuid
      * @param roomid
      */
-    public TexasPokerCommon.ERROR_CODE_TYPE sitDownToBill(long uuid, long roomid, long handid, String roomName){
+    public TexasPokerCommon.ERROR_CODE_TYPE sitDownToBill(long uuid, long roomid, long handid, String roomName, String msgKey){
         SitDownToBillRequest.Builder stSitDownToBillRequest = SitDownToBillRequest.newBuilder();
         stSitDownToBillRequest.setLGameRoomID(roomid);
         stSitDownToBillRequest.setUuid(uuid);
         stSitDownToBillRequest.setEGameType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
         stSitDownToBillRequest.setLHandId(handid);
         stSitDownToBillRequest.setSRoomName(roomName);
+        stSitDownToBillRequest.setMsgKey(msgKey);
 
         SitDownToBillResponse response = null;
         try {

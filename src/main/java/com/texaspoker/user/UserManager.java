@@ -1,80 +1,21 @@
 package com.texaspoker.user;
 
-import java.util.ArrayList;
-import java.util.Timer;
 import com.google.protobuf.ServiceException;
 import com.texaspoker.configuration.ConfigaturationManager;
+import com.texaspoker.moment.TexasPokerCommon;
+import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
 import com.texaspoker.moment.TexasPokerCommon.UserTokenInfoNet;
 import com.texaspoker.moment.TexasPokerCommon.VIP_TYPE;
 import com.texaspoker.moment.TexasPokerUserService;
-import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
-import com.texaspoker.moment.TexasPokerUserService.AddNewUserBaseInfoRequest;
-import com.texaspoker.moment.TexasPokerUserService.AddNewUserBaseInfoResponse;
-import com.texaspoker.moment.TexasPokerUserService.AddUserChatRoomsRequest;
-import com.texaspoker.moment.TexasPokerUserService.AddUserCreateGameRoomsRequest;
-import com.texaspoker.moment.TexasPokerUserService.CheckUserCoinRequest;
-import com.texaspoker.moment.TexasPokerUserService.CheckUserCoinResponse;
-import com.texaspoker.moment.TexasPokerUserService.CheckUserPopularityRequest;
-import com.texaspoker.moment.TexasPokerUserService.CheckUserPopularityResponse;
-import com.texaspoker.moment.TexasPokerUserService.ClearAPNTokenInfoRequest;
-import com.texaspoker.moment.TexasPokerUserService.ClearAPNTokenInfoResponse;
-import com.texaspoker.moment.TexasPokerUserService.DeleteUserCoverRequest;
-import com.texaspoker.moment.TexasPokerUserService.DeleteUserCoverResponse;
-import com.texaspoker.moment.TexasPokerUserService.GetUserChatRoomsRequest;
-import com.texaspoker.moment.TexasPokerUserService.GetUserChatRoomsResponse;
-import com.texaspoker.moment.TexasPokerUserService.GetUserCreateGameRoomsRequest;
-import com.texaspoker.moment.TexasPokerUserService.GetUserCreateGameRoomsResponse;
-import com.texaspoker.moment.TexasPokerUserService.GetUserQuickRoomsRequest;
-import com.texaspoker.moment.TexasPokerUserService.GetUserQuickRoomsResponse;
-import com.texaspoker.moment.TexasPokerUserService.GetUserRegisterDataReq;
-import com.texaspoker.moment.TexasPokerUserService.GetUserRegisterDataRsp;
-import com.texaspoker.moment.TexasPokerUserService.GetUserRegisterPWDReq;
-import com.texaspoker.moment.TexasPokerUserService.GetUserRegisterPWDRsp;
-import com.texaspoker.moment.TexasPokerUserService.GetUserRegisterVerifyCodeReq;
-import com.texaspoker.moment.TexasPokerUserService.GetUserRegisterVerifyCodeRsp;
-import com.texaspoker.moment.TexasPokerUserService.GetUserStandByRoomsRequest;
-import com.texaspoker.moment.TexasPokerUserService.GetUserStandByRoomsResponse;
-import com.texaspoker.moment.TexasPokerUserService.GetUserTokenInfoRequest;
-import com.texaspoker.moment.TexasPokerUserService.GetUserTokenInfoResponse;
-import com.texaspoker.moment.TexasPokerUserService.RemoveUserChatRoomsRequest;
-import com.texaspoker.moment.TexasPokerUserService.RemoveUserCreateGameRoomsRequest;
-import com.texaspoker.moment.TexasPokerUserService.RemoveUserInTableRequest;
-import com.texaspoker.moment.TexasPokerUserService.RemoveUserQuickRoomsRequest;
-import com.texaspoker.moment.TexasPokerUserService.RemoveUserStandByRoomsRequest;
-import com.texaspoker.moment.TexasPokerUserService.SetUserAPNTokenInfoRequest;
-import com.texaspoker.moment.TexasPokerUserService.SetUserAPNTokenInfoResponse;
-import com.texaspoker.moment.TexasPokerUserService.SetUserBaseInfoCoverRequest;
-import com.texaspoker.moment.TexasPokerUserService.SetUserBaseInfoCoverResponse;
-import com.texaspoker.moment.TexasPokerUserService.SetUserBaseInfoLoginTimeRequest;
-import com.texaspoker.moment.TexasPokerUserService.SetUserBaseInfoLoginTimeResponse;
-import com.texaspoker.moment.TexasPokerUserService.SetUserBaseInfoVIPRequest;
-import com.texaspoker.moment.TexasPokerUserService.SetUserBaseInfoVIPResponse;
-import com.texaspoker.moment.TexasPokerUserService.SetUserInTableRequest;
-import com.texaspoker.moment.TexasPokerUserService.SetUserInfoRequest;
-import com.texaspoker.moment.TexasPokerUserService.SetUserInfoResponse;
-import com.texaspoker.moment.TexasPokerUserService.SetUserInfoSettingRequest;
-import com.texaspoker.moment.TexasPokerUserService.SetUserInfoSettingResponse;
-import com.texaspoker.moment.TexasPokerUserService.SetUserQuickRoomsRequest;
-import com.texaspoker.moment.TexasPokerUserService.SetUserRegisterDataReq;
-import com.texaspoker.moment.TexasPokerUserService.SetUserRegisterPWDReq;
-import com.texaspoker.moment.TexasPokerUserService.SetUserRegisterVerifyCodeReq;
-import com.texaspoker.moment.TexasPokerUserService.SetUserSSOTokenInfoRequest;
-import com.texaspoker.moment.TexasPokerUserService.SetUserSSOTokenInfoResponse;
-import com.texaspoker.moment.TexasPokerUserService.SetUserStandByRoomsRequest;
-import com.texaspoker.moment.TexasPokerUserService.UploadUserCoverRequest;
-import com.texaspoker.moment.TexasPokerUserService.UploadUserCoverResponse;
-import com.texaspoker.moment.TexasPokerUserService.UserAddCoinRequest;
-import com.texaspoker.moment.TexasPokerUserService.UserAddCoinResponse;
-import com.texaspoker.moment.TexasPokerUserService.UserAddPopularityRequest;
-import com.texaspoker.moment.TexasPokerUserService.UserAddPopularityResponse;
-import com.texaspoker.moment.TexasPokerUserService.UserBaseInfoUuid;
-import com.texaspoker.moment.TexasPokerUserService.UserClubRequest;
-import com.texaspoker.moment.TexasPokerUserService.UserClubsNet;
+import com.texaspoker.moment.TexasPokerUserService.*;
 import com.texaspoker.moment.room.UserChatRooms;
 import com.texaspoker.moment.room.UserGameRooms;
 import com.texaspoker.rpc.client.RpcChannel;
 import com.texaspoker.rpc.client.RpcClient;
 import com.texaspoker.rpc.client.RpcController;
+
+import java.util.ArrayList;
+import java.util.Timer;
 
 public class UserManager {
 	
@@ -538,12 +479,12 @@ public class UserManager {
 					return stUserBaseInfoNet.toBuilder();
 				}
 			}else{
-				return null;
+				return UserBaseInfoNet.newBuilder().setUuid(-1).setEType(TexasPokerCommon.ID_TYPE.ID_TYPE_PHONE).setStrID("-1").setStrCover("-1").setLPopularity(-1);
 			}
 		} catch (ServiceException e) {
 //	    	NormalLogService.getInstance().error("syn echo error:" + e.getMessage());
 	    }
-		return null;
+		return UserBaseInfoNet.newBuilder().setUuid(-1).setEType(TexasPokerCommon.ID_TYPE.ID_TYPE_PHONE).setStrID("-1").setStrCover("-1").setLPopularity(-1);
 	}
 	
 	public UserBaseInfoNet.Builder getUserBaseInfo(Long uuid){

@@ -24,6 +24,7 @@ import com.texaspoker.msg.GameRoomMsgManager;
 import com.texaspoker.shuffle.ShuffleAlgorithm;
 import com.texaspoker.shuffle.ShuffleCard;
 import com.texaspoker.user.UserManager;
+import org.apache.commons.lang.math.RandomUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -2565,14 +2566,16 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 //如果为底池抽水,由于玩家买保险的情况可能导致玩家在桌筹码为负,为负时需要强制买入使玩家筹码量为0
                 if (bCredit && iDrawType == 2 && bFlopStatus && stUserGameInfo.getLRemainStacks() < 0){
 
+                    String msgKey = System.currentTimeMillis()+""+stUserGameInfo.getStUserInfo().getUuid()+(RandomUtils.nextInt(9000) + 1000)+0;
+
                     //强制买入
                     ClubManager.getInstance().updateUserCreditInGame(stUserGameInfo.getLBuyinClubID(), stUserGameInfo.getStUserInfo().getUuid(),
-                            -stUserGameInfo.getLRemainStacks(), stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stGameRoomInfo.getLGameHandID(), 1, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(), 1);
+                            -stUserGameInfo.getLRemainStacks(), stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stGameRoomInfo.getLGameHandID(), 1, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(), 1, msgKey);
 
                     //日志打印
                     TexasPokerHttpClub.ClubUserCrditInfo.Builder stClubUserCrditInfo = ClubManager.getInstance().getClubUserCreditInfo(stUserGameInfo.getLBuyinClubID(), stUserGameInfo.getStUserInfo().getUuid());
                     String sLog = stUserGameInfo.getStUserInfo().getUuid() + " " + stUserGameInfo.getLBuyinClubID() + " " + 910000 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId()
-                            + " 0 " + " 1 " + -stUserGameInfo.getLRemainStacks() + " " + stClubUserCrditInfo.getLCreditBalance() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+                            + " " + msgKey + " " + " 1 " + -stUserGameInfo.getLRemainStacks() + " " + stClubUserCrditInfo.getLCreditBalance() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
                     TranscationLogService.getInstance().error(sLog);
 
                     //修改账单信息

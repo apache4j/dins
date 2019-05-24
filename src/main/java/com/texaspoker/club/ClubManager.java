@@ -584,7 +584,7 @@ public class ClubManager {
      * @param lDcredit
      * @return
      */
-    public ERROR_CODE_TYPE updateUserCreditInGame(long lClubID, long uuid, long lDcredit, long roomid, long handid, long type, String roomName, int iForceBuyin){
+    public ERROR_CODE_TYPE updateUserCreditInGame(long lClubID, long uuid, long lDcredit, long roomid, long handid, long type, String roomName, int iForceBuyin, String msgKey){
         UpdateUserCreditInGameRequest.Builder stUpdateUserCreditInGameRequest = UpdateUserCreditInGameRequest.newBuilder();
         stUpdateUserCreditInGameRequest.setUuid(uuid);
         stUpdateUserCreditInGameRequest.setLClubID(lClubID);
@@ -595,6 +595,7 @@ public class ClubManager {
         stUpdateUserCreditInGameRequest.setIType(type);
         stUpdateUserCreditInGameRequest.setSRoomName(roomName);
         stUpdateUserCreditInGameRequest.setBForceBuyin(iForceBuyin);
+        stUpdateUserCreditInGameRequest.setMsgKey(msgKey);
 
         UpdateUserCreditInGameResponse response = null;
         try {
