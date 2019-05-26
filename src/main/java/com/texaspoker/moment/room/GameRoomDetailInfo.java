@@ -153,6 +153,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
      */
     public ERROR_CODE_TYPE doStandUpAction(long uuid, boolean bAuto, int type) {
         synchronized (this) {
+
+            //授信牌局,牌局结束玩家不能站起
+            if (bCredit){
+                if (bOver){
+                    return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
+                }
+            }
+
             if (this.stGameRoomInfo.getStGameRoomBaseInfo().getBGamePause() == 1) {
                 boolean bExist = false;
                 for (int i = 0; i < stGameRoomInfo.getVUserGameInfosCount(); i++) {
@@ -326,11 +334,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                     // 授信牌局直接调玩家计时map,并通知bill服锁水,非授信牌局返还玩家金币
                     if (this.bCredit){
-
-                        //检查是否本手牌局结束,牌局结束玩家不能坐下
-                        if (checkGameOver()){
-                            return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
-                        }
 
                         if (iDrawType == 1) {
                             // 01.将玩家写入计时map
@@ -1142,6 +1145,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
      */
     public ERROR_CODE_TYPE buyBuyin(long uuid, long clubID, long lStacks, boolean bCredit) {
         synchronized (this) {
+
+            //授信牌局,牌局结束玩家不能买入
+            if (bCredit){
+                if (bOver){
+                    return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
+                }
+            }
+
             if (this.stGameRoomInfo.getStGameRoomBaseInfo().getBGamePause() == 1) {
                 return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
             }
@@ -1180,11 +1191,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                 //授信牌局玩家买入俱乐部,需要判断当前俱乐部是否被冻结,若冻结玩家不能买入,玩家被冻结也不能买入
                 if (this.bCredit){
-
-                    //检查是否本手牌局结束,牌局结束玩家不能坐下
-                    if (checkGameOver()){
-                        return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
-                    }
 
                     //检测玩家是否被冻结
                     List<TexasPokerHttpClub.ClubUserCrditInfo> vClubUserCrditInfo = new ArrayList<TexasPokerHttpClub.ClubUserCrditInfo>();
@@ -1479,6 +1485,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
     public ERROR_CODE_TYPE sitdown(long uuid, int iPos) {
         synchronized (this) {
+            //授信牌局,牌局结束玩家不能坐下
+            if (bCredit){
+                if (bOver){
+                    return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
+                }
+            }
+
             if (this.stGameRoomInfo.getStGameRoomBaseInfo().getBGamePause() == 1) {
                 return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
             }
@@ -1523,11 +1536,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                         //授信牌局,检查玩家买入俱乐部是否冻结,玩家是否被冻结
                         if (bCredit) {
-
-                            //检查是否本手牌局结束,牌局结束玩家不能坐下
-                            if (checkGameOver()){
-                                return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
-                            }
 
                             eErrorCode = ClubManager.getInstance().isLimitCreditClubBuyIn(stUserMyGameInfoNetBuilder.getLBuyinClubID());
 
