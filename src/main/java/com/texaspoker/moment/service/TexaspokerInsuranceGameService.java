@@ -1,11 +1,16 @@
 package com.texaspoker.moment.service;
 
 import com.texaspoker.apns.APNManager;
+import com.texaspoker.bill.BillManager;
+import com.texaspoker.club.ClubManager;
 import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.credit.CreditManager;
+import com.texaspoker.floplotto.FlopLottoManager;
 import com.texaspoker.moment.TexasPokerGameService;
+import com.texaspoker.moment.room.ChatRoomManager;
 import com.texaspoker.moment.room.GameRoomManager;
 import com.texaspoker.moment.room.QuickGameRoomManager;
+import com.texaspoker.moment.room.RoomIDManager;
 import com.texaspoker.rpc.server.RpcServer;
 import com.texaspoker.user.UserManager;
 
@@ -32,6 +37,11 @@ public class TexaspokerInsuranceGameService {
 	     GameRoomManager.getInstance();
 	     
 	     CreditManager.getInstance();
+		  RoomIDManager.getInstance();
+		  ChatRoomManager.getInstance();
+		  BillManager.getInstance();
+		  FlopLottoManager.getInstance();
+		  ClubManager.getInstance();
 	     
 	  }
 	}

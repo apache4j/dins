@@ -1147,7 +1147,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
         synchronized (this) {
 
             //授信牌局,牌局结束玩家不能买入
-            if (bCredit){
+            if (this.bCredit){
                 if (bOver){
                     return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
                 }
