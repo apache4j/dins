@@ -1939,13 +1939,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 }
                             }
 
-                            PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 1005");
-                            TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
-                                    + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-                                    + "," + stGameRoomInfo.getLGameHandID()
-                                    + "," + 0
-                                    + "," + "closetable");
-
 //						BillManager.getInstance().finishGameRoomAndReturn(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 
                             GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
@@ -1999,6 +1992,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 }
                                 BillManager.getInstance().setPotDrawCredit(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), userPotDrawInfoList);
                             }
+
+                            PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 1005");
+                            TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
+                                    + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+                                    + "," + stGameRoomInfo.getLGameHandID()
+                                    + "," + 0
+                                    + "," + "closetable");
 
                             //只返还在桌玩家金币
                             for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
