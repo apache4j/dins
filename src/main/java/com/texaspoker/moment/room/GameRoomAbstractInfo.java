@@ -1,5 +1,6 @@
 package com.texaspoker.moment.room;
 
+import com.alibaba.dubbo.common.utils.CollectionUtils;
 import com.texaspoker.bill.BillManager;
 import com.texaspoker.club.ClubManager;
 import com.texaspoker.comm.AdvancedTimeoutHashMap;
@@ -148,8 +149,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
     //是否本手下发flop3张牌
     public boolean bFlopStatus = false;
 
-    //底池抽水每个玩家的贡献值 玩家uuid-抽水贡献值
+    //底池抽水每个玩家的贡献值 玩家uuid-抽水贡献值(包含获胜玩家和未获胜玩家)
     public Map<Long, Long> mUserDrawStacks = new HashMap<Long, Long>();
+
+    //底池抽水每个玩家的原始贡献值 玩家uuid-原始抽水贡献值(只包含获胜玩家)
+    public Map<Long, Long> mUserOriginDrawStacks = new HashMap<Long, Long>();
 
     //实际参加游戏的玩家
     protected int iUserNum = 0;
@@ -169,9 +173,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         vTestHandCards3.add(30);
         vTestHandCards3.add(41);
 
-        vTestTableCards.add(49);
-        vTestTableCards.add(50);
-        vTestTableCards.add(51);
+        vTestTableCards.add(0);
+        vTestTableCards.add(11);
+        vTestTableCards.add(12);
         vTestTableCards.add(21);
         vTestTableCards.add(48);
 
@@ -2272,6 +2276,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         }
 
         for (int index = 0; index < stGameRoomInfoBuilder.getVCurrentPotsCount(); index++) {
+
             List<GameUserResultInfo> winnerArray = new ArrayList<GameUserResultInfo>();
             Set<Integer> winnerIDSet = new HashSet<Integer>();
             Set<Long> winnerUuidSet = new HashSet<Long>();
@@ -2344,6 +2349,14 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 }
             }
 
+            //本池子未获胜玩家
+            List<Long> failUuidArray = new ArrayList<Long>();
+            for (Long uuid : stPotInfo.playerList){
+                if (!failUuidArray.contains(uuid) && !winnerUuidArray.contains(uuid)){
+                    failUuidArray.add(uuid);
+                }
+            }
+
             if (winnerIDArray.size() != 0) {
                 GamePotResultInfo.Builder stGamePotResultInfoBuilder = GamePotResultInfo.newBuilder();
 
@@ -2355,11 +2368,36 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     winStacks = (stGameRoomInfo.getVCurrentPots(index) - userDrawStacks.get(index)) / winnerIDArray.size();
                     winLeftStacks = (stGameRoomInfo.getVCurrentPots(index) - userDrawStacks.get(index)) % winnerIDArray.size();
 
+                    //记录玩家原始贡献抽水
+                    int j = 1; //记录玩家数
+                    long drawOriginStacks = userDrawStacks.get(index) / winnerIDArray.size(); //记录玩家原始贡献抽水值
+                    long drawOriginLeftStacks = userDrawStacks.get(index) % winnerIDArray.size(); //记录剩余玩家原始贡献抽水值
+
+                    //获胜玩家原始贡献的抽水
+                    for (Long winUuid : winnerUuidArray){
+                        if (mUserOriginDrawStacks.get(winUuid) == null){
+                            if (j == winnerUuidArray.size()){
+                                mUserOriginDrawStacks.put(winUuid, drawOriginStacks + drawOriginLeftStacks);
+                            } else {
+                                mUserOriginDrawStacks.put(winUuid, drawOriginStacks);
+                            }
+                        } else {
+                            if (j == winnerUuidArray.size()){
+                                mUserOriginDrawStacks.put(winUuid, mUserOriginDrawStacks.get(winUuid) + drawOriginStacks + drawOriginLeftStacks);
+                            } else {
+                                mUserOriginDrawStacks.put(winUuid, mUserOriginDrawStacks.get(winUuid) + drawOriginStacks);
+                            }
+                        }
+
+                        j++;
+                    }
+
                     //记录玩家贡献的抽水
                     int i = 1; //记录玩家数
-                    long drawStacks = userDrawStacks.get(index) / winnerIDArray.size(); //记录玩家贡献抽水值
-                    long drawLeftStacks = userDrawStacks.get(index) % winnerIDArray.size(); //记录剩余玩家贡献抽水值
+                    long drawStacks = userDrawStacks.get(index) / (winnerIDArray.size() + failUuidArray.size()); //记录玩家贡献抽水值
+                    long drawLeftStacks = userDrawStacks.get(index) % (winnerIDArray.size() + failUuidArray.size()); //记录剩余玩家贡献抽水值
 
+                    //获胜玩家贡献的抽水
                     for (Long winUuid : winnerUuidArray){
                         //记录抽水日志
                         StringBuilder drawLog = new StringBuilder("")
@@ -2369,10 +2407,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                 .append(" ").append(stGameRoomInfo.getVCurrentPots(index)) //该底池大小
                                 .append(" ").append(userDrawStacks.get(index)) //该底池总抽水值
                                 .append(" ").append(winnerIDArray.size()) //该底池获胜人数
+                                .append(" ").append(winnerIDArray.size() + failUuidArray.size()) //该底池贡献抽水的所有玩家数
+                                .append(" ").append(1) //玩家类型 1 获胜玩家 2 未获胜玩家
                                 .append(" ").append(winUuid); //玩家uuid
 
                         if (mUserDrawStacks.get(winUuid) == null){
-                            if (i == winnerUuidArray.size()){
+                            if (i == winnerUuidArray.size() + failUuidArray.size()){
                                 mUserDrawStacks.put(winUuid, drawStacks + drawLeftStacks);
                                 drawLog.append(" ").append(drawStacks + drawLeftStacks); //玩家在该底池贡献抽水
                             } else {
@@ -2380,7 +2420,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                 drawLog.append(" ").append(drawStacks); //玩家在该底池贡献抽水
                             }
                         } else {
-                            if (i == winnerUuidArray.size()){
+                            if (i == winnerUuidArray.size() + failUuidArray.size()){
                                 mUserDrawStacks.put(winUuid, mUserDrawStacks.get(winUuid) + drawStacks + drawLeftStacks);
                                 drawLog.append(" ").append(drawStacks + drawLeftStacks); //玩家在该底池贡献抽水
                             } else {
@@ -2397,6 +2437,50 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                         i++;
                     }
+
+                    //未获胜玩家贡献的抽水
+                    if (!CollectionUtils.isEmpty(failUuidArray)){
+                        for (Long failUuid : failUuidArray){
+                            //记录抽水日志
+                            StringBuilder drawLog = new StringBuilder("")
+                                    .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()) //牌局id
+                                    .append(" ").append(stGameRoomInfo.getLGameHandID()) //手数
+                                    .append(" ").append(index) //底池编号
+                                    .append(" ").append(stGameRoomInfo.getVCurrentPots(index)) //该底池大小
+                                    .append(" ").append(userDrawStacks.get(index)) //该底池总抽水值
+                                    .append(" ").append(winnerIDArray.size()) //该底池获胜人数
+                                    .append(" ").append(winnerIDArray.size() + failUuidArray.size()) //该底池贡献抽水的所有玩家数
+                                    .append(" ").append(2) //玩家类型 1 获胜玩家 2 未获胜玩家
+                                    .append(" ").append(failUuid); //玩家uuid
+
+                            if (mUserDrawStacks.get(failUuid) == null){
+                                if (i == winnerUuidArray.size() + failUuidArray.size()){
+                                    mUserDrawStacks.put(failUuid, drawStacks + drawLeftStacks);
+                                    drawLog.append(" ").append(drawStacks + drawLeftStacks); //玩家在该底池贡献抽水
+                                } else {
+                                    mUserDrawStacks.put(failUuid, drawStacks);
+                                    drawLog.append(" ").append(drawStacks); //玩家在该底池贡献抽水
+                                }
+                            } else {
+                                if (i == winnerUuidArray.size() + failUuidArray.size()){
+                                    mUserDrawStacks.put(failUuid, mUserDrawStacks.get(failUuid) + drawStacks + drawLeftStacks);
+                                    drawLog.append(" ").append(drawStacks + drawLeftStacks); //玩家在该底池贡献抽水
+                                } else {
+                                    mUserDrawStacks.put(failUuid, mUserDrawStacks.get(failUuid) + drawStacks);
+                                    drawLog.append(" ").append(drawStacks); //玩家在该底池贡献抽水
+                                }
+                            }
+
+                            drawLog.append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee()) //抽水比例 *10000倍
+                                    .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB()) //抽水上限 *100倍
+                                    .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum()) //是否影响人数上限
+                                    .append(" ").append(iUserNum); //实际参人数
+                            PotDrawLogService.getInstance().error(drawLog.toString());
+
+                            i++;
+                        }
+                    }
+
                 } else {
                     winStacks = stGameRoomInfo.getVCurrentPots(index) / winnerIDArray.size();
                     winLeftStacks = stGameRoomInfo.getVCurrentPots(index) % winnerIDArray.size();
@@ -4329,6 +4413,22 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 }
             }
 
+            //本池子未获胜玩家
+            List<Long> failUuidArray = new ArrayList<Long>();
+            for (Long uuid : stPotInfo.playerList){
+                if (!failUuidArray.contains(uuid) && !winnerUuidArray.contains(uuid)){
+                    failUuidArray.add(uuid);
+                }
+            }
+
+            //本池子所有弃牌玩家
+            List<Long> flopUuidArray = new ArrayList<Long>();
+            for (Long uuid : stPotInfo.playerList){
+                if (!flopUuidArray.contains(uuid) && !allFoldUuids.contains(uuid)){
+                    flopUuidArray.add(uuid);
+                }
+            }
+
             if (winnerIDArray.size() != 0) {
                 GamePotResultInfo.Builder stGamePotResultInfoBuilder = GamePotResultInfo.newBuilder();
 
@@ -4337,10 +4437,37 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 //授信牌局 底池抽水且池子有抽水
                 if (bCredit && iDrawType == 2 && bFlopStatus && stPotInfo.playerList.size() > 1){
                     winStacks = (stGameRoomInfo.getVCurrentPots(index) - userDrawStacks.get(index)) / winnerIDArray.size();
+
+                    //记录玩家原始贡献抽水
+                    int j = 1; //记录玩家数
+                    long drawOriginStacks = userDrawStacks.get(index) / winnerIDArray.size(); //记录玩家原始贡献抽水值
+                    long drawOriginLeftStacks = userDrawStacks.get(index) % winnerIDArray.size(); //记录剩余玩家原始贡献抽水值
+
+                    //获胜玩家原始贡献的抽水
+                    for (Long winUuid : winnerUuidArray){
+                        if (mUserOriginDrawStacks.get(winUuid) == null){
+                            if (j == winnerUuidArray.size()){
+                                mUserOriginDrawStacks.put(winUuid, drawOriginStacks + drawOriginLeftStacks);
+                            } else {
+                                mUserOriginDrawStacks.put(winUuid, drawOriginStacks);
+                            }
+                        } else {
+                            if (j == winnerUuidArray.size()){
+                                mUserOriginDrawStacks.put(winUuid, mUserOriginDrawStacks.get(winUuid) + drawOriginStacks + drawOriginLeftStacks);
+                            } else {
+                                mUserOriginDrawStacks.put(winUuid, mUserOriginDrawStacks.get(winUuid) + drawOriginStacks);
+                            }
+                        }
+
+                        j++;
+                    }
+
                     //记录玩家贡献的抽水
                     int i = 1; //记录玩家数
-                    long drawStacks = userDrawStacks.get(index) / winnerIDArray.size(); //记录玩家贡献抽水值
-                    long drawLeftStacks = userDrawStacks.get(index) % winnerIDArray.size(); //记录剩余玩家贡献抽水值
+                    long drawStacks = userDrawStacks.get(index) / (winnerIDArray.size() + failUuidArray.size()); //记录玩家贡献抽水值
+                    long drawLeftStacks = userDrawStacks.get(index) % (winnerIDArray.size() + failUuidArray.size()); //记录剩余玩家贡献抽水值
+
+                    //获胜玩家贡献的抽水
                     for (Long winUuid : winnerUuidArray){
                         //记录抽水日志
                         StringBuilder drawLog = new StringBuilder("")
@@ -4350,10 +4477,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                 .append(" ").append(stGameRoomInfo.getVCurrentPots(index)) //该底池大小
                                 .append(" ").append(userDrawStacks.get(index)) //该底池总抽水值
                                 .append(" ").append(winnerIDArray.size()) //该底池获胜人数
+                                .append(" ").append(winnerIDArray.size() + failUuidArray.size()) //该底池贡献抽水的所有玩家数
+                                .append(" ").append(1) //玩家类型 1 获胜玩家 2 未获胜玩家
                                 .append(" ").append(winUuid); //玩家uuid
 
                         if (mUserDrawStacks.get(winUuid) == null){
-                            if (i == winnerUuidArray.size()){
+                            if (i == winnerUuidArray.size() + failUuidArray.size()){
                                 mUserDrawStacks.put(winUuid, drawStacks + drawLeftStacks);
                                 drawLog.append(" ").append(drawStacks + drawLeftStacks); //玩家本底池贡献抽水
                             } else {
@@ -4361,7 +4490,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                 drawLog.append(" ").append(drawStacks); //玩家本底池贡献抽水
                             }
                         } else {
-                            if (i == winnerUuidArray.size()){
+                            if (i == winnerUuidArray.size() + failUuidArray.size()){
                                 mUserDrawStacks.put(winUuid, mUserDrawStacks.get(winUuid) + drawStacks + drawLeftStacks);
                                 drawLog.append(" ").append(drawStacks + drawLeftStacks); //玩家本底池贡献抽水
                             } else {
@@ -4378,6 +4507,50 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                         i++;
                     }
+
+                    //未获胜玩家贡献的抽水
+                    if (!CollectionUtils.isEmpty(failUuidArray)){
+                        for (Long failUuid : failUuidArray){
+                            //记录抽水日志
+                            StringBuilder drawLog = new StringBuilder("")
+                                    .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()) //牌局id
+                                    .append(" ").append(stGameRoomInfo.getLGameHandID()) //手数
+                                    .append(" ").append(index) //底池编号
+                                    .append(" ").append(stGameRoomInfo.getVCurrentPots(index)) //该底池大小
+                                    .append(" ").append(userDrawStacks.get(index)) //该底池总抽水值
+                                    .append(" ").append(winnerIDArray.size()) //该底池获胜人数
+                                    .append(" ").append(winnerIDArray.size() + failUuidArray.size()) //该底池贡献抽水的所有玩家数
+                                    .append(" ").append(2) //玩家类型 1 获胜玩家 2 未获胜玩家
+                                    .append(" ").append(failUuid); //玩家uuid
+
+                            if (mUserDrawStacks.get(failUuid) == null){
+                                if (i == winnerUuidArray.size() + failUuidArray.size()){
+                                    mUserDrawStacks.put(failUuid, drawStacks + drawLeftStacks);
+                                    drawLog.append(" ").append(drawStacks + drawLeftStacks); //玩家本底池贡献抽水
+                                } else {
+                                    mUserDrawStacks.put(failUuid, drawStacks);
+                                    drawLog.append(" ").append(drawStacks); //玩家本底池贡献抽水
+                                }
+                            } else {
+                                if (i == winnerUuidArray.size() + failUuidArray.size()){
+                                    mUserDrawStacks.put(failUuid, mUserDrawStacks.get(failUuid) + drawStacks + drawLeftStacks);
+                                    drawLog.append(" ").append(drawStacks + drawLeftStacks); //玩家本底池贡献抽水
+                                } else {
+                                    mUserDrawStacks.put(failUuid, mUserDrawStacks.get(failUuid) + drawStacks);
+                                    drawLog.append(" ").append(drawStacks); //玩家本底池贡献抽水
+                                }
+                            }
+
+                            drawLog.append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee()) //抽水比例 *10000倍
+                                    .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB()) //抽水上限 *100倍
+                                    .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum()) //是否影响人数上限
+                                    .append(" ").append(iUserNum); //实际参人数
+                            PotDrawLogService.getInstance().error(drawLog.toString());
+
+                            i++;
+                        }
+                    }
+
                 } else {
                     winStacks = stGameRoomInfo.getVCurrentPots(index) / winnerIDArray.size();
                 }
@@ -4428,10 +4601,37 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     //授信牌局 底池抽水且池子有抽水
                     if (bCredit && iDrawType == 2 && bFlopStatus && stPotInfo.playerList.size() > 1){
                         winStacks = (stGameRoomInfo.getVCurrentPots(index) - userDrawStacks.get(index)) / allFoldPos.size();
+
+                        //记录玩家原始贡献抽水
+                        int j = 1; //记录玩家数
+                        long drawOriginStacks = userDrawStacks.get(index) / allFoldPos.size(); //记录玩家原始贡献抽水值
+                        long drawOriginLeftStacks = userDrawStacks.get(index) % allFoldPos.size(); //记录剩余玩家原始贡献抽水值
+
+                        //获胜玩家原始贡献的抽水
+                        for (Long winUuid : allFoldUuids){
+                            if (mUserOriginDrawStacks.get(winUuid) == null){
+                                if (j == allFoldUuids.size()){
+                                    mUserOriginDrawStacks.put(winUuid, drawOriginStacks + drawOriginLeftStacks);
+                                } else {
+                                    mUserOriginDrawStacks.put(winUuid, drawOriginStacks);
+                                }
+                            } else {
+                                if (j == allFoldUuids.size()){
+                                    mUserOriginDrawStacks.put(winUuid, mUserOriginDrawStacks.get(winUuid) + drawOriginStacks + drawOriginLeftStacks);
+                                } else {
+                                    mUserOriginDrawStacks.put(winUuid, mUserOriginDrawStacks.get(winUuid) + drawOriginStacks);
+                                }
+                            }
+
+                            j++;
+                        }
+
                         //记录玩家贡献的抽水
                         int i = 1; //记录玩家数
-                        long drawStacks = userDrawStacks.get(index) / allFoldPos.size(); //记录玩家贡献抽水值
-                        long drawLeftStacks = userDrawStacks.get(index) % allFoldPos.size(); //记录剩余玩家贡献抽水值
+                        long drawStacks = userDrawStacks.get(index) / (allFoldPos.size() + flopUuidArray.size()); //记录玩家贡献抽水值
+                        long drawLeftStacks = userDrawStacks.get(index) % (allFoldPos.size() + flopUuidArray.size()); //记录剩余玩家贡献抽水值
+
+                        //获胜玩家贡献的抽水
                         for (Long winUuid : allFoldUuids){
                             //记录抽水日志
                             StringBuilder drawLog = new StringBuilder("")
@@ -4441,10 +4641,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                     .append(" ").append(stGameRoomInfo.getVCurrentPots(index)) //该底池大小
                                     .append(" ").append(userDrawStacks.get(index)) //该底池总抽水值
                                     .append(" ").append(allFoldPos.size()) //该底池获胜人数
+                                    .append(" ").append(allFoldPos.size() + flopUuidArray.size()) //该底池贡献抽水的所有玩家数
+                                    .append(" ").append(1) //玩家类型 1 获胜玩家 2 未获胜玩家
                                     .append(" ").append(winUuid); //玩家uuid
 
                             if (mUserDrawStacks.get(winUuid) == null){
-                                if (i == allFoldUuids.size()){
+                                if (i == allFoldUuids.size() + flopUuidArray.size()){
                                     mUserDrawStacks.put(winUuid, drawStacks + drawLeftStacks);
                                     drawLog.append(" ").append(drawStacks + drawLeftStacks); //玩家本底池贡献抽水
                                 } else {
@@ -4452,7 +4654,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                     drawLog.append(" ").append(drawStacks); //玩家本底池贡献抽水
                                 }
                             } else {
-                                if (i == allFoldUuids.size()){
+                                if (i == allFoldUuids.size() + flopUuidArray.size()){
                                     mUserDrawStacks.put(winUuid, mUserDrawStacks.get(winUuid) + drawStacks + drawLeftStacks);
                                     drawLog.append(" ").append(drawStacks + drawLeftStacks); //玩家本底池贡献抽水
                                 } else {
@@ -4469,6 +4671,50 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                             i++;
                         }
+
+                        //未获胜玩家贡献抽水
+                        if (!CollectionUtils.isEmpty(flopUuidArray)){
+                            for (Long flopUuid : flopUuidArray){
+                                //记录抽水日志
+                                StringBuilder drawLog = new StringBuilder("")
+                                        .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()) //牌局id
+                                        .append(" ").append(stGameRoomInfo.getLGameHandID()) //手数
+                                        .append(" ").append(index) //底池编号
+                                        .append(" ").append(stGameRoomInfo.getVCurrentPots(index)) //该底池大小
+                                        .append(" ").append(userDrawStacks.get(index)) //该底池总抽水值
+                                        .append(" ").append(allFoldPos.size()) //该底池获胜人数
+                                        .append(" ").append(allFoldPos.size() + flopUuidArray.size()) //该底池贡献抽水的所有玩家数
+                                        .append(" ").append(2) //玩家类型 1 获胜玩家 2 未获胜玩家
+                                        .append(" ").append(flopUuid); //玩家uuid
+
+                                if (mUserDrawStacks.get(flopUuid) == null){
+                                    if (i == allFoldUuids.size() + flopUuidArray.size()){
+                                        mUserDrawStacks.put(flopUuid, drawStacks + drawLeftStacks);
+                                        drawLog.append(" ").append(drawStacks + drawLeftStacks); //玩家本底池贡献抽水
+                                    } else {
+                                        mUserDrawStacks.put(flopUuid, drawStacks);
+                                        drawLog.append(" ").append(drawStacks); //玩家本底池贡献抽水
+                                    }
+                                } else {
+                                    if (i == allFoldUuids.size() + flopUuidArray.size()){
+                                        mUserDrawStacks.put(flopUuid, mUserDrawStacks.get(flopUuid) + drawStacks + drawLeftStacks);
+                                        drawLog.append(" ").append(drawStacks + drawLeftStacks); //玩家本底池贡献抽水
+                                    } else {
+                                        mUserDrawStacks.put(flopUuid, mUserDrawStacks.get(flopUuid) + drawStacks);
+                                        drawLog.append(" ").append(drawStacks); //玩家本底池贡献抽水
+                                    }
+                                }
+
+                                drawLog.append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee()) //抽水比例 *10000倍
+                                        .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB()) //抽水上限 *100倍
+                                        .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum()) //是否影响人数上限
+                                        .append(" ").append(iUserNum); //实际参人数
+                                PotDrawLogService.getInstance().error(drawLog.toString());
+
+                                i++;
+                            }
+                        }
+
                     } else {
                         winStacks = stGameRoomInfo.getVCurrentPots(index) / allFoldPos.size();
                     }

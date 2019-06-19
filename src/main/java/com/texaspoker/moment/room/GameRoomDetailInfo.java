@@ -1986,6 +1986,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                         stUserPotDrawInfo.setUuid(drawMap.getKey());
                                         stUserPotDrawInfo.setLDrawNum(drawMap.getValue());
                                         stUserPotDrawInfo.setLGameRoomID(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+                                        stUserPotDrawInfo.setLPotContribution(mUserOriginDrawStacks.get(drawMap.getKey()) == null ? 0 : mUserOriginDrawStacks.get(drawMap.getKey()));
 
                                         userPotDrawInfoList.add(stUserPotDrawInfo.build());
                                     }
