@@ -285,6 +285,8 @@ public class QuickGameRoomManager {
                             gameRoomBaseInfoBuilder.setIUnloadRatio(stSettingGameRoomBaseInfoBuilder.getIUnloadRatio());
                             gameRoomBaseInfoBuilder.setBLookCardTurn(stSettingGameRoomBaseInfoBuilder.getBLookCardTurn()); //AOF模式下依次看牌
                             gameRoomBaseInfoBuilder.setBHiddenDecimal(stSettingGameRoomBaseInfoBuilder.getBHiddenDecimal()); //是否隐藏小数
+                            gameRoomBaseInfoBuilder.setIHandsLimit(stSettingGameRoomBaseInfoBuilder.getIHandsLimit()); //总手数限制
+                            gameRoomBaseInfoBuilder.setBIosLimit(stSettingGameRoomBaseInfoBuilder.getBIosLimit()); //仅限ios设备
 
                             gameRoomBaseInfoBuilder.setStCreateUserBaseInfo(UserManager.getInstance().getUserBaseInfo(uuid));
                             gameRoomBaseInfoBuilder.setLChatRoomID(lQuickGameRoomID);
