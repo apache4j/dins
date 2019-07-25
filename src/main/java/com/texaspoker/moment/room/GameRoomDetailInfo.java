@@ -69,6 +69,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
     //结账保护
     public boolean bOver = false;
 
+    //买入弹框倒计时map 首次坐下弹框不进入倒计时
+    private TimeoutHashMap<Long, Long> mBuyinTimeOut;
+
+    //入座玩家记录 辅助弹框倒计时用来判断是否为首次弹框
+    private List<Long> sitDownUserList = new ArrayList<Long>();
+
     /****************************
      * 牌局操作函数
      *******************************/
@@ -1734,6 +1740,21 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     }
                 }
             }
+
+            //如果玩家入座成功就会弹买入框
+            if (eErrorCode == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
+
+                //检测玩家是否首次入座,首次入座添加进玩家入座队列内
+                if (sitDownUserList.contains(uuid)){
+                    //玩家不是首次入座,需检测玩家的筹码是否<=0,如果<=0则进入弹框倒计时map
+                    if (stUserMyGameInfoNetBuilder.getLRemainStacks() <= 0){
+                        mBuyinTimeOut.setCurrent(uuid,uuid);
+                    }
+                } else {
+                    sitDownUserList.add(uuid);
+                }
+            }
+
             return eErrorCode;
         }
     }
@@ -1749,6 +1770,25 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                 }
             }
         }
+    }
+
+    //检查buyin弹框请求的超时
+    public void checkoutBuyinTimeout(){
+        ArrayList<Long> timeoutArray = mBuyinTimeOut.timeout();
+        if (timeoutArray != null) {
+            for (int i = 0; i < timeoutArray.size(); i++) {
+                Long uuid = (Long) timeoutArray.get(i);
+                if (uuid != null) {
+                    forceStandup(uuid);
+                    mBuyinTimeOut.removeKey(uuid);
+                }
+            }
+        }
+    }
+
+    //玩家有买入命令时移除超时
+    public void removeBuyinTimeOut(long uuid){
+        mBuyinTimeOut.removeKey(uuid);
     }
 
     //检查buyin请求的超时
@@ -1848,6 +1888,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
             //先检查买入超时
             checkBuyinControlTimeout();
+
+            //检查买入弹框超时
+            checkoutBuyinTimeout();
 
             checkStandByTimeout();
 
@@ -2419,6 +2462,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                     gameRoomDetailInfo.doStandUpAction(uuid, true, 3);
                                 }
                             }
+                        }
+                    }
+
+                    //每手牌局结束检测玩家剩余筹码是否<=0,如果<=0弹出买入弹框,玩家进入买入弹框倒计时队列
+                    for (int k = 0; k < this.iGameRoomUserMaxNums; k++) {
+                        UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfo.getVUserGameInfos(k).toBuilder();
+                        if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0 && stResetUserGameInfoBuilder.getLRemainStacks() <= 0){
+                            mBuyinTimeOut.setCurrent(stResetUserGameInfoBuilder.getStUserInfo().getUuid(),stResetUserGameInfoBuilder.getStUserInfo().getUuid());
                         }
                     }
 
@@ -3751,6 +3802,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
         mStandByTimeOut = new TimeoutHashMap<Long, Long>();
         mStandByTimeOut.setTimeout(12000);
+
+        mBuyinTimeOut = new TimeoutHashMap<Long, Long>();
+        mBuyinTimeOut.setTimeout(300000);
 
         vTestHandCards1.add(2);
         vTestHandCards1.add(3);

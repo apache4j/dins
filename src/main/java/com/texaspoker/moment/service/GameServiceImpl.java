@@ -238,6 +238,10 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         BuyBuyInResponse.Builder stBuyBuyInResponseBuilder = BuyBuyInResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLRoomID());
         if (stGameRoomDetailInfo != null) {
+
+            //有买入请求,移除玩家弹框超时
+            stGameRoomDetailInfo.removeBuyinTimeOut(request.getUuid());
+
             ERROR_CODE_TYPE rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
             long clubid = request.getLClubID();
             if (stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLLeagueID() > 0
