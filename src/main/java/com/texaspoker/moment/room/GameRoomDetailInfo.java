@@ -2975,6 +2975,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
         stGameRoomInfoBuilder.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait);
 
         mPotList.clear();
+        mTempPotDrawList.clear();
 
         saveBuyinStacks();
         //������������������������
