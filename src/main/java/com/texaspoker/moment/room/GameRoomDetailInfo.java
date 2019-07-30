@@ -6598,4 +6598,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
             return ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
         }
     }
+
+    public void setRecommend(int iRecommend) {
+        synchronized (this){
+            GameRoomBaseInfo.Builder baseInfo = getStGameRoomInfo().getStGameRoomBaseInfo().toBuilder().setBRecommend(iRecommend);
+            setStGameRoomInfo( getStGameRoomInfo().toBuilder().setStGameRoomBaseInfo(baseInfo).build());
+        }
+    }
 }

@@ -1198,6 +1198,22 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
+    public SetGameRecommendResponse setGameRecommend(RpcController rpcController, SetGameRecommendRequest request) throws ServiceException {
+        SetGameRecommendResponse.Builder response = SetGameRecommendResponse.newBuilder().setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
+        try{
+            GameRoomDetailInfo gameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getRoomid());
+            if(gameRoomDetailInfo!=null){
+                gameRoomDetailInfo.setRecommend(request.getIRecommend());
+                response.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return response.build();
+
+    }
+
+    @Override
     public GetGameRoomBaseInfoResponse getGameRoomBaseInfo(RpcController rpcController, GetGameRoomBaseInfoRequest request) throws ServiceException {
         GetGameRoomBaseInfoResponse.Builder response = GetGameRoomBaseInfoResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomId());
@@ -1468,6 +1484,11 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
 
     @Override
     public void clearAllGame(RpcController controller, ClearAllGameRequest request, RpcCallback<ClearAllGameResponse> done) {
+    }
+
+    @Override
+    public void setGameRecommend(RpcController rpcController, SetGameRecommendRequest setGameRecommendRequest, RpcCallback<SetGameRecommendResponse> rpcCallback) {
+
     }
 
     @Override
