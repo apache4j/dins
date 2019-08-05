@@ -241,6 +241,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
 
             //有买入请求,移除玩家弹框超时
             stGameRoomDetailInfo.removeBuyinTimeOut(request.getUuid());
+            stGameRoomDetailInfo.setUserBuyinTotal(request.getUuid());
 
             ERROR_CODE_TYPE rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
             long clubid = request.getLClubID();
@@ -1214,6 +1215,26 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
+    public SetBuyinTimeOutTimeResponse setBuyinTimeOutTime(RpcController rpcController, SetBuyinTimeOutTimeRequest setBuyinTimeOutTimeRequest) throws ServiceException {
+        SetBuyinTimeOutTimeResponse.Builder response = SetBuyinTimeOutTimeResponse.newBuilder().setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+        try {
+            TimeoutHashMap<Long, GameRoomDetailInfo> allGameRooms = GameRoomManager.getInstance().mGameRoomDetailInfos;
+            if (allGameRooms != null && allGameRooms.size() > 0) {
+                for (Long roomid : allGameRooms.getListKey()) {
+
+                    GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(roomid);
+                    if (stGameRoomDetailInfo != null) {
+                        stGameRoomDetailInfo.setBuyinTimeOutTime(setBuyinTimeOutTimeRequest.getLTime());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return response.build();
+    }
+
+    @Override
     public GetGameRoomBaseInfoResponse getGameRoomBaseInfo(RpcController rpcController, GetGameRoomBaseInfoRequest request) throws ServiceException {
         GetGameRoomBaseInfoResponse.Builder response = GetGameRoomBaseInfoResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomId());
@@ -1488,6 +1509,11 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
 
     @Override
     public void setGameRecommend(RpcController rpcController, SetGameRecommendRequest setGameRecommendRequest, RpcCallback<SetGameRecommendResponse> rpcCallback) {
+
+    }
+
+    @Override
+    public void setBuyinTimeOutTime(RpcController rpcController, SetBuyinTimeOutTimeRequest setBuyinTimeOutTimeRequest, RpcCallback<SetBuyinTimeOutTimeResponse> rpcCallback) {
 
     }
 

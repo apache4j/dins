@@ -75,6 +75,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
     //入座玩家记录 辅助弹框倒计时用来判断是否为首次弹框
     private List<Long> sitDownUserList = new ArrayList<Long>();
 
+    //玩家买入次数
+    private ConcurrentHashMap<Long,Integer> mUserBuyinTotal = new ConcurrentHashMap<Long,Integer>();
+
     /****************************
      * 牌局操作函数
      *******************************/
@@ -1779,8 +1782,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
             for (int i = 0; i < timeoutArray.size(); i++) {
                 Long uuid = (Long) timeoutArray.get(i);
                 if (uuid != null) {
-                    forceStandup(uuid);
                     mBuyinTimeOut.removeKey(uuid);
+                    for (int k = 0; k < this.iGameRoomUserMaxNums; k++) {
+                        UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfo.getVUserGameInfos(k).toBuilder();
+                        if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() == uuid && stResetUserGameInfoBuilder.getLRemainStacks() <= 0){
+                            forceStandup(uuid);
+                        }
+                    }
                 }
             }
         }
@@ -1789,6 +1797,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
     //玩家有买入命令时移除超时
     public void removeBuyinTimeOut(long uuid){
         mBuyinTimeOut.removeKey(uuid);
+    }
+
+    //设置玩家买入次数
+    public void setUserBuyinTotal(long uuid){
+        if (mUserBuyinTotal.containsKey(uuid)){
+            mUserBuyinTotal.put(uuid,mUserBuyinTotal.get(uuid) + 1);
+        } else {
+            mUserBuyinTotal.put(uuid,1);
+        }
     }
 
     //检查buyin请求的超时
@@ -2469,7 +2486,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     for (int k = 0; k < this.iGameRoomUserMaxNums; k++) {
                         UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfo.getVUserGameInfos(k).toBuilder();
                         if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0 && stResetUserGameInfoBuilder.getLRemainStacks() <= 0){
-                            mBuyinTimeOut.setCurrent(stResetUserGameInfoBuilder.getStUserInfo().getUuid(),stResetUserGameInfoBuilder.getStUserInfo().getUuid());
+                            //如果玩家是首次入座不会加入到倒计时
+                            if (mBuyinTimeOut.get(stResetUserGameInfoBuilder.getStUserInfo().getUuid()) == null){
+                                if (mUserBuyinTotal.get(stResetUserGameInfoBuilder.getStUserInfo().getUuid()) != null){
+                                    mBuyinTimeOut.setCurrent(stResetUserGameInfoBuilder.getStUserInfo().getUuid(),stResetUserGameInfoBuilder.getStUserInfo().getUuid());
+                                }
+                            }
                         }
                     }
 
@@ -6604,5 +6626,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
             GameRoomBaseInfo.Builder baseInfo = getStGameRoomInfo().getStGameRoomBaseInfo().toBuilder().setBRecommend(iRecommend);
             setStGameRoomInfo( getStGameRoomInfo().toBuilder().setStGameRoomBaseInfo(baseInfo).build());
         }
+    }
+
+    /**
+     * 设置买入弹框超时时间 单位 毫秒
+     * @param time
+     */
+    public void setBuyinTimeOutTime(long time){
+        mBuyinTimeOut.setTimeout(time);
     }
 }
