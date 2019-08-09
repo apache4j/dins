@@ -1785,7 +1785,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     mBuyinTimeOut.removeKey(uuid);
                     for (int k = 0; k < this.iGameRoomUserMaxNums; k++) {
                         UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfo.getVUserGameInfos(k).toBuilder();
-                        if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() == uuid && stResetUserGameInfoBuilder.getLRemainStacks() <= 0){
+                        if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() == uuid && stResetUserGameInfoBuilder.getLRemainStacks() <= 0 && stResetUserGameInfoBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_ALLIN){
                             forceStandup(uuid);
                         }
                     }
