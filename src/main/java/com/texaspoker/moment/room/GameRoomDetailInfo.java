@@ -69,6 +69,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
     //结账保护
     public boolean bOver = false;
 
+    //结账时抽水保护
+    public boolean bOverTemp = false;
+
     //买入弹框倒计时map 首次坐下弹框不进入倒计时
     private TimeoutHashMap<Long, Long> mBuyinTimeOut;
 
@@ -2002,6 +2005,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 //						BillManager.getInstance().finishGameRoomAndReturn(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 
                             GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+
+                            //结账时抽水保护,只能抽一次水
+                            if (bOverTemp){
+                                NormalLogService.getInstance().error("牌局已抽过一次水 " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " 牌局信息 " + stGameRoomInfoBuilder);
+                            }
+
                             //如果为授信牌局,在牌局结束时在抽一次水
                             if (bCredit && iDrawType == 1) {
 
@@ -2091,7 +2100,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                         ClubManager.getInstance().updateUserCreditInGame(stUserGameInfoNetBuilder.getLBuyinClubID(), stUserGameInfoNetBuilder.getStUserInfoBuilder().getUuid(), -(stUserGameInfoNetBuilder.getLRemainStacks() + stUserGameInfoNetBuilder.getLUnloadStacks()), stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), stGameRoomInfo.getLGameHandID(), 5, stGameRoomInfo.getStGameRoomBaseInfo().getStrRoomName(), 0, msgKey);
                                         String sLog = stUserGameInfoNetBuilder.getStUserInfo().getUuid() + " " + 0 + " " + 910004 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId()
                                                 + " " + msgKey + " " + " 0 " + stUserGameInfoNetBuilder.getLRemainStacks()+stUserGameInfoNetBuilder.getLUnloadStacks() + " " + ClubManager.getInstance().getClubUserCreditInfo(stUserGameInfoNetBuilder.getLBuyinClubID(), stUserGameInfoNetBuilder.getStUserInfoBuilder().getUuid()).getLCreditBalance() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
-                                        TranscationLogService.getInstance().error(sLog);
+                                        try {
+                                            TranscationLogService.getInstance().error(sLog);
+                                        } catch (Exception e){
+                                            e.printStackTrace();
+                                            NormalLogService.getInstance().error(" TranscationLogService error roomid " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() + " info " + e.getMessage());
+                                        }
                                     } else {
                                         UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), stUserGameInfoNetBuilder.getLRemainStacks() + stUserGameInfoNetBuilder.getLUnloadStacks());
                                         String sLog = stUserGameInfoNetBuilder.getStUserInfo().getUuid() + " " + 0 + " " + 110004 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId()
@@ -2101,7 +2115,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 }
                             }
 
-                            pushAllGameRoomUserMsgs(null, GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_OVER);
+                            bOverTemp = true;
+
+                            try {
+                                pushAllGameRoomUserMsgs(null, GAME_ROOM_MESSAGE_TYPE.GAME_ROOM_MESSAGE_OVER);
+                            } catch (Exception e){
+                                e.printStackTrace();
+                                NormalLogService.getInstance().error(" pushAllGameRoomUserMsgs error roomid " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() + " info " + e.getMessage());
+                            }
+
                             bOver = true;
                             //房间到时，删除房间
                             ConnectDatabase.getInstance().removeGameRoomInfo(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
