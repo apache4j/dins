@@ -33,9 +33,15 @@ public class TranscationLogService {
   		long stamp = System.currentTimeMillis();
   		Jedis mJedis = JedisManager.getJedis();
   		mLogTranscation.error(content);
-  		mJedis.publish("transaction_log", System.currentTimeMillis() + " " + content);  
-  		JedisManager.returnRes(mJedis);
-  		
+
+		try {
+			mJedis.publish("transaction_log", System.currentTimeMillis() + " " + content);
+			JedisManager.returnRes(mJedis);
+		} catch (Exception e){
+			NormalLogService.getInstance().error("errorbuyin " + content + " info " + e.getMessage());
+			e.printStackTrace();
+		}
+
   		try {
             TransactionLogKafkaProducer.send(stamp, "transaction_log", content);
         } catch (Exception e) {

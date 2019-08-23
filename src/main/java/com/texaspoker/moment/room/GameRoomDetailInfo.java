@@ -1306,6 +1306,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                                     long buyStacks = lStacks;
 
+                                    //记录玩家筹码数
+                                    long userStacksRcord = buyStacks + stUserGameInfoBuilder.getLRemainStacks();
                                     stUserGameInfoBuilder.setLRemainStacks(buyStacks + stUserGameInfoBuilder.getLRemainStacks());
                                     stUserGameInfoBuilder.setLBuyinClubID(clubID);
 
@@ -1337,6 +1339,18 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                     }
 
                                     stGameRoomInfo = stGameRoomInfoBuilder.build();
+
+                                    //检测玩家的筹码是否和之前的记录一致
+                                    for (int k = 0; k < stGameRoomInfo.getVUserGameInfosCount(); k++){
+                                        UserGameInfoNet stUserGameInfo = stGameRoomInfo.getVUserGameInfos(k);
+                                        if (stUserGameInfo.getStUserInfo().getUuid() == uuid){
+                                            if (stUserGameInfo.getLRemainStacks() != userStacksRcord){
+                                                NormalLogService.getInstance().error("user buyin error roomid " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " uuid " + uuid + " LRemainStacks " + stUserGameInfo.getLRemainStacks() + " userStacksRcord " + userStacksRcord);
+                                            }
+                                            break;
+                                        }
+                                    }
+
                                     if (GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait_VALUE == stGameRoomInfoBuilder.getEGameState().getNumber()) {
                                         resetGameRoom();
                                         stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
