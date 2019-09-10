@@ -12,6 +12,7 @@ import com.texaspoker.dubbo.game.insurance.InsuranceManager;
 import com.texaspoker.dubbo.game.insurance.OutsInfo;
 import com.texaspoker.floplotto.FlopLottoManager;
 import com.texaspoker.logger.PotDrawLogService;
+import com.texaspoker.logger.PotLogService;
 import com.texaspoker.logger.TableLogService;
 import com.texaspoker.logger.TranscationLogService;
 import com.texaspoker.moment.TexasPoker;
@@ -2265,6 +2266,13 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 }
             }
 
+            // 记录本手所有池子信息 roomid handid pot
+            StringBuilder potLog = new StringBuilder("")
+                    .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()) //roomid
+                    .append(" ").append(stGameRoomInfo.getLGameHandID()) //handid
+                    .append(" ").append(stGameRoomInfoBuilder.getVCurrentPots(index)); //未抽水时底池大小
+            PotLogService.getInstance().error(potLog.toString());
+
             //若是玩家自己贡献一个池子则不抽水
             if (stPotInfo.playerList.size() > 1){
                 drawMap.put(index,stGameRoomInfoBuilder.getVCurrentPots(index));
@@ -4395,6 +4403,14 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         Map<Integer,PotInfo> mDrawPotMap = new HashMap<Integer,PotInfo>(); // 池子编号-池子信息
         if (!CollectionUtils.isEmpty(mTempPotDrawList)){
             for (int i = 0; i < mTempPotDrawList.size(); i++){
+
+                // 记录本手所有池子信息 roomid handid pot
+                StringBuilder potLog = new StringBuilder("")
+                        .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()) //roomid
+                        .append(" ").append(stGameRoomInfo.getLGameHandID()) //handid
+                        .append(" ").append(mTempPotDrawList.get(i).potSize); //未抽水时底池大小
+                PotLogService.getInstance().error(potLog.toString());
+
                 if (mTempPotDrawList.get(i).playerList.size() > 1){
                     drawMap.put(i,mTempPotDrawList.get(i).potSize);
                     mDrawPotMap.put(i,mTempPotDrawList.get(i));
