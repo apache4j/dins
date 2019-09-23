@@ -176,10 +176,10 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         if (stGameRoomDetailInfo != null) {
 
             //获取游戏房间信息
-            GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomDetailInfo.getStGameRoomInfo().toBuilder();
+            //GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomDetailInfo.getStGameRoomInfo().toBuilder();
 
-            stGameRoomInfoBuilder.setBStateChange(0);
-            stGameRoomDetailInfo.setStGameRoomInfo(stGameRoomInfoBuilder.build());
+            //stGameRoomInfoBuilder.setBStateChange(0);
+            //stGameRoomDetailInfo.setStGameRoomInfo(stGameRoomInfoBuilder.build());
             ERROR_CODE_TYPE rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 
             switch (request.getEGameActType().getNumber()) {

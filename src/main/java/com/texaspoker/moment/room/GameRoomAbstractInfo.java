@@ -293,6 +293,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         ERROR_CODE_TYPE eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
         synchronized (this) {
 
+            stGameRoomInfo.toBuilder().setBStateChange(0).build();
+
             if (bPause == true) {
                 return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
             }
@@ -951,6 +953,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
     public ERROR_CODE_TYPE doRaiseAction(long uuid, GAME_ACT_TYPE eGameActType, long lStacks, long lBettingID) {
         ERROR_CODE_TYPE eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
         synchronized (this) {
+
+            stGameRoomInfo.toBuilder().setBStateChange(0).build();
+
             if (bPause == true) {
                 return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
             }
@@ -1513,6 +1518,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
     public ERROR_CODE_TYPE doCallAction(long uuid, long betstacks, long lBettingID) {
         ERROR_CODE_TYPE eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
         synchronized (this) {
+
+            stGameRoomInfo.toBuilder().setBStateChange(0).build();
+
             if (bPause == true) {
                 return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
             }
@@ -1879,6 +1887,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         }
 
         synchronized (this) {
+
+            stGameRoomInfo.toBuilder().setBStateChange(0).build();
+
             if (checkGameActionValidation() == false) {
                 return eErrorCode;
             }
