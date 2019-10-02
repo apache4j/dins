@@ -17,6 +17,7 @@ import com.texaspoker.moment.TexasPokerCommon.*;
 import com.texaspoker.moment.TexasPokerHttpLeague;
 import com.texaspoker.moment.TexasPokerHttpLeague.LeagueInfo;
 import com.texaspoker.user.UserManager;
+import com.texaspoker.voice.VoiceManager;
 
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
@@ -269,6 +270,14 @@ public class GameRoomManager {
                         stGameRoomDetailInfo.iDrawType = 2;
                     }
 
+                }
+
+                // 判断当前牌局是否为声纹牌局
+                if (stGameRoomBaseInfo.hasBVoice() && stGameRoomBaseInfo.getBVoice() == 1){
+                    stGameRoomDetailInfo.bVoice = true;
+
+                    //创建声纹组
+                    VoiceManager.getInstance().createGroup(stGameRoomDetailInfo.lGameRoomID);
                 }
 
                 // GameRoomManager 调用

@@ -11,6 +11,7 @@ import com.texaspoker.moment.TexasPokerCommon;
 import com.texaspoker.moment.TexasPokerCommon.*;
 import com.texaspoker.msg.GameRoomMsgManager;
 import com.texaspoker.user.UserManager;
+import com.texaspoker.voice.VoiceManager;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -287,6 +288,7 @@ public class QuickGameRoomManager {
                             gameRoomBaseInfoBuilder.setBHiddenDecimal(stSettingGameRoomBaseInfoBuilder.getBHiddenDecimal()); //是否隐藏小数
                             gameRoomBaseInfoBuilder.setIHandsLimit(stSettingGameRoomBaseInfoBuilder.getIHandsLimit()); //总手数限制
                             gameRoomBaseInfoBuilder.setBIosLimit(stSettingGameRoomBaseInfoBuilder.getBIosLimit()); //仅限ios设备
+                            gameRoomBaseInfoBuilder.setBVoice(stSettingGameRoomBaseInfoBuilder.getBVoice()); //是否开启声纹
 
                             gameRoomBaseInfoBuilder.setStCreateUserBaseInfo(UserManager.getInstance().getUserBaseInfo(uuid));
                             gameRoomBaseInfoBuilder.setLChatRoomID(lQuickGameRoomID);
@@ -346,6 +348,12 @@ public class QuickGameRoomManager {
                             userSelfGameInfoBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_NORMAL);
                             userSelfGameInfoBuilder.setBGameDealer(0);
                             userSelfGameInfoBuilder.setIDelaySingleTime(20);
+
+                            if (gameRoomBaseInfoBuilder.hasBVoice() && gameRoomBaseInfoBuilder.getBVoice() == 1){
+                                stGameRoomDetailInfo.bVoice = true;
+
+                                VoiceManager.getInstance().createGroup(stGameRoomDetailInfo.lGameRoomID);
+                            }
 
                             GameRoomManager.getInstance().setGameRoomDetailInfo(stGameRoomDetailInfo);
                             ConnectDatabase.getInstance().insertGameRoomInfo(stGameRoomDetailInfo);

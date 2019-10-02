@@ -19,3 +19,7 @@ rsync -zv src/main/java/com/texaspoker/bill/BillManager.java root@hades3:/data/p
 rsync -zv src/main/java/com/texaspoker/club/ClubManager.java root@hades3:/data/pokermaster/carp_2.6.15/texaspokerinsurancegameservice/src/main/java/com/texaspoker/club/
 
 rsync -zv src/main/java/com/texaspoker/user/UserManager.java root@hades3:/data/pokermaster/carp_2.6.15/texaspokerinsurancegameservice/src/main/java/com/texaspoker/user/
+
+rsync -zv src/main/java/com/texaspoker/voice/VoiceManager.java root@hades3:/data/pokermaster/carp_2.6.15/texaspokerinsurancegameservice/src/main/java/com/texaspoker/voice/
+
+rsync -zv src/main/java/com/texaspoker/msg/GameRoomMsgManager.java root@hades3:/data/pokermaster/carp_2.6.15/texaspokerinsurancegameservice/src/main/java/com/texaspoker/msg/

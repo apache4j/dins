@@ -24,6 +24,7 @@ import com.texaspoker.moment.TexasPokerCommon.*;
 import com.texaspoker.moment.TexasPokerHttpLeague.LeagueInfo;
 import com.texaspoker.msg.GameRoomMsgManager;
 import com.texaspoker.user.UserManager;
+import com.texaspoker.voice.VoiceManager;
 import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -81,7 +82,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
     //玩家买入次数
     private ConcurrentHashMap<Long,Integer> mUserBuyinTotal = new ConcurrentHashMap<Long,Integer>();
 
-    /****************************
+    //玩家在本牌局进行的手数
+    private ConcurrentHashMap<Long,Integer> mUserPlayHand = new ConcurrentHashMap<Long,Integer>();
+
+  /****************************
      * 牌局操作函数
      *******************************/
     public ERROR_CODE_TYPE startGame(long uuid, int type) {
@@ -1772,6 +1776,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     }
                 } else {
                     sitDownUserList.add(uuid);
+
+                    //声纹局需随机生成玩家检测手数
+                    if (bVoice){
+                        Random random = new Random();
+                        int number = random.nextInt(ConfigaturationManager.randomEnd - ConfigaturationManager.randomStart + 1) + ConfigaturationManager.randomStart;
+
+                        mUserVoiceCheck.put(uuid,number);
+                    }
                 }
             }
 
@@ -1952,6 +1964,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                             //牌局结束通知野保险结束
                             FlopLottoManager.getInstance().overFlopLotto(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+
+                            //牌局结束通知声纹服删除组
+                            if (bVoice){
+                                VoiceManager.getInstance().deleteGroup(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+                            }
 
                             //牌局结束 AOF模式下检测卸码
                             if (stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1){
@@ -2339,6 +2356,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 				 * 检测IP-GPS
 				 */
                     checkIpAndGps();
+                    //检测设备限制
+                    checkDeviceLimit();
                     resetCard();
                     reCalculateCouldPlayNum();
                     bShowTableCard = false;
@@ -2369,6 +2388,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                         //刷新野保险下注超时重新计时
                         FlopLottoManager.getInstance().refreshBetTimeOut(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+
+                        //设置玩家在本牌局打牌的手数
+                        if (bVoice){
+                            setUserPlayHands();
+                        }
 
                         if (iCouldPlayNum >= 2) {
                             //每个选手发两张牌,并把游戏的状态设置为FirstRound
@@ -2420,6 +2444,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                 break;
                 case GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD_VALUE:
+                    //检测玩家是否触发声纹验证
+                    if (bVoice){
+                        //系统检测
+                        checkUserVoiceVerification();
+                    }
+
                     resetGameRoom();
 
                     TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
@@ -2751,6 +2781,20 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     stUserGameInfoNetBuilder.setLTemporarilyLeaveTime(lLeaveTime);
                     stUserGameInfoNetBuilder.setBDelegate(0);
                     stUserGameInfoNetBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
+
+                    //声纹信息
+                    if (bVoice && mUserIsCheck.containsKey(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) && mUserIsCheck.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) == true){
+
+                        long verifyStartTime = System.currentTimeMillis();
+                        stUserGameInfoNetBuilder.setLVerificationStartTime(verifyStartTime);
+                        stUserGameInfoNetBuilder.setLVerificationContinueTime(ConfigaturationManager.verifyTime);
+                        stUserGameInfoNetBuilder.setPhrase(VoiceManager.getInstance().getOnePhrase(stUserGameInfoNetBuilder.getStUserInfo().getUuid()));
+
+                        //玩家验证信息同步声纹服务
+                        VoiceManager.getInstance().receiveCurrentTime(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),stUserGameInfoNetBuilder.getStUserInfo().getUuid(),verifyStartTime,ConfigaturationManager.verifyTime);
+
+                        mUserIsCheck.put(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),false);
+                    }
 
                     //将用户设置回房间
                     stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
@@ -6670,5 +6714,90 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
      */
     public void setBuyinTimeOutTime(long time){
         mBuyinTimeOut.setTimeout(time);
+    }
+
+    /**
+     * 每手开始检测设备限制
+     */
+    private void checkDeviceLimit(){
+        GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+        if (stGameRoomInfoBuilder.getStGameRoomBaseInfo().hasBIosLimit() && stGameRoomInfoBuilder.getStGameRoomBaseInfo().getBIosLimit() == 1){
+            List<Long> uuidList = new ArrayList<Long>();
+            for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
+                if(stGameRoomInfoBuilder.getVUserGameInfosBuilder(i).getStUserInfo().getUuid() > 0){
+                    UserBaseInfoNet.Builder stUserBaseInfoBuilder =  UserManager.getInstance().getUserBaseInfo(stGameRoomInfoBuilder.getVUserGameInfosBuilder(i).getStUserInfo().getUuid());
+                    if (stUserBaseInfoBuilder.getEDeviceType() != DEVICE_TYPE.DEVICE_TYPE_IOS){
+                        uuidList.add(stGameRoomInfoBuilder.getVUserGameInfosBuilder(i).getStUserInfo().getUuid());
+                    }
+                }
+            }
+
+            if (!CollectionUtils.isEmpty(uuidList)){
+                for (Long uuid : uuidList){
+                    doStandUpAction(uuid, true, 1);
+                }
+                resetGameRoom();
+            }
+        }
+    }
+
+    /**
+     * 设置玩家本牌局游戏手数
+     */
+    public void setUserPlayHands(){
+        GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+
+        for (int k = 0; k < this.iGameRoomUserMaxNums; k++) {
+            UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(k).toBuilder();
+
+            //在桌玩家
+            if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0) {
+                if (mUserPlayHand.get(stResetUserGameInfoBuilder.getStUserInfo().getUuid()) != null){
+                    mUserPlayHand.put(stResetUserGameInfoBuilder.getStUserInfo().getUuid(),mUserPlayHand.get(stResetUserGameInfoBuilder.getStUserInfo().getUuid()) + 1);
+                } else {
+                    mUserPlayHand.put(stResetUserGameInfoBuilder.getStUserInfo().getUuid(),1);
+                }
+            }
+        }
+    }
+
+    /**
+     * 检测玩家是否触发声纹验证  系统检测
+     */
+    public void checkUserVoiceVerification(){
+        GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+
+        for (int k = 0; k < this.iGameRoomUserMaxNums; k++) {
+            UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(k).toBuilder();
+
+            //在桌玩家
+            if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0) {
+                if (mUserVoiceCheck.get(stResetUserGameInfoBuilder.getStUserInfo().getUuid()) == mUserPlayHand.get(stResetUserGameInfoBuilder.getStUserInfo().getUuid())){
+                    //限制条件 1.本桌验证次数不超过2次 2.本天验证不超过5次
+                    int verifyCount = mUserCheckCount.get(stResetUserGameInfoBuilder.getStUserInfo().getUuid()) == null ? 0 : mUserCheckCount.get(stResetUserGameInfoBuilder.getStUserInfo().getUuid());
+
+                    if (verifyCount >= ConfigaturationManager.verifyCount || VoiceManager.getInstance().getVerifyCount(stResetUserGameInfoBuilder.getStUserInfo().getUuid()) >= ConfigaturationManager.verifyTotalCount){
+                        //此时不进行验证
+                    } else {
+                        //检测条件 1.1-100随机数点数<5
+                        int number = (int)(Math.random()*100)+1;
+                        if (number < 5){
+                            //验证次数+1
+                            if (mUserCheckCount.get(stResetUserGameInfoBuilder.getStUserInfo().getUuid()) == null){
+                                mUserCheckCount.put(stResetUserGameInfoBuilder.getStUserInfo().getUuid(),1);
+                            } else {
+                                mUserCheckCount.put(stResetUserGameInfoBuilder.getStUserInfo().getUuid(),mUserCheckCount.get(stResetUserGameInfoBuilder.getStUserInfo().getUuid()) + 1);
+                            }
+
+                            //玩家本手需要检测记录
+                            mUserIsCheck.put(stResetUserGameInfoBuilder.getStUserInfo().getUuid(),true);
+
+                            //触发检测并留作离桌
+                            userTemporarilyLeave(stResetUserGameInfoBuilder.getStUserInfo().getUuid());
+                        }
+                    }
+                }
+            }
+        }
     }
 }

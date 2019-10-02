@@ -47,6 +47,9 @@ public class ConfigaturationManager {
 	public static String sFlopLottoServiceHost;
 	public static int iFlopLottoServicePost;
 
+	public static String sVoiceServiceHost;
+	public static int iVoiceServicePost;
+
 	//抽水间隔,时间单位为小时
 	public static int iDrawTime;
 
@@ -61,6 +64,19 @@ public class ConfigaturationManager {
 
 	//授信超时
 	public static int iCreditAppyTimeOut;
+
+	//随机开始值
+	public static int randomStart = 20;
+	//随机结束值
+	public static int randomEnd = 50;
+
+	//玩家本桌验证次数限制
+	public static int verifyCount = 50;
+	//玩家本天验证次数限制
+	public static int verifyTotalCount = 100;
+
+	//声纹验证弹框倒计时 单位:秒
+	public static int verifyTime = 60;
     
 	private static ConfigaturationManager instance;
 	
@@ -121,6 +137,9 @@ public class ConfigaturationManager {
 		iCreditAppyTimeOut = Integer.parseInt(stConfigaturation.getValue("credit_apply_timeout"));
 
 		iDrawTime = Integer.parseInt(stConfigaturation.getValue("draw_time"));
+
+		sVoiceServiceHost = stConfigaturation.getValue("voice_service_host");
+		iVoiceServicePost = Integer.parseInt(stConfigaturation.getValue("voice_service_post"));
 	}
 	
 	//单例模式

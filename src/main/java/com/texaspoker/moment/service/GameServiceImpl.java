@@ -176,10 +176,10 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         if (stGameRoomDetailInfo != null) {
 
             //获取游戏房间信息
-            //GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomDetailInfo.getStGameRoomInfo().toBuilder();
+            GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomDetailInfo.getStGameRoomInfo().toBuilder();
 
-            //stGameRoomInfoBuilder.setBStateChange(0);
-            //stGameRoomDetailInfo.setStGameRoomInfo(stGameRoomInfoBuilder.build());
+            stGameRoomInfoBuilder.setBStateChange(0);
+            stGameRoomDetailInfo.setStGameRoomInfo(stGameRoomInfoBuilder.build());
             ERROR_CODE_TYPE rst = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
 
             switch (request.getEGameActType().getNumber()) {
@@ -1316,6 +1316,32 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
+    public VerificationVoicePrintResponse verificationVoicePrint(RpcController rpcController, VerificationVoicePrintRequest request) throws ServiceException {
+        VerificationVoicePrintResponse.Builder response = VerificationVoicePrintResponse.newBuilder();
+        GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getRoomid());
+        if (stGameRoomDetailInfo != null){
+            stGameRoomDetailInfo.verificationVoicePrint(request.getToUuid());
+            response.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+        } else {
+            response.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
+        }
+        return response.build();
+    }
+
+    @Override
+    public SetUserVoiceStatusResponse setUserVoiceStatus(RpcController rpcController, SetUserVoiceStatusRequest request) throws ServiceException {
+        SetUserVoiceStatusResponse.Builder response = SetUserVoiceStatusResponse.newBuilder();
+        GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getRoomid());
+        if (stGameRoomDetailInfo != null){
+            stGameRoomDetailInfo.setUserVoiceStatus(request.getUuid(),request.getBPass());
+            response.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+        } else {
+            response.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
+        }
+        return response.build();
+    }
+
+    @Override
     public void createGameRoom(RpcController controller, CreateGameRoomRequest request, RpcCallback<CreateGameRoomResponse> done) {
     }
 
@@ -1524,6 +1550,16 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
 
     @Override
     public void getGameRoomBaseInfoList(RpcController rpcController, GetGameRoomBaseInfoListRequest getGameRoomBaseInfoListRequest, RpcCallback<GetGameRoomBaseInfoListResponse> rpcCallback) {
+
+    }
+
+    @Override
+    public void verificationVoicePrint(RpcController rpcController, VerificationVoicePrintRequest verificationVoicePrintRequest, RpcCallback<VerificationVoicePrintResponse> rpcCallback) {
+
+    }
+
+    @Override
+    public void setUserVoiceStatus(RpcController rpcController, SetUserVoiceStatusRequest setUserVoiceStatusRequest, RpcCallback<SetUserVoiceStatusResponse> rpcCallback) {
 
     }
 }
