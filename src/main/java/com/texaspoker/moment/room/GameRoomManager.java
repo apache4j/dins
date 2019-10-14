@@ -181,7 +181,7 @@ public class GameRoomManager {
                         .setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE)
                         .setStCreateUserBaseInfo(stUserBaseInfoNet)
                         .setBPaidStart(isLimitPaidStart ? 1 : 0)
-                        .setBUnloadable(stGameRoomBaseInfo.getBFullAllIn()) //AOF模式下具有卸码功能
+                        .setBUnloadable(stGameRoomBaseInfo.getBUnloadable()) //AOF模式下具有卸码功能
                         .build();
 
                 GameRoomDetailInfo stGameRoomDetailInfo = new GameRoomDetailInfo();

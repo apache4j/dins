@@ -73,6 +73,7 @@ public class VoiceManager {
         try {
             TexasPokerVoicePrintService.GetVerifyCountRequest.Builder request = TexasPokerVoicePrintService.GetVerifyCountRequest.newBuilder();
             request.setUuid(uuid);
+            request.setCurrentTime(System.currentTimeMillis());
 
             TexasPokerVoicePrintService.GetVerifyCountResponse response = voiceBlocking.getVerifyCount(controller, request.build());
             if (response != null && response.getVErrCode() == 1){

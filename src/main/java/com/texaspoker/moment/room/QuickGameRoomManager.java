@@ -200,7 +200,7 @@ public class QuickGameRoomManager {
                             .setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE)
                             .setIThinkingInterval(15)
                             .setBPaidStart(isLimitPaidStart ? 1 : 0)
-                            .setBUnloadable(stGameRoomBaseInfo.getBFullAllIn()) //AOF模式下具有卸码功能
+                            .setBUnloadable(stGameRoomBaseInfo.getBUnloadable()) //AOF模式下具有卸码功能
                             .build();
 
                     String sCode = RoomIDManager.getInstance().getRandomCode();// 快速码
@@ -281,7 +281,7 @@ public class QuickGameRoomManager {
                             gameRoomBaseInfoBuilder.setBPaidStart(stSettingGameRoomBaseInfoBuilder.getBPaidStart());
                             gameRoomBaseInfoBuilder.setBFullAllIn(stSettingGameRoomBaseInfoBuilder.getBFullAllIn());
                             gameRoomBaseInfoBuilder.setIVPIPlimit(stSettingGameRoomBaseInfoBuilder.getIVPIPlimit());
-                            gameRoomBaseInfoBuilder.setBUnloadable(stSettingGameRoomBaseInfoBuilder.getBFullAllIn()); //AOF模式下具有卸码功能
+                            gameRoomBaseInfoBuilder.setBUnloadable(stSettingGameRoomBaseInfoBuilder.getBUnloadable()); //AOF模式下具有卸码功能
                             gameRoomBaseInfoBuilder.setIMinRemainRatio(stSettingGameRoomBaseInfoBuilder.getIMinRemainRatio());
                             gameRoomBaseInfoBuilder.setIUnloadRatio(stSettingGameRoomBaseInfoBuilder.getIUnloadRatio());
                             gameRoomBaseInfoBuilder.setBLookCardTurn(stSettingGameRoomBaseInfoBuilder.getBLookCardTurn()); //AOF模式下依次看牌

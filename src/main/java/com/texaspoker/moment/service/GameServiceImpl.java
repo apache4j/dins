@@ -1319,7 +1319,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     public VerificationVoicePrintResponse verificationVoicePrint(RpcController rpcController, VerificationVoicePrintRequest request) throws ServiceException {
         VerificationVoicePrintResponse.Builder response = VerificationVoicePrintResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getRoomid());
-        if (stGameRoomDetailInfo != null){
+        if (stGameRoomDetailInfo != null && stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBStarted() == 1){
             stGameRoomDetailInfo.verificationVoicePrint(request.getToUuid());
             response.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
         } else {

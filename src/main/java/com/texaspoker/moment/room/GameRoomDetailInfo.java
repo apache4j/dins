@@ -85,6 +85,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
     //玩家在本牌局进行的手数
     private ConcurrentHashMap<Long,Integer> mUserPlayHand = new ConcurrentHashMap<Long,Integer>();
 
+    //玩家卸码要带回的筹码
+    private ConcurrentHashMap<Long,Long> mUserUnloadStacks = new ConcurrentHashMap<Long,Long>();
+
   /****************************
      * 牌局操作函数
      *******************************/
@@ -116,7 +119,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 + "," + "opentype"
                                 + "," + 1
                                 + "," + stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums()
-                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn());
+                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn()
+                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn()
+                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBVoice()
+                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBUnloadable());
                     } else {
                         TableLogService.getInstance().error(lFromRoomID
                                 + "," + lGameRoomID
@@ -124,7 +130,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 + "," + "opentype"
                                 + "," + 0
                                 + "," + stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums()
-                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn());
+                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn()
+                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn()
+                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBVoice()
+                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBUnloadable());
                     }
 
                     if (type == 1) {
@@ -251,6 +260,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         mTemporarilyLeaveUsersTimeout.removeKey(uuid);
                         mTemporarilyLeaveUsers.remove(uuid);
                         stUserGameInfoBuilder.setBKickedInGame(0);
+
+                        if (bVoice && stUserGameInfoBuilder.getLVoiceVerificationStatus() == 3){
+                            stUserGameInfoBuilder.setLVerificationStartTime(0l);
+                            stUserGameInfoBuilder.setLVoiceVerificationStatus(1);
+                        }
+
                         //带出的申请记录清空
                         stUserGameInfoBuilder.setBUnloadingStacks(0);
                         mUserUnload.remove(uuid);
@@ -1173,6 +1188,24 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                 return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
             }
 
+            //卸码处需扣除的筹码
+            long uploadStacks = 0;
+            if (this.stGameRoomInfo.getStGameRoomBaseInfo().getBUnloadable() == 1){
+                GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+                for (int i = 0; i < stGameRoomInfo.getVUserGameInfosCount(); i++) {
+                    UserGameInfoNet stUserGameInfoBuilder = stGameRoomInfo.getVUserGameInfos(i);
+                    if (stUserGameInfoBuilder.getStUserInfo().getUuid() == uuid){
+                        if (stUserGameInfoBuilder.getLUnloadStacks() - lStacks >= 0){
+                            uploadStacks = lStacks;
+                            lStacks = 0;
+                        } else {
+                            uploadStacks = stUserGameInfoBuilder.getLUnloadStacks();
+                            lStacks = lStacks - stUserGameInfoBuilder.getLUnloadStacks();
+                        }
+                    }
+                }
+            }
+
             // 生成银币扣除数据
             long popularity = 0;
 
@@ -1311,8 +1344,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                     long buyStacks = lStacks;
 
                                     //记录玩家筹码数
-                                    long userStacksRcord = buyStacks + stUserGameInfoBuilder.getLRemainStacks();
-                                    stUserGameInfoBuilder.setLRemainStacks(buyStacks + stUserGameInfoBuilder.getLRemainStacks());
+                                    long userStacksRcord = buyStacks + stUserGameInfoBuilder.getLRemainStacks() + uploadStacks;
+                                    stUserGameInfoBuilder.setLRemainStacks(buyStacks + stUserGameInfoBuilder.getLRemainStacks() + uploadStacks);
+                                    if (uploadStacks > 0){
+                                        String slog = uuid + " " + clubID + " " + 910008 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() + " " + uploadStacks;
+                                        TranscationLogService.getInstance().error(slog);
+                                    }
+                                    stUserGameInfoBuilder.setLUnloadStacks(stUserGameInfoBuilder.getLUnloadStacks() - uploadStacks);
                                     stUserGameInfoBuilder.setLBuyinClubID(clubID);
 
                                     stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoBuilder);
@@ -1369,6 +1407,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 stUserGameInfoBuilder.setLBuyinClubID(clubID);
                                 stUserGameInfoBuilder.setLBuyinStacks((int) lStacks);
                                 stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoBuilder);
+                                mUserUnloadStacks.put(uuid,uploadStacks);
 //								System.out.println("buyBuyin clubID 2 : " + clubID);
                                 stGameRoomInfo = stGameRoomInfoBuilder.build();
                                 if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result) {
@@ -1971,7 +2010,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             }
 
                             //牌局结束 AOF模式下检测卸码
-                            if (stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1){
+                            if (stGameRoomInfo.getStGameRoomBaseInfo().hasBUnloadable() && stGameRoomInfo.getStGameRoomBaseInfo().getBUnloadable() == 1){
                                 GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 
                                 for(int i = 0 ; i < stGameRoomInfoBuilder.getVUserGameInfosCount();i++){
@@ -2668,6 +2707,22 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
             stUserGameInfoNetBuilder.setIDelaySingleTime(20);
             stUserGameInfoNetBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
 
+            if (bVoice){
+                long verifyTime = mUserVerifiyTime.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) == null ? 0l : mUserVerifiyTime.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
+                Boolean bool = mUserVerifiying.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) == null ? false : mUserVerifiying.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
+
+                if (bool && verifyTime > 0){
+                    if (System.currentTimeMillis() - verifyTime > ConfigaturationManager.verifyTime * 1000){
+                        //玩家超时验证不通过
+                        stUserGameInfoNetBuilder.setLVoiceVerificationStatus(1);
+                        stUserGameInfoNetBuilder.setLVerificationStartTime(0);
+
+                        mUserVerifiyTime.put(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),0l);
+                        mUserVerifiying.put(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),false);
+                    }
+                }
+            }
+
             //用户筹码非0保护
             if (stUserGameInfoNetBuilder.getLRemainStacks() < 0) {
                 stUserGameInfoNetBuilder.setLRemainStacks(0);
@@ -2704,6 +2759,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                     if (stUserGameInfoNetBuilder.getBBuyin() == 1) {
                         UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
+
                         long popularity = 0;
 
                         popularity = (100 + GameFeeUtil.getServiceFeeRat((int) stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds())) * stUserGameInfoNetBuilder.getLBuyinStacks() / 100;
@@ -2738,7 +2794,19 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                         }
                                     }
 
-                                    stUserGameInfoNetBuilder.setLRemainStacks(stUserGameInfoNetBuilder.getLRemainStacks() + buyStacks);
+                                    long unloadStacks = 0l;
+                                    if (mUserUnloadStacks.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null){
+                                        unloadStacks = mUserUnloadStacks.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
+                                        mUserUnloadStacks.put(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), 0l);
+                                    }
+
+                                    if (unloadStacks > 0){
+                                        String slog = stUserGameInfoNetBuilder.getStUserInfo().getUuid() + " " + stUserGameInfoNetBuilder.getLBuyinClubID() + " " + 910008 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() + " " + unloadStacks;
+                                        TranscationLogService.getInstance().error(slog);
+                                    }
+
+                                    stUserGameInfoNetBuilder.setLRemainStacks(stUserGameInfoNetBuilder.getLRemainStacks() + buyStacks + unloadStacks);
+                                    stUserGameInfoNetBuilder.setLUnloadStacks(stUserGameInfoNetBuilder.getLUnloadStacks() - unloadStacks);
 
                                     buyStakcsInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), buyStacks, stUserGameInfoNetBuilder.getLBuyinClubID(), 3);
 
@@ -2789,11 +2857,16 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         stUserGameInfoNetBuilder.setLVerificationStartTime(verifyStartTime);
                         stUserGameInfoNetBuilder.setLVerificationContinueTime(ConfigaturationManager.verifyTime);
                         stUserGameInfoNetBuilder.setPhrase(VoiceManager.getInstance().getOnePhrase(stUserGameInfoNetBuilder.getStUserInfo().getUuid()));
+                        stUserGameInfoNetBuilder.setLVoiceVerificationStatus(3);
 
                         //玩家验证信息同步声纹服务
                         VoiceManager.getInstance().receiveCurrentTime(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),stUserGameInfoNetBuilder.getStUserInfo().getUuid(),verifyStartTime,ConfigaturationManager.verifyTime);
 
                         mUserIsCheck.put(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),false);
+
+                        mUserVerifiyTime.put(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),verifyStartTime);
+
+                        mUserVerifiying.put(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), true);
                     }
 
                     //将用户设置回房间
@@ -2879,7 +2952,20 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                     }
                                     //非授信玩家或者 已经有申请未走授信的买入 继续走原来的一套
                                     if ((state == 2 && usedInGame(stUserBaseInfoNetBuilder.getUuid())) || state == 0) {
-                                        stUserGameInfoNetBuilder.setLRemainStacks(stUserGameInfoNetBuilder.getLRemainStacks() + buyStacks);
+
+                                        long unloadStacks = 0l;
+                                        if (mUserUnloadStacks.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null){
+                                            unloadStacks = mUserUnloadStacks.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
+                                            mUserUnloadStacks.put(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),0l);
+                                        }
+
+                                        if (unloadStacks > 0){
+                                            String slog = stUserGameInfoNetBuilder.getStUserInfo().getUuid() + " " + stUserGameInfoNetBuilder.getLBuyinClubID() + " " + 910008 + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId() + " " + unloadStacks;
+                                            TranscationLogService.getInstance().error(slog);
+                                        }
+
+                                        stUserGameInfoNetBuilder.setLRemainStacks(stUserGameInfoNetBuilder.getLRemainStacks() + buyStacks + unloadStacks);
+                                        stUserGameInfoNetBuilder.setLUnloadStacks(stUserGameInfoNetBuilder.getLUnloadStacks() - unloadStacks);
 
                                         buyStakcsInRoom(stUserGameInfoNetBuilder.getStUserInfo().getUuid(), buyStacks, stUserGameInfoNetBuilder.getLBuyinClubID(), 4);
 
@@ -2983,7 +3069,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
         }
 
         //AOF模式下牌局开始才会触发卸码
-        if (stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1){
+        if (stGameRoomInfo.getStGameRoomBaseInfo().hasBUnloadable() && stGameRoomInfo.getStGameRoomBaseInfo().getBUnloadable() == 1){
             if((iCouldPlayNum>= 2 && getGameStarted() == true) || mGameHandID > 0){
                 if(!mUserUnload.isEmpty()){
                     Map<Long,Long> userUnloadNotDoing = new HashMap<>();
@@ -6657,7 +6743,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                 }
 
                 //检查卸码开关
-                if(stGameRoomBaseInfo.getBUnloadable() == 0 || stGameRoomBaseInfo.getBFullAllIn() == 0){
+                if(stGameRoomBaseInfo.getBUnloadable() == 0){
                     //带出失败发送push
                     return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNLOAD_STACKS_FAILD;
                 }

@@ -175,6 +175,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
     //玩家在本牌局的验证次数
     public ConcurrentHashMap<Long,Integer> mUserCheckCount = new ConcurrentHashMap<Long,Integer>();
 
+    //玩家声纹验证开始时间
+    public ConcurrentHashMap<Long,Long> mUserVerifiyTime = new ConcurrentHashMap<Long,Long>();
+
+    //玩家是否声纹验证中
+    public ConcurrentHashMap<Long,Boolean> mUserVerifiying = new ConcurrentHashMap<Long,Boolean>();
+
     /**
      * 初始化函数
      */
@@ -306,7 +312,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         ERROR_CODE_TYPE eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
         synchronized (this) {
 
-            //stGameRoomInfo.toBuilder().setBStateChange(0).build();
+            /*GameRoomInfo.Builder st = stGameRoomInfo.toBuilder();
+            st.setBStateChange(0);
+            stGameRoomInfo = st.build();*/
 
             if (bPause == true) {
                 return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
@@ -967,7 +975,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         ERROR_CODE_TYPE eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
         synchronized (this) {
 
-            //stGameRoomInfo.toBuilder().setBStateChange(0).build();
+            /*GameRoomInfo.Builder st = stGameRoomInfo.toBuilder();
+            st.setBStateChange(0);
+            stGameRoomInfo = st.build();*/
 
             if (bPause == true) {
                 return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
@@ -1532,7 +1542,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         ERROR_CODE_TYPE eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
         synchronized (this) {
 
-            //stGameRoomInfo.toBuilder().setBStateChange(0).build();
+            /*GameRoomInfo.Builder st = stGameRoomInfo.toBuilder();
+            st.setBStateChange(0);
+            stGameRoomInfo = st.build();*/
 
             if (bPause == true) {
                 return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
@@ -1901,7 +1913,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
         synchronized (this) {
 
-            //stGameRoomInfo.toBuilder().setBStateChange(0).build();
+            /*GameRoomInfo.Builder st = stGameRoomInfo.toBuilder();
+            st.setBStateChange(0);
+            stGameRoomInfo = st.build();*/
 
             if (checkGameActionValidation() == false) {
                 return eErrorCode;
@@ -5458,6 +5472,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     if (stUserGameInfo.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD
                             || stUserGameInfo.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_WAIT
                             || stUserGameInfo.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_STANDBY) {
+
                         //生成留座离桌时间
                         long lLeaveTime = System.currentTimeMillis();
                         //获取牌局对象
@@ -5479,11 +5494,16 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             userGameInfoBuilder.setLVerificationStartTime(verifyStartTime);
                             userGameInfoBuilder.setLVerificationContinueTime(ConfigaturationManager.verifyTime);
                             userGameInfoBuilder.setPhrase(VoiceManager.getInstance().getOnePhrase(uuid));
+                            userGameInfoBuilder.setLVoiceVerificationStatus(3);
 
                             //玩家验证信息同步声纹服务
                             VoiceManager.getInstance().receiveCurrentTime(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),uuid,verifyStartTime,ConfigaturationManager.verifyTime);
 
                             mUserIsCheck.put(uuid,false);
+
+                            mUserVerifiyTime.put(uuid,verifyStartTime);
+
+                            mUserVerifiying.put(uuid, true);
                         }
 
                         //将用户设置回房间
@@ -5531,11 +5551,16 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             userGameInfoBuilder.setLVerificationStartTime(verifyStartTime);
                             userGameInfoBuilder.setLVerificationContinueTime(ConfigaturationManager.verifyTime);
                             userGameInfoBuilder.setPhrase(VoiceManager.getInstance().getOnePhrase(uuid));
+                            userGameInfoBuilder.setLVoiceVerificationStatus(3);
 
                             //玩家验证信息同步声纹服务
                             VoiceManager.getInstance().receiveCurrentTime(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),uuid,verifyStartTime,ConfigaturationManager.verifyTime);
 
                             mUserIsCheck.put(uuid,false);
+
+                            mUserVerifiyTime.put(uuid,verifyStartTime);
+
+                            mUserVerifiying.put(uuid, true);
                         }
 
                         //将用户设置回房间
@@ -5593,6 +5618,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     userGameInfoBuilder.setLTemporarilyLeaveTime(0);
                     mTemporarilyLeaveUsersTimeout.removeKey(uuid);
                     mTemporarilyLeaveUsers.remove(uuid);
+
+                    if (bVoice && userGameInfoBuilder.getLVoiceVerificationStatus() == 3){
+                        userGameInfoBuilder.setLVoiceVerificationStatus(1);
+                        userGameInfoBuilder.setLVerificationStartTime(0);
+                    }
+
                     userGameInfoBuilder.setBDelegate(0);
                     //通知保险用户进入代理状态，留座离桌的bug
                     InsuranceApi.doGameDelegateClose(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), uuid);
@@ -5752,6 +5783,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 //在桌玩家
                 if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() == uuid) {
 
+                    if (stResetUserGameInfoBuilder.getLVoiceVerificationStatus() == 3){
+                        break;
+                    }
+
                     //限制条件 1.本桌验证次数不超过2次 2.本天验证不超过5次
                     int verifyCount = mUserCheckCount.get(stResetUserGameInfoBuilder.getStUserInfo().getUuid()) == null ? 0 : mUserCheckCount.get(stResetUserGameInfoBuilder.getStUserInfo().getUuid());
 
@@ -5794,6 +5829,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     //获取玩家信息
                     TexasPoker.UserGameInfoNet.Builder userGameInfoBuilder = stUserGameInfo.toBuilder();
                     userGameInfoBuilder.setLVoiceVerificationStatus(bPass + 1);
+                    userGameInfoBuilder.setLVerificationStartTime(0);
+
+                    mUserVerifiyTime.put(uuid,0l);
+                    mUserVerifiying.put(uuid,false);
 
                     //将用户设置回房间
                     stGameRoomInfoBuilder.setVUserGameInfos(i, userGameInfoBuilder);

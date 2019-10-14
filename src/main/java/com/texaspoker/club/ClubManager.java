@@ -666,6 +666,11 @@ public class ClubManager {
      * @return
      */
     public boolean checkClubUserCredit(long lClubID, long uuid, long lCredit){
+
+        if (lCredit == 0){
+            return true;
+        }
+
         CheckClubUserCreditRequest.Builder stCheckClubUserCreditRequest = CheckClubUserCreditRequest.newBuilder();
         stCheckClubUserCreditRequest.setUuid(uuid);
         stCheckClubUserCreditRequest.setLClubID(lClubID);
