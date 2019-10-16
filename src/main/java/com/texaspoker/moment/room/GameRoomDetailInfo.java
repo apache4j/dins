@@ -2490,6 +2490,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     }
 
                     resetGameRoom();
+                    sendAllGameStateChange(0, null);
 
                     TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
                             + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
