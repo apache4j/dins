@@ -5497,7 +5497,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             userGameInfoBuilder.setLVoiceVerificationStatus(3);
 
                             //玩家验证信息同步声纹服务
-                            VoiceManager.getInstance().receiveCurrentTime(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),uuid,verifyStartTime,ConfigaturationManager.verifyTime);
+                            VoiceManager.getInstance().receiveCurrentTime(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),uuid,verifyStartTime,ConfigaturationManager.verifyTime,userGameInfoBuilder.getLBuyinClubID());
 
                             mUserIsCheck.put(uuid,false);
 
@@ -5554,7 +5554,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             userGameInfoBuilder.setLVoiceVerificationStatus(3);
 
                             //玩家验证信息同步声纹服务
-                            VoiceManager.getInstance().receiveCurrentTime(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),uuid,verifyStartTime,ConfigaturationManager.verifyTime);
+                            VoiceManager.getInstance().receiveCurrentTime(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),uuid,verifyStartTime,ConfigaturationManager.verifyTime,userGameInfoBuilder.getLBuyinClubID());
 
                             mUserIsCheck.put(uuid,false);
 

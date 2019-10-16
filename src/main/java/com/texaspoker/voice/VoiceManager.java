@@ -117,7 +117,7 @@ public class VoiceManager {
      * @param currentTime
      * @param time
      */
-    public void receiveCurrentTime(long roomid, long uuid, long currentTime, int time){
+    public void receiveCurrentTime(long roomid, long uuid, long currentTime, int time, long clubid){
         try {
             TexasPokerVoicePrintService.ReceiveCurrentTimeRequest.Builder request = TexasPokerVoicePrintService.ReceiveCurrentTimeRequest.newBuilder();
             request.setUuid(uuid);
@@ -125,6 +125,7 @@ public class VoiceManager {
             request.setRoomid(roomid);
             request.setTimeTaken(time);
             request.setEGameRoomType(TexasPokerCommon.GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
+            request.setClubid(clubid);
 
             voiceStub.receiveCurrentTime(controller, request.build(), null);
         } catch (Exception e){

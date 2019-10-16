@@ -2861,7 +2861,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         stUserGameInfoNetBuilder.setLVoiceVerificationStatus(3);
 
                         //玩家验证信息同步声纹服务
-                        VoiceManager.getInstance().receiveCurrentTime(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),stUserGameInfoNetBuilder.getStUserInfo().getUuid(),verifyStartTime,ConfigaturationManager.verifyTime);
+                        VoiceManager.getInstance().receiveCurrentTime(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),stUserGameInfoNetBuilder.getStUserInfo().getUuid(),verifyStartTime,ConfigaturationManager.verifyTime,stUserGameInfoNetBuilder.getLBuyinClubID());
 
                         mUserIsCheck.put(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),false);
 
