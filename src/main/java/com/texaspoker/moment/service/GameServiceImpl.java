@@ -263,7 +263,25 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
                     if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBCredit() == 1){
                         TexasPokerHttpClub.ClubUserCrditInfo.Builder userCreditInfo = ClubManager.getInstance().getClubUserCreditInfo(clubid, request.getUuid());
 
-                        if(userCreditInfo!=null&&userCreditInfo.getLCreditBalance()<request.getLStacks()){
+                        //卸码记录
+                        long uploadStacks = 0;
+                        long lStacks = request.getLStacks();
+                        if (stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBUnloadable() == 1){
+                            for (int i = 0; i < stGameRoomDetailInfo.getStGameRoomInfo().getVUserGameInfosCount(); i++) {
+                                UserGameInfoNet stUserGameInfoBuilder = stGameRoomDetailInfo.getStGameRoomInfo().getVUserGameInfos(i);
+                                if (stUserGameInfoBuilder.getStUserInfo().getUuid() == request.getUuid()){
+                                    if (stUserGameInfoBuilder.getLUnloadStacks() - lStacks >= 0){
+                                        uploadStacks = lStacks;
+                                        lStacks = 0;
+                                    } else {
+                                        uploadStacks = stUserGameInfoBuilder.getLUnloadStacks();
+                                        lStacks = lStacks - stUserGameInfoBuilder.getLUnloadStacks();
+                                    }
+                                }
+                            }
+                        }
+
+                        if(userCreditInfo!=null&&userCreditInfo.getLCreditBalance() + uploadStacks < lStacks){
 
                             //授信买入 先检测入座费是否足够
 
