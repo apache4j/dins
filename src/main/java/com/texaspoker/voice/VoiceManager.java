@@ -52,10 +52,12 @@ public class VoiceManager {
      * 创建组
      * @param roomid
      */
-    public void createGroup(long roomid){
+    public void createGroup(long roomid, long leagueid){
         try {
             TexasPokerVoicePrintService.CreateGroupRequest.Builder request = TexasPokerVoicePrintService.CreateGroupRequest.newBuilder();
             request.setRoomId(roomid);
+            request.setEGameRoomType(TexasPokerCommon.GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
+            request.setLeagueid(leagueid);
 
             voiceStub.createGroup(controller, request.build(), null);
 

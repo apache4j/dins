@@ -352,7 +352,7 @@ public class QuickGameRoomManager {
                             if (gameRoomBaseInfoBuilder.hasBVoice() && gameRoomBaseInfoBuilder.getBVoice() == 1){
                                 stGameRoomDetailInfo.bVoice = true;
 
-                                VoiceManager.getInstance().createGroup(stGameRoomDetailInfo.lGameRoomID);
+                                VoiceManager.getInstance().createGroup(stGameRoomDetailInfo.lGameRoomID,0);
                             }
 
                             GameRoomManager.getInstance().setGameRoomDetailInfo(stGameRoomDetailInfo);

@@ -277,7 +277,7 @@ public class GameRoomManager {
                     stGameRoomDetailInfo.bVoice = true;
 
                     //创建声纹组
-                    VoiceManager.getInstance().createGroup(stGameRoomDetailInfo.lGameRoomID);
+                    VoiceManager.getInstance().createGroup(stGameRoomDetailInfo.lGameRoomID,stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLLeagueID());
                 }
 
                 // GameRoomManager 调用
