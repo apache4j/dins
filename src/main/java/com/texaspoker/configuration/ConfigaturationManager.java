@@ -71,9 +71,9 @@ public class ConfigaturationManager {
 	public static int randomEnd = 50;
 
 	//玩家本桌验证次数限制
-	public static int verifyCount = 50;
+	public static int verifyCount = 2;
 	//玩家本天验证次数限制
-	public static int verifyTotalCount = 100;
+	public static int verifyTotalCount = 5;
 
 	//声纹验证弹框倒计时 单位:秒
 	public static int verifyTime = 60;
