@@ -119,10 +119,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 + "," + "opentype"
                                 + "," + 1
                                 + "," + stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums()
-                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn()
-                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn()
-                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBVoice()
-                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBUnloadable());
+                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn());
                     } else {
                         TableLogService.getInstance().error(lFromRoomID
                                 + "," + lGameRoomID
@@ -130,10 +127,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 + "," + "opentype"
                                 + "," + 0
                                 + "," + stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums()
-                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn()
-                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn()
-                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBVoice()
-                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBUnloadable());
+                                + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn());
                     }
 
                     if (type == 1) {
