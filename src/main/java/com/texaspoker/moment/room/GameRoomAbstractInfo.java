@@ -312,9 +312,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         ERROR_CODE_TYPE eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
         synchronized (this) {
 
-            /*GameRoomInfo.Builder st = stGameRoomInfo.toBuilder();
+            GameRoomInfo.Builder st = stGameRoomInfo.toBuilder();
             st.setBStateChange(0);
-            stGameRoomInfo = st.build();*/
+            stGameRoomInfo = st.build();
 
             if (bPause == true) {
                 return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
@@ -975,9 +975,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         ERROR_CODE_TYPE eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
         synchronized (this) {
 
-            /*GameRoomInfo.Builder st = stGameRoomInfo.toBuilder();
+            GameRoomInfo.Builder st = stGameRoomInfo.toBuilder();
             st.setBStateChange(0);
-            stGameRoomInfo = st.build();*/
+            stGameRoomInfo = st.build();
 
             if (bPause == true) {
                 return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
@@ -1542,9 +1542,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         ERROR_CODE_TYPE eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
         synchronized (this) {
 
-            /*GameRoomInfo.Builder st = stGameRoomInfo.toBuilder();
+            GameRoomInfo.Builder st = stGameRoomInfo.toBuilder();
             st.setBStateChange(0);
-            stGameRoomInfo = st.build();*/
+            stGameRoomInfo = st.build();
 
             if (bPause == true) {
                 return ERROR_CODE_TYPE.ERROR_CODE_TYPE_PAUSED;
@@ -1913,9 +1913,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
         synchronized (this) {
 
-            /*GameRoomInfo.Builder st = stGameRoomInfo.toBuilder();
+            GameRoomInfo.Builder st = stGameRoomInfo.toBuilder();
             st.setBStateChange(0);
-            stGameRoomInfo = st.build();*/
+            stGameRoomInfo = st.build();
 
             if (checkGameActionValidation() == false) {
                 return eErrorCode;
