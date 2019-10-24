@@ -8,6 +8,8 @@ import com.texaspoker.rpc.client.RpcChannel;
 import com.texaspoker.rpc.client.RpcClient;
 import com.texaspoker.rpc.client.RpcController;
 
+import java.util.List;
+
 /**
  * Created by zhangmeng on 2019/9/23.
  */
@@ -119,7 +121,7 @@ public class VoiceManager {
      * @param currentTime
      * @param time
      */
-    public void receiveCurrentTime(long roomid, long uuid, long currentTime, int time, long clubid){
+    public void receiveCurrentTime(long roomid, long uuid, long currentTime, int time, long clubid, List<Long> uuidList){
         try {
             TexasPokerVoicePrintService.ReceiveCurrentTimeRequest.Builder request = TexasPokerVoicePrintService.ReceiveCurrentTimeRequest.newBuilder();
             request.setUuid(uuid);
@@ -128,6 +130,7 @@ public class VoiceManager {
             request.setTimeTaken(time);
             request.setEGameRoomType(TexasPokerCommon.GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
             request.setClubid(clubid);
+            request.addAllOtherUuid(uuidList);
 
             voiceStub.receiveCurrentTime(controller, request.build(), null);
         } catch (Exception e){

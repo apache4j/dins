@@ -5496,8 +5496,17 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             userGameInfoBuilder.setPhrase(VoiceManager.getInstance().getOnePhrase(uuid));
                             userGameInfoBuilder.setLVoiceVerificationStatus(3);
 
+                            List<Long> uuidList = new ArrayList<Long>();
+
+                            for (int j = 0; j < stGameRoomInfo.getVUserGameInfosCount(); j++) {
+                                UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(j);
+                                if (stUserGameInfoNet.getStUserInfo().getUuid() > 0 && stUserGameInfoNet.getStUserInfo().getUuid() != uuid) {
+                                    uuidList.add(stUserGameInfoNet.getStUserInfo().getUuid());
+                                }
+                            }
+
                             //玩家验证信息同步声纹服务
-                            VoiceManager.getInstance().receiveCurrentTime(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),uuid,verifyStartTime,ConfigaturationManager.verifyTime,userGameInfoBuilder.getLBuyinClubID());
+                            VoiceManager.getInstance().receiveCurrentTime(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),uuid,verifyStartTime,ConfigaturationManager.verifyTime,userGameInfoBuilder.getLBuyinClubID(),uuidList);
 
                             mUserIsCheck.put(uuid,false);
 
@@ -5553,8 +5562,17 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             userGameInfoBuilder.setPhrase(VoiceManager.getInstance().getOnePhrase(uuid));
                             userGameInfoBuilder.setLVoiceVerificationStatus(3);
 
+                            List<Long> uuidList = new ArrayList<Long>();
+
+                            for (int j = 0; j < stGameRoomInfo.getVUserGameInfosCount(); j++) {
+                                UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(j);
+                                if (stUserGameInfoNet.getStUserInfo().getUuid() > 0 && stUserGameInfoNet.getStUserInfo().getUuid() != uuid) {
+                                    uuidList.add(stUserGameInfoNet.getStUserInfo().getUuid());
+                                }
+                            }
+
                             //玩家验证信息同步声纹服务
-                            VoiceManager.getInstance().receiveCurrentTime(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),uuid,verifyStartTime,ConfigaturationManager.verifyTime,userGameInfoBuilder.getLBuyinClubID());
+                            VoiceManager.getInstance().receiveCurrentTime(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),uuid,verifyStartTime,ConfigaturationManager.verifyTime,userGameInfoBuilder.getLBuyinClubID(),uuidList);
 
                             mUserIsCheck.put(uuid,false);
 

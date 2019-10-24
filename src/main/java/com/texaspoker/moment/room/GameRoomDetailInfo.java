@@ -130,6 +130,35 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn());
                     }
 
+                    //牌桌设置详细日志
+                    TableLogService.getInstance().error(lFromRoomID //groupid
+                            + "," + lGameRoomID //roomid
+                            + "," + 0
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getStCreateUserBaseInfo().getUuid() //uuid
+                            + "," + "roomtype"
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getEGameRoomType().getNumber() //gameroomtype
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBCredit() //授信
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getECreateRoomType().getNumber() //创建房间的内型
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds() //小盲
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getIGameRoomUserMaxNums() //人数
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getIAutoStartNum() //自动开始人数
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getIAnte() //前注
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLDuration() //牌局时长
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getIMinBuyinRatio() //带入记分牌小
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getIMaxBuyinRatio() //带入记分牌大
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getIVPIPlimit() //入池率
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getIMinRemainRatio() //最小保留记分牌
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBIosLimit() //ios限制
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBStraddle() //强制盲注
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBBuyinControl() //买入控制
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBInsurance() //保险
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBGPSLimit() //gps
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBIPLimit() //ip
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() //aof
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBUnloadable() //卸码
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() //延迟看牌
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBVoice()); //声纹
+
                     if (type == 1) {
                         //自动开局就打日志，尽量不要影响其他牌局
                         TableLogService.getInstance().error(lFromRoomID
@@ -2854,8 +2883,17 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         stUserGameInfoNetBuilder.setPhrase(VoiceManager.getInstance().getOnePhrase(stUserGameInfoNetBuilder.getStUserInfo().getUuid()));
                         stUserGameInfoNetBuilder.setLVoiceVerificationStatus(3);
 
+                        List<Long> uuidList = new ArrayList<Long>();
+
+                        for (int j = 0; j < stGameRoomInfo.getVUserGameInfosCount(); j++) {
+                            UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(j);
+                            if (stUserGameInfoNet.getStUserInfo().getUuid() > 0 && stUserGameInfoNet.getStUserInfo().getUuid() != stUserGameInfoNetBuilder.getStUserInfo().getUuid()) {
+                                uuidList.add(stUserGameInfoNet.getStUserInfo().getUuid());
+                            }
+                        }
+
                         //玩家验证信息同步声纹服务
-                        VoiceManager.getInstance().receiveCurrentTime(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),stUserGameInfoNetBuilder.getStUserInfo().getUuid(),verifyStartTime,ConfigaturationManager.verifyTime,stUserGameInfoNetBuilder.getLBuyinClubID());
+                        VoiceManager.getInstance().receiveCurrentTime(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(),stUserGameInfoNetBuilder.getStUserInfo().getUuid(),verifyStartTime,ConfigaturationManager.verifyTime,stUserGameInfoNetBuilder.getLBuyinClubID(),uuidList);
 
                         mUserIsCheck.put(stUserGameInfoNetBuilder.getStUserInfo().getUuid(),false);
 
