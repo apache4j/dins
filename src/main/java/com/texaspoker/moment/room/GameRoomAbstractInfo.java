@@ -51,6 +51,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
     protected ArrayList<Integer> vTestHandCards1 = new ArrayList<Integer>();
     protected ArrayList<Integer> vTestHandCards2 = new ArrayList<Integer>();
     protected ArrayList<Integer> vTestHandCards3 = new ArrayList<Integer>();
+    protected ArrayList<Integer> vTestHandCards4 = new ArrayList<Integer>();
     protected ArrayList<Integer> vTestTableCards = new ArrayList<Integer>();
 
     protected Map<Long, Long> mOriginalStacks = new HashMap<Long, Long>();
@@ -187,20 +188,23 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
     public GameRoomAbstractInfo() {
         mTimeoutGameUsers = new AdvancedTimeoutHashMap<Long, Long>();
 
-        vTestHandCards1.add(24);
-        vTestHandCards1.add(25);
+        vTestHandCards1.add(21);
+        vTestHandCards1.add(20);
 
-        vTestHandCards2.add(23);
-        vTestHandCards2.add(36);
+        vTestHandCards2.add(34);
+        vTestHandCards2.add(33);
 
-        vTestHandCards3.add(30);
-        vTestHandCards3.add(41);
+        vTestHandCards3.add(47);
+        vTestHandCards3.add(46);
 
-        vTestTableCards.add(0);
+        vTestHandCards4.add(8);
+        vTestHandCards4.add(7);
+
+        vTestTableCards.add(9);
+        vTestTableCards.add(10);
         vTestTableCards.add(11);
         vTestTableCards.add(12);
-        vTestTableCards.add(21);
-        vTestTableCards.add(48);
+        vTestTableCards.add(14);
 
         mTemporarilyLeaveUsersTimeout = new TimeoutHashMap<Long, Long>();
         mTemporarilyLeaveUsersTimeout.setTimeout(180000);
@@ -2351,7 +2355,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             PotLogService.getInstance().error(potLog.toString());
 
             //若是玩家自己贡献一个池子则不抽水
-            if (stPotInfo.playerList.size() > 1){
+            if (stPotInfo.playerList.size() > 1 && winnerUuidArray.size() <= 1){
                 drawMap.put(index,stGameRoomInfoBuilder.getVCurrentPots(index));
             }
         }
@@ -2452,7 +2456,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 long winLeftStacks = 0l;
 
                 //授信牌局 底池抽水且池子有抽水
-                if (bCredit && iDrawType == 2 && bFlopStatus && stPotInfo.playerList.size() > 1){
+                if (bCredit && iDrawType == 2 && bFlopStatus && stPotInfo.playerList.size() > 1 && winnerUuidArray.size() <= 1){
                     winStacks = (stGameRoomInfo.getVCurrentPots(index) - userDrawStacks.get(index)) / winnerIDArray.size();
                     winLeftStacks = (stGameRoomInfo.getVCurrentPots(index) - userDrawStacks.get(index)) % winnerIDArray.size();
 
@@ -4201,8 +4205,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 return vTestHandCards1.get(time);
             } else if (uuid == 203334) {
                 return vTestHandCards2.get(time);
-            } else {
+            } else if (uuid == 203501){
                 return vTestHandCards3.get(time);
+            } else {
+                return vTestHandCards4.get(time);
             }
         }
     }

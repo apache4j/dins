@@ -177,6 +177,11 @@ public class GameFeeUtil {
 			}
 		}
 
+		//上封顶为无限
+		if (drawLimit == 0){
+			return pumpMap;
+		}
+
 		//判断总抽水值是否超过抽水上限,如果超过抽水上限则按照比例承担抽水上限
 		if (totalPump > drawLimit){
 			if (pumpMap != null){
