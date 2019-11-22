@@ -139,7 +139,7 @@
         <dependency>
             <groupId>com.texaspoker.moment</groupId>
             <artifactId>netprotocol</artifactId>
-            <version>2.6.20.220</version>
+            <version>2.6.20.228</version>
         </dependency>
 
         <dependency>

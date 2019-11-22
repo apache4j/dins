@@ -88,6 +88,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
     //玩家卸码要带回的筹码
     private ConcurrentHashMap<Long,Long> mUserUnloadStacks = new ConcurrentHashMap<Long,Long>();
 
+    //预站起玩家
+    private ConcurrentHashMap<Long,Long> mPreStandUpUser = new ConcurrentHashMap<Long,Long>();
+
   /****************************
      * 牌局操作函数
      *******************************/
@@ -157,7 +160,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() //aof
                             + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBUnloadable() //卸码
                             + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() //延迟看牌
-                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBVoice()); //声纹
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBVoice() //声纹
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction()); //同时行动
 
                     if (type == 1) {
                         //自动开局就打日志，尽量不要影响其他牌局
@@ -207,6 +211,31 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                 if (bOver){
                     return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
                 }
+            }
+
+            //同时行动时玩家不能站起
+            if ((this.stGameRoomInfo.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop || this.stGameRoomInfo.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result) && this.stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 1){
+
+                if (this.stGameRoomInfo.getStGameRoomBaseInfo().getBStraddle() == 1 && iCouldPlayNum > 3){
+                    for (int k = 0; k < stGameRoomInfo.getVUserGameInfosCount(); k++) {
+                        //获取所有牌局上的用户
+                        UserGameInfoNet.Builder stUserGameInfo = stGameRoomInfo.getVUserGameInfos(k).toBuilder();
+                        if (stUserGameInfo.getStUserInfo().getUuid() == uuid && stUserGameInfo.getEGameRole() == USER_GAME_ROLE.USER_GAME_ROLE_STRADDLE) {
+                            mPreStandUpUser.put(uuid,uuid);
+                            return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
+                        }
+                    }
+                } else {
+                    for (int k = 0; k < stGameRoomInfo.getVUserGameInfosCount(); k++) {
+                        //获取所有牌局上的用户
+                        UserGameInfoNet.Builder stUserGameInfo = stGameRoomInfo.getVUserGameInfos(k).toBuilder();
+                        if (stUserGameInfo.getStUserInfo().getUuid() == uuid && stUserGameInfo.getEGameRole() == USER_GAME_ROLE.USER_GAME_ROLE_BIG_BLIND) {
+                            mPreStandUpUser.put(uuid,uuid);
+                            return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
+                        }
+                    }
+                }
+
             }
 
             if (this.stGameRoomInfo.getStGameRoomBaseInfo().getBGamePause() == 1) {
@@ -1847,6 +1876,22 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         mUserVoiceCheck.put(uuid,number);
                     }
                 }
+
+                //push玩家货币信息
+                long lClubid = stUserMyGameInfoNetBuilder.getLBuyinClubID();
+                long lCreditBalance = 0;
+                if (lClubid > 0){
+                    TexasPokerHttpClub.ClubUserCrditInfo.Builder clubUserInfo = ClubManager.getInstance().getClubUserCreditInfo(lClubid,uuid);
+                    if (clubUserInfo != null){
+                        lCreditBalance = clubUserInfo.getLCreditBalance();
+                    }
+                }
+                long lStacks = 0;
+                UserBaseInfoNet.Builder userBaseInfo = UserManager.getInstance().getUserBaseInfo(uuid);
+                if (userBaseInfo != null){
+                    lStacks = userBaseInfo.getLPopularity();
+                }
+                GameRoomMsgManager.getInstance().pushUserStacks(uuid,lClubid,lCreditBalance,lStacks);
             }
 
             return eErrorCode;
@@ -2624,6 +2669,16 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         }
                     }
 
+                    //同时行动时预站起玩家站起
+                    if (this.stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 1){
+                        if (mPreStandUpUser != null){
+                            for (Map.Entry<Long,Long> preStandUpUser : mPreStandUpUser.entrySet()){
+                                doStandUpAction(preStandUpUser.getKey(),false,0);
+                            }
+                            mPreStandUpUser.clear();
+                        }
+                    }
+
                     mGameRoomDetailInfos.setCurrent(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), this);
 
                     break;
@@ -2638,6 +2693,21 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 //							+"," + lGameRoomID
 //							+"," + stGameRoomInfo.getLGameHandID()
 //							+",gotoFlopAllStatus enter1" + stGameRoomInfo.getEGameState());
+                        //同时行动
+                        if (stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 1){
+                            GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+
+                            for (int k = 0; k < stGameRoomInfo.getVUserGameInfosCount(); k++) {
+                                UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(k).toBuilder();
+
+                                if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0 && stResetUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_BETTING) {
+                                    stResetUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_ALLIN);
+                                    stGameRoomInfoBuilder.setVUserGameInfos(k, stResetUserGameInfoBuilder);
+                                }
+                            }
+
+                            stGameRoomInfo = stGameRoomInfoBuilder.build();
+                        }
 
                         gotoFlopAllStatus(0);
                     }
@@ -2657,7 +2727,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 //							+"," + lGameRoomID
 //							+"," + stGameRoomInfo.getLGameHandID()
 //							+",checkGotoTurnStatus enter6" + stGameRoomInfo.getEGameState());
-
                         checkGotoTurnStatus(0);
                     } else {
                         //检测机器人自动弃牌
@@ -3501,7 +3570,76 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
         ArrayList<Long> timeoutUser = getTimeoutUsers();
 
         if (timeoutUser != null) {
-            if (timeoutUser.size() > 0) {
+            for (Long uuid : timeoutUser){
+                if (getTimeoutTimesUser(uuid) > 1) {
+                    removeTimeoutTimesUser(uuid);
+                    ERROR_CODE_TYPE errorCodeType = doStandUpAction(uuid, true, 0);
+
+                    if (errorCodeType == ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN){
+                        UserGameInfoNet.Builder stUserGameInfoBuilder = null;
+                        for (int k = 0; k < iGameRoomUserMaxNums; k++) {
+                            UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfo.getVUserGameInfos(k).toBuilder();
+
+                            if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() == uuid) {
+                                stUserGameInfoBuilder = stResetUserGameInfoBuilder;
+                                break;
+                            }
+                        }
+
+                        if (stUserGameInfoBuilder != null) {
+                            if (lStepMaxStacks == stUserGameInfoBuilder.getLBetStacks()) {
+
+                                if (stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 1){
+                                    addUserTimeoutTimes(uuid);
+                                    doFlodAction(uuid, (long) -1, false);
+                                } else {
+                                    addUserTimeoutTimes(uuid);
+                                    doCheckAction(uuid, 0);
+                                }
+                            } else {
+                                addUserTimeoutTimes(uuid);
+                                doFlodAction(uuid, (long) -1, false);
+                            }
+                        } else {
+                            addUserTimeoutTimes(uuid);
+                            doFlodAction(uuid, (long) -1, false);
+                        }
+                    }
+
+                } else {
+
+                    UserGameInfoNet.Builder stUserGameInfoBuilder = null;
+                    for (int k = 0; k < iGameRoomUserMaxNums; k++) {
+                        UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfo.getVUserGameInfos(k).toBuilder();
+
+                        if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() == uuid) {
+                            stUserGameInfoBuilder = stResetUserGameInfoBuilder;
+                            break;
+                        }
+                    }
+
+                    if (stUserGameInfoBuilder != null) {
+                        if (lStepMaxStacks == stUserGameInfoBuilder.getLBetStacks()) {
+
+                            if (stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 1){
+                                addUserTimeoutTimes(uuid);
+                                doFlodAction(uuid, (long) -1, false);
+                            } else {
+                                addUserTimeoutTimes(uuid);
+                                doCheckAction(uuid, 0);
+                            }
+                        } else {
+                            addUserTimeoutTimes(uuid);
+                            doFlodAction(uuid, (long) -1, false);
+                        }
+                    } else {
+                        addUserTimeoutTimes(uuid);
+                        doFlodAction(uuid, (long) -1, false);
+                    }
+                }
+            }
+
+            /*if (timeoutUser.size() > 0) {
                 long uuid = timeoutUser.get(0);
 
                 if (getTimeoutTimesUser(uuid) > 1) {
@@ -3522,8 +3660,16 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                     if (stUserGameInfoBuilder != null) {
                         if (lStepMaxStacks == stUserGameInfoBuilder.getLBetStacks()) {
-                            addUserTimeoutTimes(uuid);
-                            doCheckAction(uuid, 0);
+                            System.out.println("GameRoomDetailInfo.robotFlodCheck - 超时走check模式");
+
+                            if (stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 1){
+                                System.out.println("GameRoomDetailInfo.robotFlodCheck - 同时行动走flod模式");
+                                addUserTimeoutTimes(uuid);
+                                doFlodAction(uuid, (long) -1, false);
+                            } else {
+                                addUserTimeoutTimes(uuid);
+                                doCheckAction(uuid, 0);
+                            }
                         } else {
                             addUserTimeoutTimes(uuid);
                             doFlodAction(uuid, (long) -1, false);
@@ -3533,7 +3679,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         doFlodAction(uuid, (long) -1, false);
                     }
                 }
-            }
+            }*/
         }
     }
 
@@ -4309,6 +4455,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
     public ERROR_CODE_TYPE useDelayItem(long uuid, long lBettingID) {
         synchronized (this) {
+
+            //同时行动不能使用延时道具
+            if (this.stGameRoomInfo.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && this.stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 1){
+                return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
+            }
+
             for (int i = 0; i < this.stGameRoomInfo.getVUserGameInfosCount(); i++) {
                 UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
 
@@ -4797,6 +4949,34 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
             }
             stGameRoomInfo = stGameRoomInfoBuilder.build();
 
+            //同时行动
+            if (stGameRoomInfo.getStGameRoomBaseInfo().hasBSimultAction() && stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 1){
+                GameRoomInfo.Builder tGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+                for (int i = 0; i < tGameRoomInfoBuilder.getVUserGameInfosCount(); i++){
+                    UserGameInfoNet.Builder stUserGameInfoNetBuilder = tGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+                    if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() > 0
+                            && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_BETTING
+                            && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_ALLIN
+                            && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT){
+
+                        if (stUserGameInfoNetBuilder.getLRemainStacks() > 0){
+                            stUserGameInfoNetBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_BETTING);
+                            stUserGameInfoNetBuilder.setLBettingID(System.currentTimeMillis());
+                            stUserGameInfoNetBuilder.setLActTime(System.currentTimeMillis());
+                            stUserGameInfoNetBuilder.setIDelayLong(0);
+                            stUserGameInfoNetBuilder.setIDelaySingleTime(20);
+
+                            //把玩家放到超时检测队列里面
+                            //removeAllTimeOutUser();
+                            setTimeoutUserCurrent(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
+
+                            tGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+                        }
+                    }
+                }
+                stGameRoomInfo = tGameRoomInfoBuilder.build();
+            }
+
             sendAllGameStateChange(0, null);
             //设置房间的allin状态
             if (stGameRoomInfo.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result && checkAllAllin() == true) {
@@ -5014,6 +5194,34 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                 lStepMaxStacks = stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds();
             }
             stGameRoomInfo = stGameRoomInfoBuilder.build();
+
+            //同时行动
+            if (stGameRoomInfo.getStGameRoomBaseInfo().hasBSimultAction() && stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 1){
+                GameRoomInfo.Builder tGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+                for (int i = 0; i < tGameRoomInfoBuilder.getVUserGameInfosCount(); i++){
+                    UserGameInfoNet.Builder stUserGameInfoNetBuilder = tGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+                    if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() > 0
+                            && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_BETTING
+                            && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_ALLIN
+                            && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT){
+
+                        if (stUserGameInfoNetBuilder.getLRemainStacks() > 0){
+                            stUserGameInfoNetBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_BETTING);
+                            stUserGameInfoNetBuilder.setLBettingID(System.currentTimeMillis());
+                            stUserGameInfoNetBuilder.setLActTime(System.currentTimeMillis());
+                            stUserGameInfoNetBuilder.setIDelayLong(0);
+                            stUserGameInfoNetBuilder.setIDelaySingleTime(20);
+
+                            //把玩家放到超时检测队列里面
+                            //removeAllTimeOutUser();
+                            setTimeoutUserCurrent(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
+
+                            tGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+                        }
+                    }
+                }
+                stGameRoomInfo = tGameRoomInfoBuilder.build();
+            }
 
             sendAllGameStateChange(0, null);
             //设置房间的allin状态
@@ -5359,6 +5567,34 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
             }
             stGameRoomInfo = stGameRoomInfoBuilder.build();
 
+            //同时行动
+            if (stGameRoomInfo.getStGameRoomBaseInfo().hasBSimultAction() && stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 1){
+                GameRoomInfo.Builder tGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+                for (int i = 0; i < tGameRoomInfoBuilder.getVUserGameInfosCount(); i++){
+                    UserGameInfoNet.Builder stUserGameInfoNetBuilder = tGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+                    if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() > 0
+                            && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_BETTING
+                            && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_ALLIN
+                            && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT){
+
+                        if (stUserGameInfoNetBuilder.getLRemainStacks() > 0){
+                            stUserGameInfoNetBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_BETTING);
+                            stUserGameInfoNetBuilder.setLBettingID(System.currentTimeMillis());
+                            stUserGameInfoNetBuilder.setLActTime(System.currentTimeMillis());
+                            stUserGameInfoNetBuilder.setIDelayLong(0);
+                            stUserGameInfoNetBuilder.setIDelaySingleTime(20);
+
+                            //把玩家放到超时检测队列里面
+                            //removeAllTimeOutUser();
+                            setTimeoutUserCurrent(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
+
+                            tGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+                        }
+                    }
+                }
+                stGameRoomInfo = tGameRoomInfoBuilder.build();
+            }
+
             sendAllGameStateChange(0, null);
             //设置房间的allin状态
             if (stGameRoomInfo.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result && checkAllAllin() == true) {
@@ -5640,6 +5876,34 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
             }
             stGameRoomInfo = stGameRoomInfoBuilder.build();
 
+            //同时行动
+            if (stGameRoomInfo.getStGameRoomBaseInfo().hasBSimultAction() && stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 1){
+                GameRoomInfo.Builder tGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+                for (int i = 0; i < tGameRoomInfoBuilder.getVUserGameInfosCount(); i++){
+                    UserGameInfoNet.Builder stUserGameInfoNetBuilder = tGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+                    if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() > 0
+                            && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_BETTING
+                            && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_ALLIN
+                            && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT){
+
+                        if (stUserGameInfoNetBuilder.getLRemainStacks() > 0){
+                            stUserGameInfoNetBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_BETTING);
+                            stUserGameInfoNetBuilder.setLBettingID(System.currentTimeMillis());
+                            stUserGameInfoNetBuilder.setLActTime(System.currentTimeMillis());
+                            stUserGameInfoNetBuilder.setIDelayLong(0);
+                            stUserGameInfoNetBuilder.setIDelaySingleTime(20);
+
+                            //把玩家放到超时检测队列里面
+                            //removeAllTimeOutUser();
+                            setTimeoutUserCurrent(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
+
+                            tGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+                        }
+                    }
+                }
+                stGameRoomInfo = tGameRoomInfoBuilder.build();
+            }
+
             sendAllGameStateChange(0, null);
             //设置房间的allin状态
             if (stGameRoomInfo.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result && checkAllAllin() == true) {
@@ -5856,6 +6120,34 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                 lStepMaxStacks = stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds();
             }
             stGameRoomInfo = stGameRoomInfoBuilder.build();
+
+            //同时行动
+            if (stGameRoomInfo.getStGameRoomBaseInfo().hasBSimultAction() && stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 1){
+                GameRoomInfo.Builder tGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+                for (int i = 0; i < tGameRoomInfoBuilder.getVUserGameInfosCount(); i++){
+                    UserGameInfoNet.Builder stUserGameInfoNetBuilder = tGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+                    if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() > 0
+                            && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_BETTING
+                            && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_ALLIN
+                            && stUserGameInfoNetBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT){
+
+                        if (stUserGameInfoNetBuilder.getLRemainStacks() > 0){
+                            stUserGameInfoNetBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_BETTING);
+                            stUserGameInfoNetBuilder.setLBettingID(System.currentTimeMillis());
+                            stUserGameInfoNetBuilder.setLActTime(System.currentTimeMillis());
+                            stUserGameInfoNetBuilder.setIDelayLong(0);
+                            stUserGameInfoNetBuilder.setIDelaySingleTime(20);
+
+                            //把玩家放到超时检测队列里面
+                            //removeAllTimeOutUser();
+                            setTimeoutUserCurrent(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
+
+                            tGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+                        }
+                    }
+                }
+                stGameRoomInfo = tGameRoomInfoBuilder.build();
+            }
 
             sendAllGameStateChange(0, null);
             //设置房间的allin状态

@@ -289,6 +289,7 @@ public class QuickGameRoomManager {
                             gameRoomBaseInfoBuilder.setIHandsLimit(stSettingGameRoomBaseInfoBuilder.getIHandsLimit()); //总手数限制
                             gameRoomBaseInfoBuilder.setBIosLimit(stSettingGameRoomBaseInfoBuilder.getBIosLimit()); //仅限ios设备
                             gameRoomBaseInfoBuilder.setBVoice(stSettingGameRoomBaseInfoBuilder.getBVoice()); //是否开启声纹
+                            gameRoomBaseInfoBuilder.setBSimultAction(stSettingGameRoomBaseInfoBuilder.getBSimultAction()); //是否同时行动
 
                             gameRoomBaseInfoBuilder.setStCreateUserBaseInfo(UserManager.getInstance().getUserBaseInfo(uuid));
                             gameRoomBaseInfoBuilder.setLChatRoomID(lQuickGameRoomID);

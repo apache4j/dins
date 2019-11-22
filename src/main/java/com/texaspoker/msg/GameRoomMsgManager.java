@@ -185,4 +185,17 @@ public class GameRoomMsgManager {
 			e.printStackTrace();
 		}
 	}
+
+	public void pushUserStacks(long uuid, long lClubid, long lCreditBalance, long lStacks){
+		TexasPokerMsgService.PushUserStacksRequest.Builder request = TexasPokerMsgService.PushUserStacksRequest.newBuilder();
+		request.setUuid(uuid);
+		request.setLClubid(lClubid);
+		request.setLCreditBalance(lCreditBalance);
+		request.setLStacks(lStacks);
+		try {
+			msgService.pushUserStacks(controller, request.build(), null);
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+	}
 }
