@@ -1080,7 +1080,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                         //同时行动
                         if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 1){
 
-                            sendAllGameStateChange(uuid, null);
+                            //sendAllGameStateChange(uuid, null);
 
                             //检测是否还有betting玩家
                             if (!checkIsBetting()){
@@ -2049,7 +2049,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     //同时行动
                     if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 1){
 
-                        sendAllGameStateChange(uuid, null);
+                        //sendAllGameStateChange(uuid, null);
 
                         //检测牌局是否结束
                         victoryUser = iGameOver();

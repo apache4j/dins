@@ -214,6 +214,10 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
                 if (sUserGameInfoNetAdd != null) {
                     stGameActionResponseBuilder.setLRemainStacks(sUserGameInfoNetAdd.getLRemainStacks());
                     stGameActionResponseBuilder.setLStacks(sUserGameInfoNetAdd.getLBetStacks());
+
+                    if (stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBSimultAction() == 1){
+                        stGameActionResponseBuilder.setStUserGameInfoNet(sUserGameInfoNetAdd);
+                    }
                 }
 
                 stGameActionResponseBuilder.setEGameActType(request.getEGameActType());
