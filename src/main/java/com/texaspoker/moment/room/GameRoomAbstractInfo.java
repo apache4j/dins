@@ -2316,7 +2316,36 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                             }
                                         }
 
+                                        bAllAllin = true;
+
                                         SidePot();
+
+                                        stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+                                        stGameRoomInfoBuilder.setBAllAllin(1);
+
+                                        for (int k = 0; k < iGameRoomUserMaxNums; k++) {
+                                            UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(k).toBuilder();
+
+                                            if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0
+                                                    && stResetUserGameInfoBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_FOLD
+                                                    && stResetUserGameInfoBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT) {
+
+                                                if (bAllAllin == true || stResetUserGameInfoBuilder.getLRemainStacks() == 0) {
+                                                    stResetUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_ALLIN);
+                                                }
+                                            }
+
+                                            //������������������������������������
+                                            stResetUserGameInfoBuilder.setLBetStacks(0);
+                                            stResetUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
+
+                                            //������������gameroominfo���������������������
+                                            stGameRoomInfoBuilder.setVUserGameInfos(k, stResetUserGameInfoBuilder);
+                                        }
+
+                                        lStepMaxStacks = 0;
+                                        stGameRoomInfoBuilder.setLEffectiveRaise(stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds());
+                                        stGameRoomInfo = stGameRoomInfoBuilder.build();
 
                                         gotoFlopAllStatus(uuid);
                                         break;
