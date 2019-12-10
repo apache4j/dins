@@ -216,24 +216,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
             //同时行动时玩家不能站起
             if ((this.stGameRoomInfo.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop || this.stGameRoomInfo.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result) && this.stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 1){
 
-                if (this.stGameRoomInfo.getStGameRoomBaseInfo().getBStraddle() == 1 && iCouldPlayNum > 3){
-                    for (int k = 0; k < stGameRoomInfo.getVUserGameInfosCount(); k++) {
-                        //获取所有牌局上的用户
-                        UserGameInfoNet.Builder stUserGameInfo = stGameRoomInfo.getVUserGameInfos(k).toBuilder();
-                        if (stUserGameInfo.getStUserInfo().getUuid() == uuid && stUserGameInfo.getEGameRole() == USER_GAME_ROLE.USER_GAME_ROLE_STRADDLE) {
-                            mPreStandUpUser.put(uuid,uuid);
-                            return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
-                        }
-                    }
-                } else {
-                    for (int k = 0; k < stGameRoomInfo.getVUserGameInfosCount(); k++) {
-                        //获取所有牌局上的用户
-                        UserGameInfoNet.Builder stUserGameInfo = stGameRoomInfo.getVUserGameInfos(k).toBuilder();
-                        if (stUserGameInfo.getStUserInfo().getUuid() == uuid && stUserGameInfo.getEGameRole() == USER_GAME_ROLE.USER_GAME_ROLE_BIG_BLIND) {
-                            mPreStandUpUser.put(uuid,uuid);
-                            return ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
-                        }
-                    }
+                //最后行动玩家不能站起
+                if (uuid == getLastActionUuid()) {
+                    mPreStandUpUser.put(uuid,uuid);
+                    return ERROR_CODE_TYPE.ERROR_CODE_TYPE_USER_NOT_STANDUP;
                 }
 
             }
@@ -2519,6 +2505,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 gotoStartStatus();
                             }
                         } else {
+
                             //重置刚坐下的状态
                             rsetetJustSitTag();
 
@@ -2693,23 +2680,35 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 //							+"," + lGameRoomID
 //							+"," + stGameRoomInfo.getLGameHandID()
 //							+",gotoFlopAllStatus enter1" + stGameRoomInfo.getEGameState());
-                        //同时行动
-                        if (stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 1){
-                            GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 
-                            for (int k = 0; k < stGameRoomInfo.getVUserGameInfosCount(); k++) {
-                                UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(k).toBuilder();
+                        if (stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() != 1){
+                            gotoFlopAllStatus(0);
+                        } else {
 
-                                if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0 && stResetUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_BETTING) {
-                                    stResetUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_ALLIN);
-                                    stGameRoomInfoBuilder.setVUserGameInfos(k, stResetUserGameInfoBuilder);
+                            if (iCouldPlayNum == 2){
+
+                                GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+
+                                for (int k = 0; k < stGameRoomInfo.getVUserGameInfosCount(); k++) {
+                                    UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(k).toBuilder();
+
+                                    if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0 && stResetUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_BETTING) {
+                                        stResetUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_ALLIN);
+                                        stGameRoomInfoBuilder.setVUserGameInfos(k, stResetUserGameInfoBuilder);
+                                    }
+                                }
+
+                                stGameRoomInfo = stGameRoomInfoBuilder.build();
+
+                                gotoFlopAllStatus(0);
+                            } else {
+                                if (!checkIsBetting()){
+                                    gotoFlopAllStatus(0);
                                 }
                             }
-
-                            stGameRoomInfo = stGameRoomInfoBuilder.build();
                         }
 
-                        gotoFlopAllStatus(0);
+                        //gotoFlopAllStatus(0);
                     }
 
                 }
@@ -2780,6 +2779,11 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
         vHandList.clear();
         mHandPos.clear();
         bFlopStatus = false;
+        mSimUserBetStacks.clear();
+        lSimBetMaxStacks = 0l;
+        mSimUserPosit.clear();
+        mSimUserAllin.clear();
+        mUserFlodRecode.clear();
 
         //���������������������������������������������
         stGameRoomInfoBuilder.clearVCurrentCards();
@@ -4634,12 +4638,23 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         //设置剩余赌注数
                         stUserGameInfoBuilder.setLRemainStacks(stUserGameInfoBuilder.getLRemainStacks()
                                 - stGameRoomInfo.getStGameRoomBaseInfo().getIAnte());
+
+                        //设置同时行动下注值
+                        setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(),stGameRoomInfo.getStGameRoomBaseInfo().getIAnte());
                     } else {
                         //先下小盲注
                         stUserGameInfoBuilder.setLBetStacks(stUserGameInfoBuilder.getLRemainStacks());
 
                         //设置剩余赌注数
                         stUserGameInfoBuilder.setLRemainStacks(0);
+
+                        //设置同时行动下注值
+                        setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(),stUserGameInfoBuilder.getLRemainStacks());
+                    }
+
+                    //设置玩家是否被迫allin
+                    if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
+                        mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),true);
                     }
 
                     mHandPos.put(userIndex, stUserGameInfoBuilder.getStUserInfo().getUuid());
@@ -4720,6 +4735,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         && (stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_BETTING
                         || stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN
                         || stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_READY)) {
+
+                    //同时行动记录玩家的位置
+                    mSimUserPosit.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),iLoop);
+
                     int card1 = 0;
                     int card2 = 0;
 
@@ -4795,6 +4814,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //设置剩余赌注数
                                 stUserGameInfoBuilder.setLRemainStacks(stUserGameInfoBuilder.getLRemainStacks()
                                         - stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLSmallBlinds());
+
+                                //同时行动设置玩家下注筹码量
+                                setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(), stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLSmallBlinds());
                             } else {
                                 //先下小盲注
                                 stUserGameInfoBuilder.setLBetStacks(stUserGameInfoBuilder.getLRemainStacks());
@@ -4802,12 +4824,21 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //设置剩余赌注数
                                 stUserGameInfoBuilder.setLRemainStacks(0);
 
+                                //同时行动设置玩家下注筹码量
+                                setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(), stUserGameInfoBuilder.getLBetStacks());
+
                                 //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                                 if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
                                     stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                                 }
                             }
+
+                            //设置玩家是否被迫allin
+                            if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
+                                mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(), true);
+                            }
+
                             if (lStepMaxStacks < stUserGameInfoBuilder.getLBetStacks()) {
                                 lStepMaxStacks = stUserGameInfoBuilder.getLBetStacks();
                             }
@@ -4841,6 +4872,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //设置剩余赌注数
                                 stUserGameInfoBuilder.setLRemainStacks(stUserGameInfoBuilder.getLRemainStacks()
                                         - stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds());
+
+                                //同时行动设置玩家下注筹码量
+                                setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(), stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds());
                             } else {
                                 //先下大盲注
                                 stUserGameInfoBuilder.setLBetStacks(stUserGameInfoBuilder.getLRemainStacks());
@@ -4848,12 +4882,21 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //设置剩余赌注数
                                 stUserGameInfoBuilder.setLRemainStacks(0);
 
+                                //同时行动设置玩家下注筹码量
+                                setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(),stUserGameInfoBuilder.getLBetStacks());
+
                                 //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                                 if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
                                     stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                                 }
                             }
+
+                            //设置玩家是否被迫allin
+                            if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
+                                mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(), true);
+                            }
+
                             if (lStepMaxStacks < stUserGameInfoBuilder.getLBetStacks()) {
                                 lStepMaxStacks = stUserGameInfoBuilder.getLBetStacks();
                             }
@@ -5074,6 +5117,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     InsuranceApi.parseGameAction(content);
 
                     if (j == mBigBlindPos) {
+
+                        //同时行动记录玩家的位置
+                        mSimUserPosit.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),1);
+
                         //设置大盲的游戏状态
                         stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_BLIND);
 
@@ -5100,6 +5147,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                             //设置剩余赌注数
                             stUserGameInfoBuilder.setLRemainStacks(stUserGameInfoBuilder.getLRemainStacks() - stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds());
+
+                            //同时行动设置玩家下注筹码量
+                            setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(), stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds());
+
                         } else {
                             //先下大盲注
                             stUserGameInfoBuilder.setLBetStacks(stUserGameInfoBuilder.getLRemainStacks());
@@ -5107,18 +5158,31 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //设置剩余赌注数
                             stUserGameInfoBuilder.setLRemainStacks(0);
 
+                            //同时行动设置玩家下注筹码量
+                            setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(), stUserGameInfoBuilder.getLBetStacks());
+
                             //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                             if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                 stUserGameInfoBuilder.clearVCurrentHands();
                                 stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                             }
                         }
+
+                        //设置玩家是否被迫allin
+                        if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
+                            mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),true);
+                        }
+
                         if (lStepMaxStacks < stUserGameInfoBuilder.getLBetStacks()) {
                             lStepMaxStacks = stUserGameInfoBuilder.getLBetStacks();
                         }
 
 
                     } else {
+
+                        //同时行动记录玩家的位置
+                        mSimUserPosit.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),0);
+
                         if (stUserGameInfoBuilder.getLRemainStacks() < stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds()) {
                             TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
                                     + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -5155,6 +5219,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                                 //设置剩余赌注数
                                 stUserGameInfoBuilder.setLRemainStacks(stUserGameInfoBuilder.getLRemainStacks() - stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLSmallBlinds());
+
+                                //同时行动设置玩家下注筹码量
+                                setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(),stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLSmallBlinds());
                             } else {
                                 //先下小盲注
                                 stUserGameInfoBuilder.setLBetStacks(stUserGameInfoBuilder.getLRemainStacks());
@@ -5162,11 +5229,19 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //设置剩余赌注数
                                 stUserGameInfoBuilder.setLRemainStacks(0);
 
+                                //同时行动设置玩家下注筹码量
+                                setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(),stUserGameInfoBuilder.getLBetStacks());
+
                                 //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                                 if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
                                     stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                                 }
+                            }
+
+                            //设置玩家是否被迫allin
+                            if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
+                                mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),true);
                             }
 
                             //把要动作的用户设置到超时队列里面去
@@ -5293,6 +5368,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         && (stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_BETTING
                         || stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN
                         || stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_READY)) {
+
+                    //同时行动记录玩家的位置
+                    mSimUserPosit.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),iLoop);
+
                     int card1 = 0;
                     int card2 = 0;
 
@@ -5368,6 +5447,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //设置剩余赌注数
                                 stUserGameInfoBuilder.setLRemainStacks(stUserGameInfoBuilder.getLRemainStacks()
                                         - stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLSmallBlinds());
+
+                                //同时行动设置玩家下注筹码量
+                                setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(),stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLSmallBlinds());
+
                             } else {
                                 //先下小盲注
                                 stUserGameInfoBuilder.setLBetStacks(stUserGameInfoBuilder.getLRemainStacks());
@@ -5375,12 +5458,21 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //设置剩余赌注数
                                 stUserGameInfoBuilder.setLRemainStacks(0);
 
+                                //同时行动设置玩家下注筹码量
+                                setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(),stUserGameInfoBuilder.getLBetStacks());
+
                                 //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                                 if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
                                     stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                                 }
                             }
+
+                            //设置玩家是否被迫allin
+                            if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
+                                mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),true);
+                            }
+
                             if (lStepMaxStacks < stUserGameInfoBuilder.getLBetStacks()) {
                                 lStepMaxStacks = stUserGameInfoBuilder.getLBetStacks();
                             }
@@ -5414,6 +5506,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //设置剩余赌注数
                                 stUserGameInfoBuilder.setLRemainStacks(stUserGameInfoBuilder.getLRemainStacks()
                                         - stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds());
+
+                                //设置玩家下注筹码量
+                                setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(),stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds());
+
                             } else {
                                 //先下大盲注
                                 stUserGameInfoBuilder.setLBetStacks(stUserGameInfoBuilder.getLRemainStacks());
@@ -5421,12 +5517,21 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //设置剩余赌注数
                                 stUserGameInfoBuilder.setLRemainStacks(0);
 
+                                //设置玩家下注筹码量
+                                setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(),stUserGameInfoBuilder.getLBetStacks());
+
                                 //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                                 if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
                                     stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                                 }
                             }
+
+                            //设置玩家是否被迫allin
+                            if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
+                                mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),true);
+                            }
+
                             if (lStepMaxStacks < stUserGameInfoBuilder.getLBetStacks()) {
                                 lStepMaxStacks = stUserGameInfoBuilder.getLBetStacks();
                             }
@@ -5459,6 +5564,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //设置剩余赌注数
                                 stUserGameInfoBuilder.setLRemainStacks(stUserGameInfoBuilder.getLRemainStacks()
                                         - 2 * stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds());
+
+                                //设置玩家下注筹码量
+                                setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(),2 * stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds());
+
                             } else {
                                 //先下大盲注
                                 stUserGameInfoBuilder.setLBetStacks(stUserGameInfoBuilder.getLRemainStacks());
@@ -5466,12 +5575,21 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //设置剩余赌注数
                                 stUserGameInfoBuilder.setLRemainStacks(0);
 
+                                //设置玩家下注筹码量
+                                setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(),stUserGameInfoBuilder.getLBetStacks());
+
                                 //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                                 if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
                                     stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                                 }
                             }
+
+                            //设置玩家是否被迫allin
+                            if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
+                                mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),true);
+                            }
+
                             if (lStepMaxStacks < stUserGameInfoBuilder.getLBetStacks()) {
                                 lStepMaxStacks = stUserGameInfoBuilder.getLBetStacks();
                             }
@@ -5647,6 +5765,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         && (stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_BETTING
                         || stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN
                         || stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_READY)) {
+
+                    //同时行动记录玩家的位置
+                    mSimUserPosit.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),iLoop);
+
                     int card1 = 0;
                     int card2 = 0;
 
@@ -5722,6 +5844,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //设置剩余赌注数
                                 stUserGameInfoBuilder.setLRemainStacks(stUserGameInfoBuilder.getLRemainStacks()
                                         - stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLSmallBlinds());
+
+                                //设置玩家下注筹码量
+                                setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(),stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLSmallBlinds());
+
                             } else {
                                 //先下小盲注
                                 stUserGameInfoBuilder.setLBetStacks(stUserGameInfoBuilder.getLRemainStacks());
@@ -5729,12 +5855,21 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //设置剩余赌注数
                                 stUserGameInfoBuilder.setLRemainStacks(0);
 
+                                //设置玩家下注筹码量
+                                setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(),stUserGameInfoBuilder.getLBetStacks());
+
                                 //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                                 if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
                                     stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                                 }
                             }
+
+                            //设置玩家是否被迫allin
+                            if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
+                                mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),true);
+                            }
+
                             if (lStepMaxStacks < stUserGameInfoBuilder.getLBetStacks()) {
                                 lStepMaxStacks = stUserGameInfoBuilder.getLBetStacks();
                             }
@@ -5768,6 +5903,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //设置剩余赌注数
                                 stUserGameInfoBuilder.setLRemainStacks(stUserGameInfoBuilder.getLRemainStacks()
                                         - stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds());
+
+                                //设置玩家下注筹码量
+                                setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(),stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds());
+
                             } else {
                                 //先下大盲注
                                 stUserGameInfoBuilder.setLBetStacks(stUserGameInfoBuilder.getLRemainStacks());
@@ -5775,12 +5914,21 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //设置剩余赌注数
                                 stUserGameInfoBuilder.setLRemainStacks(0);
 
+                                //设置玩家下注筹码量
+                                setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(),stUserGameInfoBuilder.getLBetStacks());
+
                                 //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                                 if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
                                     stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                                 }
                             }
+
+                            //设置玩家是否被迫allin
+                            if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
+                                mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),true);
+                            }
+
                             if (lStepMaxStacks < stUserGameInfoBuilder.getLBetStacks()) {
                                 lStepMaxStacks = stUserGameInfoBuilder.getLBetStacks();
                             }
@@ -6000,6 +6148,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     InsuranceApi.parseGameAction(content);
 
                     if (j == mBigBlindPos) {
+
+                        //同时行动记录玩家的位置
+                        mSimUserPosit.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),1);
+
                         //设置大盲的游戏状态
                         stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_BLIND);
 
@@ -6026,6 +6178,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                             //设置剩余赌注数
                             stUserGameInfoBuilder.setLRemainStacks(stUserGameInfoBuilder.getLRemainStacks() - stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds());
+
+                            //设置玩家下注筹码量
+                            setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(),stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds());
+
                         } else {
                             //先下大盲注
                             stUserGameInfoBuilder.setLBetStacks(stUserGameInfoBuilder.getLRemainStacks());
@@ -6033,18 +6189,31 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //设置剩余赌注数
                             stUserGameInfoBuilder.setLRemainStacks(0);
 
+                            //设置玩家下注筹码量
+                            setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(),stUserGameInfoBuilder.getLBetStacks());
+
                             //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                             if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                 stUserGameInfoBuilder.clearVCurrentHands();
                                 stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                             }
                         }
+
+                        //设置玩家是否被迫allin
+                        if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
+                            mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),true);
+                        }
+
                         if (lStepMaxStacks < stUserGameInfoBuilder.getLBetStacks()) {
                             lStepMaxStacks = stUserGameInfoBuilder.getLBetStacks();
                         }
 
 
                     } else {
+
+                        //同时行动记录玩家的位置
+                        mSimUserPosit.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),0);
+
                         //设置小盲的游戏状态
                         if (stUserGameInfoBuilder.getLRemainStacks() < stGameRoomInfo.getStGameRoomBaseInfo().getLSmallBlinds()) {
                             TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
@@ -6081,6 +6250,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                                 //设置剩余赌注数
                                 stUserGameInfoBuilder.setLRemainStacks(stUserGameInfoBuilder.getLRemainStacks() - stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLSmallBlinds());
+
+                                //设置玩家下注筹码量
+                                setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(),stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLSmallBlinds());
+
                             } else {
                                 //先下小盲注
                                 stUserGameInfoBuilder.setLBetStacks(stUserGameInfoBuilder.getLRemainStacks());
@@ -6088,11 +6261,19 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //设置剩余赌注数
                                 stUserGameInfoBuilder.setLRemainStacks(0);
 
+                                //设置玩家下注筹码量
+                                setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(),stUserGameInfoBuilder.getLBetStacks());
+
                                 //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                                 if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
                                     stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                                 }
+                            }
+
+                            //设置玩家是否被迫allin
+                            if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
+                                mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),true);
                             }
 
                             //把要动作的用户设置到超时队列里面去
@@ -7209,6 +7390,24 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * 设置玩家下注筹码量
+     * @param uuid
+     * @param stacks
+     */
+    public void setSimUserBetStacks(long uuid, long stacks){
+        //设置下注筹码量
+        if (mSimUserBetStacks.get(uuid) == null){
+            mSimUserBetStacks.put(uuid,stacks);
+        } else {
+            mSimUserBetStacks.put(uuid,mSimUserBetStacks.get(uuid) + stacks);
+        }
+        //设置下注最大值
+        if (lSimBetMaxStacks < mSimUserBetStacks.get(uuid)){
+            lSimBetMaxStacks = mSimUserBetStacks.get(uuid);
         }
     }
 }

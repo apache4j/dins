@@ -182,17 +182,32 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
     //玩家是否声纹验证中
     public ConcurrentHashMap<Long,Boolean> mUserVerifiying = new ConcurrentHashMap<Long,Boolean>();
 
+    //同时行动玩家下注筹码量
+    public ConcurrentHashMap<Long,Long> mSimUserBetStacks = new ConcurrentHashMap<Long,Long>();
+
+    //同时行动下注最大值
+    public long lSimBetMaxStacks = 0l;
+
+    //同时行动玩家位置记录 小盲,大盲... uuid-位置
+    public ConcurrentHashMap<Long,Integer> mSimUserPosit = new ConcurrentHashMap<Long,Integer>();
+
+    //同时行动玩家是否被迫allin
+    public ConcurrentHashMap<Long,Boolean> mSimUserAllin = new ConcurrentHashMap<Long,Boolean>();
+
+    //同时行动玩家弃牌日志记录
+    public ConcurrentHashMap<Long,String> mUserFlodRecode = new ConcurrentHashMap<Long,String>();
+
     /**
      * 初始化函数
      */
     public GameRoomAbstractInfo() {
         mTimeoutGameUsers = new AdvancedTimeoutHashMap<Long, Long>();
 
-        vTestHandCards1.add(1);
-        vTestHandCards1.add(37);
+        vTestHandCards1.add(22);
+        vTestHandCards1.add(15);
 
-        vTestHandCards2.add(2);
-        vTestHandCards2.add(24);
+        vTestHandCards2.add(9);
+        vTestHandCards2.add(8);
 
         vTestHandCards3.add(42);
         vTestHandCards3.add(45);
@@ -200,11 +215,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         vTestHandCards4.add(8);
         vTestHandCards4.add(7);
 
-        vTestTableCards.add(47);
-        vTestTableCards.add(48);
+        vTestTableCards.add(10);
         vTestTableCards.add(11);
-        vTestTableCards.add(38);
-        vTestTableCards.add(14);
+        vTestTableCards.add(12);
+        vTestTableCards.add(17);
+        vTestTableCards.add(0);
 
         mTemporarilyLeaveUsersTimeout = new TimeoutHashMap<Long, Long>();
         mTemporarilyLeaveUsersTimeout.setTimeout(180000);
@@ -605,7 +620,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 //	}
 //
     protected void gotoFlopAllStatus(long uuid) {
-
         GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
         //AOF模式下且依次看牌此时需要强制将所有在桌玩家手牌下发
         if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
@@ -1080,18 +1094,37 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                         //同时行动
                         if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 1){
 
-                            //sendAllGameStateChange(uuid, null);
-
                             //检测是否还有betting玩家
                             if (!checkIsBetting()){
                                 if (checkAllInNum() == 1){
                                     sendAllGameStateChange(uuid, null);
+
+                                    //打印flod日志
+                                    for (Map.Entry<Long,String> map : mUserFlodRecode.entrySet()){
+                                        TableLogService.getInstance().error(lFromRoomID
+                                                + "," + lGameRoomID
+                                                + "," + stGameRoomInfo.getLGameHandID()
+                                                + "," + map.getKey()
+                                                + "," + "fold"
+                                                + "," + map.getValue());
+                                    }
+
                                     flodWinProcess();
                                     sendAllGameStateChange(uuid, null);
                                     break;
                                 } else if (checkAllInNum() > 1){
                                     sendAllGameStateChange(uuid, null);
                                     bAllAllin = true;
+
+                                    //打印flod日志
+                                    for (Map.Entry<Long,String> map : mUserFlodRecode.entrySet()){
+                                        TableLogService.getInstance().error(lFromRoomID
+                                                + "," + lGameRoomID
+                                                + "," + stGameRoomInfo.getLGameHandID()
+                                                + "," + map.getKey()
+                                                + "," + "fold"
+                                                + "," + map.getValue());
+                                    }
 
                                     SidePot();
 
@@ -2010,32 +2043,49 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                         break;
                     }
 
-                    if (lBettingID == -1) {
-                        //自动弃牌日志
-                        if (bDeleggate) {
-                            TableLogService.getInstance().error(lFromRoomID
-                                    + "," + lGameRoomID
-                                    + "," + stGameRoomInfo.getLGameHandID()
-                                    + "," + uuid
-                                    + "," + "fold"
-                                    + "," + "tuoguan");
+                    //不是同时行动日志正常打印
+                    if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 0){
+                        if (lBettingID == -1) {
+                            //自动弃牌日志
+                            if (bDeleggate) {
+                                TableLogService.getInstance().error(lFromRoomID
+                                        + "," + lGameRoomID
+                                        + "," + stGameRoomInfo.getLGameHandID()
+                                        + "," + uuid
+                                        + "," + "fold"
+                                        + "," + "tuoguan");
+                            } else {
+                                TableLogService.getInstance().error(lFromRoomID
+                                        + "," + lGameRoomID
+                                        + "," + stGameRoomInfo.getLGameHandID()
+                                        + "," + uuid
+                                        + "," + "fold"
+                                        + "," + "auto");
+                            }
                         } else {
+                            //主动弃牌日志
                             TableLogService.getInstance().error(lFromRoomID
                                     + "," + lGameRoomID
                                     + "," + stGameRoomInfo.getLGameHandID()
                                     + "," + uuid
                                     + "," + "fold"
-                                    + "," + "auto");
+                                    + "," + 0);
                         }
                     } else {
-                        //主动弃牌日志
-                        TableLogService.getInstance().error(lFromRoomID
-                                + "," + lGameRoomID
-                                + "," + stGameRoomInfo.getLGameHandID()
-                                + "," + uuid
-                                + "," + "fold"
-                                + "," + 0);
+                        //同时行动由于保险原因暂时先做记录
+                        if (lBettingID == -1) {
+                            //自动弃牌日志
+                            if (bDeleggate) {
+                                mUserFlodRecode.put(uuid,"tuoguan");
+                            } else {
+                                mUserFlodRecode.put(uuid,"auto");
+                            }
+                        } else {
+                            //主动弃牌日志
+                            mUserFlodRecode.put(uuid,"0");
+                        }
                     }
+
 
                     //设置弃牌状态
                     stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_FOLD);
@@ -2049,15 +2099,15 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     //同时行动
                     if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 1){
 
-                        //sendAllGameStateChange(uuid, null);
-
                         //检测牌局是否结束
                         victoryUser = iGameOver();
                         if (victoryUser != -1) {
 
+                            //未弃牌玩家
                             long userUuid = checkNotFlodUser();
 
                             boolean bool = false; //是否可以直接结束牌局
+                            boolean bStraddle = false; //是否有straddle玩家
 
                             //大盲或straddle获胜
                             if (stGameRoomInfo.getStGameRoomBaseInfo().hasBStraddle() && stGameRoomInfo.getStGameRoomBaseInfo().getBStraddle() == 1 && iCouldPlayNum > 3){
@@ -2069,6 +2119,28 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                         break;
                                     }
                                 }
+
+                                for (int k = 0; k < stGameRoomInfo.getVUserGameInfosCount(); k++) {
+                                    //获取所有牌局上的用户
+                                    UserGameInfoNet.Builder stUserGameInfo = stGameRoomInfo.getVUserGameInfos(k).toBuilder();
+                                    if (stUserGameInfo.getStUserInfo().getUuid() > 0 && stUserGameInfo.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT && stUserGameInfo.getEGameRole() == USER_GAME_ROLE.USER_GAME_ROLE_STRADDLE) {
+                                        bStraddle = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!bStraddle){
+                                    //没有抓大盲赢
+                                    for (int k = 0; k < stGameRoomInfo.getVUserGameInfosCount(); k++) {
+                                        //获取所有牌局上的用户
+                                        UserGameInfoNet.Builder stUserGameInfo = stGameRoomInfo.getVUserGameInfos(k).toBuilder();
+                                        if (stUserGameInfo.getStUserInfo().getUuid() == userUuid && stUserGameInfo.getEGameRole() == USER_GAME_ROLE.USER_GAME_ROLE_BIG_BLIND) {
+                                            bool = true;
+                                            break;
+                                        }
+                                    }
+                                }
+
                             } else {
                                 for (int k = 0; k < stGameRoomInfo.getVUserGameInfosCount(); k++) {
                                     //获取所有牌局上的用户
@@ -2080,9 +2152,20 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                 }
                             }
 
-                            if (bool){
+                            //大盲或抓获胜
+                            if (bool && mSimUserAllin.get(userUuid) == null){
                                 //如果牌局已，则进入牌局输赢结算状态
                                 sendAllGameStateChange(uuid, null);
+
+                                //打印flod日志
+                                for (Map.Entry<Long,String> map : mUserFlodRecode.entrySet()){
+                                    TableLogService.getInstance().error(lFromRoomID
+                                            + "," + lGameRoomID
+                                            + "," + stGameRoomInfo.getLGameHandID()
+                                            + "," + map.getKey()
+                                            + "," + "fold"
+                                            + "," + map.getValue());
+                                }
 
                                 flodWinProcess();
 
@@ -2091,6 +2174,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             }
                         }
 
+                        //大家都弃牌那就大盲或抓赢
                         if (checkIsFoldAll()){
                             //大盲或straddle获胜
                             if (stGameRoomInfo.getStGameRoomBaseInfo().hasBStraddle() && stGameRoomInfo.getStGameRoomBaseInfo().getBStraddle() == 1 && iCouldPlayNum > 3){
@@ -2104,6 +2188,29 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                         break;
                                     }
                                 }
+
+                                boolean bStraddle = false; //是否有straddle玩家
+                                for (int k = 0; k < stGameRoomInfo.getVUserGameInfosCount(); k++) {
+                                    //获取所有牌局上的用户
+                                    UserGameInfoNet.Builder stUserGameInfo = stGameRoomInfo.getVUserGameInfos(k).toBuilder();
+                                    if (stUserGameInfo.getStUserInfo().getUuid() > 0 && stUserGameInfo.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT && stUserGameInfo.getEGameRole() == USER_GAME_ROLE.USER_GAME_ROLE_STRADDLE) {
+                                        bStraddle = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!bStraddle){
+                                    for (int k = 0; k < stGameRoomInfo.getVUserGameInfosCount(); k++) {
+                                        //获取所有牌局上的用户
+                                        UserGameInfoNet.Builder stUserGameInfo = stGameRoomInfo.getVUserGameInfos(k).toBuilder();
+                                        if (stUserGameInfo.getStUserInfo().getUuid() > 0 && stUserGameInfo.getEGameRole() == USER_GAME_ROLE.USER_GAME_ROLE_BIG_BLIND) {
+                                            stUserGameInfo.setEGameState(USER_GAME_STATE.USER_GAME_STATE_CHECK);
+                                            stGameRoom.setVUserGameInfos(k,stUserGameInfo);
+                                            break;
+                                        }
+                                    }
+                                }
+
                                 stGameRoomInfo = stGameRoom.build();
                             } else {
                                 GameRoomInfo.Builder stGameRoom = stGameRoomInfo.toBuilder();
@@ -2121,6 +2228,16 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                             sendAllGameStateChange(uuid, null);
 
+                            //打印flod日志
+                            for (Map.Entry<Long,String> map : mUserFlodRecode.entrySet()){
+                                TableLogService.getInstance().error(lFromRoomID
+                                        + "," + lGameRoomID
+                                        + "," + stGameRoomInfo.getLGameHandID()
+                                        + "," + map.getKey()
+                                        + "," + "fold"
+                                        + "," + map.getValue());
+                            }
+
                             flodWinProcess();
 
                             sendAllGameStateChange(uuid, null);
@@ -2130,45 +2247,240 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                         //检测是否还有betting玩家
                         if (!checkIsBetting()){
                             if (checkAllInNum() == 1){
-                                sendAllGameStateChange(uuid, null);
-                                flodWinProcess();
-                                sendAllGameStateChange(uuid, null);
-                                break;
+
+                                //只有一个allin玩家
+                                List<Long> uuidList = getAllInUuid();
+                                long userid = uuidList.get(0);
+
+                                //1.检测当前allin玩家是否为被迫allin
+                                //a.如果为被迫allin获取场上最后行动玩家进行比牌
+                                //b.如果玩家正常allin则玩家直接获胜
+                                if (mSimUserAllin.get(userid) != null){
+                                    long lastActionUuid = getLastActionUuid();
+                                    //如果本身是最后一个玩家直接获胜
+                                    if (userid == lastActionUuid){
+                                        sendAllGameStateChange(uuid, null);
+
+                                        //打印flod日志
+                                        for (Map.Entry<Long,String> map : mUserFlodRecode.entrySet()){
+                                            TableLogService.getInstance().error(lFromRoomID
+                                                    + "," + lGameRoomID
+                                                    + "," + stGameRoomInfo.getLGameHandID()
+                                                    + "," + map.getKey()
+                                                    + "," + "fold"
+                                                    + "," + map.getValue());
+                                        }
+
+                                        flodWinProcess();
+                                        sendAllGameStateChange(uuid, null);
+                                        break;
+
+                                    } else {
+
+                                        long otherUuid = 0l;
+
+                                        //和最后一个玩家进行比牌流程
+                                        GameRoomInfo.Builder stGameRoom = stGameRoomInfo.toBuilder();
+                                        for (int k = 0; k < stGameRoomInfo.getVUserGameInfosCount(); k++) {
+                                            //获取所有牌局上的用户
+                                            UserGameInfoNet.Builder stUserGameInfo = stGameRoomInfo.getVUserGameInfos(k).toBuilder();
+                                            if (stUserGameInfo.getStUserInfo().getUuid() == lastActionUuid) {
+                                                stUserGameInfo.setEGameState(USER_GAME_STATE.USER_GAME_STATE_CHECK);
+                                                stGameRoom.setVUserGameInfos(k,stUserGameInfo);
+
+                                                TableLogService.getInstance().error(lFromRoomID
+                                                        + "," + lGameRoomID
+                                                        + "," + stGameRoomInfo.getLGameHandID()
+                                                        + "," + lastActionUuid
+                                                        + "," + "check"
+                                                        + "," + 0);
+
+                                                otherUuid = lastActionUuid;
+
+                                                break;
+                                            }
+                                        }
+                                        stGameRoomInfo = stGameRoom.build();
+
+                                        sendAllGameStateChange(uuid, null);
+
+                                        //打印flod日志
+                                        for (Map.Entry<Long,String> map : mUserFlodRecode.entrySet()){
+                                            if (map.getKey() != otherUuid){
+                                                TableLogService.getInstance().error(lFromRoomID
+                                                        + "," + lGameRoomID
+                                                        + "," + stGameRoomInfo.getLGameHandID()
+                                                        + "," + map.getKey()
+                                                        + "," + "fold"
+                                                        + "," + map.getValue());
+                                            }
+                                        }
+
+                                        SidePot();
+
+                                        gotoFlopAllStatus(uuid);
+                                        break;
+                                    }
+
+                                } else {
+                                    sendAllGameStateChange(uuid, null);
+
+                                    //打印flod日志
+                                    for (Map.Entry<Long,String> map : mUserFlodRecode.entrySet()){
+                                        TableLogService.getInstance().error(lFromRoomID
+                                                + "," + lGameRoomID
+                                                + "," + stGameRoomInfo.getLGameHandID()
+                                                + "," + map.getKey()
+                                                + "," + "fold"
+                                                + "," + map.getValue());
+                                    }
+
+                                    flodWinProcess();
+                                    sendAllGameStateChange(uuid, null);
+                                    break;
+                                }
+
                             } else if (checkAllInNum() > 1){
-                                sendAllGameStateChange(uuid, null);
-                                bAllAllin = true;
 
-                                SidePot();
+                                //allin玩家有多个时
+                                //a.allin玩家中存在没有被迫allin的直接走比牌结算
+                                //b.allin玩家中都是被迫allin的需要和最后行动玩家比牌
+                                if (checkAllBeForceAllin()){
+                                    //最后行动玩家
+                                    long lastActionUuid = getLastActionUuid();
+                                    Boolean bool = false;
 
-                                stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-                                stGameRoomInfoBuilder.setBAllAllin(1);
+                                    long otherUuid = 0l;
 
-                                for (int k = 0; k < iGameRoomUserMaxNums; k++) {
-                                    UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(k).toBuilder();
-
-                                    if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0
-                                            && stResetUserGameInfoBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_FOLD
-                                            && stResetUserGameInfoBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT) {
-
-                                        if (bAllAllin == true || stResetUserGameInfoBuilder.getLRemainStacks() == 0) {
-                                            stResetUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_ALLIN);
+                                    //如果最后行动的玩家在allin玩家内直接比牌
+                                    List<Long> uuidList = getAllInUuid();
+                                    for (Long userid : uuidList){
+                                        if (lastActionUuid == userid){
+                                            bool = true;
                                         }
                                     }
 
-                                    //������������������������������������
-                                    stResetUserGameInfoBuilder.setLBetStacks(0);
-                                    stResetUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
+                                    //最后行动的玩家在allin玩家里直接比牌
+                                    if (!bool){
+                                        //最后行动的玩家不在allin内最后行动玩家需要参与比牌
+                                        GameRoomInfo.Builder stGameRoom = stGameRoomInfo.toBuilder();
+                                        for (int k = 0; k < stGameRoomInfo.getVUserGameInfosCount(); k++) {
+                                            //获取所有牌局上的用户
+                                            UserGameInfoNet.Builder stUserGameInfo = stGameRoomInfo.getVUserGameInfos(k).toBuilder();
+                                            if (stUserGameInfo.getStUserInfo().getUuid() == lastActionUuid) {
+                                                stUserGameInfo.setEGameState(USER_GAME_STATE.USER_GAME_STATE_CHECK);
+                                                stGameRoom.setVUserGameInfos(k,stUserGameInfo);
 
-                                    //������������gameroominfo���������������������
-                                    stGameRoomInfoBuilder.setVUserGameInfos(k, stResetUserGameInfoBuilder);
+                                                TableLogService.getInstance().error(lFromRoomID
+                                                        + "," + lGameRoomID
+                                                        + "," + stGameRoomInfo.getLGameHandID()
+                                                        + "," + lastActionUuid
+                                                        + "," + "check"
+                                                        + "," + 0);
+
+                                                otherUuid = lastActionUuid;
+
+                                                break;
+                                            }
+                                        }
+                                        stGameRoomInfo = stGameRoom.build();
+                                    }
+
+                                    //打印flod日志
+                                    for (Map.Entry<Long,String> map : mUserFlodRecode.entrySet()){
+                                        if (map.getKey() != otherUuid){
+                                            TableLogService.getInstance().error(lFromRoomID
+                                                    + "," + lGameRoomID
+                                                    + "," + stGameRoomInfo.getLGameHandID()
+                                                    + "," + map.getKey()
+                                                    + "," + "fold"
+                                                    + "," + map.getValue());
+                                        }
+                                    }
+
+                                    sendAllGameStateChange(uuid, null);
+                                    bAllAllin = true;
+
+                                    SidePot();
+
+                                    stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+                                    stGameRoomInfoBuilder.setBAllAllin(1);
+
+                                    for (int k = 0; k < iGameRoomUserMaxNums; k++) {
+                                        UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(k).toBuilder();
+
+                                        if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0
+                                                && stResetUserGameInfoBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_FOLD
+                                                && stResetUserGameInfoBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT) {
+
+                                            if (bAllAllin == true || stResetUserGameInfoBuilder.getLRemainStacks() == 0) {
+                                                stResetUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_ALLIN);
+                                            }
+                                        }
+
+                                        //������������������������������������
+                                        stResetUserGameInfoBuilder.setLBetStacks(0);
+                                        stResetUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
+
+                                        //������������gameroominfo���������������������
+                                        stGameRoomInfoBuilder.setVUserGameInfos(k, stResetUserGameInfoBuilder);
+                                    }
+
+                                    lStepMaxStacks = 0;
+                                    stGameRoomInfoBuilder.setLEffectiveRaise(stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds());
+                                    stGameRoomInfo = stGameRoomInfoBuilder.build();
+
+                                    gotoFlopAllStatus(uuid);
+
+                                    break;
+
+                                } else {
+                                    sendAllGameStateChange(uuid, null);
+                                    bAllAllin = true;
+
+                                    //打印flod日志
+                                    for (Map.Entry<Long,String> map : mUserFlodRecode.entrySet()){
+                                        TableLogService.getInstance().error(lFromRoomID
+                                                + "," + lGameRoomID
+                                                + "," + stGameRoomInfo.getLGameHandID()
+                                                + "," + map.getKey()
+                                                + "," + "fold"
+                                                + "," + map.getValue());
+                                    }
+
+                                    SidePot();
+
+                                    stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+                                    stGameRoomInfoBuilder.setBAllAllin(1);
+
+                                    for (int k = 0; k < iGameRoomUserMaxNums; k++) {
+                                        UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(k).toBuilder();
+
+                                        if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0
+                                                && stResetUserGameInfoBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_FOLD
+                                                && stResetUserGameInfoBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT) {
+
+                                            if (bAllAllin == true || stResetUserGameInfoBuilder.getLRemainStacks() == 0) {
+                                                stResetUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_ALLIN);
+                                            }
+                                        }
+
+                                        //������������������������������������
+                                        stResetUserGameInfoBuilder.setLBetStacks(0);
+                                        stResetUserGameInfoBuilder.setEPreAction(USER_GAME_STATE.USER_GAME_STATE_WAIT);
+
+                                        //������������gameroominfo���������������������
+                                        stGameRoomInfoBuilder.setVUserGameInfos(k, stResetUserGameInfoBuilder);
+                                    }
+
+                                    lStepMaxStacks = 0;
+                                    stGameRoomInfoBuilder.setLEffectiveRaise(stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds());
+                                    stGameRoomInfo = stGameRoomInfoBuilder.build();
+
+                                    gotoFlopAllStatus(uuid);
+
+                                    break;
                                 }
-
-                                lStepMaxStacks = 0;
-                                stGameRoomInfoBuilder.setLEffectiveRaise(stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds());
-                                stGameRoomInfo = stGameRoomInfoBuilder.build();
-
-                                gotoFlopAllStatus(uuid);
-                                break;
                             } else {
                                 //所有玩家都弃牌了,上面已经处理了
                             }
@@ -4390,9 +4702,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         if (bTable) {
             return vTestTableCards.get(time);
         } else {
-            if (uuid == 73842) {
+            if (uuid == 342342) {
                 return vTestHandCards1.get(time);
-            } else if (uuid == 161092) {
+            } else if (uuid == 342343) {
                 return vTestHandCards2.get(time);
             } else if (uuid == 73836){
                 return vTestHandCards3.get(time);
@@ -6106,7 +6418,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             //获取所有牌局上的用户
             UserGameInfoNet.Builder stUserGameInfoBuilder = stGameRoomInfo.getVUserGameInfos(j).toBuilder();
 
-            if (stUserGameInfoBuilder.getStUserInfo().getUuid() > 0 && stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN) {
+            if (stUserGameInfoBuilder.getStUserInfo().getUuid() > 0 && stUserGameInfoBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT && (stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN || stUserGameInfoBuilder.getLRemainStacks() == 0)) {
                 num = num + 1;
             }
         }
@@ -6132,5 +6444,81 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             }
         }
         return uuid;
+    }
+
+    /**
+     * 获取所有allin玩家的uuid
+     * @return
+     */
+    public List<Long> getAllInUuid(){
+        List<Long> uuidList = new ArrayList<Long>();
+
+        for (int j = 0; j < stGameRoomInfo.getVUserGameInfosCount(); j++) {
+            //获取所有牌局上的用户
+            UserGameInfoNet.Builder stUserGameInfoBuilder = stGameRoomInfo.getVUserGameInfos(j).toBuilder();
+
+            if (stUserGameInfoBuilder.getStUserInfo().getUuid() > 0 && (stUserGameInfoBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN || stUserGameInfoBuilder.getLRemainStacks() == 0)) {
+                uuidList.add(stUserGameInfoBuilder.getStUserInfo().getUuid());
+            }
+        }
+
+        return uuidList;
+    }
+
+    /**
+     * 获取场上最大下注玩家
+     * @return
+     */
+    public List<Long> getMaxBetUuid(){
+        List<Long> uuidList = new ArrayList<Long>();
+
+        if (mSimUserBetStacks != null){
+            for (Map.Entry<Long,Long> map : mSimUserBetStacks.entrySet()){
+                if (lSimBetMaxStacks == map.getValue()){
+                    uuidList.add(map.getKey());
+                }
+            }
+        }
+
+        return uuidList;
+    }
+
+    /**
+     * 获取最后行动玩家
+     * @return
+     */
+    public long getLastActionUuid(){
+        //获取最大下注玩家
+        List<Long> uuidList = getMaxBetUuid();
+        long userid = 0l;
+        //最大也就9人桌
+        int posit = 10;
+
+        if (uuidList.size() == 1){
+            return uuidList.get(0);
+        } else {
+            for (Long uuid : uuidList){
+                if (mSimUserPosit.get(uuid) < posit){
+                    userid = uuid;
+                    posit = mSimUserPosit.get(uuid);
+                }
+            }
+            return userid;
+        }
+    }
+
+    /**
+     * 检测所有allin的玩家是否都是被迫allin的
+     * @return
+     */
+    public Boolean checkAllBeForceAllin(){
+        List<Long> uuidList = getAllInUuid();
+        for (Long uuid : uuidList){
+            if (mSimUserAllin.get(uuid) == null){
+                return false;
+            }
+        }
+
+        return true;
     }
 }
