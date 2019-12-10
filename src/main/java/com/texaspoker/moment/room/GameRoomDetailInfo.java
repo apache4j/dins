@@ -4649,7 +4649,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         stUserGameInfoBuilder.setLRemainStacks(0);
 
                         //设置同时行动下注值
-                        setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(),stUserGameInfoBuilder.getLRemainStacks());
+                        setSimUserBetStacks(stUserGameInfoBuilder.getStUserInfo().getUuid(),stUserGameInfoBuilder.getLBetStacks());
                     }
 
                     //设置玩家是否被迫allin
