@@ -214,7 +214,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
             }
 
             //同时行动时玩家不能站起
-            if ((this.stGameRoomInfo.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop || this.stGameRoomInfo.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result) && this.stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 1){
+            //(this.stGameRoomInfo.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop || this.stGameRoomInfo.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result)
+            if (this.stGameRoomInfo.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD && this.stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 1){
 
                 //最后行动玩家不能站起
                 if (uuid == getLastActionUuid()) {
@@ -3579,7 +3580,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     removeTimeoutTimesUser(uuid);
                     ERROR_CODE_TYPE errorCodeType = doStandUpAction(uuid, true, 0);
 
-                    if (errorCodeType == ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN){
+                    if (errorCodeType != ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS){
                         UserGameInfoNet.Builder stUserGameInfoBuilder = null;
                         for (int k = 0; k < iGameRoomUserMaxNums; k++) {
                             UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfo.getVUserGameInfos(k).toBuilder();
@@ -5750,6 +5751,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                 resetStepStatus();
                 sendAllGameStateChange(0, null);
             }
+
         } else if (iCouldPlayNum == 3) {
             for (int j = mSmallBlindPos; iLoop < iGameRoomUserMaxNums; iLoop++, j++) {
                 int userIndex = 0;
@@ -7398,7 +7400,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
      * @param uuid
      * @param stacks
      */
-    public void setSimUserBetStacks(long uuid, long stacks){
+    /*public void setSimUserBetStacks(long uuid, long stacks){
         //设置下注筹码量
         if (mSimUserBetStacks.get(uuid) == null){
             mSimUserBetStacks.put(uuid,stacks);
@@ -7409,5 +7411,5 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
         if (lSimBetMaxStacks < mSimUserBetStacks.get(uuid)){
             lSimBetMaxStacks = mSimUserBetStacks.get(uuid);
         }
-    }
+    }*/
 }
