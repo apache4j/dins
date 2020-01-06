@@ -197,6 +197,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
     //同时行动玩家弃牌日志记录
     public ConcurrentHashMap<Long,String> mUserFlodRecode = new ConcurrentHashMap<Long,String>();
 
+    //玩家在本牌局进行的手数
+    public ConcurrentHashMap<Long,Integer> mUserPlayHand = new ConcurrentHashMap<Long,Integer>();
+
     /**
      * 初始化函数
      */
@@ -3420,7 +3423,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
     };
 
     public void setBillCurrentStacksInRoom(long uuid, long roomid, long stacks, long lUnloadStacks) {
-        BillManager.getInstance().setCurrentStacksInRoom(uuid, roomid, stacks+lUnloadStacks, lUnloadStacks);
+        BillManager.getInstance().setCurrentStacksInRoom(uuid, roomid, stacks+lUnloadStacks, lUnloadStacks, mUserPlayHand.get(uuid) != null ? mUserPlayHand.get(uuid) : 0);
         mUserOutStacks.put(uuid, stacks);
     }
 

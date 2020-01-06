@@ -82,9 +82,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
     //玩家买入次数
     private ConcurrentHashMap<Long,Integer> mUserBuyinTotal = new ConcurrentHashMap<Long,Integer>();
 
-    //玩家在本牌局进行的手数
-    private ConcurrentHashMap<Long,Integer> mUserPlayHand = new ConcurrentHashMap<Long,Integer>();
-
     //玩家卸码要带回的筹码
     private ConcurrentHashMap<Long,Long> mUserUnloadStacks = new ConcurrentHashMap<Long,Long>();
 
@@ -2484,9 +2481,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         FlopLottoManager.getInstance().refreshBetTimeOut(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 
                         //设置玩家在本牌局打牌的手数
-                        if (bVoice){
-                            setUserPlayHands();
-                        }
+                        setUserPlayHands();
 
                         if (iCouldPlayNum >= 2) {
                             //每个选手发两张牌,并把游戏的状态设置为FirstRound
@@ -7345,7 +7340,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
             UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(k).toBuilder();
 
             //在桌玩家
-            if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0) {
+            if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0 && stResetUserGameInfoBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_WAIT) {
                 if (mUserPlayHand.get(stResetUserGameInfoBuilder.getStUserInfo().getUuid()) != null){
                     mUserPlayHand.put(stResetUserGameInfoBuilder.getStUserInfo().getUuid(),mUserPlayHand.get(stResetUserGameInfoBuilder.getStUserInfo().getUuid()) + 1);
                 } else {

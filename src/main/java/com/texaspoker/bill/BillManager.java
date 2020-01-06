@@ -110,7 +110,7 @@ public class BillManager {
         return false;
     }
 
-    public void setCurrentStacksInRoom(long uuid, long roomid, long stacks, long lUnloadStacks) {
+    public void setCurrentStacksInRoom(long uuid, long roomid, long stacks, long lUnloadStacks, int handid) {
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(roomid);
 
         if (stGameRoomDetailInfo != null
@@ -123,6 +123,7 @@ public class BillManager {
             stSetCurrentStacksInRoomRequestBuilder.setLStacks(stacks);
             stSetCurrentStacksInRoomRequestBuilder.setISNGRank(0);
             stSetCurrentStacksInRoomRequestBuilder.setLUnloadStacks(lUnloadStacks);
+            stSetCurrentStacksInRoomRequestBuilder.setIPlayHandNum(handid);
 
             try {
                 blockingBillService.setCurrentStacksInRoom(controller, stSetCurrentStacksInRoomRequestBuilder.build());
