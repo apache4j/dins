@@ -7160,8 +7160,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                 if (stUserGameInfoNet != null && stUserGameInfoNet.getStUserInfo().getUuid() == uuid) {
                     //检查用户状态，如果用户已经allin，或者已经弃牌，就没有预动作了
                     if (stUserGameInfoNet.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_ALLIN
-                            && stUserGameInfoNet.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_FOLD
-                            && stUserGameInfoNet.getEPreAction() == USER_GAME_STATE.USER_GAME_STATE_WAIT) {
+                            && stUserGameInfoNet.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_FOLD) {
                         GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
                         UserGameInfoNet.Builder stUserGameInfoNetBuilder = stUserGameInfoNet.toBuilder();
                         stUserGameInfoNetBuilder.setEPreAction(eGameRoomType);
