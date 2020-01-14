@@ -11,10 +11,7 @@ import com.texaspoker.dubbo.game.insurance.InsuranceApi;
 import com.texaspoker.dubbo.game.insurance.InsuranceManager;
 import com.texaspoker.dubbo.game.insurance.OutsInfo;
 import com.texaspoker.floplotto.FlopLottoManager;
-import com.texaspoker.logger.PotDrawLogService;
-import com.texaspoker.logger.PotLogService;
-import com.texaspoker.logger.TableLogService;
-import com.texaspoker.logger.TranscationLogService;
+import com.texaspoker.logger.*;
 import com.texaspoker.moment.TexasPoker;
 import com.texaspoker.moment.TexasPoker.*;
 import com.texaspoker.moment.TexasPokerCommon.CREATE_ROOM_TYPE;
@@ -1846,6 +1843,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                 + "," + "call"
                                 + "," + betstacks);
 
+                        //设置玩家下注筹码量
+                        setSimUserBetStacks(uuid,betstacks);
+
                         //������������������������
                         stUserGameInfoBuilder.setEGameState(USER_GAME_STATE.USER_GAME_STATE_CALL);
                         stUserGameInfoBuilder.setIDelayLong(0);
@@ -2958,7 +2958,13 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             StringBuilder potLog = new StringBuilder("")
                     .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()) //roomid
                     .append(" ").append(stGameRoomInfo.getLGameHandID()) //handid
-                    .append(" ").append(stGameRoomInfoBuilder.getVCurrentPots(index)); //未抽水时底池大小
+                    .append(" ").append(index) //池子编号
+                    .append(" ").append(stGameRoomInfoBuilder.getVCurrentPots(index)) //未抽水时底池大小
+                    .append(" ").append(winnerUuidArray) //该底池获胜玩家
+                    .append(" ").append(stPotInfo.potSize) //底池大小
+                    .append(" ").append(stPotInfo.allinSize) //allin人数
+                    .append(" ").append(stPotInfo.playerList) //改底池对应所有玩家
+                    .append(" ").append(stPotInfo.playerNotFoldList); //改底池对应没有弃牌的玩家
             PotLogService.getInstance().error(potLog.toString());
 
             //若是玩家自己贡献一个池子则不抽水
@@ -3284,12 +3290,15 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             }
         }
 
+        long potStacks = 0l;
+
         //打印日志
         Iterator iter = mapWinStacks.entrySet().iterator();
         while (iter.hasNext()) {
             Map.Entry entry = (Map.Entry) iter.next();
             Long uuid = (Long) entry.getKey();
             Long winStacks = (Long) entry.getValue();
+            potStacks = potStacks + winStacks;
 
             TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
                     + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -3300,6 +3309,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     + "," + winStacks);
 
             stGameRoomInfo = stGameRoomInfoBuilder.build();
+        }
+
+        //检测本手战绩平不平
+        if (iDrawType != 2 && potStacks != getUserTotalBetStacks()){
+            //本手战绩不平数据
+            RecordLogService.getInstance().error("roomid: " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " handid: " + stGameRoomInfo.getLGameHandID() + " " + stGameRoomInfo);
         }
 
         try {
@@ -5079,6 +5094,19 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 }
             }
 
+            // 记录本手所有池子信息 roomid handid pot
+            StringBuilder potLog = new StringBuilder("")
+                    .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()) //roomid
+                    .append(" ").append(stGameRoomInfo.getLGameHandID()) //handid
+                    .append(" ").append(index) //池子编号
+                    .append(" ").append(stGameRoomInfoBuilder.getVCurrentPots(index)) //未抽水时底池大小
+                    .append(" ").append(winnerUuidArray) //该底池获胜玩家
+                    .append(" ").append(stPotInfo.potSize) //底池大小
+                    .append(" ").append(stPotInfo.allinSize) //allin人数
+                    .append(" ").append(stPotInfo.playerList) //改底池对应所有玩家
+                    .append(" ").append(stPotInfo.playerNotFoldList); //改底池对应没有弃牌的玩家
+            PotLogService.getInstance().error(potLog.toString());
+
             //若是玩家自己贡献一个池子则不抽水
             if (stPotInfo.playerList.size() > 1){
                 drawMap.put(index,stGameRoomInfoBuilder.getVCurrentPots(index));
@@ -5098,7 +5126,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 StringBuilder potLog = new StringBuilder("")
                         .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()) //roomid
                         .append(" ").append(stGameRoomInfo.getLGameHandID()) //handid
-                        .append(" ").append(mTempPotDrawList.get(i).potSize); //未抽水时底池大小
+                        .append(" ").append(i) //池子编号
+                        .append(" ").append("flodpot")
+                        .append(" ").append(mTempPotDrawList.get(i).potSize) //未抽水时底池大小
+                        .append(" ").append(mTempPotDrawList.get(i).allinSize) //allin人数
+                        .append(" ").append(mTempPotDrawList.get(i).playerList) //该底池对应所有玩家
+                        .append(" ").append(mTempPotDrawList.get(i).playerNotFoldList); //该底池对应没有弃牌的玩家
                 PotLogService.getInstance().error(potLog.toString());
 
                 if (mTempPotDrawList.get(i).playerList.size() > 1){
@@ -5168,6 +5201,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 }
             }
         }
+
+        //记录本手总抽水值
+        PotLogService.getInstance().error("roomid: " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " handid " + stGameRoomInfo.getLGameHandID() + " totalDrawStacks " + totalDrawStacks);
 
         //弃牌模式下只有给一个玩家抽水,所有的抽水都是获胜玩家贡献的
         //获胜玩家原始贡献的抽水
@@ -5633,12 +5669,15 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             }
         }
 
+        long potStacks = 0l;
+
         //���������������������������������������
         Iterator iter = mapWinStacks.entrySet().iterator();
         while (iter.hasNext()) {
             Map.Entry entry = (Map.Entry) iter.next();
             Long uuid = (Long) entry.getKey();
             Long winStacks = (Long) entry.getValue();
+            potStacks = potStacks + winStacks;
 
             TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
                     + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -5649,6 +5688,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     + "," + winStacks);
 
             stGameRoomInfo = stGameRoomInfoBuilder.build();
+        }
+
+        //检测本手战绩平不平
+        if (iDrawType != 2 && potStacks != getUserTotalBetStacks()){
+            //本手战绩不平数据
+            RecordLogService.getInstance().error("roomid: " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " handid: " + stGameRoomInfo.getLGameHandID() + " " + stGameRoomInfo);
         }
 
         for (long uuid : vHandList) {
@@ -6644,5 +6689,21 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         if (lSimBetMaxStacks < mSimUserBetStacks.get(uuid)){
             lSimBetMaxStacks = mSimUserBetStacks.get(uuid);
         }
+    }
+
+    /**
+     * 获取本手玩家下注总筹码量
+     * @return
+     */
+    public long getUserTotalBetStacks(){
+        long totalBetStacks = 0l;
+
+        if (mSimUserBetStacks != null){
+            for (Map.Entry<Long,Long> map : mSimUserBetStacks.entrySet()){
+                totalBetStacks = totalBetStacks + map.getValue();
+            }
+        }
+
+        return totalBetStacks;
     }
 }

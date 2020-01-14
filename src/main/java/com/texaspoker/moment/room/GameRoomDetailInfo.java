@@ -4475,7 +4475,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //打印日志
                             UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
                             if (stUserBaseInfoNetBuilder != null) {
-                                TranscationLogService.getInstance().error(uuid + " " + 0 + " " + 430003 + " " + 1 + " 0 " + "0 0 " + stUserBaseInfoNetBuilder.getLCoin());
+                                TranscationLogService.getInstance().error(uuid + " " + 0 + " " + 430003 + " " + 1 + " 0 " + "0 0 " + stUserBaseInfoNetBuilder.getLCoin() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
                             }
 
                             //首先设置回包
@@ -4514,7 +4514,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                     stGameRoomInfo = stGameRoomInfoBuilder.build();
 
                                     //打印日志
-                                    TranscationLogService.getInstance().error(uuid + " " + 0 + " " + 430003 + " " + 1 + " 0 " + "0 " + stUserGameInfoNet.getIDelayCost() + " " + stUserBaseInfoNetBuilder.getLCoin());
+                                    TranscationLogService.getInstance().error(uuid + " " + 0 + " " + 430003 + " " + 1 + " 0 " + "0 " + stUserGameInfoNet.getIDelayCost() + " " + stUserBaseInfoNetBuilder.getLCoin() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 
                                     addDelayPlayer(uuid);
 
@@ -7093,7 +7093,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(uuid, -lFee);
 
                             //打印日志
-                            TranscationLogService.getInstance().error(uuid + " " + 0 + " " + 430004 + " 0 " + "0 " + lFee + " " + stUserBaseInfoNetBuilder.getLPopularity());
+                            TranscationLogService.getInstance().error(uuid + " " + 0 + " " + 430004 + " 0 " + "0 " + lFee + " " + stUserBaseInfoNetBuilder.getLPopularity() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 
                             if (vTempTableCards.size() == 0) {
                                 //获取三张牌
@@ -7160,7 +7160,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                 if (stUserGameInfoNet != null && stUserGameInfoNet.getStUserInfo().getUuid() == uuid) {
                     //检查用户状态，如果用户已经allin，或者已经弃牌，就没有预动作了
                     if (stUserGameInfoNet.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_ALLIN
-                            && stUserGameInfoNet.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_FOLD) {
+                            && stUserGameInfoNet.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_FOLD
+                            && stUserGameInfoNet.getEPreAction() == USER_GAME_STATE.USER_GAME_STATE_WAIT) {
                         GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
                         UserGameInfoNet.Builder stUserGameInfoNetBuilder = stUserGameInfoNet.toBuilder();
                         stUserGameInfoNetBuilder.setEPreAction(eGameRoomType);
