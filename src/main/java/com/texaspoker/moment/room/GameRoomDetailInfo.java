@@ -2696,6 +2696,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                                 stGameRoomInfo = stGameRoomInfoBuilder.build();
 
+                                //分池
+                                SidePot();
+
                                 gotoFlopAllStatus(0);
                             } else {
                                 if (!checkIsBetting()){
