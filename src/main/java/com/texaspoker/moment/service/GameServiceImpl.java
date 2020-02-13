@@ -1131,8 +1131,14 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
         if (stGameRoomDetailInfo != null) {
             long lFee = GameFeeUtil.getShowCardItemFee((int) stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLSmallBlinds(), stGameRoomDetailInfo.bCredit ? 1 : 0);
-            if (UserManager.getInstance().checkUserPopularity(request.getUuid(), lFee)) {
-                List<Integer> vTableCards = stGameRoomDetailInfo.showTableCards(request.getUuid(), request.getLGameHandID(), lFee);
+
+            //新版本扣费值
+            if (request.getBOldVersion() == 1){
+                lFee = stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getIShowTableCardsValue();
+            }
+
+            if ((stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getIShowTableCardsType() == 0 && UserManager.getInstance().checkUserPopularity(request.getUuid(), lFee)) || (stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getIShowTableCardsType() == 1 && UserManager.getInstance().checkUserCoin(request.getUuid(), lFee))) {
+                List<Integer> vTableCards = stGameRoomDetailInfo.showTableCards(request.getUuid(), request.getLGameHandID(), lFee, request.getBOldVersion());
 
                 if (vTableCards != null) {
                     stShowTableCardsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
@@ -1141,7 +1147,12 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
                     stShowTableCardsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
                 }
             } else {
-                stShowTableCardsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY);
+
+                if (stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getIShowTableCardsType() == 0){
+                    stShowTableCardsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_POPULARITY);
+                } else {
+                    stShowTableCardsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_COIN);
+                }
             }
         } else {
             stShowTableCardsResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_NO_GAME_ROOM);

@@ -290,6 +290,8 @@ public class QuickGameRoomManager {
                             gameRoomBaseInfoBuilder.setBIosLimit(stSettingGameRoomBaseInfoBuilder.getBIosLimit()); //仅限ios设备
                             gameRoomBaseInfoBuilder.setBVoice(stSettingGameRoomBaseInfoBuilder.getBVoice()); //是否开启声纹
                             gameRoomBaseInfoBuilder.setBSimultAction(stSettingGameRoomBaseInfoBuilder.getBSimultAction()); //是否同时行动
+                            gameRoomBaseInfoBuilder.setIShowTableCardsType(stSettingGameRoomBaseInfoBuilder.getIShowTableCardsType()); //翻翻扣费类型 0德扑币 1钻石
+                            gameRoomBaseInfoBuilder.setIShowTableCardsValue(stSettingGameRoomBaseInfoBuilder.getIShowTableCardsValue()); //翻翻看扣币值
 
                             gameRoomBaseInfoBuilder.setStCreateUserBaseInfo(UserManager.getInstance().getUserBaseInfo(uuid));
                             gameRoomBaseInfoBuilder.setLChatRoomID(lQuickGameRoomID);

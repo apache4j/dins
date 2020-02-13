@@ -7069,7 +7069,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
     }
 
 
-    public List<Integer> showTableCards(long uuid, long lGameRoomHandID, long lFee) {
+    public List<Integer> showTableCards(long uuid, long lGameRoomHandID, long lFee, int version) {
         synchronized (this) {
 
             if (stGameRoomInfo.getLGameHandID() == lGameRoomHandID
@@ -7093,10 +7093,24 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         if (vTempTableCards.size() >= 5) {
                             return vTableCards.subList(0, vTempTableCards.size());
                         } else {
-                            UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(uuid, -lFee);
 
-                            //打印日志
-                            TranscationLogService.getInstance().error(uuid + " " + 0 + " " + 430004 + " 0 " + "0 " + lFee + " " + stUserBaseInfoNetBuilder.getLPopularity() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+                            if (stGameRoomInfo.getStGameRoomBaseInfo().getIShowTableCardsType() == 0){
+                                UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(uuid, -lFee);
+
+                                if (version == 0){
+                                    //打印日志
+                                    TranscationLogService.getInstance().error(uuid + " " + 0 + " " + 430004 + " 0 " + "0 " + lFee + " " + stUserBaseInfoNetBuilder.getLPopularity() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
+                                } else {
+                                    //打印日志
+                                    TranscationLogService.getInstance().error(uuid + " " + 0 + " " + 430005 + " 0 " + "0 " + lFee + " " + stUserBaseInfoNetBuilder.getLPopularity() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " 0");
+                                }
+
+                            } else {
+                                UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().addUserCoin(uuid, -lFee);
+
+                                //打印日志
+                                TranscationLogService.getInstance().error(uuid + " " + 0 + " " + 430005 + " 0 " + "0 " + lFee + " " + stUserBaseInfoNetBuilder.getLCoin() + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " 1");
+                            }
 
                             if (vTempTableCards.size() == 0) {
                                 //获取三张牌
