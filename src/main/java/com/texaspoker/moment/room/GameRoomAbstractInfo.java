@@ -3292,6 +3292,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
         long potStacks = 0l;
 
+        //记录获胜玩家的uuid
+        List<Long> winUuidList = new ArrayList<Long>();
+
         //打印日志
         Iterator iter = mapWinStacks.entrySet().iterator();
         while (iter.hasNext()) {
@@ -3299,6 +3302,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             Long uuid = (Long) entry.getKey();
             Long winStacks = (Long) entry.getValue();
             potStacks = potStacks + winStacks;
+            winUuidList.add(uuid);
 
             TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
                     + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -3311,8 +3315,13 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             stGameRoomInfo = stGameRoomInfoBuilder.build();
         }
 
+        long diffStacks = 0l;
+
         //检测本手战绩平不平
         if (iDrawType != 2 && potStacks != getUserTotalBetStacks()){
+
+            diffStacks = getUserTotalBetStacks() - potStacks;
+
             //本手战绩不平数据
             RecordLogService.getInstance().error("roomid: " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " handid: " + stGameRoomInfo.getLGameHandID() + " " + stGameRoomInfo);
         }
@@ -3334,9 +3343,22 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         } catch (Exception e) {
         }
 
+        long diffUuid = 0l;
+
+        //有差值说明需要修平战绩
+        if (diffStacks != 0){
+            if (!CollectionUtils.isEmpty(winUuidList) && winUuidList.size() == 1){
+                diffUuid = winUuidList.get(0);
+            }
+        }
+
         stGameRoomInfo = stGameRoomInfoBuilder.build();
         for (int k = 0; k < this.iGameRoomUserMaxNums; k++) {
             UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(k).toBuilder();
+
+            if (diffUuid != 0 && diffUuid == stResetUserGameInfoBuilder.getStUserInfo().getUuid()){
+                stResetUserGameInfoBuilder.setLRemainStacks(stResetUserGameInfoBuilder.getLRemainStacks() + diffStacks);
+            }
 
             if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() > 0) {
                 stResetUserGameInfoBuilder.setLBetStacks(0);
@@ -5671,6 +5693,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
         long potStacks = 0l;
 
+        //记录获胜玩家uuid
+        List<Long> winUuidList = new ArrayList<Long>();
+
         //���������������������������������������
         Iterator iter = mapWinStacks.entrySet().iterator();
         while (iter.hasNext()) {
@@ -5678,6 +5703,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             Long uuid = (Long) entry.getKey();
             Long winStacks = (Long) entry.getValue();
             potStacks = potStacks + winStacks;
+            winUuidList.add(uuid);
 
             TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
                     + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -5690,8 +5716,13 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             stGameRoomInfo = stGameRoomInfoBuilder.build();
         }
 
+        long diffStacks = 0l;
+
         //检测本手战绩平不平
         if (iDrawType != 2 && potStacks != getUserTotalBetStacks()){
+
+            diffStacks = getUserTotalBetStacks() - potStacks;
+
             //本手战绩不平数据
             RecordLogService.getInstance().error("roomid: " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId() + " handid: " + stGameRoomInfo.getLGameHandID() + " " + stGameRoomInfo);
         }
@@ -5710,11 +5741,22 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             }
         }
 
+        long diffUuid = 0l;
+        if (diffStacks != 0){
+            if (!CollectionUtils.isEmpty(winUuidList) && winUuidList.size() == 1){
+                diffUuid = winUuidList.get(0);
+            }
+        }
+
         stGameRoomInfo = stGameRoomInfoBuilder.build();
         for (int k = 0; k < iGameRoomUserMaxNums; k++) {
             UserGameInfoNet.Builder stResetUserGameInfoBuilder = stGameRoomInfoBuilder
                     .getVUserGameInfos(k)
                     .toBuilder();
+
+            if (diffUuid != 0 && diffUuid == stResetUserGameInfoBuilder.getStUserInfo().getUuid()){
+                stResetUserGameInfoBuilder.setLRemainStacks(stResetUserGameInfoBuilder.getLRemainStacks() + diffStacks);
+            }
 
             if (stResetUserGameInfoBuilder.getStUserInfo().getUuid() == -1) {
                 UserBaseInfoNet.Builder stUserBaseInfo = stResetUserGameInfoBuilder.getStUserInfoBuilder();
