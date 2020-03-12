@@ -158,7 +158,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBUnloadable() //卸码
                             + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() //延迟看牌
                             + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBVoice() //声纹
-                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction()); //同时行动
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() //同时行动
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBFiveCardsOmaha() //5张奥马哈
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBNoLimitBet() //无限注
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBTwiceAnte() //2倍前注
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getBForceShowCard() //强制亮牌
+                            + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID() //leagueid
+                    );
 
                     if (type == 1) {
                         //自动开局就打日志，尽量不要影响其他牌局
