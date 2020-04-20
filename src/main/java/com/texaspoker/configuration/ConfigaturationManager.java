@@ -50,6 +50,9 @@ public class ConfigaturationManager {
 	public static String sVoiceServiceHost;
 	public static int iVoiceServicePost;
 
+	public static String sStateMsgServiceHost;
+	public static int iStateMsgServicePost;
+
 	//抽水间隔,时间单位为小时
 	public static int iDrawTime;
 
@@ -140,6 +143,9 @@ public class ConfigaturationManager {
 
 		sVoiceServiceHost = stConfigaturation.getValue("voice_service_host");
 		iVoiceServicePost = Integer.parseInt(stConfigaturation.getValue("voice_service_post"));
+
+		sStateMsgServiceHost = stConfigaturation.getValue("statemsg_service_host");
+		iStateMsgServicePost = Integer.parseInt(stConfigaturation.getValue("statemsg_service_post"));
 	}
 	
 	//单例模式

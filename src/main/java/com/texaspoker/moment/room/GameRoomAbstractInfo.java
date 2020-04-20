@@ -20,6 +20,7 @@ import com.texaspoker.moment.TexasPokerCommon.ERROR_CODE_TYPE;
 import com.texaspoker.moment.TexasPokerCommon.UserBaseInfoNet;
 import com.texaspoker.moment.TexasPokerHttpClub;
 import com.texaspoker.msg.GameRoomMsgManager;
+import com.texaspoker.msg.GameRoomStateMsgManager;
 import com.texaspoker.shuffle.ShuffleAlgorithm;
 import com.texaspoker.shuffle.ShuffleCard;
 import com.texaspoker.user.UserManager;
@@ -4092,7 +4093,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
             stSCGameRoomStateChangeBuilder.setStGameRoomInfo(stGameRoomInfoBuilder);
 
-            GameRoomMsgManager.getInstance().sendGameRoomStateChangeMsg(toUuid, stSCGameRoomStateChangeBuilder.build());
+            if (stSCGameRoomStateChangeBuilder.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId() % 2 == 0){
+                GameRoomMsgManager.getInstance().sendGameRoomStateChangeMsg(toUuid, stSCGameRoomStateChangeBuilder.build());
+            } else {
+                GameRoomStateMsgManager.getInstance().sendGameRoomStateChangeMsg(toUuid, stSCGameRoomStateChangeBuilder.build());
+            }
+
             return true;
         } else {
             return false;
