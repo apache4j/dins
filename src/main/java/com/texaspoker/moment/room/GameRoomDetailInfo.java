@@ -2105,8 +2105,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                             if(clubid == null){
                                                 clubid = (long)0;
                                             }
-                                            String sLog = uuid + " " + clubid + " " + 110003 + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+                                            String sLog = uuid + " " + clubid + " " + 110006 + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
                                                     + " 0 " + " 0 " + lUnloadStacks + " " + 0 +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+                                            if (bCredit){
+                                                sLog = uuid + " " + clubid + " " + 910006 + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+                                                        + " 0 " + " 0 " + lUnloadStacks + " " + 0 +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+                                            }
                                             TranscationLogService.getInstance().error(sLog);
                                         }
                                         stGameRoomInfo = stGameRoomInfoBuilder.build();
@@ -3225,8 +3229,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                     if(clubid == null){
                                         clubid = (long)0;
                                     }
-                                    String sLog = uuid + " " + clubid + " " + 110003 + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+                                    String sLog = uuid + " " + clubid + " " + 110006 + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
                                             + " 0 " + " 0 " + lUnloadStacks + " " + 0 +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+                                    if (bCredit){
+                                        sLog = uuid + " " + clubid + " " + 910006 + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+                                                + " 0 " + " 0 " + lUnloadStacks + " " + 0 +" " + stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID();
+                                    }
                                     TranscationLogService.getInstance().error(sLog);
                                 }
                             }

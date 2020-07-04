@@ -5909,7 +5909,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                         stUseItemPushMsgBuilder.setSExtra(sExtra);
 
                         stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(stUserBaseInfoNetBuilder.getUuid(), -lCheckPopularity);
-                        TranscationLogService.getInstance().error(stUserBaseInfoNetBuilder.getUuid() + " " + 0 + " " + 430001 + " " + sExtra + " 0 " + "0 " + lCheckPopularity + " " + stUserBaseInfoNetBuilder.getLPopularity());
+                        TranscationLogService.getInstance().error(stUserBaseInfoNetBuilder.getUuid() + " " + lGameRoomID + " " + 430001 + " " + sExtra + " 0 " + "0 " + lCheckPopularity + " " + stUserBaseInfoNetBuilder.getLPopularity());
 
                         for (int i = 0; i < stGameRoomInfo.getVUserGameInfosCount(); i++) {
                             UserGameInfoNet stUserGameInfoNet = stGameRoomInfo.getVUserGameInfos(i);
