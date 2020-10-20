@@ -2052,26 +2052,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                     boolean bGameOver = checkGameOver();
                     if (bGameOver) {
-                        if (!bStarted && bCredit) {//如果授信牌局没有开始 则返还买入扣去一定比例的金币（记录费）
-
-                            if (mUserBuyinStacks != null){
-                                //所有买入了金币的uuid(包括旁观和站起的)
-                                for (Long uuid : mUserBuyinStacks.keySet()) {
-                                    //计算扣除的金币
-                                    int popularity = GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), mUserBuyinStacks.get(uuid));
-                                    //返还入座服务费
-                                    UserManager.getInstance().addUserPopularity(uuid, popularity);
-                                }
-                            }
-
-                        }
                         PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 1001");
                         if (bOver == true) {
                             PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 1003");
-                            bOver = true;
+
                             mGameRoomDetailInfos.removeKey(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
                         } else {
-
+                            bOver = true;
                             //牌局结束通知野保险结束
                             FlopLottoManager.getInstance().overFlopLotto(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
 
@@ -2281,6 +2268,22 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                             long coinCost = 0;
                             PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 10017");
+                            if (!bStarted && bCredit) {//如果授信牌局没有开始 则返还买入时扣去一定比例的金币（记录费）
+
+                                if (mUserBuyinStacks != null) {
+                                    //所有买入了的uuid(包括旁观和站起的)
+                                    for (Long uuid : mUserBuyinStacks.keySet()) {
+                                        //计算扣除的金币
+                                        int popularity = GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), mUserBuyinStacks.get(uuid));
+                                        //返还扣除的金币
+                                        UserManager.getInstance().addUserPopularity(uuid, popularity);
+                                        String sLog = uuid + " " + mUserBuyinClubIDs.get(uuid) + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLLeagueID() + " " + 910005 + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+                                                + " 0 " + " 0 " + mUserBuyinStacks.get(uuid) + " " + stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate() + " " + GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), mUserBuyinStacks.get(uuid)) + " " + "-" + popularity;
+                                        TranscationLogService.getInstance().error(sLog);
+                                    }
+                                }
+
+                            }
                             // 联盟相关操作
                             if (stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID() > 0) {
                                 PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 10019");
