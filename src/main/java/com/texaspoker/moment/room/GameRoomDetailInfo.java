@@ -2053,12 +2053,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     boolean bGameOver = checkGameOver();
                     if (bGameOver) {
                         if (!bStarted && bCredit) {//如果授信牌局没有开始 则返还买入扣去一定比例的金币（记录费）
-                            //所有买入了金币的uuid(包括旁观和站起的)
-                            for (Long uuid : mUserBuyinStacks.keySet()) {
-                                //计算扣除的金币
-                                int popularity = GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), mUserBuyinStacks.get(uuid));
-                                //返还入座服务费
-                                UserManager.getInstance().addUserPopularity(uuid, popularity);
+
+                            if (mUserBuyinStacks != null){
+                                //所有买入了金币的uuid(包括旁观和站起的)
+                                for (Long uuid : mUserBuyinStacks.keySet()) {
+                                    //计算扣除的金币
+                                    int popularity = GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), mUserBuyinStacks.get(uuid));
+                                    //返还入座服务费
+                                    UserManager.getInstance().addUserPopularity(uuid, popularity);
+                                }
                             }
 
                         }
