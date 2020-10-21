@@ -2276,9 +2276,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                         //计算扣除的金币
                                         int popularity = GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), mUserBuyinStacks.get(uuid));
                                         //返还扣除的金币
-                                        UserManager.getInstance().addUserPopularity(uuid, popularity);
+                                        UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().addUserPopularity(uuid, popularity);
                                         String sLog = uuid + " " + mUserBuyinClubIDs.get(uuid) + " " + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLLeagueID() + " " + 910005 + " " + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-                                                + " 0 " + " 0 " + mUserBuyinStacks.get(uuid) + " " + stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate() + " " + GameFeeUtil.getSeatFee(stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate(), mUserBuyinStacks.get(uuid)) + " " + "-" + popularity;
+                                                + " 0 " + " 0 " + mUserBuyinStacks.get(uuid) + " " + stGameRoomInfo.getStGameRoomBaseInfo().getISeatFeeRate() + " " + "-" + popularity + stUserBaseInfoNetBuilder.getLPopularity();
                                         TranscationLogService.getInstance().error(sLog);
                                     }
                                 }
