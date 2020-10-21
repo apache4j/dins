@@ -36,7 +36,6 @@ public class TexaspokerInsuranceGameService {
 	     QuickGameRoomManager.getInstance();
 	     GameRoomManager.getInstance();
 	     
-	     CreditManager.getInstance();
 		  RoomIDManager.getInstance();
 		  ChatRoomManager.getInstance();
 		  BillManager.getInstance();
