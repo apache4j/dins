@@ -89,9 +89,8 @@ public class ConfigaturationManager {
 		File directory = new File("");//设定为当前文件夹
 	    String dirName = directory.getAbsolutePath();
 	    
-	    //获取配置文件 相对路径有时候不太好用
-//	    String fileName = dirName + "/../conf/global_conf.properties";
-        String fileName = "/data/pokermaster/conf/global_conf.properties";
+	    //获取配置文件
+	    String fileName = dirName + "/../conf/global_conf.properties";
 	    Configuration stConfigaturation =  new Configuration(fileName);
 	    System.out.println("ConfigaturationManagerConfigaturationManager : " + fileName);
 	    System.out.println("ConfigaturationManagerConfigaturationManager : " + stConfigaturation);
