@@ -185,12 +185,19 @@ public class GameFeeUtil {
 		//判断总抽水值是否超过抽水上限,如果超过抽水上限则按照比例承担抽水上限
 		if (totalPump > drawLimit && drawLimit != 0){
 			if (pumpMap != null){
+				int pumpMapCount = pumpMap.size();
 				for (Map.Entry<Integer, Long> drawMap : pumpMap.entrySet()){
 					if (drawMap.getKey() != null && drawMap.getValue() != null){
+						pumpMapCount--;
+						//池子实际抽水值 四舍五入
+						long draw = new BigDecimal((double) (drawLimit * drawMap.getValue())/totalPump + "").setScale(0, BigDecimal.ROUND_HALF_UP).longValue();
+						if (pumpMapCount == 0){//最后一个池子直接分完全部 保证总和等于drawLimit
+							pumpMap.put(drawMap.getKey(),drawLimit);
+						}else {
+							pumpMap.put(drawMap.getKey(),draw);
+						}
 
-						//池子实际抽水值
-						long draw = new BigDecimal((double) (drawLimit * drawMap.getValue())/totalPump + "").setScale(0, BigDecimal.ROUND_UP).longValue();
-						pumpMap.put(drawMap.getKey(),draw);
+						drawLimit = drawLimit - draw;
 					}
 				}
 			}
