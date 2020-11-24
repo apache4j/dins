@@ -2973,13 +2973,17 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 drawMap.put(index,stGameRoomInfoBuilder.getVCurrentPots(index));
             }
         }
+        System.out.println("------draw info-------");
+        System.out.println("drawMap.size():" + drawMap.size() + ",bCredit:" + bCredit + ",iDrawType:" + iDrawType + ",bFlopStatus:" + bFlopStatus);
 
         //进行底池抽水 条件 底池抽水,发了Flop3张牌
         Map<Integer,Long> userDrawStacks = new HashMap<Integer,Long>();
         if (drawMap != null && drawMap.size() > 0 && bCredit && iDrawType == 2 && bFlopStatus){
+            System.out.println("--------授信局局抽水---------");
             userDrawStacks = GameFeeUtil.getBottomPump(drawMap,stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds(),stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee(),
                     stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB(),iUserNum,stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum());
         } else if (drawMap != null && drawMap.size() > 0 && !bCredit && iDrawType == 2 && bFlopStatus){//普通局抽水
+            System.out.println("--------普通局抽水---------");
             userDrawStacks = GameFeeUtil.getBottomPump(drawMap,stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds(),stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee(),
                     stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB(),iUserNum,stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum());
         }
@@ -3072,6 +3076,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 long winStacks = 0l;
                 long winLeftStacks = 0l;
 
+                System.out.println("---------分成信息--------");
+                System.out.println("iDrawType:" + iDrawType + ",bFlopStatus:" + bFlopStatus + ",stPotInfo.playerList.size():" + stPotInfo.playerList.size() + ",winnerUuidArray.size():" + winnerUuidArray.size());
                 //授信牌局和金币局 底池抽水且池子有抽水
                 if (iDrawType == 2 && bFlopStatus && stPotInfo.playerList.size() > 1 && winnerUuidArray.size() <= 1){
                     winStacks = (stGameRoomInfo.getVCurrentPots(index) - userDrawStacks.get(index)) / winnerIDArray.size();
