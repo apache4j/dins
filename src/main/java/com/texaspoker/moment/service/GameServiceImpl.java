@@ -82,6 +82,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         }
 
         PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 1001000 stCreateGameRoomResponseBuilder: >" + stCreateGameRoomResponseBuilder + "<");
+        System.out.println("GameServiceImpl.createGameRoom - 1001000 stCreateGameRoomResponseBuilder: >" + stCreateGameRoomResponseBuilder + "<");
         return stCreateGameRoomResponseBuilder.build();
     }
 
@@ -661,8 +662,6 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         CreateQuickGameRoomResponse.Builder stCreateQuickGameRoomResponseBuilder = CreateQuickGameRoomResponse.newBuilder();
         QuickGameRoomResultInfo stQuickGameRoomResultInfo = QuickGameRoomManager.getInstance().createQuickGameRoom(request.getUuid(), request.getStGameRoomBaseInfo());
 
-        System.out.println("------stQuickGameRoomResultInfo--------");
-        System.out.println(stQuickGameRoomResultInfo);
         if (stQuickGameRoomResultInfo.geteErrorCodeType() == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS) {
             PlayLogService.getInstance().debug("GameServiceImpl.createQuickGameRoom - 1003");
             long lQuickGameRoomID = stQuickGameRoomResultInfo.getStQuickGameRoomInfo().getStChatRoomInfo().getStChatRoomBaseInfo().getLChatRoomId();
