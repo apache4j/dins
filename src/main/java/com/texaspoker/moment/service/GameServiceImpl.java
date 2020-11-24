@@ -9,6 +9,7 @@ import com.texaspoker.comm.TimeoutHashMap;
 import com.texaspoker.configuration.ConfigaturationManager;
 import com.texaspoker.credit.CreditManager;
 import com.texaspoker.league.LeagueManager;
+import com.texaspoker.logger.ButtonLogService;
 import com.texaspoker.logger.PlayLogService;
 import com.texaspoker.moment.TexasPoker.*;
 import com.texaspoker.moment.TexasPokerCommon.CREATE_ROOM_TYPE;
@@ -160,6 +161,17 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         GameActionResponse.Builder stGameActionResponseBuilder = GameActionResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLRoomID());
 
+        //时间，牌局ID，玩家ID，手数ID，按钮编号，点击位置
+        StringBuilder buttonLog = new StringBuilder("")
+                .append(System.currentTimeMillis()) //时间
+                .append(" ").append(request.getLRoomID()) //牌局ID
+                .append(" ").append(request.getUuid()) //玩家ID
+                .append(" ").append(stGameRoomDetailInfo.getLastHandID()) //手数ID
+                .append(" ").append(request.getSButtonNumber()) //按钮编号
+                .append(" ").append(request.getSTouchCoordinate()); //点击位置
+
+
+        ButtonLogService.getInstance().error(buttonLog.toString());
         //AOF模式
         if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBFullAllIn()==1
                 &&request.getEGameActType()!=GAME_ACT_TYPE.GAME_ACT_TYPE_ALLIN
@@ -1375,6 +1387,11 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
+    public ForceOverGameResponse forceOverGame(RpcController rpcController, ForceOverGameRequest forceOverGameRequest) throws ServiceException {
+        return null;
+    }
+
+    @Override
     public void createGameRoom(RpcController controller, CreateGameRoomRequest request, RpcCallback<CreateGameRoomResponse> done) {
     }
 
@@ -1593,6 +1610,11 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
 
     @Override
     public void setUserVoiceStatus(RpcController rpcController, SetUserVoiceStatusRequest setUserVoiceStatusRequest, RpcCallback<SetUserVoiceStatusResponse> rpcCallback) {
+
+    }
+
+    @Override
+    public void forceOverGame(RpcController rpcController, ForceOverGameRequest forceOverGameRequest, RpcCallback<ForceOverGameResponse> rpcCallback) {
 
     }
 }

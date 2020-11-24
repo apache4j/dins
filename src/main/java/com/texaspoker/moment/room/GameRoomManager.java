@@ -272,6 +272,19 @@ public class GameRoomManager {
 
                 }
 
+                //非授信局
+                if (!stGameRoomBaseInfo.hasBCredit()) {
+                    // 01.添加牌局授信标识
+                    stGameRoomDetailInfo.bCredit = false;
+
+                    // 02.设置牌局抽水方式 如果有服务费则使用底池抽水
+                    if (stGameRoomBaseInfo.getISeatFeeRate() > 0) {
+                        stGameRoomDetailInfo.iDrawType = 2;
+                    } else {
+                        stGameRoomDetailInfo.iDrawType = 0;
+                    }
+                }
+
                 // 判断当前牌局是否为声纹牌局
                 if (stGameRoomBaseInfo.hasBVoice() && stGameRoomBaseInfo.getBVoice() == 1){
                     stGameRoomDetailInfo.bVoice = true;
