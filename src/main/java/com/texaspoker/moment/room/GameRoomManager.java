@@ -278,7 +278,7 @@ public class GameRoomManager {
                     stGameRoomDetailInfo.bCredit = false;
 
                     // 02.设置牌局抽水方式 如果有服务费则使用底池抽水
-                    if (stGameRoomBaseInfo.getISeatFeeRate() > 0) {
+                    if (stGameRoomBaseInfo.getIPotDrawFee() > 0 && stGameRoomBaseInfo.getBPotDrawCredit() == 1) {
                         stGameRoomDetailInfo.iDrawType = 2;
                     } else {
                         stGameRoomDetailInfo.iDrawType = 0;
