@@ -2979,6 +2979,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         if (drawMap != null && drawMap.size() > 0 && bCredit && iDrawType == 2 && bFlopStatus){
             userDrawStacks = GameFeeUtil.getBottomPump(drawMap,stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds(),stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee(),
                     stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB(),iUserNum,stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum());
+        } else if (drawMap != null && drawMap.size() > 0 && !bCredit && iDrawType == 2 && bFlopStatus){//普通局抽水
+            userDrawStacks = GameFeeUtil.getBottomPump(drawMap,stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds(),stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee(),
+                    stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB(),iUserNum,stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum());
         }
 
         for (int index = 0; index < stGameRoomInfoBuilder.getVCurrentPotsCount(); index++) {
@@ -3069,8 +3072,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 long winStacks = 0l;
                 long winLeftStacks = 0l;
 
-                //授信牌局 底池抽水且池子有抽水
-                if (bCredit && iDrawType == 2 && bFlopStatus && stPotInfo.playerList.size() > 1 && winnerUuidArray.size() <= 1){
+                //授信牌局和金币局 底池抽水且池子有抽水
+                if (iDrawType == 2 && bFlopStatus && stPotInfo.playerList.size() > 1 && winnerUuidArray.size() <= 1){
                     winStacks = (stGameRoomInfo.getVCurrentPots(index) - userDrawStacks.get(index)) / winnerIDArray.size();
                     winLeftStacks = (stGameRoomInfo.getVCurrentPots(index) - userDrawStacks.get(index)) % winnerIDArray.size();
 
@@ -3385,7 +3388,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 System.out.println("结账111 : " + stUserGameInfo.getStUserInfo().getUuid());
 
                 //如果为底池抽水,由于玩家买保险的情况可能导致玩家在桌筹码为负,为负时需要强制买入使玩家筹码量为0
-                if (bCredit && iDrawType == 2 && bFlopStatus && stUserGameInfo.getLRemainStacks() < 0){
+                if (iDrawType == 2 && bFlopStatus && stUserGameInfo.getLRemainStacks() < 0){
 
                     String msgKey = System.currentTimeMillis()+""+stUserGameInfo.getStUserInfo().getUuid()+(RandomUtils.nextInt(9000) + 1000)+0;
 

@@ -2178,8 +2178,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 }
                             }
 
-                            //如果为授信牌局且底池抽水将所有玩家贡献抽水发送至账单服
-                            if (bCredit && iDrawType == 2){
+                            //授信牌局和非授信牌局 且底池抽水将所有玩家贡献抽水发送至账单服
+                            if (iDrawType == 2){
                                 List<TexasPokerBillService.UserPotDrawInfo> userPotDrawInfoList = new ArrayList<TexasPokerBillService.UserPotDrawInfo>();
                                 if (mUserDrawStacks != null){
                                     for (Map.Entry<Long,Long> drawMap : mUserDrawStacks.entrySet()){
