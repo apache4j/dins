@@ -82,7 +82,6 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         }
 
         PlayLogService.getInstance().debug("GameServiceImpl.createGameRoom - 1001000 stCreateGameRoomResponseBuilder: >" + stCreateGameRoomResponseBuilder + "<");
-        System.out.println("GameServiceImpl.createGameRoom - 1001000 stCreateGameRoomResponseBuilder: >" + stCreateGameRoomResponseBuilder + "<");
         return stCreateGameRoomResponseBuilder.build();
     }
 
@@ -168,8 +167,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
                 .append(" ").append(request.getLRoomID()) //牌局ID
                 .append(" ").append(request.getUuid()) //玩家ID
                 .append(" ").append(stGameRoomDetailInfo.getLastHandID()) //手数ID
-                .append(" ").append(request.getSButtonNumber()) //按钮编号
-                .append(" ").append(request.getSTouchCoordinate()); //点击位置
+                .append(" ").append("".equals(request.getSButtonNumber()) ? "0" : request.getSButtonNumber()) //按钮编号
+                .append(" ").append("".equals(request.getSTouchCoordinate()) ? "0" : request.getSTouchCoordinate()); //点击位置
 
 
         ButtonLogService.getInstance().error(buttonLog.toString());
