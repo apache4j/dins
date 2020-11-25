@@ -161,9 +161,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         GameActionResponse.Builder stGameActionResponseBuilder = GameActionResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLRoomID());
 
-        //时间，牌局ID，玩家ID，手数ID，按钮编号，点击位置
+        //牌局ID，玩家ID，手数ID，按钮编号，点击位置
         StringBuilder buttonLog = new StringBuilder("")
-                .append(System.currentTimeMillis()) //时间
                 .append(" ").append(request.getLRoomID()) //牌局ID
                 .append(" ").append(request.getUuid()) //玩家ID
                 .append(" ").append(stGameRoomDetailInfo.getLastHandID()) //手数ID
@@ -1123,6 +1122,16 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     public SetPreActionResponse setPreAction(RpcController arg0, SetPreActionRequest request) throws ServiceException {
         SetPreActionResponse.Builder stSetPreActionResponseBuilder = SetPreActionResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
+        //牌局ID，玩家ID，手数ID，按钮编号，点击位置
+        StringBuilder buttonLog = new StringBuilder("")
+                .append(" ").append(request.getLGameRoomID()) //牌局ID
+                .append(" ").append(request.getUuid()) //玩家ID
+                .append(" ").append(stGameRoomDetailInfo.getLastHandID()) //手数ID
+                .append(" ").append("".equals(request.getSButtonNumber()) ? "0" : request.getSButtonNumber()) //按钮编号
+                .append(" ").append("".equals(request.getSTouchCoordinate()) ? "0" : request.getSTouchCoordinate()); //点击位置
+
+
+        ButtonLogService.getInstance().error(buttonLog.toString());
         if (stGameRoomDetailInfo != null) {
             boolean bAction = stGameRoomDetailInfo.setPreAction(request.getUuid(), request.getEPreUserGameState());
             if (bAction) {
