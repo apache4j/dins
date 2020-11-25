@@ -163,7 +163,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
 
         //牌局ID，玩家ID，手数ID，按钮编号，点击位置
         StringBuilder buttonLog = new StringBuilder("")
-                .append(" ").append(request.getLRoomID()) //牌局ID
+                .append(request.getLRoomID()) //牌局ID
                 .append(" ").append(request.getUuid()) //玩家ID
                 .append(" ").append(stGameRoomDetailInfo.getLastHandID()) //手数ID
                 .append(" ").append("".equals(request.getSButtonNumber()) ? "0" : request.getSButtonNumber()) //按钮编号
@@ -1124,7 +1124,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
         //牌局ID，玩家ID，手数ID，按钮编号，点击位置
         StringBuilder buttonLog = new StringBuilder("")
-                .append(" ").append(request.getLGameRoomID()) //牌局ID
+                .append(request.getLGameRoomID()) //牌局ID
                 .append(" ").append(request.getUuid()) //玩家ID
                 .append(" ").append(stGameRoomDetailInfo.getLastHandID()) //手数ID
                 .append(" ").append("".equals(request.getSButtonNumber()) ? "0" : request.getSButtonNumber()) //按钮编号

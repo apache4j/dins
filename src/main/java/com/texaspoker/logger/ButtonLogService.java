@@ -40,12 +40,9 @@ public class ButtonLogService {
     }
 
     public void error(String content) {
-        System.out.println("-----content------");
-        System.out.println(content);
         mLogButtons.error(content);
         try {
             ButtonLogKafkaProducer.send(content);
-            System.out.println("-----kafka finish------");
         } catch (Exception e) {
             e.printStackTrace();
         }
