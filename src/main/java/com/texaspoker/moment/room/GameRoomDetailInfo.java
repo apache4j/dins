@@ -2195,6 +2195,33 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 BillManager.getInstance().setPotDrawCredit(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), userPotDrawInfoList);
                             }
 
+                            if (!bCredit) {
+                                long clubId = 0;
+                                if (stGameRoomInfo.getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM) {
+
+                                    ClubBaseInfo.Builder stClubBaseInfoBuilder = ClubManager.getInstance().getClubBaseInfo(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID());
+                                    if (stClubBaseInfoBuilder != null && stClubBaseInfoBuilder.getLClubID() > 0) {
+                                        clubId = stClubBaseInfoBuilder.getLClubID();
+                                    }
+                                }
+
+                                long drawStackSum = 0;//总抽水值
+                                for (Long item : mUserDrawStacks.keySet()) {
+                                    drawStackSum += mUserDrawStacks.get(item);
+                                }
+                                //记录总抽水日志
+                                StringBuilder drawSumLog = new StringBuilder("")
+                                        .append(110009)
+                                        .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()) //牌局id
+                                        .append(" ").append(0)
+                                        .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID()) //联盟id
+                                        .append(" ").append(clubId) //创建的俱乐部ID
+                                        .append(" ").append(stGameRoomInfo.getEGameRoomType().getNumber()) //牌局类型
+                                        .append(" ").append(drawStackSum); // 抽水总数
+
+                                TranscationLogService.getInstance().error(drawSumLog.toString());
+                            }
+
                             PlayLogService.getInstance().debug("GameRoomDetailInfo.gameRoomTimeoutHandle - 1005");
                             TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
                                     + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
