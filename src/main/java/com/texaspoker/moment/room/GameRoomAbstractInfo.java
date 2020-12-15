@@ -2973,17 +2973,13 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 drawMap.put(index,stGameRoomInfoBuilder.getVCurrentPots(index));
             }
         }
-        System.out.println("------draw info-------");
-        System.out.println("drawMap.size():" + drawMap.size() + ",bCredit:" + bCredit + ",iDrawType:" + iDrawType + ",bFlopStatus:" + bFlopStatus);
 
         //进行底池抽水 条件 底池抽水,发了Flop3张牌
         Map<Integer,Long> userDrawStacks = new HashMap<Integer,Long>();
         if (drawMap != null && drawMap.size() > 0 && bCredit && iDrawType == 2 && bFlopStatus){
-            System.out.println("--------授信局局抽水---------");
             userDrawStacks = GameFeeUtil.getBottomPump(drawMap,stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds(),stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee(),
                     stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB(),iUserNum,stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum());
         } else if (drawMap != null && drawMap.size() > 0 && !bCredit && iDrawType == 2 && bFlopStatus){//普通局抽水
-            System.out.println("--------普通局抽水---------");
             userDrawStacks = GameFeeUtil.getBottomPump(drawMap,stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds(),stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee(),
                     stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB(),iUserNum,stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum());
         }
@@ -3075,9 +3071,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                 long winStacks = 0l;
                 long winLeftStacks = 0l;
-
-                System.out.println("---------分成信息--------");
-                System.out.println("iDrawType:" + iDrawType + ",bFlopStatus:" + bFlopStatus + ",stPotInfo.playerList.size():" + stPotInfo.playerList.size() + ",winnerUuidArray.size():" + winnerUuidArray.size());
                 //授信牌局和金币局 底池抽水且池子有抽水
                 if (iDrawType == 2 && bFlopStatus && stPotInfo.playerList.size() > 1 && winnerUuidArray.size() <= 1){
                     winStacks = (stGameRoomInfo.getVCurrentPots(index) - userDrawStacks.get(index)) / winnerIDArray.size();
@@ -3271,6 +3264,34 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 stGameResultInfoBuilder.addStGamePotResultInfo(stGamePotResultInfoBuilder);
             }
         }
+
+        if (!bCredit) {
+            long clubId = 0;
+            if (stGameRoomInfo.getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM) {
+
+                ClubBaseInfo.Builder stClubBaseInfoBuilder = ClubManager.getInstance().getClubBaseInfo(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID());
+                if (stClubBaseInfoBuilder != null && stClubBaseInfoBuilder.getLClubID() > 0) {
+                    clubId = stClubBaseInfoBuilder.getLClubID();
+                }
+            }
+
+            long drawStackSum = 0;//总抽水值
+            for (int item : userDrawStacks.keySet()) {
+                drawStackSum += userDrawStacks.get(item);
+            }
+            //记录总抽水日志
+            StringBuilder drawSumLog = new StringBuilder("")
+                    .append(" ").append(110009)
+                    .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()) //牌局id
+                    .append(" ").append(0)
+                    .append(" ").append(stGameRoomInfo.getStGameRoomBaseInfo().getLLeagueID()) //联盟id
+                    .append(" ").append(clubId) //创建的俱乐部ID
+                    .append(" ").append(stGameRoomInfo.getEGameRoomType().getNumber()) //牌局类型
+                    .append(" ").append(drawStackSum); // 抽水总数
+
+            TranscationLogService.getInstance().error(drawSumLog.toString());
+        }
+
 
         //计算最大底池数据
         if (lSingleMaxPot > lMaxPot) {
