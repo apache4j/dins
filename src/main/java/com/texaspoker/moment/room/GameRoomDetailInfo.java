@@ -2058,6 +2058,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                             mGameRoomDetailInfos.removeKey(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
                         } else {
+                            System.out.println("------------bOver == false----------");
                             bOver = true;
                             //牌局结束通知野保险结束
                             FlopLottoManager.getInstance().overFlopLotto(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
