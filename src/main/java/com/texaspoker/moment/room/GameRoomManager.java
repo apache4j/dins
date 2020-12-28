@@ -272,7 +272,6 @@ public class GameRoomManager {
 
                 }
 
-                System.out.println("------非授信局-------");
                 //非授信局
                 if (!stGameRoomBaseInfo.hasBCredit()) {
                     // 01.添加牌局授信标识
@@ -282,7 +281,6 @@ public class GameRoomManager {
                     // 02.设置牌局抽水方式 如果有服务费则使用底池抽水
                     if (stGameRoomBaseInfo.getIPotDrawFee() > 0 && stGameRoomBaseInfo.getBPotDrawCredit() == 1) {
                         stGameRoomDetailInfo.iDrawType = 2;
-                        System.out.println("------iDrawType==2-------");
                     } else {
                         stGameRoomDetailInfo.iDrawType = 0;
                     }

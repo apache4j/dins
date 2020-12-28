@@ -5177,6 +5177,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         if (drawMap != null && drawMap.size() > 0 && bCredit && iDrawType == 2 && bFlopStatus){
             userDrawStacks = GameFeeUtil.getBottomPump(drawMap,stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds(),stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee(),
                     stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB(),iUserNum,stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum());
+        } else if (drawMap != null && drawMap.size() > 0 && !bCredit && iDrawType == 2 && bFlopStatus) {//金币局底池抽水
+            userDrawStacks = GameFeeUtil.getBottomPump(drawMap, stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds(), stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee(),
+                    stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB(), iUserNum, stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum());
         }
 
         //抽水后计算玩家贡献抽水
