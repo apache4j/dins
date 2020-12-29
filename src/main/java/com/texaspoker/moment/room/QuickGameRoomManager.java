@@ -213,6 +213,17 @@ public class QuickGameRoomManager {
                             .setEQuickGameRoomStatus(QUICK_GAME_ROOM_STATUS.QUICK_GAME_ROOM_NOTSTART)
                             .setSCryptCode(sCode)
                             .build();
+                    GameRoomDetailInfo stGameRoomDetailInfo = new GameRoomDetailInfo();
+
+                    // 02.设置牌局抽水方式 如果有服务费则使用底池抽水
+                    if (stGameRoomBaseInfo.getIPotDrawFee() > 0 && stGameRoomBaseInfo.getBPotDrawCredit() == 1) {
+                        stGameRoomDetailInfo.iDrawType = 2;
+                    } else {
+                        stGameRoomDetailInfo.iDrawType = 0;
+                    }
+
+                    // GameRoomManager 调用
+                    GameRoomManager.getInstance().setGameRoomDetailInfo(stGameRoomDetailInfo);
 
                     // ChatRoomManager 调用
                     ChatRoomManager.getInstance().setChatRoomInfo(lRoomId, stChatRoomInfo);

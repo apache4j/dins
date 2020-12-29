@@ -2058,7 +2058,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
                             mGameRoomDetailInfos.removeKey(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
                         } else {
-                            System.out.println("------------bOver == false----------");
                             bOver = true;
                             //牌局结束通知野保险结束
                             FlopLottoManager.getInstance().overFlopLotto(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId());
@@ -2196,7 +2195,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 BillManager.getInstance().setPotDrawCredit(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), userPotDrawInfoList);
                             }
 
-                            System.out.println("-------bCredit-------"+bCredit);
+                            System.out.println("-------bCredit-------" + bCredit + "-------iDrawType------" + iDrawType);
                             if (!bCredit && iDrawType == 2) {
                                 long clubId = 0;
                                 if (stGameRoomInfo.getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM) {
