@@ -2973,6 +2973,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 drawMap.put(index,stGameRoomInfoBuilder.getVCurrentPots(index));
             }
         }
+        System.out.println("底池抽水=========");
+        System.out.println(drawMap.size() + "," + bCredit + "," + iDrawType + "," + bFlopStatus);
+        System.out.println(stGameRoomInfo);
 
         //进行底池抽水 条件 底池抽水,发了Flop3张牌
         Map<Integer,Long> userDrawStacks = new HashMap<Integer,Long>();
@@ -2980,6 +2983,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             userDrawStacks = GameFeeUtil.getBottomPump(drawMap,stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds(),stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee(),
                     stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB(),iUserNum,stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum());
         } else if (drawMap != null && drawMap.size() > 0 && !bCredit && iDrawType == 2 && bFlopStatus){//普通局抽水
+            System.out.println("快速局");
             userDrawStacks = GameFeeUtil.getBottomPump(drawMap,stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds(),stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee(),
                     stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB(),iUserNum,stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum());
         }
