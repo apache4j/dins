@@ -218,6 +218,7 @@ public class QuickGameRoomManager {
 
                     GameRoomDetailInfo stGameRoomDetailInfo = new GameRoomDetailInfo();
 
+                    System.out.println("stGameRoomBaseInfo.getIPotDrawFee()==" + stGameRoomBaseInfo.getIPotDrawFee() + "," + stGameRoomBaseInfo.getBPotDrawCredit());
                     // 02.设置牌局抽水方式 如果有服务费则使用底池抽水
                     if (stGameRoomBaseInfo.getIPotDrawFee() > 0 && stGameRoomBaseInfo.getBPotDrawCredit() == 1) {
                         stGameRoomDetailInfo.iDrawType = 2;
@@ -234,6 +235,12 @@ public class QuickGameRoomManager {
 
                     // GameRoomManager 调用
                     GameRoomManager.getInstance().setGameRoomDetailInfo(stGameRoomDetailInfo);
+
+                    try {
+                        ConnectDatabase.getInstance().insertGameRoomInfo(stGameRoomDetailInfo);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
                     // ChatRoomManager 调用
                     ChatRoomManager.getInstance().setChatRoomInfo(lRoomId, stChatRoomInfo);
