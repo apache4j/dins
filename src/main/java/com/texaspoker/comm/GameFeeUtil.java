@@ -165,6 +165,7 @@ public class GameFeeUtil {
 		} else {
 			drawLimit = new BigDecimal((double) (pumpLimit * lBigBlinds)/100 + "").setScale(0, BigDecimal.ROUND_UP).longValue();
 		}
+		System.out.println("isChange == " + isChange + "抽水上限" + drawLimit);
 
 		//计算每个池子抽水值
 		Map<Integer, Long> pumpMap = new HashMap<Integer, Long>();
@@ -187,19 +188,26 @@ public class GameFeeUtil {
 			if (pumpMap != null){
 				int pumpMapCount = pumpMap.size();
 				for (Map.Entry<Integer, Long> drawMap : pumpMap.entrySet()){
+					pumpMapCount--;
 					if (drawMap.getKey() != null && drawMap.getValue() != null){
-						pumpMapCount--;
+
 						//池子实际抽水值 四舍五入
 						long draw = new BigDecimal((double) (drawLimit * drawMap.getValue())/totalPump + "").setScale(0, BigDecimal.ROUND_HALF_UP).longValue();
-						if (pumpMapCount == 0){//最后一个池子直接分完全部 保证总和等于drawLimit
-							pumpMap.put(drawMap.getKey(),drawLimit);
-						}else {
-							pumpMap.put(drawMap.getKey(),draw);
+						if (pumpMapCount == 0) {//最后一个池子直接分完全部 保证总和等于drawLimit
+							pumpMap.put(drawMap.getKey(), drawLimit);
+						} else {
+							pumpMap.put(drawMap.getKey(), draw);
 						}
 
 						drawLimit = drawLimit - draw;
 					}
 				}
+			}
+		}
+
+		for (Map.Entry<Integer, Long> drawMap : pumpMap.entrySet()) {
+			if (drawMap.getKey() != null && drawMap.getValue() != null) {
+				System.out.println(drawMap.getKey() + "," + drawMap.getValue());
 			}
 		}
 
