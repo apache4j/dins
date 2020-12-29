@@ -272,8 +272,9 @@ public class GameRoomManager {
 
                 }
 
+                System.out.println(stGameRoomBaseInfo.getBCredit()+"=========金币局====="+stGameRoomBaseInfo.hasBCredit());
                 //非授信局
-                if (!stGameRoomBaseInfo.hasBCredit()) {
+                if (stGameRoomBaseInfo.getBCredit() == 0) {
                     // 01.添加牌局授信标识
                     stGameRoomDetailInfo.bCredit = false;
 
