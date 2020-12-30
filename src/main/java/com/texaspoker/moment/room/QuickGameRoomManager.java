@@ -296,6 +296,8 @@ public class QuickGameRoomManager {
 
                             gameRoomBaseInfoBuilder.setStCreateUserBaseInfo(UserManager.getInstance().getUserBaseInfo(uuid));
                             gameRoomBaseInfoBuilder.setLChatRoomID(lQuickGameRoomID);
+                            gameRoomBaseInfoBuilder.setIPotDrawFee(stSettingGameRoomBaseInfoBuilder.getIPotDrawFee());
+                            gameRoomBaseInfoBuilder.setBPotDrawCredit(stSettingGameRoomBaseInfoBuilder.getBPotDrawCredit());
 
                             TexasPoker.GameRoomInfo.Builder gameRoomInfoBuilder = TexasPoker.GameRoomInfo.newBuilder();
                             gameRoomInfoBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
