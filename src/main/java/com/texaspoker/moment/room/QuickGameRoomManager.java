@@ -296,8 +296,10 @@ public class QuickGameRoomManager {
 
                             gameRoomBaseInfoBuilder.setStCreateUserBaseInfo(UserManager.getInstance().getUserBaseInfo(uuid));
                             gameRoomBaseInfoBuilder.setLChatRoomID(lQuickGameRoomID);
-                            gameRoomBaseInfoBuilder.setIPotDrawFee(stSettingGameRoomBaseInfoBuilder.getIPotDrawFee());
-                            gameRoomBaseInfoBuilder.setBPotDrawCredit(stSettingGameRoomBaseInfoBuilder.getBPotDrawCredit());
+                            gameRoomBaseInfoBuilder.setIPotDrawFee(stSettingGameRoomBaseInfoBuilder.getIPotDrawFee());//服务费
+                            gameRoomBaseInfoBuilder.setBPotDrawCredit(stSettingGameRoomBaseInfoBuilder.getBPotDrawCredit());//2 底池抽水 0不抽水
+                            gameRoomBaseInfoBuilder.setILimitBB(stSettingGameRoomBaseInfoBuilder.getILimitBB());//上限
+                            gameRoomBaseInfoBuilder.setBChangeByNum(stSettingGameRoomBaseInfoBuilder.getBChangeByNum());//是否根据人数变化
 
                             TexasPoker.GameRoomInfo.Builder gameRoomInfoBuilder = TexasPoker.GameRoomInfo.newBuilder();
                             gameRoomInfoBuilder.setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE);
