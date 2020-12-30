@@ -235,6 +235,7 @@ public class QuickGameRoomManager {
                             .setStGameRoomBaseInfo(transferredInfo)
                             .setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE)
                             .setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait);
+                    gameRoomInfo.setStGameRoomBaseInfo(stGameRoomBaseInfo);
 
                     stGameRoomDetailInfo.setStGameRoomInfo(gameRoomInfo.build());
 

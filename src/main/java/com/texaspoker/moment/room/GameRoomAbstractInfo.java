@@ -2985,7 +2985,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         } else if (drawMap != null && drawMap.size() > 0 && !bCredit && iDrawType == 2 && bFlopStatus){//普通局抽水
             userDrawStacks = GameFeeUtil.getBottomPump(drawMap,stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds(),stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee(),
                     stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB(),iUserNum,stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum());
-        } else if (stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee() > 0 && stGameRoomInfo.getStGameRoomBaseInfo().getBPotDrawCredit() == 1
+        } else if (drawMap != null && drawMap.size() > 0 && !bCredit && iDrawType == 2 && bFlopStatus
         && stGameRoomInfo.getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.QUICK_GAME_ROOM){//快速局
             System.out.println("快速局");
             userDrawStacks = GameFeeUtil.getBottomPump(drawMap,stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds(),stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee(),
