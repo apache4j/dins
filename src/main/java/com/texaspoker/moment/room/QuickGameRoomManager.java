@@ -214,33 +214,41 @@ public class QuickGameRoomManager {
                             .setSCryptCode(sCode)
                             .build();
 
-//
-//
-//                    GameRoomDetailInfo stGameRoomDetailInfo = new GameRoomDetailInfo();
-//
-//                    System.out.println("stGameRoomBaseInfo.getIPotDrawFee()==" + stGameRoomBaseInfo.getIPotDrawFee() + "," + stGameRoomBaseInfo.getBPotDrawCredit());
-//                    // 02.设置牌局抽水方式 如果有服务费则使用底池抽水
-//                    if (stGameRoomBaseInfo.getIPotDrawFee() > 0 && stGameRoomBaseInfo.getBPotDrawCredit() == 1) {
-//                        stGameRoomDetailInfo.iDrawType = 2;
-//                    } else {
-//                        stGameRoomDetailInfo.iDrawType = 0;
+//                    GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(stQuickGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId());
+//                    if (stGameRoomDetailInfo != null && stGameRoomDetailInfo.getStGameRoomInfo() != null) {
+//                        stQuickGameRoomResultInfo.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
 //                    }
-//
-//                    GameRoomInfo.Builder gameRoomInfo = GameRoomInfo.newBuilder()
-//                            .setStGameRoomBaseInfo(transferredInfo)
-//                            .setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE)
-//                            .setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait);
-//                    stGameRoomDetailInfo.setStGameRoomInfo(gameRoomInfo.build());
-//
-//
-//                    // GameRoomManager 调用
-//                    GameRoomManager.getInstance().setGameRoomDetailInfo(stGameRoomDetailInfo);
-//
-//                    try {
-//                        ConnectDatabase.getInstance().insertGameRoomInfo(stGameRoomDetailInfo);
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
+
+
+
+                    GameRoomDetailInfo stGameRoomDetailInfo = new GameRoomDetailInfo();
+
+                    System.out.println("stGameRoomBaseInfo.getIPotDrawFee()==" + stGameRoomBaseInfo.getIPotDrawFee() + "," + stGameRoomBaseInfo.getBPotDrawCredit());
+                    // 02.设置牌局抽水方式 如果有服务费则使用底池抽水
+                    if (stGameRoomBaseInfo.getIPotDrawFee() > 0 && stGameRoomBaseInfo.getBPotDrawCredit() == 1) {
+                        stGameRoomDetailInfo.iDrawType = 2;
+                    } else {
+                        stGameRoomDetailInfo.iDrawType = 0;
+                    }
+
+                    GameRoomInfo.Builder gameRoomInfo = GameRoomInfo.newBuilder()
+                            .setStGameRoomBaseInfo(transferredInfo)
+                            .setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE)
+                            .setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait);
+
+                    stGameRoomDetailInfo.setStGameRoomInfo(gameRoomInfo.build());
+
+                    stQuickGameRoomResultInfo.setStGameRoomInfo(gameRoomInfo.build());
+
+
+                    // GameRoomManager 调用
+                    GameRoomManager.getInstance().setGameRoomDetailInfo(stGameRoomDetailInfo);
+
+                    try {
+                        ConnectDatabase.getInstance().insertGameRoomInfo(stGameRoomDetailInfo);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
                     // ChatRoomManager 调用
                     ChatRoomManager.getInstance().setChatRoomInfo(lRoomId, stChatRoomInfo);
