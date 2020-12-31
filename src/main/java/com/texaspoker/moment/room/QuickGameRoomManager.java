@@ -141,6 +141,7 @@ public class QuickGameRoomManager {
     public QuickGameRoomResultInfo createQuickGameRoom(long uuid, GameRoomBaseInfo stGameRoomBaseInfo) {
         UserBaseInfoNet.Builder stFromUserBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
 
+        System.out.println("======stGameRoomBaseInfo====="+stGameRoomBaseInfo);
         QuickGameRoomResultInfo stQuickGameRoomResultInfo = new QuickGameRoomResultInfo();
 
         if (stFromUserBuilder == null) {
