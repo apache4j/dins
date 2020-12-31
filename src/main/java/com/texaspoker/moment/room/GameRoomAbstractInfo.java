@@ -205,7 +205,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         mTimeoutGameUsers = new AdvancedTimeoutHashMap<Long, Long>();
 
         vTestHandCards1.add(1);
-        vTestHandCards1.add(2);
+        vTestHandCards1.add(27);
 
         vTestHandCards2.add(14);
         vTestHandCards2.add(15);
