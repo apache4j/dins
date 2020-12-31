@@ -90,7 +90,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
     //用户在牌局的位置信息
     protected ConcurrentHashMap<Long, Integer> mapUserPos = new ConcurrentHashMap<Long, Integer>();
 
-    protected final static boolean NOT_DEBUG = true;
+    protected final static boolean NOT_DEBUG = false;
 
     //是否所有人都allin状态
     public boolean bAllAllin;
@@ -4866,11 +4866,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         if (bTable) {
             return vTestTableCards.get(time);
         } else {
-            if (uuid == 73842) {
+            if (uuid == 342263) {
                 return vTestHandCards1.get(time);
-            } else if (uuid == 73848) {
+            } else if (uuid == 342265) {
                 return vTestHandCards2.get(time);
-            } else if (uuid == 161092){
+            } else if (uuid == 342270){
                 return vTestHandCards3.get(time);
             } else {
                 return vTestHandCards4.get(time);
