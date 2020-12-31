@@ -90,7 +90,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
     //用户在牌局的位置信息
     protected ConcurrentHashMap<Long, Integer> mapUserPos = new ConcurrentHashMap<Long, Integer>();
 
-    protected final static boolean NOT_DEBUG = false;
+    protected final static boolean NOT_DEBUG = true;
 
     //是否所有人都allin状态
     public boolean bAllAllin;
@@ -2973,9 +2973,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 drawMap.put(index,stGameRoomInfoBuilder.getVCurrentPots(index));
             }
         }
-        System.out.println("底池抽水=========");
-        System.out.println(drawMap.size() + "," + bCredit + "," + iDrawType + "," + bFlopStatus);
-        System.out.println(stGameRoomInfo);
 
         //进行底池抽水 条件 底池抽水,发了Flop3张牌
         Map<Integer,Long> userDrawStacks = new HashMap<Integer,Long>();
@@ -2984,7 +2981,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB(),iUserNum,stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum());
         } else if (drawMap != null && drawMap.size() > 0 && !bCredit && iDrawType == 2 && bFlopStatus){//快速局抽水
             if (stGameRoomInfo.getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.QUICK_GAME_ROOM){
-                System.out.println("快速局抽水");
                 userDrawStacks = GameFeeUtil.getBottomPump(drawMap,stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds(),stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee(),
                         stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB(),iUserNum,stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum());
             } else {//普通联盟 普通俱乐部抽水
@@ -5191,7 +5187,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB(),iUserNum,stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum());
         } else if (drawMap != null && drawMap.size() > 0 && !bCredit && iDrawType == 2 && bFlopStatus){//快速局抽水
             if (stGameRoomInfo.getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.QUICK_GAME_ROOM){
-                System.out.println("快速局抽水");
                 userDrawStacks = GameFeeUtil.getBottomPump(drawMap,stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds(),stGameRoomInfo.getStGameRoomBaseInfo().getIPotDrawFee(),
                         stGameRoomInfo.getStGameRoomBaseInfo().getILimitBB(),iUserNum,stGameRoomInfo.getStGameRoomBaseInfo().getBChangeByNum());
             } else {//普通联盟 普通俱乐部抽水

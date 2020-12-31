@@ -2195,7 +2195,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 BillManager.getInstance().setPotDrawCredit(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), userPotDrawInfoList);
                             }
 
-                            System.out.println("-------bCredit-------" + bCredit + "-------iDrawType------" + iDrawType);
                             if (!bCredit && iDrawType == 2) {
                                 long clubId = 0;
                                 if (stGameRoomInfo.getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.CLUB_ROOM) {
