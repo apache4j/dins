@@ -2192,6 +2192,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                         userPotDrawInfoList.add(stUserPotDrawInfo.build());
                                     }
                                 }
+                                System.out.println("userPotDrawInfoList========"+userPotDrawInfoList.toString());
                                 BillManager.getInstance().setPotDrawCredit(stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId(), userPotDrawInfoList);
                             }
 
