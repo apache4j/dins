@@ -166,7 +166,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         StringBuilder buttonLog = new StringBuilder("")
                 .append(request.getLRoomID()) //牌局ID
                 .append(" ").append(request.getUuid()) //玩家ID
-                .append(" ").append(stGameRoomDetailInfo.getLastHandID()) //手数ID
+                .append(" ").append(stGameRoomDetailInfo.getHandID()) //手数ID
                 .append(" ").append("".equals(request.getSButtonNumber()) ? "0" : request.getSButtonNumber()) //按钮编号
                 .append(" ").append("".equals(request.getSTouchCoordinate()) ? "0" : request.getSTouchCoordinate()); //点击位置
 
@@ -1128,7 +1128,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         StringBuilder buttonLog = new StringBuilder("")
                 .append(request.getLGameRoomID()) //牌局ID
                 .append(" ").append(request.getUuid()) //玩家ID
-                .append(" ").append(stGameRoomDetailInfo.getLastHandID()) //手数ID
+                .append(" ").append(stGameRoomDetailInfo.getHandID()) //手数ID
                 .append(" ").append("".equals(request.getSButtonNumber()) ? "0" : request.getSButtonNumber()) //按钮编号
                 .append(" ").append("".equals(request.getSTouchCoordinate()) ? "0" : request.getSTouchCoordinate()); //点击位置
 
