@@ -2186,17 +2186,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                         break;
                     }
 
-                    //牌局ID，玩家ID，手数ID，按钮编号，点击位置
-                    StringBuilder buttonLog = new StringBuilder("")
-                            .append(lGameRoomID) //牌局ID
-                            .append(" ").append(uuid) //玩家ID
-                            .append(" ").append(stGameRoomInfo.getLGameHandID()) //手数ID
-                            .append(" ").append("2") //按钮编号
-                            .append(" ").append("0"); //点击位置
-
-
-                    ButtonLogService.getInstance().error(buttonLog.toString());
-
                     //不是同时行动日志正常打印
                     //stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 0
                     if (stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 0){
@@ -2217,6 +2206,16 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                         + "," + "fold"
                                         + "," + "auto");
                             }
+
+                            //牌局ID，玩家ID，手数ID，按钮编号，点击位置
+                            StringBuilder buttonLog = new StringBuilder("")
+                                    .append(lGameRoomID) //牌局ID
+                                    .append(" ").append(uuid) //玩家ID
+                                    .append(" ").append(stGameRoomInfo.getLGameHandID()) //手数ID
+                                    .append(" ").append("8") //按钮编号
+                                    .append(" ").append("0"); //点击位置
+
+                            ButtonLogService.getInstance().error(buttonLog.toString());
                         } else {
                             //主动弃牌日志
                             TableLogService.getInstance().error(lFromRoomID
@@ -2225,6 +2224,16 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                     + "," + uuid
                                     + "," + "fold"
                                     + "," + 0);
+
+                            //牌局ID，玩家ID，手数ID，按钮编号，点击位置
+                            StringBuilder buttonLog = new StringBuilder("")
+                                    .append(lGameRoomID) //牌局ID
+                                    .append(" ").append(uuid) //玩家ID
+                                    .append(" ").append(stGameRoomInfo.getLGameHandID()) //手数ID
+                                    .append(" ").append("2") //按钮编号
+                                    .append(" ").append("0"); //点击位置
+
+                            ButtonLogService.getInstance().error(buttonLog.toString());
                         }
                     } else {
                         //同时行动由于保险原因暂时先做记录
