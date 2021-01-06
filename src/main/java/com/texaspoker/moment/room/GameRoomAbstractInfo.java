@@ -2198,6 +2198,14 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                         + "," + uuid
                                         + "," + "fold"
                                         + "," + "tuoguan");
+
+                                //牌局ID，玩家ID，手数ID，按钮编号，点击位置
+                                ButtonLogService.getInstance().error(lGameRoomID //牌局ID
+                                        + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
+                                        + " " + stGameRoomInfo.getLGameHandID() //手数ID
+                                        + " " + "8" //按钮编号 预弃牌（自动弃牌）
+                                        + " " + "0"); //点击位置
+
                             } else {
                                 TableLogService.getInstance().error(lFromRoomID
                                         + "," + lGameRoomID
@@ -2205,17 +2213,15 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                         + "," + uuid
                                         + "," + "fold"
                                         + "," + "auto");
+
+                                //牌局ID，玩家ID，手数ID，按钮编号，点击位置
+                                ButtonLogService.getInstance().error(lGameRoomID //牌局ID
+                                        + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
+                                        + " " + stGameRoomInfo.getLGameHandID() //手数ID
+                                        + " " + "62" //按钮编号 系统弃牌
+                                        + " " + "0"); //点击位置
                             }
 
-                            //牌局ID，玩家ID，手数ID，按钮编号，点击位置
-                            StringBuilder buttonLog = new StringBuilder("")
-                                    .append(lGameRoomID) //牌局ID
-                                    .append(" ").append(uuid) //玩家ID
-                                    .append(" ").append(stGameRoomInfo.getLGameHandID()) //手数ID
-                                    .append(" ").append("8") //按钮编号
-                                    .append(" ").append("0"); //点击位置
-
-                            ButtonLogService.getInstance().error(buttonLog.toString());
                         } else {
                             //主动弃牌日志
                             TableLogService.getInstance().error(lFromRoomID
@@ -2226,14 +2232,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                     + "," + 0);
 
                             //牌局ID，玩家ID，手数ID，按钮编号，点击位置
-                            StringBuilder buttonLog = new StringBuilder("")
-                                    .append(lGameRoomID) //牌局ID
-                                    .append(" ").append(uuid) //玩家ID
-                                    .append(" ").append(stGameRoomInfo.getLGameHandID()) //手数ID
-                                    .append(" ").append("2") //按钮编号
-                                    .append(" ").append("0"); //点击位置
-
-                            ButtonLogService.getInstance().error(buttonLog.toString());
+                            ButtonLogService.getInstance().error(lGameRoomID //牌局ID
+                                    + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
+                                    + " " + stGameRoomInfo.getLGameHandID() //手数ID
+                                    + " " + "2" //按钮编号 主动弃牌
+                                    + " " + "0"); //点击位置
                         }
                     } else {
                         //同时行动由于保险原因暂时先做记录

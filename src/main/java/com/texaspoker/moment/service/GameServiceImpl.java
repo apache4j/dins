@@ -162,16 +162,23 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         GameActionResponse.Builder stGameActionResponseBuilder = GameActionResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLRoomID());
 
+//        //牌局ID，玩家ID，手数ID，按钮编号，点击位置
+//        StringBuilder buttonLog = new StringBuilder("")
+//                .append(request.getLRoomID()) //牌局ID
+//                .append(" ").append(request.getUuid()) //玩家ID
+//                .append(" ").append(stGameRoomDetailInfo.getHandID()) //手数ID
+//                .append(" ").append("".equals(request.getSButtonNumber()) ? "0" : request.getSButtonNumber()) //按钮编号
+//                .append(" ").append("".equals(request.getSTouchCoordinate()) ? "0" : request.getSTouchCoordinate()); //点击位置
+//
+//
+//        ButtonLogService.getInstance().error(buttonLog.toString());
+
         //牌局ID，玩家ID，手数ID，按钮编号，点击位置
-        StringBuilder buttonLog = new StringBuilder("")
-                .append(request.getLRoomID()) //牌局ID
-                .append(" ").append(request.getUuid()) //玩家ID
-                .append(" ").append(stGameRoomDetailInfo.getHandID()) //手数ID
-                .append(" ").append("".equals(request.getSButtonNumber()) ? "0" : request.getSButtonNumber()) //按钮编号
-                .append(" ").append("".equals(request.getSTouchCoordinate()) ? "0" : request.getSTouchCoordinate()); //点击位置
-
-
-        ButtonLogService.getInstance().error(buttonLog.toString());
+        ButtonLogService.getInstance().error(request.getLRoomID() //牌局ID
+                + " " + request.getUuid() //玩家ID
+                + " " + stGameRoomDetailInfo.getHandID()//手数ID
+                + " " + ("".equals(request.getSButtonNumber()) ? "0" : request.getSButtonNumber()) //按钮编号 系统allin
+                + " " + ("".equals(request.getSTouchCoordinate()) ? "0" : request.getSTouchCoordinate())); //点击位置
         //AOF模式
         if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBFullAllIn()==1
                 &&request.getEGameActType()!=GAME_ACT_TYPE.GAME_ACT_TYPE_ALLIN
