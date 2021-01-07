@@ -1140,7 +1140,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                                         + "," + stGameRoomInfo.getLGameHandID()
                                                         + "," + lastActionUuid
                                                         + "," + "check"
-                                                        + "," + 0);
+                                                        + "," + 1);
 
                                                 //牌局ID，玩家ID，手数ID，按钮编号，点击位置
                                                 ButtonLogService.getInstance().error(lGameRoomID //牌局ID
@@ -1240,7 +1240,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                                         + "," + stGameRoomInfo.getLGameHandID()
                                                         + "," + lastActionUuid
                                                         + "," + "check"
-                                                        + "," + 0);
+                                                        + "," + 2);
 
                                                 //牌局ID，玩家ID，手数ID，按钮编号，点击位置
                                                 ButtonLogService.getInstance().error(lGameRoomID //牌局ID
@@ -2466,7 +2466,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                                         + "," + stGameRoomInfo.getLGameHandID()
                                                         + "," + lastActionUuid
                                                         + "," + "check"
-                                                        + "," + 0);
+                                                        + "," + 3);
 
                                                 //牌局ID，玩家ID，手数ID，按钮编号，点击位置
                                                 ButtonLogService.getInstance().error(lGameRoomID //牌局ID
@@ -2565,7 +2565,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                                         + "," + stGameRoomInfo.getLGameHandID()
                                                         + "," + lastActionUuid
                                                         + "," + "check"
-                                                        + "," + 0);
+                                                        + "," + 4);
 
                                                 //牌局ID，玩家ID，手数ID，按钮编号，点击位置
                                                 ButtonLogService.getInstance().error(lGameRoomID //牌局ID
