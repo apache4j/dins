@@ -2204,7 +2204,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             //自动弃牌日志
                             if (bDeleggate) {
                                 TableLogService.getInstance().error(lFromRoomID
-                                        + "," + lGameRoomID
+                                        + "," + stUserGameInfoBuilder.getStUserInfo().getUuid()
                                         + "," + stGameRoomInfo.getLGameHandID()
                                         + "," + uuid
                                         + "," + "fold"
@@ -2219,7 +2219,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                             } else {
                                 TableLogService.getInstance().error(lFromRoomID
-                                        + "," + lGameRoomID
+                                        + "," + stUserGameInfoBuilder.getStUserInfo().getUuid()
                                         + "," + stGameRoomInfo.getLGameHandID()
                                         + "," + uuid
                                         + "," + "fold"
@@ -2236,7 +2236,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                         } else {
                             //主动弃牌日志
                             TableLogService.getInstance().error(lFromRoomID
-                                    + "," + lGameRoomID
+                                    + "," + stUserGameInfoBuilder.getStUserInfo().getUuid()
                                     + "," + stGameRoomInfo.getLGameHandID()
                                     + "," + uuid
                                     + "," + "fold"
