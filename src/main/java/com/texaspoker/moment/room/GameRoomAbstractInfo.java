@@ -2242,12 +2242,12 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                     + "," + "fold"
                                     + "," + 0);
 
-                            //牌局ID，玩家ID，手数ID，按钮编号，点击位置
-                            ButtonLogService.getInstance().error(lGameRoomID //牌局ID
-                                    + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
-                                    + " " + stGameRoomInfo.getLGameHandID() //手数ID
-                                    + " " + "2" //按钮编号 主动弃牌
-                                    + " " + "0"); //点击位置
+//                            //牌局ID，玩家ID，手数ID，按钮编号，点击位置
+//                            ButtonLogService.getInstance().error(lGameRoomID //牌局ID
+//                                    + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
+//                                    + " " + stGameRoomInfo.getLGameHandID() //手数ID
+//                                    + " " + "2" //按钮编号 主动弃牌
+//                                    + " " + "0"); //点击位置
                         }
                     } else {
                         //同时行动由于保险原因暂时先做记录
