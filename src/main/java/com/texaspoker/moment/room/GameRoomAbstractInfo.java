@@ -382,6 +382,13 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                 + "," + "check"
                                 + "," + 0);
 
+                        //牌局ID，玩家ID，手数ID，按钮编号，点击位置
+                        ButtonLogService.getInstance().error(lGameRoomID //牌局ID
+                                + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
+                                + " " + stGameRoomInfo.getLGameHandID() //手数ID
+                                + " " + "61" //按钮编号 系统看牌
+                                + " " + "0"); //点击位置
+
                         // ������������������������
                         stUserGameInfoBuilder
                                 .setEGameState(USER_GAME_STATE.USER_GAME_STATE_CHECK);
