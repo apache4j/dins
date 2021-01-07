@@ -3645,8 +3645,10 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         }
 
                         if (stUserGameInfoBuilder != null) {
+                            System.out.println("stUserGameInfoBuilder.getLBetStacks()====="+stUserGameInfoBuilder.getLBetStacks());
                             if (lStepMaxStacks == stUserGameInfoBuilder.getLBetStacks()) {
 
+                                System.out.println("stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction()===="+stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction());
                                 if (stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 1){
                                     addUserTimeoutTimes(uuid);
                                     doFlodAction(uuid, (long) -1, false);
