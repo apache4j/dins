@@ -177,7 +177,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         ButtonLogService.getInstance().error(request.getLRoomID() //牌局ID
                 + " " + request.getUuid() //玩家ID
                 + " " + stGameRoomDetailInfo.getHandID()//手数ID
-                + " " + ("".equals(request.getSButtonNumber()) ? "0" : request.getSButtonNumber()) //按钮编号 系统allin
+                + " " + ("".equals(request.getSButtonNumber()) ? "0" : request.getSButtonNumber()) //按钮编号
                 + " " + ("".equals(request.getSTouchCoordinate()) ? "0" : request.getSTouchCoordinate())); //点击位置
         //AOF模式
         if(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBFullAllIn()==1
@@ -1132,15 +1132,12 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         SetPreActionResponse.Builder stSetPreActionResponseBuilder = SetPreActionResponse.newBuilder();
         GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(request.getLGameRoomID());
         //牌局ID，玩家ID，手数ID，按钮编号，点击位置
-        StringBuilder buttonLog = new StringBuilder("")
-                .append(request.getLGameRoomID()) //牌局ID
-                .append(" ").append(request.getUuid()) //玩家ID
-                .append(" ").append(stGameRoomDetailInfo.getHandID()) //手数ID
-                .append(" ").append("".equals(request.getSButtonNumber()) ? "0" : request.getSButtonNumber()) //按钮编号
-                .append(" ").append("".equals(request.getSTouchCoordinate()) ? "0" : request.getSTouchCoordinate()); //点击位置
+        ButtonLogService.getInstance().error(request.getLGameRoomID() //牌局ID
+                + " " + request.getUuid() //玩家ID
+                + " " + stGameRoomDetailInfo.getHandID()//手数ID
+                + " " + ("".equals(request.getSButtonNumber()) ? "0" : request.getSButtonNumber()) //按钮编号
+                + " " + ("".equals(request.getSTouchCoordinate()) ? "0" : request.getSTouchCoordinate())); //点击位置
 
-
-        ButtonLogService.getInstance().error(buttonLog.toString());
         if (stGameRoomDetailInfo != null) {
             boolean bAction = stGameRoomDetailInfo.setPreAction(request.getUuid(), request.getEPreUserGameState());
             if (bAction) {
