@@ -206,7 +206,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
                     rst = stGameRoomDetailInfo.doFlodAction(request.getUuid(), request.getLBettingID(), false);
                     break;
                 case GAME_ACT_TYPE.GAME_ACT_TYPE_CHECK_VALUE:
-                    rst = stGameRoomDetailInfo.doCheckAction(request.getUuid(), request.getLBettingID());
+                    rst = stGameRoomDetailInfo.doCheckAction(request.getUuid(), request.getLBettingID(),0);
                     break;
                 case GAME_ACT_TYPE.GAME_ACT_TYPE_CALL_VALUE:
                     rst = stGameRoomDetailInfo.doCallAction(request.getUuid(), request.getLStacks(), request.getLBettingID());
