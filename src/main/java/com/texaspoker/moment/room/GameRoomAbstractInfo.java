@@ -2213,7 +2213,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                                 //牌局ID，玩家ID，手数ID，按钮编号，点击位置
                                 ButtonLogService.getInstance().error(lGameRoomID //牌局ID
-                                        + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
+                                        + " " + uuid //玩家ID
                                         + " " + stGameRoomInfo.getLGameHandID() //手数ID
                                         + " " + "8" //按钮编号 预弃牌（自动弃牌）
                                         + " " + "0"); //点击位置
@@ -2228,7 +2228,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                                 //牌局ID，玩家ID，手数ID，按钮编号，点击位置
                                 ButtonLogService.getInstance().error(lGameRoomID //牌局ID
-                                        + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
+                                        + " " + uuid //玩家ID
                                         + " " + stGameRoomInfo.getLGameHandID() //手数ID
                                         + " " + "62" //按钮编号 系统弃牌
                                         + " " + "0"); //点击位置
@@ -2246,7 +2246,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             if (lBettingID == -2){
                                 //牌局ID，玩家ID，手数ID，按钮编号，点击位置
                                 ButtonLogService.getInstance().error(lGameRoomID //牌局ID
-                                        + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
+                                        + " " + uuid //玩家ID
                                         + " " + stGameRoomInfo.getLGameHandID() //手数ID
                                         + " " + "62" //按钮编号 系统弃牌
                                         + " " + "0"); //点击位置
