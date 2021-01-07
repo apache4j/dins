@@ -2199,6 +2199,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                     //不是同时行动日志正常打印
                     //stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 0
+                    System.out.println("lBettingID====="+lBettingID);
                     if (stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 0){
                         if (lBettingID == -1) {
                             //自动弃牌日志
@@ -2241,6 +2242,15 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                     + "," + uuid
                                     + "," + "fold"
                                     + "," + 0);
+
+                            if (lBettingID == -2){
+                                //牌局ID，玩家ID，手数ID，按钮编号，点击位置
+                                ButtonLogService.getInstance().error(lGameRoomID //牌局ID
+                                        + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
+                                        + " " + stGameRoomInfo.getLGameHandID() //手数ID
+                                        + " " + "62" //按钮编号 系统弃牌
+                                        + " " + "0"); //点击位置
+                            }
 
 //                            //牌局ID，玩家ID，手数ID，按钮编号，点击位置
 //                            ButtonLogService.getInstance().error(lGameRoomID //牌局ID
