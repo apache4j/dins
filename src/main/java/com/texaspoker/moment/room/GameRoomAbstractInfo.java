@@ -328,7 +328,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
     }
 
     @Override
-    public ERROR_CODE_TYPE doCheckAction(long uuid, long lBettingID) {
+    public ERROR_CODE_TYPE doCheckAction(long uuid, long lBettingID,int buttonLogType) {
         ERROR_CODE_TYPE eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS;
         synchronized (this) {
 
@@ -375,6 +375,21 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             break;
                         }
 
+                        TableLogService.getInstance().error(lFromRoomID
+                                + "," + lGameRoomID
+                                + "," + stGameRoomInfo.getLGameHandID()
+                                + "," + uuid
+                                + "," + "check"
+                                + "," + 0);
+
+                        if (buttonLogType == 1){
+                            //牌局ID，玩家ID，手数ID，按钮编号，点击位置
+                            ButtonLogService.getInstance().error(lGameRoomID //牌局ID
+                                    + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
+                                    + " " + stGameRoomInfo.getLGameHandID() //手数ID
+                                    + " " + "61" //按钮编号 系统看牌
+                                    + " " + "0"); //点击位置
+                        }
                         // ������������������������
                         stUserGameInfoBuilder
                                 .setEGameState(USER_GAME_STATE.USER_GAME_STATE_CHECK);
@@ -1140,14 +1155,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                                         + "," + stGameRoomInfo.getLGameHandID()
                                                         + "," + lastActionUuid
                                                         + "," + "check"
-                                                        + "," + 1);
+                                                        + "," + 0);
 
-                                                //牌局ID，玩家ID，手数ID，按钮编号，点击位置
-                                                ButtonLogService.getInstance().error(lGameRoomID //牌局ID
-                                                        + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
-                                                        + " " + stGameRoomInfo.getLGameHandID() //手数ID
-                                                        + " " + "61" //按钮编号 系统看牌
-                                                        + " " + "0"); //点击位置
+
 
                                                 otherUuid = lastActionUuid;
 
@@ -1240,14 +1250,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                                         + "," + stGameRoomInfo.getLGameHandID()
                                                         + "," + lastActionUuid
                                                         + "," + "check"
-                                                        + "," + 2);
+                                                        + "," + 0);
 
-                                                //牌局ID，玩家ID，手数ID，按钮编号，点击位置
-                                                ButtonLogService.getInstance().error(lGameRoomID //牌局ID
-                                                        + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
-                                                        + " " + stGameRoomInfo.getLGameHandID() //手数ID
-                                                        + " " + "61" //按钮编号 系统看牌
-                                                        + " " + "0"); //点击位置
+
                                                 otherUuid = lastActionUuid;
 
                                                 break;
@@ -2466,14 +2471,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                                         + "," + stGameRoomInfo.getLGameHandID()
                                                         + "," + lastActionUuid
                                                         + "," + "check"
-                                                        + "," + 3);
+                                                        + "," + 0);
 
-                                                //牌局ID，玩家ID，手数ID，按钮编号，点击位置
-                                                ButtonLogService.getInstance().error(lGameRoomID //牌局ID
-                                                        + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
-                                                        + " " + stGameRoomInfo.getLGameHandID() //手数ID
-                                                        + " " + "61" //按钮编号 系统看牌
-                                                        + " " + "0"); //点击位置
                                                 otherUuid = lastActionUuid;
 
                                                 break;
@@ -2565,14 +2564,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                                         + "," + stGameRoomInfo.getLGameHandID()
                                                         + "," + lastActionUuid
                                                         + "," + "check"
-                                                        + "," + 4);
+                                                        + "," + 0);
 
-                                                //牌局ID，玩家ID，手数ID，按钮编号，点击位置
-                                                ButtonLogService.getInstance().error(lGameRoomID //牌局ID
-                                                        + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
-                                                        + " " + stGameRoomInfo.getLGameHandID() //手数ID
-                                                        + " " + "61" //按钮编号 系统看牌
-                                                        + " " + "0"); //点击位置
 
                                                 otherUuid = lastActionUuid;
 

@@ -47,7 +47,7 @@ public interface GameRoomAbstractInterface {
 	 */	
 	ERROR_CODE_TYPE doFlodAction(long uuid,int userPos,long lBettingID,boolean bDeleggate);
 	
-	ERROR_CODE_TYPE doCheckAction(long uuid,long lBettingID);
+	ERROR_CODE_TYPE doCheckAction(long uuid,long lBettingID,int buttonLogType);
 	
 	ERROR_CODE_TYPE doRaiseAction(long uuid,GAME_ACT_TYPE eGameActType,long lStacks,long lBettingID);
 	
