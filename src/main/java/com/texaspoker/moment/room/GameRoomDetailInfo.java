@@ -4677,15 +4677,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 + "," + "ante"
                                 + "," + stUserGameInfoBuilder.getLRemainStacks());
 
-
-                        if (stUserGameInfoBuilder.getLBetStacks() > 0) {
-                            //牌局ID，玩家ID，手数ID，按钮编号，点击位置
-                            ButtonLogService.getInstance().error(lGameRoomID //牌局ID
-                                    + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
-                                    + " " + stGameRoomInfo.getLGameHandID() //手数ID
-                                    + " " + "63" //按钮编号 系统allin
-                                    + " " + "0"); //点击位置
-                        }
                     } else {
                         TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
                                 + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -4719,6 +4710,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     //设置玩家是否被迫allin
                     if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
                         mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),true);
+                        if (stUserGameInfoBuilder.getLBetStacks() > 0) {
+                            //牌局ID，玩家ID，手数ID，按钮编号，点击位置
+                            ButtonLogService.getInstance().error(lGameRoomID //牌局ID
+                                    + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
+                                    + " " + stGameRoomInfo.getLGameHandID() //手数ID
+                                    + " " + "63" //按钮编号 系统allin
+                                    + " " + "0"); //点击位置
+                        }
                     }
 
                     mHandPos.put(userIndex, stUserGameInfoBuilder.getStUserInfo().getUuid());
@@ -4862,15 +4861,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                         + "," + "sb"
                                         + "," + stUserGameInfoBuilder.getLRemainStacks());
 
-
-                                if (stUserGameInfoBuilder.getLBetStacks() > 0) {
-                                    //牌局ID，玩家ID，手数ID，按钮编号，点击位置
-                                    ButtonLogService.getInstance().error(lGameRoomID //牌局ID
-                                            + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
-                                            + " " + stGameRoomInfo.getLGameHandID() //手数ID
-                                            + " " + "63" //按钮编号 系统allin
-                                            + " " + "0"); //点击位置
-                                }
                             } else {
                                 TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
                                         + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -4911,6 +4901,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //设置玩家是否被迫allin
                             if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
                                 mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(), true);
+                                if (stUserGameInfoBuilder.getLBetStacks() > 0) {
+                                    //牌局ID，玩家ID，手数ID，按钮编号，点击位置
+                                    ButtonLogService.getInstance().error(lGameRoomID //牌局ID
+                                            + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
+                                            + " " + stGameRoomInfo.getLGameHandID() //手数ID
+                                            + " " + "63" //按钮编号 系统allin
+                                            + " " + "0"); //点击位置
+                                }
                             }
 
                             if (lStepMaxStacks < stUserGameInfoBuilder.getLBetStacks()) {
@@ -4930,15 +4928,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                         + "," + "bb"
                                         + "," + stUserGameInfoBuilder.getLRemainStacks());
 
-
-                                if (stUserGameInfoBuilder.getLBetStacks() > 0) {
-                                    //牌局ID，玩家ID，手数ID，按钮编号，点击位置
-                                    ButtonLogService.getInstance().error(lGameRoomID //牌局ID
-                                            + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
-                                            + " " + stGameRoomInfo.getLGameHandID() //手数ID
-                                            + " " + "63" //按钮编号 系统allin
-                                            + " " + "0"); //点击位置
-                                }
                             } else {
                                 TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
                                         + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -4979,6 +4968,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //设置玩家是否被迫allin
                             if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
                                 mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(), true);
+                                if (stUserGameInfoBuilder.getLBetStacks() > 0) {
+                                    //牌局ID，玩家ID，手数ID，按钮编号，点击位置
+                                    ButtonLogService.getInstance().error(lGameRoomID //牌局ID
+                                            + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
+                                            + " " + stGameRoomInfo.getLGameHandID() //手数ID
+                                            + " " + "63" //按钮编号 系统allin
+                                            + " " + "0"); //点击位置
+                                }
 
 
                             }
@@ -5218,15 +5215,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                     + "," + "bb"
                                     + "," + stUserGameInfoBuilder.getLRemainStacks());
 
-
-                            if (stUserGameInfoBuilder.getLBetStacks() > 0) {
-                                //牌局ID，玩家ID，手数ID，按钮编号，点击位置
-                                ButtonLogService.getInstance().error(lGameRoomID //牌局ID
-                                        + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
-                                        + " " + stGameRoomInfo.getLGameHandID() //手数ID
-                                        + " " + "63" //按钮编号 系统allin
-                                        + " " + "0"); //点击位置
-                            }
                         } else {
                             TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
                                     + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -5267,6 +5255,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         //设置玩家是否被迫allin
                         if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
                             mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),true);
+                            if (stUserGameInfoBuilder.getLBetStacks() > 0) {
+                                //牌局ID，玩家ID，手数ID，按钮编号，点击位置
+                                ButtonLogService.getInstance().error(lGameRoomID //牌局ID
+                                        + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
+                                        + " " + stGameRoomInfo.getLGameHandID() //手数ID
+                                        + " " + "63" //按钮编号 系统allin
+                                        + " " + "0"); //点击位置
+                            }
                         }
 
                         if (lStepMaxStacks < stUserGameInfoBuilder.getLBetStacks()) {
@@ -5287,15 +5283,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                     + "," + "sb"
                                     + "," + stUserGameInfoBuilder.getLRemainStacks());
 
-
-                            if (stUserGameInfoBuilder.getLBetStacks() > 0) {
-                                //牌局ID，玩家ID，手数ID，按钮编号，点击位置
-                                ButtonLogService.getInstance().error(lGameRoomID //牌局ID
-                                        + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
-                                        + " " + stGameRoomInfo.getLGameHandID() //手数ID
-                                        + " " + "63" //按钮编号 系统allin
-                                        + " " + "0"); //点击位置
-                            }
                         } else {
                             TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
                                     + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -5348,6 +5335,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //设置玩家是否被迫allin
                             if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
                                 mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),true);
+                                if (stUserGameInfoBuilder.getLBetStacks() > 0) {
+                                    //牌局ID，玩家ID，手数ID，按钮编号，点击位置
+                                    ButtonLogService.getInstance().error(lGameRoomID //牌局ID
+                                            + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
+                                            + " " + stGameRoomInfo.getLGameHandID() //手数ID
+                                            + " " + "63" //按钮编号 系统allin
+                                            + " " + "0"); //点击位置
+                                }
                             }
 
                             //把要动作的用户设置到超时队列里面去
@@ -5537,16 +5532,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                         + "," + "sb"
                                         + "," + stUserGameInfoBuilder.getLRemainStacks());
 
-
-
-                                if (stUserGameInfoBuilder.getLBetStacks() > 0) {
-                                    //牌局ID，玩家ID，手数ID，按钮编号，点击位置
-                                    ButtonLogService.getInstance().error(lGameRoomID //牌局ID
-                                            + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
-                                            + " " + stGameRoomInfo.getLGameHandID() //手数ID
-                                            + " " + "63" //按钮编号 系统allin
-                                            + " " + "0"); //点击位置
-                                }
                             } else {
                                 TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
                                         + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -5588,6 +5573,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //设置玩家是否被迫allin
                             if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
                                 mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),true);
+                                if (stUserGameInfoBuilder.getLBetStacks() > 0) {
+                                    //牌局ID，玩家ID，手数ID，按钮编号，点击位置
+                                    ButtonLogService.getInstance().error(lGameRoomID //牌局ID
+                                            + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
+                                            + " " + stGameRoomInfo.getLGameHandID() //手数ID
+                                            + " " + "63" //按钮编号 系统allin
+                                            + " " + "0"); //点击位置
+                                }
                             }
 
                             if (lStepMaxStacks < stUserGameInfoBuilder.getLBetStacks()) {
@@ -5607,16 +5600,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                         + "," + "bb"
                                         + "," + stUserGameInfoBuilder.getLRemainStacks());
 
-
-
-                                if (stUserGameInfoBuilder.getLBetStacks() > 0) {
-                                    //牌局ID，玩家ID，手数ID，按钮编号，点击位置
-                                    ButtonLogService.getInstance().error(lGameRoomID //牌局ID
-                                            + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
-                                            + " " + stGameRoomInfo.getLGameHandID() //手数ID
-                                            + " " + "63" //按钮编号 系统allin
-                                            + " " + "0"); //点击位置
-                                }
                             } else {
                                 TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
                                         + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -5658,6 +5641,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //设置玩家是否被迫allin
                             if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
                                 mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),true);
+                                if (stUserGameInfoBuilder.getLBetStacks() > 0) {
+                                    //牌局ID，玩家ID，手数ID，按钮编号，点击位置
+                                    ButtonLogService.getInstance().error(lGameRoomID //牌局ID
+                                            + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
+                                            + " " + stGameRoomInfo.getLGameHandID() //手数ID
+                                            + " " + "63" //按钮编号 系统allin
+                                            + " " + "0"); //点击位置
+                                }
                             }
 
                             if (lStepMaxStacks < stUserGameInfoBuilder.getLBetStacks()) {
@@ -5676,16 +5667,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                         + "," + "straddle"
                                         + "," + stUserGameInfoBuilder.getLRemainStacks());
 
-
-
-                                if (stUserGameInfoBuilder.getLBetStacks() > 0) {
-                                    //牌局ID，玩家ID，手数ID，按钮编号，点击位置
-                                    ButtonLogService.getInstance().error(lGameRoomID //牌局ID
-                                            + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
-                                            + " " + stGameRoomInfo.getLGameHandID() //手数ID
-                                            + " " + "63" //按钮编号 系统allin
-                                            + " " + "0"); //点击位置
-                                }
                             } else {
                                 TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
                                         + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -5727,6 +5708,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //设置玩家是否被迫allin
                             if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
                                 mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),true);
+                                if (stUserGameInfoBuilder.getLBetStacks() > 0) {
+                                    //牌局ID，玩家ID，手数ID，按钮编号，点击位置
+                                    ButtonLogService.getInstance().error(lGameRoomID //牌局ID
+                                            + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
+                                            + " " + stGameRoomInfo.getLGameHandID() //手数ID
+                                            + " " + "63" //按钮编号 系统allin
+                                            + " " + "0"); //点击位置
+                                }
                             }
 
                             if (lStepMaxStacks < stUserGameInfoBuilder.getLBetStacks()) {
@@ -5968,16 +5957,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                         + "," + "sb"
                                         + "," + stUserGameInfoBuilder.getLRemainStacks());
 
-
-
-                                if (stUserGameInfoBuilder.getLBetStacks() > 0) {
-                                    //牌局ID，玩家ID，手数ID，按钮编号，点击位置
-                                    ButtonLogService.getInstance().error(lGameRoomID //牌局ID
-                                            + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
-                                            + " " + stGameRoomInfo.getLGameHandID() //手数ID
-                                            + " " + "63" //按钮编号 系统allin
-                                            + " " + "0"); //点击位置
-                                }
                             } else {
                                 TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
                                         + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -6019,6 +5998,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //设置玩家是否被迫allin
                             if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
                                 mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),true);
+                                if (stUserGameInfoBuilder.getLBetStacks() > 0) {
+                                    //牌局ID，玩家ID，手数ID，按钮编号，点击位置
+                                    ButtonLogService.getInstance().error(lGameRoomID //牌局ID
+                                            + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
+                                            + " " + stGameRoomInfo.getLGameHandID() //手数ID
+                                            + " " + "63" //按钮编号 系统allin
+                                            + " " + "0"); //点击位置
+                                }
                             }
 
                             if (lStepMaxStacks < stUserGameInfoBuilder.getLBetStacks()) {
@@ -6038,16 +6025,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                         + "," + "bb"
                                         + "," + stUserGameInfoBuilder.getLRemainStacks());
 
-
-
-                                if (stUserGameInfoBuilder.getLBetStacks() > 0) {
-                                    //牌局ID，玩家ID，手数ID，按钮编号，点击位置
-                                    ButtonLogService.getInstance().error(lGameRoomID //牌局ID
-                                            + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
-                                            + " " + stGameRoomInfo.getLGameHandID() //手数ID
-                                            + " " + "63" //按钮编号 系统allin
-                                            + " " + "0"); //点击位置
-                                }
                             } else {
                                 TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
                                         + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -6089,6 +6066,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //设置玩家是否被迫allin
                             if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
                                 mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),true);
+                                if (stUserGameInfoBuilder.getLBetStacks() > 0) {
+                                    //牌局ID，玩家ID，手数ID，按钮编号，点击位置
+                                    ButtonLogService.getInstance().error(lGameRoomID //牌局ID
+                                            + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
+                                            + " " + stGameRoomInfo.getLGameHandID() //手数ID
+                                            + " " + "63" //按钮编号 系统allin
+                                            + " " + "0"); //点击位置
+                                }
                             }
 
                             if (lStepMaxStacks < stUserGameInfoBuilder.getLBetStacks()) {
@@ -6325,15 +6310,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                     + "," + "bb"
                                     + "," + stUserGameInfoBuilder.getLRemainStacks());
 
-
-                            if (stUserGameInfoBuilder.getLBetStacks() > 0) {
-                                //牌局ID，玩家ID，手数ID，按钮编号，点击位置
-                                ButtonLogService.getInstance().error(lGameRoomID //牌局ID
-                                        + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
-                                        + " " + stGameRoomInfo.getLGameHandID() //手数ID
-                                        + " " + "63" //按钮编号 系统allin
-                                        + " " + "0"); //点击位置
-                            }
                         } else {
                             TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
                                     + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -6374,6 +6350,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         //设置玩家是否被迫allin
                         if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
                             mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),true);
+                            if (stUserGameInfoBuilder.getLBetStacks() > 0) {
+                                //牌局ID，玩家ID，手数ID，按钮编号，点击位置
+                                ButtonLogService.getInstance().error(lGameRoomID //牌局ID
+                                        + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
+                                        + " " + stGameRoomInfo.getLGameHandID() //手数ID
+                                        + " " + "63" //按钮编号 系统allin
+                                        + " " + "0"); //点击位置
+                            }
                         }
 
                         if (lStepMaxStacks < stUserGameInfoBuilder.getLBetStacks()) {
@@ -6395,16 +6379,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                     + "," + "sb"
                                     + "," + stUserGameInfoBuilder.getLRemainStacks());
 
-
-
-                            if (stUserGameInfoBuilder.getLBetStacks() > 0) {
-                                //牌局ID，玩家ID，手数ID，按钮编号，点击位置
-                                ButtonLogService.getInstance().error(lGameRoomID //牌局ID
-                                        + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
-                                        + " " + stGameRoomInfo.getLGameHandID() //手数ID
-                                        + " " + "63" //按钮编号 系统allin
-                                        + " " + "0"); //点击位置
-                            }
                         } else {
                             TableLogService.getInstance().error(stGameRoomInfo.getStGameRoomBaseInfo().getLChatRoomID()
                                     + "," + stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
@@ -6457,6 +6431,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //设置玩家是否被迫allin
                             if (stUserGameInfoBuilder.getLRemainStacks() <= 0){
                                 mSimUserAllin.put(stUserGameInfoBuilder.getStUserInfo().getUuid(),true);
+                                if (stUserGameInfoBuilder.getLBetStacks() > 0) {
+                                    //牌局ID，玩家ID，手数ID，按钮编号，点击位置
+                                    ButtonLogService.getInstance().error(lGameRoomID //牌局ID
+                                            + " " + stUserGameInfoBuilder.getStUserInfo().getUuid() //玩家ID
+                                            + " " + stGameRoomInfo.getLGameHandID() //手数ID
+                                            + " " + "63" //按钮编号 系统allin
+                                            + " " + "0"); //点击位置
+                                }
                             }
 
                             //把要动作的用户设置到超时队列里面去
