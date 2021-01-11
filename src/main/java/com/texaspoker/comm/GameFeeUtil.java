@@ -165,7 +165,6 @@ public class GameFeeUtil {
 		} else {
 			drawLimit = new BigDecimal((double) (pumpLimit * lBigBlinds)/100 + "").setScale(0, BigDecimal.ROUND_UP).longValue();
 		}
-		System.out.println("isChange"+isChange+",drawLimit"+drawLimit);
 
 		//计算每个池子抽水值
 		Map<Integer, Long> pumpMap = new HashMap<Integer, Long>();

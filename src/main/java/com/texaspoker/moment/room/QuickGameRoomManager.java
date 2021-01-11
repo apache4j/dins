@@ -141,7 +141,6 @@ public class QuickGameRoomManager {
     public QuickGameRoomResultInfo createQuickGameRoom(long uuid, GameRoomBaseInfo stGameRoomBaseInfo) {
         UserBaseInfoNet.Builder stFromUserBuilder = UserManager.getInstance().getUserBaseInfo(uuid);
 
-        System.out.println("======stGameRoomBaseInfo====="+stGameRoomBaseInfo);
         QuickGameRoomResultInfo stQuickGameRoomResultInfo = new QuickGameRoomResultInfo();
 
         if (stFromUserBuilder == null) {
@@ -358,7 +357,6 @@ public class QuickGameRoomManager {
                             userSelfGameInfoBuilder.setBGameDealer(0);
                             userSelfGameInfoBuilder.setIDelaySingleTime(20);
 
-                            System.out.println("stGameRoomBaseInfo.getIPotDrawFee()==" + gameRoomBaseInfoBuilder.getIPotDrawFee() + "," + gameRoomBaseInfoBuilder.getBPotDrawCredit());
                             // 02.设置牌局抽水方式 如果有服务费则使用底池抽水
                             if (gameRoomBaseInfoBuilder.getIPotDrawFee() > 0 && gameRoomBaseInfoBuilder.getBPotDrawCredit() == 1) {
                                 stGameRoomDetailInfo.iDrawType = 2;

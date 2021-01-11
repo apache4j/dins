@@ -2199,7 +2199,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                     //不是同时行动日志正常打印
                     //stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 0
-                    System.out.println("lBettingID====="+lBettingID);
                     if (stGameRoomInfo.getStGameRoomBaseInfo().getBSimultAction() == 0){
                         if (lBettingID == -1) {
                             //自动弃牌日志

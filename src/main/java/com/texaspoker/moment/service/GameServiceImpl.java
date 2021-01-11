@@ -687,7 +687,6 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
         }
 
         PlayLogService.getInstance().debug("GameServiceImpl.createQuickGameRoom - 1001000 stCreateQuickGameRoomResponseBuilder: >" + stCreateQuickGameRoomResponseBuilder + "<");
-        System.out.println("======stCreateQuickGameRoomResponseBuilder====="+stCreateQuickGameRoomResponseBuilder);
         return stCreateQuickGameRoomResponseBuilder.build();
     }
 
