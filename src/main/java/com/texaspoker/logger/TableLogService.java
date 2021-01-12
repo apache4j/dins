@@ -35,15 +35,8 @@ public class TableLogService {
   		
   		mLogSocial.error(content);
   		Jedis mJedis = JedisManager.getJedis();
-
-  		try {
-			mJedis.publish("tables_log", System.currentTimeMillis() + " " + content);
-			JedisManager.returnRes(mJedis);
-		}catch (Exception e){
-			NormalLogService.getInstance().error("errortable " + content + " info " + e.getMessage());
-  			e.printStackTrace();
-		}
-
+  		mJedis.publish("tables_log", System.currentTimeMillis() + " " + content);  
+  		JedisManager.returnRes(mJedis);
   		
   		InsuranceApi.parseGameAction(content);
   		
