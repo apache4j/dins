@@ -2204,7 +2204,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             //自动弃牌日志
                             if (bDeleggate) {
                                 TableLogService.getInstance().error(lFromRoomID
-                                        + "," + stUserGameInfoBuilder.getStUserInfo().getUuid()
+                                        + "," + lGameRoomID
                                         + "," + stGameRoomInfo.getLGameHandID()
                                         + "," + uuid
                                         + "," + "fold"
@@ -2219,7 +2219,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                             } else {
                                 TableLogService.getInstance().error(lFromRoomID
-                                        + "," + stUserGameInfoBuilder.getStUserInfo().getUuid()
+                                        + "," + lGameRoomID
                                         + "," + stGameRoomInfo.getLGameHandID()
                                         + "," + uuid
                                         + "," + "fold"
@@ -2236,7 +2236,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                         } else {
                             //主动弃牌日志
                             TableLogService.getInstance().error(lFromRoomID
-                                    + "," + stUserGameInfoBuilder.getStUserInfo().getUuid()
+                                    + "," + lGameRoomID
                                     + "," + stGameRoomInfo.getLGameHandID()
                                     + "," + uuid
                                     + "," + "fold"
@@ -2574,7 +2574,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                                         + "," + lastActionUuid
                                                         + "," + "check"
                                                         + "," + 0);
-
 
                                                 otherUuid = lastActionUuid;
 
