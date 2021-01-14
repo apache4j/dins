@@ -46,33 +46,33 @@ public class ChatRoomManager {
 	}
 	
 	public ChatRoomInfo getChatRoomInfo(long lRoomID) {
-		GetChatRoomInfoRequest.Builder stGetChatRoomInfoRequestBuilder = GetChatRoomInfoRequest.newBuilder();
-		stGetChatRoomInfoRequestBuilder.setLChatRoomID(lRoomID);
-		
-		try {
-			GetChatRoomInfoResponse stGetChatRoomInfoResponse = blockingMsgService.getChatRoomInfo(controller, stGetChatRoomInfoRequestBuilder.build());
-			if(stGetChatRoomInfoResponse!=null && stGetChatRoomInfoResponse.getIErrorCode()==0 
-					&&stGetChatRoomInfoResponse.getStChatRoomInfo()!=null){
-				return stGetChatRoomInfoResponse.getStChatRoomInfo();
-			}
-		} catch (ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		GetChatRoomInfoRequest.Builder stGetChatRoomInfoRequestBuilder = GetChatRoomInfoRequest.newBuilder();
+//		stGetChatRoomInfoRequestBuilder.setLChatRoomID(lRoomID);
+//
+//		try {
+//			GetChatRoomInfoResponse stGetChatRoomInfoResponse = blockingMsgService.getChatRoomInfo(controller, stGetChatRoomInfoRequestBuilder.build());
+//			if(stGetChatRoomInfoResponse!=null && stGetChatRoomInfoResponse.getIErrorCode()==0
+//					&&stGetChatRoomInfoResponse.getStChatRoomInfo()!=null){
+//				return stGetChatRoomInfoResponse.getStChatRoomInfo();
+//			}
+//		} catch (ServiceException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		return null;
 	}
 
 	public void setChatRoomInfo(long lRoomID,ChatRoomInfo stRoomInfo) {
-		SetChatRoomInfoRequest.Builder stSetChatRoomInfoRequestBuilder = SetChatRoomInfoRequest.newBuilder();
-		stSetChatRoomInfoRequestBuilder.setLChatRoomID(lRoomID);
-		stSetChatRoomInfoRequestBuilder.setStChatRoomInfo(stRoomInfo);
-		
-		try {
-			blockingMsgService.setChatRoomInfo(controller, stSetChatRoomInfoRequestBuilder.build());
-		} catch (ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		SetChatRoomInfoRequest.Builder stSetChatRoomInfoRequestBuilder = SetChatRoomInfoRequest.newBuilder();
+//		stSetChatRoomInfoRequestBuilder.setLChatRoomID(lRoomID);
+//		stSetChatRoomInfoRequestBuilder.setStChatRoomInfo(stRoomInfo);
+//
+//		try {
+//			blockingMsgService.setChatRoomInfo(controller, stSetChatRoomInfoRequestBuilder.build());
+//		} catch (ServiceException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 	
 	public void removeChatRoomInfo(long lRoomID) {
@@ -99,17 +99,17 @@ public class ChatRoomManager {
 	
 	//添加聊天室相关的牌局数据
 	public void addGameRooms(long chatroomid,long gameroomid){
-		AddChatGameRoomsRequest.Builder stAddChatGameRoomsRequestBuilder = AddChatGameRoomsRequest.newBuilder();
-		stAddChatGameRoomsRequestBuilder.setLChatRoomID(chatroomid);
-		stAddChatGameRoomsRequestBuilder.setLGameRoomID(gameroomid);
-		
-		try {
-			blockingMsgService.addChatGameRooms(controller, stAddChatGameRoomsRequestBuilder.build());
-			
-		} catch (ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		AddChatGameRoomsRequest.Builder stAddChatGameRoomsRequestBuilder = AddChatGameRoomsRequest.newBuilder();
+//		stAddChatGameRoomsRequestBuilder.setLChatRoomID(chatroomid);
+//		stAddChatGameRoomsRequestBuilder.setLGameRoomID(gameroomid);
+//
+//		try {
+//			blockingMsgService.addChatGameRooms(controller, stAddChatGameRoomsRequestBuilder.build());
+//
+//		} catch (ServiceException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 	
 	//获取聊天室相关的牌局数据
@@ -137,14 +137,14 @@ public class ChatRoomManager {
 	
 	//删除聊天室相关牌局数据
 	public void removeChatRoomGameRoom(long chatroomid,long gameroomid){
-		RemoveChatGameRoomsRequest.Builder stRemoveChatGameRoomsRequestBuilder = RemoveChatGameRoomsRequest.newBuilder();
-		stRemoveChatGameRoomsRequestBuilder.setLChatRoomID(chatroomid);
-		stRemoveChatGameRoomsRequestBuilder.setLGameRoomID(gameroomid);
-		try {
-			blockingMsgService.removeChatGameRooms(controller, stRemoveChatGameRoomsRequestBuilder.build());
-		} catch (ServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		RemoveChatGameRoomsRequest.Builder stRemoveChatGameRoomsRequestBuilder = RemoveChatGameRoomsRequest.newBuilder();
+//		stRemoveChatGameRoomsRequestBuilder.setLChatRoomID(chatroomid);
+//		stRemoveChatGameRoomsRequestBuilder.setLGameRoomID(gameroomid);
+//		try {
+//			blockingMsgService.removeChatGameRooms(controller, stRemoveChatGameRoomsRequestBuilder.build());
+//		} catch (ServiceException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 }
