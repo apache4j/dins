@@ -151,88 +151,92 @@ public class QuickGameRoomManager {
                 stQuickGameRoomResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_GAMEROOM_OVERFLOW);
                 return stQuickGameRoomResultInfo;
             } else {
-                // 近似非快速局创建，此时需处理期望扣钻的情况
-                long coinCost;
-                boolean isLimitPaidStart = false;
-                if (stFromUserBuilder.getICreateGameLimit() == 1) {
-                    coinCost = GameFeeUtil.getLeagueGameFee((int) stGameRoomBaseInfo.getLSmallBlinds(), stGameRoomBaseInfo.getIGameRoomUserMaxNums(), 0) / 2;
+                try {
+                    // 近似非快速局创建，此时需处理期望扣钻的情况
+                    long coinCost;
+                    boolean isLimitPaidStart = false;
+                    if (stFromUserBuilder.getICreateGameLimit() == 1) {
+                        coinCost = GameFeeUtil.getLeagueGameFee((int) stGameRoomBaseInfo.getLSmallBlinds(), stGameRoomBaseInfo.getIGameRoomUserMaxNums(), 0) / 2;
 
-                    if (coinCost < 0/* 交易数量安全性保护*/ || !UserManager.getInstance().checkUserCoin(uuid, coinCost)) {// 游戏币不足
-                        stQuickGameRoomResultInfo.seteErrorCodeType(TexasPokerCommon.ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_COIN);
+                        if (coinCost < 0/* 交易数量安全性保护*/ || !UserManager.getInstance().checkUserCoin(uuid, coinCost)) {// 游戏币不足
+                            stQuickGameRoomResultInfo.seteErrorCodeType(TexasPokerCommon.ERROR_CODE_TYPE.ERROR_CODE_TYPE_NOT_ENOUGH_COIN);
+
+                            return stQuickGameRoomResultInfo;
+                        } else {// 允许创建
+                            isLimitPaidStart = true;
+                            stFromUserBuilder = UserManager.getInstance().addUserCoin(stFromUserBuilder.getUuid(), -coinCost);
+                            TranscationLogService.getInstance().error(stFromUserBuilder.getUuid() + " " + stGameRoomBaseInfo.getLGameRoomId() + " " + 110012 + " " + stGameRoomBaseInfo.getLDuration()
+                                    + " " + stGameRoomBaseInfo.getIMinBuyinRatio() + " " + stGameRoomBaseInfo.getIMaxBuyinRatio() + " " + coinCost + " " + stFromUserBuilder.getLCoin());
+                        }
+                    }
+                    synchronized (RoomIDManager.class) {
+                        // 创建房间流程
+                        long lRoomId = RoomIDManager.getInstance().getNewRoomID(uuid);
+
+                        // 生成聊天室
+                        ChatRoomInfo stChatRoomInfo = ChatRoomInfo.newBuilder()
+                                .setStChatRoomBaseInfo(ChatRoomBaseInfo.newBuilder()
+                                        .setLChatRoomId(lRoomId)
+                                        .setLCreateUser(uuid)
+                                        .setNMaxMembers(20)
+                                        .setNCurMembers(1)
+                                        .setIRoomType(3)
+                                        .setNOwnerCreate(1)
+                                        .setNOwnerInvite(0)
+                                        .setIMute(1)
+                                        .setStrRoomIcon("")
+                                        .setStrRoomName(stGameRoomBaseInfo.getStrRoomName())
+                                        .setStrRoomTempName(""))
+                                .addVUserBaseInfos(stFromUserBuilder).build();
+
+                        // 构造房间
+                        GameRoomBaseInfo transferredInfo = GameRoomBaseInfo.newBuilder(stGameRoomBaseInfo)
+                                .setLCreateTime(System.currentTimeMillis())
+                                .setBPrivateRoom(0)
+                                .setLChatRoomID(lRoomId)
+                                .setLGameRoomId(0)
+                                .setStCreateUserBaseInfo(stFromUserBuilder)
+                                .setBStarted(0)
+                                .setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE)
+                                .setIThinkingInterval(15)
+                                .setBPaidStart(isLimitPaidStart ? 1 : 0)
+                                .setBUnloadable(stGameRoomBaseInfo.getBUnloadable()) //AOF模式下具有卸码功能
+                                .build();
+
+                        String sCode = RoomIDManager.getInstance().getRandomCode();// 快速码
+
+                        // 生成快速房间
+                        QuickGameRoomInfo stQuickGameRoomInfo = QuickGameRoomInfo.newBuilder()
+                                .setStGameRoomBaseInfo(transferredInfo)
+                                .setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE)
+                                .setStChatRoomInfo(stChatRoomInfo)
+                                .setEQuickGameRoomStatus(QUICK_GAME_ROOM_STATUS.QUICK_GAME_ROOM_NOTSTART)
+                                .setSCryptCode(sCode)
+                                .build();
+
+
+                        // ChatRoomManager 调用
+                        ChatRoomManager.getInstance().setChatRoomInfo(lRoomId, stChatRoomInfo);
+
+                        // DB 调用
+                        ConnectDatabase.getInstance().insertRoomInfo(stChatRoomInfo);
+
+                        // 本地调用
+                        setQuickGameRoomInfos(stQuickGameRoomInfo.toBuilder());// 把房间放到管理器里面，用于管理
+                        setUserQuickGameRoomInfos(uuid, lRoomId);// 加入玩家id-房间id列表
+
+                        // UserManager 调用
+                        addUserCreateQuickGameRoom(uuid, lRoomId);// 加入玩家参加的房间列表
+                        UserManager.getInstance().addUserCreateGameRooms(uuid, lRoomId);// 把房间放到房主的房间列表里面
+
+                        // 构造回包
+                        stQuickGameRoomResultInfo.setStQuickGameRoomInfo(stQuickGameRoomInfo);
+                        stQuickGameRoomResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
 
                         return stQuickGameRoomResultInfo;
-                    } else {// 允许创建
-                        isLimitPaidStart = true;
-                        stFromUserBuilder = UserManager.getInstance().addUserCoin(stFromUserBuilder.getUuid(), -coinCost);
-                        TranscationLogService.getInstance().error(stFromUserBuilder.getUuid() + " " + stGameRoomBaseInfo.getLGameRoomId() + " " + 110012 + " " + stGameRoomBaseInfo.getLDuration()
-                                + " " + stGameRoomBaseInfo.getIMinBuyinRatio() + " " + stGameRoomBaseInfo.getIMaxBuyinRatio() + " " + coinCost + " " + stFromUserBuilder.getLCoin());
                     }
-                }
-
-                synchronized (RoomIDManager.class) {
-                    // 创建房间流程
-                    long lRoomId = RoomIDManager.getInstance().getNewRoomID(uuid);
-
-                    // 生成聊天室
-                    ChatRoomInfo stChatRoomInfo = ChatRoomInfo.newBuilder()
-                            .setStChatRoomBaseInfo(ChatRoomBaseInfo.newBuilder()
-                                    .setLChatRoomId(lRoomId)
-                                    .setLCreateUser(uuid)
-                                    .setNMaxMembers(20)
-                                    .setNCurMembers(1)
-                                    .setIRoomType(3)
-                                    .setNOwnerCreate(1)
-                                    .setNOwnerInvite(0)
-                                    .setIMute(1)
-                                    .setStrRoomIcon("")
-                                    .setStrRoomName(stGameRoomBaseInfo.getStrRoomName())
-                                    .setStrRoomTempName(""))
-                            .addVUserBaseInfos(stFromUserBuilder).build();
-
-                    // 构造房间
-                    GameRoomBaseInfo transferredInfo = GameRoomBaseInfo.newBuilder(stGameRoomBaseInfo)
-                            .setLCreateTime(System.currentTimeMillis())
-                            .setBPrivateRoom(0)
-                            .setLChatRoomID(lRoomId)
-                            .setLGameRoomId(0)
-                            .setStCreateUserBaseInfo(stFromUserBuilder)
-                            .setBStarted(0)
-                            .setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE)
-                            .setIThinkingInterval(15)
-                            .setBPaidStart(isLimitPaidStart ? 1 : 0)
-                            .setBUnloadable(stGameRoomBaseInfo.getBUnloadable()) //AOF模式下具有卸码功能
-                            .build();
-
-                    String sCode = RoomIDManager.getInstance().getRandomCode();// 快速码
-
-                    // 生成快速房间
-                    QuickGameRoomInfo stQuickGameRoomInfo = QuickGameRoomInfo.newBuilder()
-                            .setStGameRoomBaseInfo(transferredInfo)
-                            .setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE)
-                            .setStChatRoomInfo(stChatRoomInfo)
-                            .setEQuickGameRoomStatus(QUICK_GAME_ROOM_STATUS.QUICK_GAME_ROOM_NOTSTART)
-                            .setSCryptCode(sCode)
-                            .build();
-
-
-                    // ChatRoomManager 调用
-                    ChatRoomManager.getInstance().setChatRoomInfo(lRoomId, stChatRoomInfo);
-
-                    // DB 调用
-                    ConnectDatabase.getInstance().insertRoomInfo(stChatRoomInfo);
-
-                    // 本地调用
-                    setQuickGameRoomInfos(stQuickGameRoomInfo.toBuilder());// 把房间放到管理器里面，用于管理
-                    setUserQuickGameRoomInfos(uuid, lRoomId);// 加入玩家id-房间id列表
-
-                    // UserManager 调用
-                    addUserCreateQuickGameRoom(uuid, lRoomId);// 加入玩家参加的房间列表
-                    UserManager.getInstance().addUserCreateGameRooms(uuid, lRoomId);// 把房间放到房主的房间列表里面
-
-                    // 构造回包
-                    stQuickGameRoomResultInfo.setStQuickGameRoomInfo(stQuickGameRoomInfo);
-                    stQuickGameRoomResultInfo.seteErrorCodeType(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-
+                } catch (Exception e) {
+                    e.printStackTrace();
                     return stQuickGameRoomResultInfo;
                 }
             }
