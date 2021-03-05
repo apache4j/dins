@@ -1434,6 +1434,50 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         return eErrorCode;
     }
 
+    /**
+     * 处理下发房间信息
+     * <br/>
+     * @param
+     * @return void
+     * @author piness
+     * @date 2021-03-05 15:12
+     */
+    public GameRoomInfo.Builder dealPushGameRoom(GameRoomInfo.Builder stGameRoomInfoBuilder, long stToUserUuid) {
+//        GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+        for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
+            UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+            if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() != stToUserUuid) {
+
+                if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN && bAllAllin == true) {
+                    continue;
+                }
+
+                if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
+                        || (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)) {
+                    if (stUserGameInfoNetBuilder.getBShowCardOne() == 1 || stUserGameInfoNetBuilder.getBShowCardTwo() == 1) {
+                        if (stUserGameInfoNetBuilder.getBShowCardOne() == 0) {
+                            stUserGameInfoNetBuilder.setVCurrentHands(0, 0);
+                        } else if (stUserGameInfoNetBuilder.getBShowCardTwo() == 0) {
+                            stUserGameInfoNetBuilder.setVCurrentHands(1, 0);
+                        }
+                        continue;
+                    }
+                    if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD) {
+                        stUserGameInfoNetBuilder.clearVCurrentHands();
+                    } else {
+                        if (bFlodResult == true) {
+                            stUserGameInfoNetBuilder.clearVCurrentHands();
+                        }
+                    }
+                } else {
+                    stUserGameInfoNetBuilder.clearVCurrentHands();
+                }
+            }
+            stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+        }
+        return stGameRoomInfoBuilder;
+    }
+
     /****************************
      * Push相关函数
      *******************************/
@@ -1478,43 +1522,43 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         checkAllAllin();
 
         if (stGameRoomInfo != null) {
-            GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-            for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
-                UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
-                if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() != stToUserUuid) {
+//            GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+//            for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
+//                UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+//                if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() != stToUserUuid) {
+//
+//                    if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN && bAllAllin == true) {
+//                        continue;
+//                    }
+//
+//                    if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
+//                            || (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)) {
+//                        if (stUserGameInfoNetBuilder.getBShowCardOne() == 1 || stUserGameInfoNetBuilder.getBShowCardTwo() == 1) {
+//                            continue;
+//                        }
+//                        if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD) {
+//                            stUserGameInfoNetBuilder.clearVCurrentHands();
+//                        } else {
+//                            if (bFlodResult == true) {
+//                                stUserGameInfoNetBuilder.clearVCurrentHands();
+//                            }
+//                        }
+//                    } else {
+//                        stUserGameInfoNetBuilder.clearVCurrentHands();
+//                    }
+//                }
+//                stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+//            }
 
-                    if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN && bAllAllin == true) {
-                        continue;
-                    }
-
-                    if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
-                            || (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)) {
-                        if (stUserGameInfoNetBuilder.getBShowCardOne() == 1 || stUserGameInfoNetBuilder.getBShowCardTwo() == 1) {
-                            continue;
-                        }
-                        if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD) {
-                            stUserGameInfoNetBuilder.clearVCurrentHands();
-                        } else {
-                            if (bFlodResult == true) {
-                                stUserGameInfoNetBuilder.clearVCurrentHands();
-                            }
-                        }
-                    } else {
-                        stUserGameInfoNetBuilder.clearVCurrentHands();
-                    }
-                }
-                stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
-            }
-
-            stGameRoomPushMsgBuilder.setStGameRoomInfo(stGameRoomInfoBuilder);
+            stGameRoomPushMsgBuilder.setStGameRoomInfo(dealPushGameRoom(stGameRoomInfo.toBuilder(),stToUserUuid));
         }
 
 
         TexasPoker.GameRoomPushMsg stGameRoomPushMsg = stGameRoomPushMsgBuilder
                 .build();
 
-        UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(stToUserUuid);
-        if (stUserBaseInfoNetBuilder != null) {
+//        UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(stToUserUuid);
+        if (stToUserUuid > 0) {
             //发送push
             GameRoomMsgManager.getInstance().sendGameRoomMsg(stToUserUuid, stGameRoomPushMsg);
         }
@@ -1555,45 +1599,45 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
 
         if (stGameRoomInfo != null) {
-            GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-            for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
-                UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
-                if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() != stToUserUuid) {
+//            GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+//            for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
+//                UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+//                if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() != stToUserUuid) {
+//
+//                    if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN && bAllAllin == true) {
+//                        continue;
+//                    }
+//
+//                    if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
+//                            || (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)) {
+//
+//                        if (stUserGameInfoNetBuilder.getBShowCardOne() == 1 || stUserGameInfoNetBuilder.getBShowCardTwo() == 1) {
+//                            continue;
+//                        }
+//
+//                        if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD) {
+//                            stUserGameInfoNetBuilder.clearVCurrentHands();
+//                        } else {
+//                            if (bFlodResult == true) {
+//                                stUserGameInfoNetBuilder.clearVCurrentHands();
+//                            }
+//                        }
+//                    } else {
+//                        stUserGameInfoNetBuilder.clearVCurrentHands();
+//                    }
+//                }
+//                stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+//            }
 
-                    if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN && bAllAllin == true) {
-                        continue;
-                    }
-
-                    if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
-                            || (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)) {
-
-                        if (stUserGameInfoNetBuilder.getBShowCardOne() == 1 || stUserGameInfoNetBuilder.getBShowCardTwo() == 1) {
-                            continue;
-                        }
-
-                        if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD) {
-                            stUserGameInfoNetBuilder.clearVCurrentHands();
-                        } else {
-                            if (bFlodResult == true) {
-                                stUserGameInfoNetBuilder.clearVCurrentHands();
-                            }
-                        }
-                    } else {
-                        stUserGameInfoNetBuilder.clearVCurrentHands();
-                    }
-                }
-                stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
-            }
-
-            stGameRoomPushMsgBuilder.setStGameRoomInfo(stGameRoomInfoBuilder);
+            stGameRoomPushMsgBuilder.setStGameRoomInfo(dealPushGameRoom(stGameRoomInfo.toBuilder(),stToUserUuid));
         }
 
 
         TexasPoker.GameRoomPushMsg stGameRoomPushMsg = stGameRoomPushMsgBuilder
                 .build();
 
-        UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(stToUserUuid);
-        if (stUserBaseInfoNetBuilder != null) {
+//        UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(stToUserUuid);
+        if (stToUserUuid > 0) {
             //发送push
             GameRoomMsgManager.getInstance().sendGameRoomMsg(stToUserUuid, stGameRoomPushMsg);
         }
@@ -1629,44 +1673,44 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         checkAllAllin();
 
         if (stGameRoomInfo != null) {
-            GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-            for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
-                UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
-                if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() != stToUserUuid) {
+//            GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+//            for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
+//                UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+//                if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() != stToUserUuid) {
+//
+//                    if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN && bAllAllin == true) {
+//                        continue;
+//                    }
+//
+//                    if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
+//                            || (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)) {
+//
+//                        if (stUserGameInfoNetBuilder.getBShowCardOne() == 1 || stUserGameInfoNetBuilder.getBShowCardTwo() == 1) {
+//                            continue;
+//                        }
+//
+//                        if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD) {
+//                            stUserGameInfoNetBuilder.clearVCurrentHands();
+//                        } else {
+//                            if (bFlodResult == true) {
+//                                stUserGameInfoNetBuilder.clearVCurrentHands();
+//                            }
+//                        }
+//                    } else {
+//                        stUserGameInfoNetBuilder.clearVCurrentHands();
+//                    }
+//                }
+//                stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+//            }
 
-                    if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN && bAllAllin == true) {
-                        continue;
-                    }
-
-                    if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
-                            || (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)) {
-
-                        if (stUserGameInfoNetBuilder.getBShowCardOne() == 1 || stUserGameInfoNetBuilder.getBShowCardTwo() == 1) {
-                            continue;
-                        }
-
-                        if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD) {
-                            stUserGameInfoNetBuilder.clearVCurrentHands();
-                        } else {
-                            if (bFlodResult == true) {
-                                stUserGameInfoNetBuilder.clearVCurrentHands();
-                            }
-                        }
-                    } else {
-                        stUserGameInfoNetBuilder.clearVCurrentHands();
-                    }
-                }
-                stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
-            }
-
-            stGameRoomPushMsgBuilder.setStGameRoomInfo(stGameRoomInfoBuilder);
+            stGameRoomPushMsgBuilder.setStGameRoomInfo(dealPushGameRoom(stGameRoomInfo.toBuilder(),stToUserUuid));
         }
 
         TexasPoker.GameRoomPushMsg stGameRoomPushMsg = stGameRoomPushMsgBuilder
                 .build();
 
-        UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(stToUserUuid);
-        if (stUserBaseInfoNetBuilder != null) {
+//        UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(stToUserUuid);
+        if (stToUserUuid > 0) {
             //发送push
             GameRoomMsgManager.getInstance().sendGameRoomMsg(stToUserUuid, stGameRoomPushMsg);
         }
@@ -4127,6 +4171,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
                             || (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)) {
                         if (stUserGameInfoNetBuilder.getBShowCardOne() == 1 || stUserGameInfoNetBuilder.getBShowCardTwo() == 1) {
+                            if (stUserGameInfoNetBuilder.getBShowCardOne() == 0) {
+                                stUserGameInfoNetBuilder.setVCurrentHands(0, 0);
+                            } else if (stUserGameInfoNetBuilder.getBShowCardTwo() == 0) {
+                                stUserGameInfoNetBuilder.setVCurrentHands(1, 0);
+                            }
                             continue;
                         }
 
@@ -6138,43 +6187,43 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         checkAllAllin();
 
         if (stGameRoomInfo != null) {
-            GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-            for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
-                UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
-                if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() != stToUserUuid) {
+//            GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+//            for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
+//                UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+//                if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() != stToUserUuid) {
+//
+//                    if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN && bAllAllin == true) {
+//                        continue;
+//                    }
+//
+//                    if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
+//                            || (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)) {
+//                        if (stUserGameInfoNetBuilder.getBShowCardOne() == 1 || stUserGameInfoNetBuilder.getBShowCardTwo() == 1) {
+//                            continue;
+//                        }
+//
+//                        if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD) {
+//                            stUserGameInfoNetBuilder.clearVCurrentHands();
+//                        } else {
+//                            if (bFlodResult == true) {
+//                                stUserGameInfoNetBuilder.clearVCurrentHands();
+//                            }
+//                        }
+//                    } else {
+//                        stUserGameInfoNetBuilder.clearVCurrentHands();
+//                    }
+//                }
+//                stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+//            }
 
-                    if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN && bAllAllin == true) {
-                        continue;
-                    }
-
-                    if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
-                            || (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)) {
-                        if (stUserGameInfoNetBuilder.getBShowCardOne() == 1 || stUserGameInfoNetBuilder.getBShowCardTwo() == 1) {
-                            continue;
-                        }
-
-                        if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD) {
-                            stUserGameInfoNetBuilder.clearVCurrentHands();
-                        } else {
-                            if (bFlodResult == true) {
-                                stUserGameInfoNetBuilder.clearVCurrentHands();
-                            }
-                        }
-                    } else {
-                        stUserGameInfoNetBuilder.clearVCurrentHands();
-                    }
-                }
-                stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
-            }
-
-            stGameRoomPushMsgBuilder.setStGameRoomInfo(stGameRoomInfoBuilder);
+            stGameRoomPushMsgBuilder.setStGameRoomInfo(dealPushGameRoom(stGameRoomInfo.toBuilder(),stToUserUuid));
         }
 
         TexasPoker.GameRoomPushMsg stGameRoomPushMsg = stGameRoomPushMsgBuilder
                 .build();
 
-        UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(stToUserUuid);
-        if (stUserBaseInfoNetBuilder != null) {
+//        UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(stToUserUuid);
+        if (stToUserUuid > 0) {
             //发送push
             GameRoomMsgManager.getInstance().sendGameRoomMsg(stToUserUuid, stGameRoomPushMsg);
         }
@@ -6480,37 +6529,37 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         stGameRoomPushMsgBuilder.setEGameMessageType(eGameRoomMessageType);
         checkAllAllin();
         if (stGameRoomInfo != null) {
-            GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-            for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
-                UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
-                if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() != stToUserUuid) {
-                    if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN && bAllAllin == true) {
-                        continue;
-                    }
-                    if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
-                            || (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)) {
-                        if (stUserGameInfoNetBuilder.getBShowCardOne() == 1 || stUserGameInfoNetBuilder.getBShowCardTwo() == 1) {
-                            continue;
-                        }
-                        if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD) {
-                            stUserGameInfoNetBuilder.clearVCurrentHands();
-                        } else {
-                            if (bFlodResult == true) {
-                                stUserGameInfoNetBuilder.clearVCurrentHands();
-                            }
-                        }
-                    } else {
-                        stUserGameInfoNetBuilder.clearVCurrentHands();
-                    }
-                }
-                stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
-            }
-            stGameRoomPushMsgBuilder.setStGameRoomInfo(stGameRoomInfoBuilder);
+//            GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+//            for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
+//                UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+//                if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() != stToUserUuid) {
+//                    if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN && bAllAllin == true) {
+//                        continue;
+//                    }
+//                    if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
+//                            || (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)) {
+//                        if (stUserGameInfoNetBuilder.getBShowCardOne() == 1 || stUserGameInfoNetBuilder.getBShowCardTwo() == 1) {
+//                            continue;
+//                        }
+//                        if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD) {
+//                            stUserGameInfoNetBuilder.clearVCurrentHands();
+//                        } else {
+//                            if (bFlodResult == true) {
+//                                stUserGameInfoNetBuilder.clearVCurrentHands();
+//                            }
+//                        }
+//                    } else {
+//                        stUserGameInfoNetBuilder.clearVCurrentHands();
+//                    }
+//                }
+//                stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+//            }
+            stGameRoomPushMsgBuilder.setStGameRoomInfo(dealPushGameRoom(stGameRoomInfo.toBuilder(),stToUserUuid));
         }
         TexasPoker.GameRoomPushMsg stGameRoomPushMsg = stGameRoomPushMsgBuilder
                 .build();
-        UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(stToUserUuid);
-        if (stUserBaseInfoNetBuilder != null) {
+//        UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(stToUserUuid);
+        if (stToUserUuid > 0) {
             //发送push
             GameRoomMsgManager.getInstance().sendGameRoomMsg(stToUserUuid, stGameRoomPushMsg);
         }
@@ -6539,16 +6588,16 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         stGameRoomPushMsgBuilder.setLUnloadStacks(lUnloadStacks);
 
         if(stGameRoomInfo!=null){
-            GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-            stGameRoomPushMsgBuilder.setStGameRoomInfo(stGameRoomInfoBuilder);
+//            GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+            stGameRoomPushMsgBuilder.setStGameRoomInfo(dealPushGameRoom(stGameRoomInfo.toBuilder(),stToUserUuid));
         }
 
         TexasPoker.GameRoomPushMsg stGameRoomPushMsg = stGameRoomPushMsgBuilder.build();
 
-        UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(stToUserUuid);
-        if(stUserBaseInfoNetBuilder!=null){
+//        UserBaseInfoNet.Builder stUserBaseInfoNetBuilder = UserManager.getInstance().getUserBaseInfo(stToUserUuid);
+        if (stToUserUuid > 0) {
             //发送push
-            GameRoomMsgManager.getInstance().sendGameRoomMsg(stToUserUuid,stGameRoomPushMsg);
+            GameRoomMsgManager.getInstance().sendGameRoomMsg(stToUserUuid, stGameRoomPushMsg);
         }
     }
 
