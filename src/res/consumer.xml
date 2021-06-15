@@ -8,7 +8,7 @@
     <dubbo:application name="apnconsumer11111111"  />
  
     <!-- 使用multicast广播注册中心暴露发现服务地址 -->
-    <dubbo:registry address="zookeeper://127.0.0.1:2181" />
+    <dubbo:registry address="zookeeper://z-3.hp-test-msk-primary.8lq00b.c3.kafka.ap-east-1.amazonaws.com:2181" />
  
     <!-- 生成远程服务代理，可以和本地bean一样使用demoService -->
  	<bean id="pbController" class="com.alibaba.dubbo.rpc.protocol.protobuf.ProtobufController"></bean>
