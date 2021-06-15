@@ -9,7 +9,7 @@ public class TablesLogKafkaProducer {
 
 //    private static Producer<String, String> producer = null;
 
-    private static final KafkaSender kafkaSender = KafkaSender.getInstance().init("sati4:9092", 100000000);
+    private static final KafkaSender kafkaSender = KafkaSender.getInstance().init("b-1.hp-test4-msk-primary.bpvksf.c3.kafka.ap-east-1.amazonaws.com:9092", 100000000);
 
     /**
      * Send a set of message via the producer instance.

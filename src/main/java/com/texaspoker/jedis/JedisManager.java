@@ -40,8 +40,24 @@ public class JedisManager {
         // 创建连接池
         // pool = new JedisPool(config, "10.66.88.141",
         // 6379,100000,"18eb7740-dd7e-4ca2-80fc-494849d714f4:yilumi31415");
-        staticsPool = new JedisPool(config, ConfigaturationManager.sStaticJedisAddress, 6379,2000,ConfigaturationManager.sStaticJedisAccount);
-        msgPool = new JedisPool(config, ConfigaturationManager.sMessageJedisAddress, 6379,2000,ConfigaturationManager.sMessageJedisAccount);
+//        staticsPool = new JedisPool(config, ConfigaturationManager.sStaticJedisAddress, 6379,2000,ConfigaturationManager.sStaticJedisAccount);
+//        msgPool = new JedisPool(config, ConfigaturationManager.sMessageJedisAddress, 6379,2000,ConfigaturationManager.sMessageJedisAccount);
+        if (ConfigaturationManager.sStaticJedisAccount == null || ConfigaturationManager.sStaticJedisAccount.length() == 0) {
+            System.out.println("no pass word " + ConfigaturationManager.sStaticJedisAddress + " " + ConfigaturationManager.sStaticJedisAccount);
+            staticsPool = new JedisPool(config, ConfigaturationManager.sStaticJedisAddress, 6379,2000);
+        } else {
+            System.out.println("have pass word " + ConfigaturationManager.sStaticJedisAddress + " " + ConfigaturationManager.sStaticJedisAccount);
+            staticsPool = new JedisPool(config, ConfigaturationManager.sStaticJedisAddress, 6379,2000,ConfigaturationManager.sStaticJedisAccount);
+
+        }
+        if (ConfigaturationManager.sMessageJedisAccount == null || ConfigaturationManager.sMessageJedisAccount.length() == 0) {
+            System.out.println("no pass word " + ConfigaturationManager.sMessageJedisAddress + " " + ConfigaturationManager.sMessageJedisAccount);
+            msgPool = new JedisPool(config, ConfigaturationManager.sMessageJedisAddress, 6379,2000);
+        } else {
+            System.out.println("have pass word " + ConfigaturationManager.sMessageJedisAddress + " " + ConfigaturationManager.sMessageJedisAccount);
+            msgPool = new JedisPool(config, ConfigaturationManager.sMessageJedisAddress, 6379,2000,ConfigaturationManager.sMessageJedisAccount);
+
+        }
 
     }
 
