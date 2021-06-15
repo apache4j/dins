@@ -1406,6 +1406,11 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
     }
 
     @Override
+    public NotifyUserCryptKeyResponse notifyUserCryptKey(RpcController rpcController, NotifyUserCryptKeyRequest notifyUserCryptKeyRequest) throws ServiceException {
+        return null;
+    }
+
+    @Override
     public void createGameRoom(RpcController controller, CreateGameRoomRequest request, RpcCallback<CreateGameRoomResponse> done) {
     }
 
@@ -1629,6 +1634,11 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
 
     @Override
     public void forceOverGame(RpcController rpcController, ForceOverGameRequest forceOverGameRequest, RpcCallback<ForceOverGameResponse> rpcCallback) {
+
+    }
+
+    @Override
+    public void notifyUserCryptKey(RpcController rpcController, NotifyUserCryptKeyRequest notifyUserCryptKeyRequest, RpcCallback<NotifyUserCryptKeyResponse> rpcCallback) {
 
     }
 }
