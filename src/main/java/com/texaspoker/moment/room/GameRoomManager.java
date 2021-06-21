@@ -16,10 +16,13 @@ import com.texaspoker.moment.TexasPokerCommon;
 import com.texaspoker.moment.TexasPokerCommon.*;
 import com.texaspoker.moment.TexasPokerHttpLeague;
 import com.texaspoker.moment.TexasPokerHttpLeague.LeagueInfo;
+import com.texaspoker.moment.TexasPokerSecureProtocolService;
+import com.texaspoker.security.SecureManager;
 import com.texaspoker.user.UserManager;
 import com.texaspoker.voice.VoiceManager;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -333,4 +336,40 @@ public class GameRoomManager {
             APNManager.getInstance().createGameRoomPush(lClubID, sGameName, "" + fHour, sb, ante, 1);
         }
     }
+
+    public GameRoomInfo getSecureGameRoomInfo(GameRoomInfo gameRoomInfo){
+        //副本
+        GameRoomInfo.Builder stGameRoomInfoBuilder = gameRoomInfo.toBuilder();
+        for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
+            //获取每一个UserGameInfoNet
+            UserGameInfoNet.Builder userGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfos(i).toBuilder();
+            HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(userGameInfoNetBuilder.getStUserInfo().getUuid());
+            if (handInfo != null){
+                userGameInfoNetBuilder.clearVCurrentHands();
+                userGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+            }
+
+            stGameRoomInfoBuilder.setVUserGameInfos(i,userGameInfoNetBuilder);
+        }
+        return stGameRoomInfoBuilder.build();
+    }
+
+    public UserGameInfoNet getSecureUserGameInfoNet(UserGameInfoNet userGameInfoNet){
+        UserGameInfoNet.Builder userGameInfoNetBuilder = null;
+        if (userGameInfoNet != null){
+            //副本
+            userGameInfoNetBuilder = userGameInfoNet.toBuilder();
+        } else {
+            return null;
+        }
+
+        HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(userGameInfoNetBuilder.getStUserInfo().getUuid());
+        if (handInfo != null){
+            userGameInfoNetBuilder.clearVCurrentHands();
+            userGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+        }
+        return userGameInfoNetBuilder.build();
+
+    }
+
 }

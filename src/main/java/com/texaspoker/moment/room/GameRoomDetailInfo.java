@@ -1,5 +1,6 @@
 package com.texaspoker.moment.room;
 
+import com.google.protobuf.ByteString;
 import com.texaspoker.apns.APNManager;
 import com.texaspoker.bill.BillManager;
 import com.texaspoker.club.ClubManager;
@@ -20,6 +21,7 @@ import com.texaspoker.moment.TexasPoker.*;
 import com.texaspoker.moment.TexasPokerCommon.*;
 import com.texaspoker.moment.TexasPokerHttpLeague.LeagueInfo;
 import com.texaspoker.msg.GameRoomMsgManager;
+import com.texaspoker.security.SecureManager;
 import com.texaspoker.user.UserManager;
 import com.texaspoker.voice.VoiceManager;
 import org.apache.commons.lang.math.RandomUtils;
@@ -84,6 +86,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
     //预站起玩家
     private ConcurrentHashMap<Long,Long> mPreStandUpUser = new ConcurrentHashMap<Long,Long>();
+
 
   /****************************
      * 牌局操作函数
@@ -4811,12 +4814,16 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         card1 = getCard(stUserGameInfoBuilder.getStUserInfo().getUuid(), 0, false);
                         card2 = getCard(stUserGameInfoBuilder.getStUserInfo().getUuid(), 1, false);
                     }
+                    TexasPokerSecureProtocolService.EncryptDataResponse encryptDataResponse = SecureManager.getInstance().setMHandSecureMap(card1, card2, stUserGameInfoBuilder.getStUserInfo().getUuid());
 
                     //首先给每个人发两张手牌 如果开启AOF模式且依次看牌手牌为-1
                     if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                         stUserGameInfoBuilder.addVCurrentHands(-1);
                         stUserGameInfoBuilder.addVCurrentHands(-1);
                     } else {
+                        if (encryptDataResponse != null ) {
+                            stUserGameInfoBuilder.addVCurrentHandsByte(encryptDataResponse.getCipherData().getVData());
+                        }
                         stUserGameInfoBuilder.addVCurrentHands(card1);
                         stUserGameInfoBuilder.addVCurrentHands(card2);
                     }
@@ -4893,7 +4900,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                                 if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
-                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    stUserGameInfoBuilder.clearVCurrentHandsByte();
+                                    HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                                    if (handInfo != null){
+                                        stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                                    } else {
+                                        stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    }
+//                                    stUserGameInfoBuilder.addAllVCurrentHandsByte(mHandSecureMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvSecureCards());
                                 }
                             }
 
@@ -4960,7 +4975,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                                 if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
-                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    stUserGameInfoBuilder.clearVCurrentHandsByte();
+                                    HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                                    if (handInfo != null){
+                                        stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                                    } else {
+                                        stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    }
+//                                    stUserGameInfoBuilder.addAllVCurrentHandsByte(mHandSecureMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvSecureCards());
                                 }
                             }
 
@@ -4998,7 +5021,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //如果AOF开启下发玩家手牌
                                 if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
-                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    stUserGameInfoBuilder.clearVCurrentHandsByte();
+                                    HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                                    if (handInfo != null){
+                                        stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                                    } else {
+                                        stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    }
+//                                    stUserGameInfoBuilder.addAllVCurrentHandsByte(mHandSecureMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvSecureCards());
                                 }
 
                                 //把玩家放到超时检测队列里面
@@ -5010,7 +5041,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                             if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1 && stUserGameInfoBuilder.getLRemainStacks() == 0) || (stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1 && stUserGameInfoBuilder.getLRemainStacks() == 0)){
                                 stUserGameInfoBuilder.clearVCurrentHands();
-                                stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                stUserGameInfoBuilder.clearVCurrentHandsByte();
+                                HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                                if (handInfo != null){
+                                    stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                                } else {
+                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                }
+//                                    stUserGameInfoBuilder.addAllVCurrentHandsByte(mHandSecureMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvSecureCards());
                             }
 
                             break;
@@ -5050,7 +5089,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //如果AOF开启下发玩家手牌
                             if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                 stUserGameInfoBuilder.clearVCurrentHands();
-                                stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                stUserGameInfoBuilder.clearVCurrentHandsByte();
+                                HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                                if (handInfo != null){
+                                    stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                                } else {
+                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                }
+//                                    stUserGameInfoBuilder.addAllVCurrentHandsByte(mHandSecureMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvSecureCards());
                             }
 
                             //把玩家放到超时检测队列里面
@@ -5064,7 +5111,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                         if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1 && stUserGameInfoBuilder.getLRemainStacks() == 0) || (stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1 && stUserGameInfoBuilder.getLRemainStacks() == 0)){
                             stUserGameInfoBuilder.clearVCurrentHands();
-                            stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                            stUserGameInfoBuilder.clearVCurrentHandsByte();
+                            HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                            if (handInfo != null){
+                                stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                            } else {
+                                stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                            }
+//                                    stUserGameInfoBuilder.addAllVCurrentHandsByte(mHandSecureMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvSecureCards());
                         }
 
                         break;
@@ -5117,13 +5172,20 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             stUserGameInfoNetBuilder.clearVCurrentHands();
 
                             ArrayList<Integer> cards = new ArrayList<Integer>();
-                            if (mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null && mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards() != null){
-                                cards.addAll(mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards());
+//                            if (mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null && mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards() != null){
+//                                cards.addAll(mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards());
+//                            } else {
+//                                cards.add(-1);
+//                                cards.add(-1);
+//                            }
+                            HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
+                            if (handInfo != null && handInfo.getvSecureCards() != null){
+                                stUserGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
                             } else {
                                 cards.add(-1);
                                 cards.add(-1);
+                                stUserGameInfoNetBuilder.addAllVCurrentHands(cards);
                             }
-                            stUserGameInfoNetBuilder.addAllVCurrentHands(cards);
                         }
                         tGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
                     }
@@ -5161,6 +5223,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         card2 = getCard(stUserGameInfoBuilder.getStUserInfo().getUuid(), 1, false);
                     }
 
+                    TexasPokerSecureProtocolService.EncryptDataResponse encryptDataResponse = SecureManager.getInstance().setMHandSecureMap(card1, card2, stUserGameInfoBuilder.getStUserInfo().getUuid());
+
                     Long lRemainStacks = mOriginalStacks.get(stUserGameInfoBuilder.getStUserInfo().getUuid());
                     if (lRemainStacks == null) {
                         lRemainStacks = stUserGameInfoBuilder.getLRemainStacks();
@@ -5171,6 +5235,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         stUserGameInfoBuilder.addVCurrentHands(-1);
                         stUserGameInfoBuilder.addVCurrentHands(-1);
                     } else {
+                        if (encryptDataResponse != null) {
+                            stUserGameInfoBuilder.addVCurrentHandsByte(encryptDataResponse.getCipherData().getVData());
+                        }
                         stUserGameInfoBuilder.addVCurrentHands(card1);
                         stUserGameInfoBuilder.addVCurrentHands(card2);
                     }
@@ -5247,7 +5314,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                             if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                 stUserGameInfoBuilder.clearVCurrentHands();
-                                stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                stUserGameInfoBuilder.clearVCurrentHandsByte();
+                                HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                                if (handInfo != null){
+                                    stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                                } else {
+                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                }
                             }
                         }
 
@@ -5301,7 +5375,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //如果AOF开启下发玩家手牌
                             if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                 stUserGameInfoBuilder.clearVCurrentHands();
-                                stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                stUserGameInfoBuilder.clearVCurrentHandsByte();
+                                HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                                if (handInfo != null){
+                                    stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                                } else {
+                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                }
                             }
 
                             //如果剩余筹码量大于等于小盲注，则按照正常的流程下注,否则按照全下处理
@@ -5327,7 +5408,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                                 if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
-                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    stUserGameInfoBuilder.clearVCurrentHandsByte();
+                                    HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                                    if (handInfo != null){
+                                        stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                                    } else {
+                                        stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    }
                                 }
                             }
 
@@ -5353,7 +5441,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                         if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1 && stUserGameInfoBuilder.getLRemainStacks() == 0) || (stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1 && stUserGameInfoBuilder.getLRemainStacks() == 0)){
                             stUserGameInfoBuilder.clearVCurrentHands();
-                            stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                            stUserGameInfoBuilder.clearVCurrentHandsByte();
+                            HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                            if (handInfo != null){
+                                stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                            } else {
+                                stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                            }
                         }
 
                         if (lStepMaxStacks < stUserGameInfoBuilder.getLBetStacks()) {
@@ -5413,13 +5508,21 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             stUserGameInfoNetBuilder.clearVCurrentHands();
 
                             ArrayList<Integer> cards = new ArrayList<Integer>();
-                            if (mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null && mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards() != null){
-                                cards.addAll(mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards());
+                            ArrayList<ByteString> secureCards = new ArrayList<ByteString>();
+                            //                            if (mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null && mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards() != null){
+//                                cards.addAll(mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards());
+//                            } else {
+//                                cards.add(-1);
+//                                cards.add(-1);
+//                            }
+                            HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
+                            if (handInfo != null && handInfo.getvSecureCards() != null){
+                                stUserGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
                             } else {
                                 cards.add(-1);
                                 cards.add(-1);
+                                stUserGameInfoNetBuilder.addAllVCurrentHands(cards);
                             }
-                            stUserGameInfoNetBuilder.addAllVCurrentHands(cards);
                         }
                         tGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
                     }
@@ -5483,11 +5586,15 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         card2 = getCard(stUserGameInfoBuilder.getStUserInfo().getUuid(), 1, false);
                     }
 
+                    TexasPokerSecureProtocolService.EncryptDataResponse encryptDataResponse = SecureManager.getInstance().setMHandSecureMap(card1, card2, stUserGameInfoBuilder.getStUserInfo().getUuid());
                     //首先给每个人发两张手牌 如果AOF开启且依次看牌下发-1
                     if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                         stUserGameInfoBuilder.addVCurrentHands(-1);
                         stUserGameInfoBuilder.addVCurrentHands(-1);
                     } else {
+                        if (encryptDataResponse != null) {
+                            stUserGameInfoBuilder.addVCurrentHandsByte(encryptDataResponse.getCipherData().getVData());
+                        }
                         stUserGameInfoBuilder.addVCurrentHands(card1);
                         stUserGameInfoBuilder.addVCurrentHands(card2);
                     }
@@ -5565,7 +5672,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                                 if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
-                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    stUserGameInfoBuilder.clearVCurrentHandsByte();
+                                    HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                                    if (handInfo != null){
+                                        stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                                    } else {
+                                        stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    }
                                 }
                             }
 
@@ -5633,7 +5747,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                                 if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
-                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    stUserGameInfoBuilder.clearVCurrentHandsByte();
+                                    HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                                    if (handInfo != null){
+                                        stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                                    } else {
+                                        stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    }
                                 }
                             }
 
@@ -5700,7 +5821,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                                 if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
-                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    stUserGameInfoBuilder.clearVCurrentHandsByte();
+                                    HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                                    if (handInfo != null){
+                                        stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                                    } else {
+                                        stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    }
                                 }
                             }
 
@@ -5736,7 +5864,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //如果AOF开启下发玩家手牌
                                 if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
-                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    stUserGameInfoBuilder.clearVCurrentHandsByte();
+                                    HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                                    if (handInfo != null){
+                                        stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                                    } else {
+                                        stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    }
                                 }
 
                                 //把玩家放到超时检测队列里面
@@ -5748,7 +5883,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                             if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1 && stUserGameInfoBuilder.getLRemainStacks() == 0) || (stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1 && stUserGameInfoBuilder.getLRemainStacks() == 0)){
                                 stUserGameInfoBuilder.clearVCurrentHands();
-                                stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                stUserGameInfoBuilder.clearVCurrentHandsByte();
+                                HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                                if (handInfo != null){
+                                    stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                                } else {
+                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                }
                             }
 
                             break;
@@ -5788,7 +5930,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //如果AOF开启下发玩家手牌
                             if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                 stUserGameInfoBuilder.clearVCurrentHands();
-                                stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                stUserGameInfoBuilder.clearVCurrentHandsByte();
+                                HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                                if (handInfo != null){
+                                    stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                                } else {
+                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                }
                             }
 
                             //把玩家放到超时检测队列里面
@@ -5802,7 +5951,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                         if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1 && stUserGameInfoBuilder.getLRemainStacks() == 0) || (stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1 && stUserGameInfoBuilder.getLRemainStacks() == 0)){
                             stUserGameInfoBuilder.clearVCurrentHands();
-                            stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                            stUserGameInfoBuilder.clearVCurrentHandsByte();
+                            HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                            if (handInfo != null){
+                                stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                            } else {
+                                stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                            }
                         }
 
                         break;
@@ -5855,13 +6011,21 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             stUserGameInfoNetBuilder.clearVCurrentHands();
 
                             ArrayList<Integer> cards = new ArrayList<Integer>();
-                            if (mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null && mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards() != null){
-                                cards.addAll(mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards());
+                            ArrayList<ByteString> secureCards = new ArrayList<ByteString>();
+                            //                            if (mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null && mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards() != null){
+//                                cards.addAll(mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards());
+//                            } else {
+//                                cards.add(-1);
+//                                cards.add(-1);
+//                            }
+                            HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
+                            if (handInfo != null && handInfo.getvSecureCards() != null){
+                                stUserGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
                             } else {
                                 cards.add(-1);
                                 cards.add(-1);
+                                stUserGameInfoNetBuilder.addAllVCurrentHands(cards);
                             }
-                            stUserGameInfoNetBuilder.addAllVCurrentHands(cards);
                         }
                         tGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
                     }
@@ -5908,11 +6072,16 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         card2 = getCard(stUserGameInfoBuilder.getStUserInfo().getUuid(), 1, false);
                     }
 
+                    TexasPokerSecureProtocolService.EncryptDataResponse encryptDataResponse = SecureManager.getInstance().setMHandSecureMap(card1, card2, stUserGameInfoBuilder.getStUserInfo().getUuid());
+
                     //首先给每个人发两张手牌 如果AOF开启且依次看牌下发-1
                     if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                         stUserGameInfoBuilder.addVCurrentHands(-1);
                         stUserGameInfoBuilder.addVCurrentHands(-1);
                     } else {
+                        if (encryptDataResponse != null) {
+                            stUserGameInfoBuilder.addVCurrentHandsByte(encryptDataResponse.getCipherData().getVData());
+                        }
                         stUserGameInfoBuilder.addVCurrentHands(card1);
                         stUserGameInfoBuilder.addVCurrentHands(card2);
                     }
@@ -5990,7 +6159,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                                 if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
-                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    stUserGameInfoBuilder.clearVCurrentHandsByte();
+                                    HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                                    if (handInfo != null){
+                                        stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                                    } else {
+                                        stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    }
                                 }
                             }
 
@@ -6058,7 +6234,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                                 if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
-                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    stUserGameInfoBuilder.clearVCurrentHandsByte();
+                                    HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                                    if (handInfo != null){
+                                        stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                                    } else {
+                                        stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    }
                                 }
                             }
 
@@ -6094,7 +6277,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //如果AOF开启下发玩家手牌
                                 if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
-                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    stUserGameInfoBuilder.clearVCurrentHandsByte();
+                                    HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                                    if (handInfo != null){
+                                        stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                                    } else {
+                                        stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    }
                                 }
 
                                 //把玩家放到超时检测队列里面
@@ -6106,7 +6296,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                             if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1 && stUserGameInfoBuilder.getLRemainStacks() == 0) || (stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1 && stUserGameInfoBuilder.getLRemainStacks() == 0)){
                                 stUserGameInfoBuilder.clearVCurrentHands();
-                                stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                stUserGameInfoBuilder.clearVCurrentHandsByte();
+                                HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                                if (handInfo != null){
+                                    stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                                } else {
+                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                }
                             }
 
                             break;
@@ -6146,7 +6343,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //如果AOF开启下发玩家手牌
                             if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                 stUserGameInfoBuilder.clearVCurrentHands();
-                                stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                stUserGameInfoBuilder.clearVCurrentHandsByte();
+                                HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                                if (handInfo != null){
+                                    stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                                } else {
+                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                }
                             }
 
                             //把玩家放到超时检测队列里面
@@ -6160,7 +6364,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                         if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1 && stUserGameInfoBuilder.getLRemainStacks() == 0) || (stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1 && stUserGameInfoBuilder.getLRemainStacks() == 0)){
                             stUserGameInfoBuilder.clearVCurrentHands();
-                            stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                            stUserGameInfoBuilder.clearVCurrentHandsByte();
+                            HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                            if (handInfo != null){
+                                stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                            } else {
+                                stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                            }
                         }
 
                         break;
@@ -6213,13 +6424,21 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             stUserGameInfoNetBuilder.clearVCurrentHands();
 
                             ArrayList<Integer> cards = new ArrayList<Integer>();
-                            if (mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null && mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards() != null){
-                                cards.addAll(mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards());
+                            ArrayList<ByteString> secureCards = new ArrayList<ByteString>();
+                            //                            if (mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null && mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards() != null){
+//                                cards.addAll(mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards());
+//                            } else {
+//                                cards.add(-1);
+//                                cards.add(-1);
+//                            }
+                            HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
+                            if (handInfo != null && handInfo.getvSecureCards() != null){
+                                stUserGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
                             } else {
                                 cards.add(-1);
                                 cards.add(-1);
+                                stUserGameInfoNetBuilder.addAllVCurrentHands(cards);
                             }
-                            stUserGameInfoNetBuilder.addAllVCurrentHands(cards);
                         }
                         tGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
                     }
@@ -6256,6 +6475,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         card2 = getCard(stUserGameInfoBuilder.getStUserInfo().getUuid(), 1, false);
                     }
 
+                    TexasPokerSecureProtocolService.EncryptDataResponse encryptDataResponse = SecureManager.getInstance().setMHandSecureMap(card1, card2, stUserGameInfoBuilder.getStUserInfo().getUuid());
+
                     Long lRemainStacks = mOriginalStacks.get(stUserGameInfoBuilder.getStUserInfo().getUuid());
                     if (lRemainStacks == null) {
                         lRemainStacks = stUserGameInfoBuilder.getLRemainStacks();
@@ -6266,6 +6487,9 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         stUserGameInfoBuilder.addVCurrentHands(-1);
                         stUserGameInfoBuilder.addVCurrentHands(-1);
                     } else {
+                        if (encryptDataResponse != null) {
+                            stUserGameInfoBuilder.addVCurrentHandsByte(encryptDataResponse.getCipherData().getVData());
+                        }
                         stUserGameInfoBuilder.addVCurrentHands(card1);
                         stUserGameInfoBuilder.addVCurrentHands(card2);
                     }
@@ -6342,7 +6566,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                             if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                 stUserGameInfoBuilder.clearVCurrentHands();
-                                stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                stUserGameInfoBuilder.clearVCurrentHandsByte();
+                                HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                                if (handInfo != null){
+                                    stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                                } else {
+                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                }
                             }
                         }
 
@@ -6396,7 +6627,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //如果AOF开启下发玩家手牌
                             if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                 stUserGameInfoBuilder.clearVCurrentHands();
-                                stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                stUserGameInfoBuilder.clearVCurrentHandsByte();
+                                HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                                if (handInfo != null){
+                                    stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                                } else {
+                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                }
                             }
 
                             //如果剩余筹码量大于等于小盲注，则按照正常的流程下注,否则按照全下处理
@@ -6423,7 +6661,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                                 //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                                 if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
-                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    stUserGameInfoBuilder.clearVCurrentHandsByte();
+                                    HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                                    if (handInfo != null){
+                                        stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                                    } else {
+                                        stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                    }
                                 }
                             }
 
@@ -6449,7 +6694,14 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         //AOF模式下依次看牌开启此时玩家是被迫allin需带玩家手牌
                         if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1 && stUserGameInfoBuilder.getLRemainStacks() == 0) || (stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1 && stUserGameInfoBuilder.getLRemainStacks() == 0)){
                             stUserGameInfoBuilder.clearVCurrentHands();
-                            stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                            stUserGameInfoBuilder.clearVCurrentHandsByte();
+                            HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
+                            if (handInfo != null){
+                                stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                            } else {
+                                stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                            }
                         }
 
                         if (lStepMaxStacks < stUserGameInfoBuilder.getLBetStacks()) {
@@ -6509,13 +6761,21 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             stUserGameInfoNetBuilder.clearVCurrentHands();
 
                             ArrayList<Integer> cards = new ArrayList<Integer>();
-                            if (mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null && mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards() != null){
-                                cards.addAll(mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards());
+                            ArrayList<ByteString> secureCards = new ArrayList<ByteString>();
+                            //                            if (mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null && mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards() != null){
+//                                cards.addAll(mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards());
+//                            } else {
+//                                cards.add(-1);
+//                                cards.add(-1);
+//                            }
+                            HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
+                            if (handInfo != null && handInfo.getvSecureCards() != null){
+                                stUserGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
                             } else {
                                 cards.add(-1);
                                 cards.add(-1);
+                                stUserGameInfoNetBuilder.addAllVCurrentHands(cards);
                             }
-                            stUserGameInfoNetBuilder.addAllVCurrentHands(cards);
                         }
                         tGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
                     }

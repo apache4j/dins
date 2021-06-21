@@ -20,7 +20,9 @@ import com.texaspoker.moment.TexasPokerGameService.*;
 import com.texaspoker.moment.TexasPokerHttpClub;
 import com.texaspoker.moment.TexasPokerHttpLeague.LeagueBaseInfo;
 import com.texaspoker.moment.TexasPokerHttpLeague.LeagueInfo;
+import com.texaspoker.moment.TexasPokerSecureProtocolService;
 import com.texaspoker.moment.room.*;
+import com.texaspoker.security.SecureManager;
 import com.texaspoker.user.UserManager;
 
 import java.util.ArrayList;
@@ -97,7 +99,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
                 ERROR_CODE_TYPE eErrorCodeType = stGameRoomDetailInfo.enterGameRoom(request.getUuid());
                 if (eErrorCodeType == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS) {
                     stEnterGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-                    stEnterGameRoomResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
+//                    stEnterGameRoomResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
+                    stEnterGameRoomResponseBuilder.setStGameRoomInfo(GameRoomManager.getInstance().getSecureGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo()));
                     if (stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.QUICK_GAME_ROOM) {
                         QuickGameRoomInfo.Builder stQuickGameRoomInfoBuilder = QuickGameRoomManager.getInstance().getQuickGameRoomInfoByRoomID(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID());
                         if (stQuickGameRoomInfoBuilder != null && stQuickGameRoomInfoBuilder.getSCryptCode() != null) {
@@ -126,7 +129,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
 
             if (eErrorCodeType == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS) {
                 stSitDownResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-                stSitDownResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
+//                stSitDownResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
+                stSitDownResponseBuilder.setStGameRoomInfo(GameRoomManager.getInstance().getSecureGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo()));
             } else {
                 stSitDownResponseBuilder.setEErrCode(eErrorCodeType);
             }
@@ -235,7 +239,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
                     stGameActionResponseBuilder.setLStacks(sUserGameInfoNetAdd.getLBetStacks());
 
                     if (stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getBSimultAction() == 1){
-                        stGameActionResponseBuilder.setStUserGameInfoNet(sUserGameInfoNetAdd);
+//                        stGameActionResponseBuilder.setStUserGameInfoNet(sUserGameInfoNetAdd);
+                        stGameActionResponseBuilder.setStUserGameInfoNet(GameRoomManager.getInstance().getSecureUserGameInfoNet(sUserGameInfoNetAdd));
                     }
                 }
 
@@ -387,7 +392,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
 
             if (rst == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS) {
                 stBuyBuyInResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-                stBuyBuyInResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
+//                stBuyBuyInResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
+                stBuyBuyInResponseBuilder.setStGameRoomInfo(GameRoomManager.getInstance().getSecureGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo()));
                 stBuyBuyInResponseBuilder.setBWaitingBuyinConfirmation(bWaitingBuyinConfirmation);
             } else {
                 stBuyBuyInResponseBuilder.setEErrCode(rst);
@@ -773,7 +779,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
 
             if (stUserGameInfoNetBuilder != null) {
                 stGetStandByUserGameInfosResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-                stGetStandByUserGameInfosResponseBuilder.setStUserGameInfoNet(stUserGameInfoNetBuilder.build());
+//                stGetStandByUserGameInfosResponseBuilder.setStUserGameInfoNet(stUserGameInfoNetBuilder.build());
+                stGetStandByUserGameInfosResponseBuilder.setStUserGameInfoNet(GameRoomManager.getInstance().getSecureUserGameInfoNet(stUserGameInfoNetBuilder.build()));
             } else {
                 stGetStandByUserGameInfosResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
             }
@@ -806,7 +813,8 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
                     stGameRoomInfoBuilder.setStGameRoomBaseInfo(stGameRoomBaseInfoBuilder);
                 }
                 stGetGameRoomInfoResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-                stGetGameRoomInfoResponseBuilder.setStGameRoomInfo(stGameRoomInfoBuilder);
+//                stGetGameRoomInfoResponseBuilder.setStGameRoomInfo(stGameRoomInfoBuilder);
+                stGetGameRoomInfoResponseBuilder.setStGameRoomInfo(GameRoomManager.getInstance().getSecureGameRoomInfo(stGameRoomInfoBuilder.build()));
             } else {
                 stGetGameRoomInfoResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
             }
@@ -1407,7 +1415,41 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
 
     @Override
     public NotifyUserCryptKeyResponse notifyUserCryptKey(RpcController rpcController, NotifyUserCryptKeyRequest notifyUserCryptKeyRequest) throws ServiceException {
-        return null;
+        NotifyUserCryptKeyResponse.Builder notifyUserCryptKeyResponse = NotifyUserCryptKeyResponse.newBuilder();
+        long uuid = notifyUserCryptKeyRequest.getUuid();
+
+        int roomidCount = notifyUserCryptKeyRequest.getRoomidCount();
+        if (roomidCount < 1){
+            notifyUserCryptKeyResponse.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+        }
+
+        for (int i = 0; i < roomidCount; i++) {
+            long roomid = notifyUserCryptKeyRequest.getRoomid(i);
+            GameRoomDetailInfo stGameRoomDetailInfo;
+            if (roomid > 0) {
+                stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(roomid);
+            } else {
+                notifyUserCryptKeyResponse.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+                continue;
+            }
+            if (stGameRoomDetailInfo != null) {
+                GameRoomInfo stGameRoomInfo = stGameRoomDetailInfo.getStGameRoomInfo();
+                for (int j = 0; j < stGameRoomInfo.getVUserGameInfosCount(); j++) {
+                    UserGameInfoNet vUserGameInfos = stGameRoomInfo.getVUserGameInfos(j);
+                    if (vUserGameInfos.getStUserInfo().getUuid() == uuid) {
+                        SecureManager.getInstance().setMHandSecureMap(vUserGameInfos.getVCurrentHands(0), vUserGameInfos.getVCurrentHands(1), uuid);
+                        notifyUserCryptKeyResponse.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
+                        break;
+                    }
+                    notifyUserCryptKeyResponse.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
+                }
+            } else {
+                notifyUserCryptKeyResponse.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
+            }
+        }
+
+
+        return notifyUserCryptKeyResponse.build();
     }
 
     @Override
