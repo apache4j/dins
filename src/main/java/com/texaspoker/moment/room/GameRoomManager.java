@@ -21,7 +21,9 @@ import com.texaspoker.security.SecureManager;
 import com.texaspoker.user.UserManager;
 import com.texaspoker.voice.VoiceManager;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -337,39 +339,5 @@ public class GameRoomManager {
         }
     }
 
-    public GameRoomInfo getSecureGameRoomInfo(GameRoomInfo gameRoomInfo){
-        //副本
-        GameRoomInfo.Builder stGameRoomInfoBuilder = gameRoomInfo.toBuilder();
-        for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
-            //获取每一个UserGameInfoNet
-            UserGameInfoNet.Builder userGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfos(i).toBuilder();
-            HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(userGameInfoNetBuilder.getStUserInfo().getUuid());
-            if (handInfo != null){
-                userGameInfoNetBuilder.clearVCurrentHands();
-                userGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
-            }
-
-            stGameRoomInfoBuilder.setVUserGameInfos(i,userGameInfoNetBuilder);
-        }
-        return stGameRoomInfoBuilder.build();
-    }
-
-    public UserGameInfoNet getSecureUserGameInfoNet(UserGameInfoNet userGameInfoNet){
-        UserGameInfoNet.Builder userGameInfoNetBuilder = null;
-        if (userGameInfoNet != null){
-            //副本
-            userGameInfoNetBuilder = userGameInfoNet.toBuilder();
-        } else {
-            return null;
-        }
-
-        HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(userGameInfoNetBuilder.getStUserInfo().getUuid());
-        if (handInfo != null){
-            userGameInfoNetBuilder.clearVCurrentHands();
-            userGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
-        }
-        return userGameInfoNetBuilder.build();
-
-    }
 
 }

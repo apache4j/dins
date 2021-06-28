@@ -110,7 +110,53 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
     protected int mCards[] = new int[52];
 
     protected Map<Long, HandInfo> mHandMap = new HashMap<Long, HandInfo>();
-//    protected Map<Long, HandInfo> mHandSecureMap = new HashMap<Long, HandInfo>();//加密手牌
+
+    protected Map<Long, HandInfo> mHandSecureMap = new HashMap<Long, HandInfo>();//加密手牌
+    public Map<Long, HandInfo> getmHandSecureMap() {
+        return mHandSecureMap;
+    }
+
+    public HandInfo getmHandSecureMapByid(long uuid) {
+        return mHandSecureMap.get(uuid);
+    }
+
+    public void setMHandSecureMapByid(int card1, int card2, long uuid) {
+        if (card1 != -1 && card2 != -1){
+            List cardList = new ArrayList();
+            cardList.add(card1);
+            cardList.add(card2);
+            TexasPokerSecureProtocolService.EncryptDataResponse encryptDataResponse = SecureManager.getInstance().encryptData(0, uuid, cardList);
+            if (encryptDataResponse != null && encryptDataResponse.getCipherData() != null ){
+                TexasPokerSecureProtocolService.CipherDataMessage vPlainDatas = encryptDataResponse.getCipherData();
+                HandInfo stHandInfo = new HandInfo();
+                if (vPlainDatas.getVData() != null){
+                    stHandInfo.addSecureCards(vPlainDatas.getVData());
+                    mHandSecureMap.put(vPlainDatas.getLuuid(), stHandInfo);
+                }
+            }
+        }
+
+    }
+
+
+
+    public void setHandSecureMap(List<TexasPokerSecureProtocolService.PlainDataMessage> plainDataMessageList){
+        TexasPokerSecureProtocolService.EncryptDataListResponse encryptDataListResponse = SecureManager.getInstance().encryptDataList(plainDataMessageList);
+        System.out.println("encryptDataListResponse=======" + encryptDataListResponse);
+        if (encryptDataListResponse != null) {
+            for (int i = 0; i < encryptDataListResponse.getVPlainDatasCount(); i++) {
+                TexasPokerSecureProtocolService.CipherDataMessage vPlainDatas = encryptDataListResponse.getVPlainDatas(i);
+                HandInfo stHandInfo = new HandInfo();
+                if (vPlainDatas != null && vPlainDatas.getVData() != null){
+                    stHandInfo.addSecureCards(vPlainDatas.getVData());
+                    mHandSecureMap.put(vPlainDatas.getLuuid(), stHandInfo);
+                }
+
+            }
+        }
+    }
+
+
     protected List<Long> vHandList = new ArrayList<Long>();
     protected Map<Integer, Long> mHandPos = new HashMap<Integer, Long>();
 
@@ -460,14 +506,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                                         //如果依次看牌且游戏状态为ROOM_GAME_STATE_PreFlop_VALUE时给玩家下发手牌
                                                         if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                                             stResetUserGameInfoBuilder.clearVCurrentHands();
-//                                                  stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
-                                                            stResetUserGameInfoBuilder.clearVCurrentHandsByte();
-                                                            HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
-                                                            if (handInfo != null){
-                                                                stResetUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
-                                                            } else {
-                                                                stResetUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
-                                                            }
+                                                            stResetUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stResetUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                                                         }
 
                                                     } else {
@@ -531,14 +570,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                                         //如果依次看牌且游戏状态为ROOM_GAME_STATE_PreFlop_VALUE时给玩家下发手牌
                                                         if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                                             stResetUserGameInfoBuilder.clearVCurrentHands();
-//                                                  stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
-                                                            stResetUserGameInfoBuilder.clearVCurrentHandsByte();
-                                                            HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
-                                                            if (handInfo != null){
-                                                                stResetUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
-                                                            } else {
-                                                                stResetUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
-                                                            }
+                                                            stResetUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stResetUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                                                         }
 
                                                     } else {
@@ -613,14 +645,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                 //如果依次看牌且游戏状态为ROOM_GAME_STATE_PreFlop_VALUE时给玩家下发手牌
                                 if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
-//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
-                                    stUserGameInfoBuilder.clearVCurrentHandsByte();
-                                    HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
-                                    if (handInfo != null){
-                                        stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
-                                    } else {
-                                        stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
-                                    }
+                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                                 }
 
                                 removeAllTimeOutUser();
@@ -665,21 +690,13 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     stUserGameInfoNetBuilder.clearVCurrentHands();
 
                     ArrayList<Integer> cards = new ArrayList<Integer>();
-                    ArrayList<ByteString> secureCards = new ArrayList<ByteString>();
-//                    if (mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null && mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards() != null){
-//                        cards.addAll(mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards());
-//                    } else {
-//                        cards.add(-1);
-//                        cards.add(-1);
-//                    }
-                    HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
-                    if (handInfo != null && handInfo.getvSecureCards() != null){
-                        stUserGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                    if (mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null && mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards() != null){
+                        cards.addAll(mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards());
                     } else {
                         cards.add(-1);
                         cards.add(-1);
-                        stUserGameInfoNetBuilder.addAllVCurrentHands(cards);
                     }
+                    stUserGameInfoNetBuilder.addAllVCurrentHands(cards);
                 }
                 stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
             }
@@ -1377,14 +1394,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             //如果在AOF模式下依次看牌且游戏状态为ROOM_GAME_STATE_PreFlop_VALUE时给玩家下发手牌
                             if ((stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1)){
                                 stUserGameInfoBuilder.clearVCurrentHands();
-//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
-                                stUserGameInfoBuilder.clearVCurrentHandsByte();
-                                HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
-                                if (handInfo != null){
-                                    stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
-                                } else {
-                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
-                                }
+                                stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                             }
 
                             removeAllTimeOutUser();
@@ -1483,17 +1493,25 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
      * @date 2021-03-05 15:12
      */
     public GameRoomInfo.Builder dealPushGameRoom(GameRoomInfo.Builder stGameRoomInfoBuilder, long stToUserUuid) {
+        GameRoomInfo.Builder stGameRoomInfoBuilderCopy = getSecureGameRoomInfo(stGameRoomInfoBuilder.build(), 2).toBuilder();
 //        GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-        for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
-            UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
+        for (int i = 0; i < stGameRoomInfoBuilderCopy.getVUserGameInfosCount(); i++) {
+            UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilderCopy.getVUserGameInfosBuilder(i);
             if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() != stToUserUuid) {
 
                 if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN && bAllAllin == true) {
+//                    mHandSecureMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
+                    HandInfo handInfo = mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
+                    if (handInfo != null) {
+                        stUserGameInfoNetBuilder.addAllVCurrentHands(handInfo.getvCards());
+                        stUserGameInfoNetBuilder.clearVCurrentHandsByte();
+                    }
+
                     continue;
                 }
 
-                if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
-                        || (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)) {
+                if (stGameRoomInfoBuilderCopy.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
+                        || (stGameRoomInfoBuilderCopy.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)) {
                     if (stUserGameInfoNetBuilder.getBShowCardOne() == 1 || stUserGameInfoNetBuilder.getBShowCardTwo() == 1) {
                         if (stUserGameInfoNetBuilder.getBShowCardOne() == 0) {
                             stUserGameInfoNetBuilder.setVCurrentHands(0, 0);
@@ -1504,18 +1522,21 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     }
                     if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD) {
                         stUserGameInfoNetBuilder.clearVCurrentHands();
+                        stUserGameInfoNetBuilder.clearVCurrentHandsByte();
                     } else {
                         if (bFlodResult == true) {
                             stUserGameInfoNetBuilder.clearVCurrentHands();
+                            stUserGameInfoNetBuilder.clearVCurrentHandsByte();
                         }
                     }
                 } else {
                     stUserGameInfoNetBuilder.clearVCurrentHands();
+                    stUserGameInfoNetBuilder.clearVCurrentHandsByte();
                 }
             }
-            stGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
+            stGameRoomInfoBuilderCopy.setVUserGameInfos(i, stUserGameInfoNetBuilder);
         }
-        return stGameRoomInfoBuilder;
+        return stGameRoomInfoBuilderCopy;
     }
 
     /****************************
@@ -1610,7 +1631,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
     @Override
     public void pushGameRoomUserMsgs(UserGameInfoNet stFromUserGamenfo,
                                      long stToUserUuid, GAME_ROOM_MESSAGE_TYPE eGameRoomMessageType, int pos) {
-        UserGameInfoNet secureUserGameInfoNet = GameRoomManager.getInstance().getSecureUserGameInfoNet(stFromUserGamenfo);
+        UserGameInfoNet secureUserGameInfoNet = getSecureUserGameInfoNet(stFromUserGamenfo, 2);
         //给被邀请用户发通知
         TexasPoker.GameRoomPushMsg.Builder stGameRoomPushMsgBuilder = TexasPoker.GameRoomPushMsg.newBuilder();
 
@@ -2055,14 +2076,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                                         //如果在依次看牌且游戏状态为ROOM_GAME_STATE_PreFlop_VALUE时给玩家下发手牌
                                                         if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                                             stResetUserGameInfoBuilder.clearVCurrentHands();
-//                                                  stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
-                                                            stResetUserGameInfoBuilder.clearVCurrentHandsByte();
-                                                            HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
-                                                            if (handInfo != null){
-                                                                stResetUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
-                                                            } else {
-                                                                stResetUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
-                                                            }
+                                                            stResetUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                                                         }
 
                                                     } else {
@@ -2124,14 +2138,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                                         //如果在依次看牌且游戏状态为ROOM_GAME_STATE_PreFlop_VALUE时给玩家下发手牌
                                                         if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                                             stResetUserGameInfoBuilder.clearVCurrentHands();
-//                                                  stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
-                                                            stResetUserGameInfoBuilder.clearVCurrentHandsByte();
-                                                            HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
-                                                            if (handInfo != null){
-                                                                stResetUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
-                                                            } else {
-                                                                stResetUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
-                                                            }
+                                                            stResetUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                                                         }
 
                                                     } else {
@@ -2211,14 +2218,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                 //如果在依次看牌且游戏状态为ROOM_GAME_STATE_PreFlop_VALUE时给玩家下发手牌
                                 if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                     stUserGameInfoBuilder.clearVCurrentHands();
-//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
-                                    stUserGameInfoBuilder.clearVCurrentHandsByte();
-                                    HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
-                                    if (handInfo != null){
-                                        stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
-                                    } else {
-                                        stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
-                                    }
+                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                                 }
 
                                 removeAllTimeOutUser();
@@ -2804,14 +2804,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                                 //如果在AOF模式下依次看牌且游戏状态为ROOM_GAME_STATE_PreFlop_VALUE时给玩家下发手牌
                                                 if ((stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1)){
                                                     stResetUserGameInfoBuilder.clearVCurrentHands();
-//                                                  stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
-                                                    stResetUserGameInfoBuilder.clearVCurrentHandsByte();
-                                                    HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
-                                                    if (handInfo != null){
-                                                        stResetUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
-                                                    } else {
-                                                        stResetUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
-                                                    }
+                                                    stResetUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stResetUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                                                 }
 
                                                 //设置该用户的超时
@@ -2902,14 +2895,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             //如果在AOF模式下依次看牌且游戏状态为ROOM_GAME_STATE_PreFlop_VALUE时给玩家下发手牌
                             if ((stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1)){
                                 stUserGameInfoBuilder.clearVCurrentHands();
-//                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
-                                stUserGameInfoBuilder.clearVCurrentHandsByte();
-                                HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoBuilder.getStUserInfo().getUuid());
-                                if (handInfo != null){
-                                    stUserGameInfoBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
-                                } else {
-                                    stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
-                                }
+                                stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                             }
 
                             //重置牌局用户超时
@@ -3020,20 +3006,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                         || stUserGameInfo.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN
                         || stUserGameInfo.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_BLIND
                         || stUserGameInfo.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_READY) {
-//                    HandInfo stHandInfo = this.mHandMap.get(uuid);
-                    HandInfo stHandInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(uuid);
-                    if (stHandInfo != null && stHandInfo.getvSecureCards() != null && stHandInfo.getvSecureCards().size() == 2) {
-                        for (ByteString bytes : stHandInfo.getvSecureCards()){
-                            TexasPokerSecureProtocolService.CipherDataMessage.Builder stCipherDataMessageBuilder = TexasPokerSecureProtocolService.CipherDataMessage.newBuilder().clearVData()
-                                    .setVData(bytes)
-                                    .setLRoomid(lGameRoomID)
-                                    .setLuuid(uuid);
-                            TexasPokerSecureProtocolService.DecryptDataResponse decryptDataResponse = SecureManager.getInstance().decryptData(stCipherDataMessageBuilder.build());
-                            decryptDataResponse.getPlainDatas().getVDataList();
-                        }
-                        
-                        
-
+                    HandInfo stHandInfo = this.mHandMap.get(uuid);
+                    if (stHandInfo != null && stHandInfo.getvCards() != null && stHandInfo.getvCards().size() == 2) {
                         GameUserResultInfo stGameUserResultInfo = calculateCardStrength(stHandInfo.getvCards());
                         cardStrengths.add(stGameUserResultInfo);
                     } else {
@@ -4188,6 +4162,84 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         }
     }
 
+    /**
+     *
+     * <br/>
+     * @param userGameInfoNet
+     * @param type 1为处理回包 如果加密失败 明文密文都不返回 2为处理push 如果加密失败 返回明文
+     * @return com.texaspoker.moment.TexasPoker.UserGameInfoNet
+     * @author piness
+     * @date 2021-06-23 14:06
+     */
+    public UserGameInfoNet getSecureUserGameInfoNet(UserGameInfoNet userGameInfoNet, int type){
+        UserGameInfoNet.Builder userGameInfoNetBuilder = null;
+        if (userGameInfoNet != null){
+            //副本
+            userGameInfoNetBuilder = userGameInfoNet.toBuilder();
+        } else {
+            return null;
+        }
+
+        if (userGameInfoNetBuilder.getVCurrentHandsByteCount() < 1){
+            HandInfo handInfo = getmHandSecureMapByid(userGameInfoNetBuilder.getStUserInfo().getUuid());
+            if (handInfo != null && handInfo.getvSecureCards().size() > 0) {
+                userGameInfoNetBuilder.clearVCurrentHands();
+                userGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+            } else {
+//                if (type == 1) {
+//                    userGameInfoNetBuilder.clearVCurrentHands();
+//                }
+                userGameInfoNetBuilder.clearVCurrentHands();
+            }
+
+        } else {
+            userGameInfoNetBuilder.clearVCurrentHandsByte();
+        }
+        return userGameInfoNetBuilder.build();
+
+    }
+
+    /**
+     *
+     * <br/>
+     * @param gameRoomInfo
+     * @param type 1为处理回包 如果加密失败 明文密文都不返回 2为处理push 如果加密失败 返回明文
+     * @return com.texaspoker.moment.TexasPoker.GameRoomInfo
+     * @author piness
+     * @date 2021-06-23 14:07
+     */
+    public GameRoomInfo getSecureGameRoomInfo(GameRoomInfo gameRoomInfo, int type){
+        //副本
+        GameRoomInfo.Builder stGameRoomInfoBuilder = gameRoomInfo.toBuilder();
+        for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
+            //获取每一个UserGameInfoNet
+            UserGameInfoNet.Builder userGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfos(i).toBuilder();
+            if (gameRoomInfo.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD){
+                if (userGameInfoNetBuilder.getVCurrentHandsByteCount() < 1){
+                    HandInfo handInfo = getmHandSecureMapByid(userGameInfoNetBuilder.getStUserInfo().getUuid());
+
+                    if (handInfo != null && handInfo.getvSecureCards().size() > 0) {
+                        userGameInfoNetBuilder.clearVCurrentHands();
+                        userGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                    } else {
+//                        if (type == 1) {
+//                            System.out.println("222");
+//                            userGameInfoNetBuilder.clearVCurrentHands();
+//                        }
+                        userGameInfoNetBuilder.clearVCurrentHands();
+                    }
+                } else {
+                    userGameInfoNetBuilder.clearVCurrentHands();
+                }
+            } else {
+                userGameInfoNetBuilder.clearVCurrentHandsByte();
+            }
+
+            stGameRoomInfoBuilder.setVUserGameInfos(i,userGameInfoNetBuilder);
+        }
+        return stGameRoomInfoBuilder.build();
+    }
+
     @Override
     public void sendAllGameStateChange(long fromUuid, ArrayList<Integer> cards) {
 
@@ -4196,7 +4248,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             for (long uuid : mPlayers) {
                 if (uuid > 0) {
                     SCGameRoomStateChange.Builder stGameStateChangeBuilder = SCGameRoomStateChange.newBuilder();
-                    stGameStateChangeBuilder.setStGameRoomInfo(GameRoomManager.getInstance().getSecureGameRoomInfo(stGameRoomInfo));
+                    stGameStateChangeBuilder.setStGameRoomInfo(getSecureGameRoomInfo(stGameRoomInfo, 2));
                     stGameStateChangeBuilder.setUuid(fromUuid);
 
                     if (cards != null) {
@@ -4215,7 +4267,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 if (uuid > 0) {
                     if (!mPlayers.contains(uuid)) {
                         SCGameRoomStateChange.Builder stGameStateChangeBuilder = SCGameRoomStateChange.newBuilder();
-                        stGameStateChangeBuilder.setStGameRoomInfo(GameRoomManager.getInstance().getSecureGameRoomInfo(stGameRoomInfo));
+                        stGameStateChangeBuilder.setStGameRoomInfo(getSecureGameRoomInfo(stGameRoomInfo, 2));
                         stGameStateChangeBuilder.setUuid(fromUuid);
                         if (cards != null) {
                             for (int cardIndex = 0; cardIndex < cards.size(); cardIndex++) {
@@ -4268,13 +4320,16 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                         if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD) {
                             stUserGameInfoNetBuilder.clearVCurrentHands();
+                            stUserGameInfoNetBuilder.clearVCurrentHandsByte();
                         } else {
                             if (bFlodResult == true) {
                                 stUserGameInfoNetBuilder.clearVCurrentHands();
+                                stUserGameInfoNetBuilder.clearVCurrentHandsByte();
                             }
                         }
                     } else {
                         stUserGameInfoNetBuilder.clearVCurrentHands();
+                        stUserGameInfoNetBuilder.clearVCurrentHandsByte();
                     }
                 }
 
@@ -5176,23 +5231,13 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     stUserGameInfoNetBuilder.clearVCurrentHands();
 
                     ArrayList<Integer> cards = new ArrayList<Integer>();
-                    ArrayList<ByteString> secureCards = new ArrayList<ByteString>();
-//                    if (mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null && mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards() != null){
-//                        cards.addAll(mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards());
-//                    } else {
-//                        cards.add(-1);
-//                        cards.add(-1);
-//                    }
-//                    stUserGameInfoNetBuilder.addAllVCurrentHands(cards);
-
-                    HandInfo handInfo = SecureManager.getInstance().getmHandMapE2EEByUUid(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
-                    if (handInfo != null && handInfo.getvSecureCards() != null){
-                        stUserGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                    if (mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()) != null && mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards() != null){
+                        cards.addAll(mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid()).getvCards());
                     } else {
                         cards.add(-1);
                         cards.add(-1);
-                        stUserGameInfoNetBuilder.addAllVCurrentHands(cards);
                     }
+                    stUserGameInfoNetBuilder.addAllVCurrentHands(cards);
                 }
                 tGameRoomInfoBuilder.setVUserGameInfos(i, stUserGameInfoNetBuilder);
             }
@@ -6605,7 +6650,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
     @Override
     public void pushGameRoomUserMsgs(UserGameInfoNet stFromUserGamenfo, long stToUserUuid,
                                      GAME_ROOM_MESSAGE_TYPE eGameRoomMessageType, int pos, int bCheat) {
-        UserGameInfoNet secureUserGameInfoNet = GameRoomManager.getInstance().getSecureUserGameInfoNet(stFromUserGamenfo);
+        UserGameInfoNet secureUserGameInfoNet = getSecureUserGameInfoNet(stFromUserGamenfo, 2);
         //给被邀请用户发通知
         TexasPoker.GameRoomPushMsg.Builder stGameRoomPushMsgBuilder = TexasPoker.GameRoomPushMsg.newBuilder();
         //标记伙牌嫌疑

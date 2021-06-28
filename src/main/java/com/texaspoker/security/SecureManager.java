@@ -1,5 +1,6 @@
 package com.texaspoker.security;
 
+import com.google.protobuf.ByteString;
 import com.texaspoker.moment.TexasPokerSecureProtocolService;
 import com.texaspoker.moment.room.HandInfo;
 import com.texaspoker.rpc.client.RpcChannel;
@@ -28,23 +29,9 @@ public class SecureManager {
     private static RpcController controller = new RpcController();
     TexasPokerSecureProtocolService.SecureProtocolService.BlockingInterface blockingSecureService ;
 
-    public Map<Long, HandInfo> mHandMapE2EE = new HashMap<Long, HandInfo>();//加密手牌
-
-    public Map<Long, HandInfo> getmHandMapE2EE() {
-        return mHandMapE2EE;
-    }
-
-    public HandInfo getmHandMapE2EEByUUid(long uuid) {
-        return mHandMapE2EE.get(uuid);
-    }
-
-    public void setmHandMapE2EE(Map<Long, HandInfo> mHandMapE2EE) {
-        this.mHandMapE2EE = mHandMapE2EE;
-    }
-
     //私有的构造函数
     private SecureManager(){
-        host = "192.16.32.4";
+        host = "172.16.32.4";
         port = 9238;
         System.out.println("SecureManager hosthost : " + host);
         System.out.println("SecureManager portport : " + port);
@@ -148,25 +135,6 @@ public class SecureManager {
             e.printStackTrace();
             return null;
         }
-    }
-
-    public TexasPokerSecureProtocolService.EncryptDataResponse setMHandSecureMap(int card1, int card2, long uuid){
-        List<Integer> cardList = new ArrayList<>();
-        if (card1 != 0 && card2 != 0) {
-            cardList.add(card1, card2);
-            TexasPokerSecureProtocolService.EncryptDataResponse encryptDataResponse = encryptData(0, uuid, cardList);
-            if (encryptDataResponse != null) {
-                HandInfo stHandInfo = new HandInfo();
-                stHandInfo.addCards(card1, card2);
-                stHandInfo.addSecureCards(encryptDataResponse.getCipherData().getVData());
-                mHandMapE2EE.put(uuid, stHandInfo);
-            }
-
-            return encryptDataResponse;
-        } else {
-            return null;
-        }
-
     }
 
 
