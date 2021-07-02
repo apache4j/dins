@@ -16,15 +16,10 @@ import com.texaspoker.moment.TexasPokerCommon;
 import com.texaspoker.moment.TexasPokerCommon.*;
 import com.texaspoker.moment.TexasPokerHttpLeague;
 import com.texaspoker.moment.TexasPokerHttpLeague.LeagueInfo;
-import com.texaspoker.moment.TexasPokerSecureProtocolService;
-import com.texaspoker.security.SecureManager;
 import com.texaspoker.user.UserManager;
 import com.texaspoker.voice.VoiceManager;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -338,6 +333,4 @@ public class GameRoomManager {
             APNManager.getInstance().createGameRoomPush(lClubID, sGameName, "" + fHour, sb, ante, 1);
         }
     }
-
-
 }

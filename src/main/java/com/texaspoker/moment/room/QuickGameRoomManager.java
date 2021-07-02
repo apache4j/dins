@@ -473,6 +473,19 @@ public class QuickGameRoomManager {
 
                     GameRoomDetailInfo stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(stQuickGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId());
                     if (stGameRoomDetailInfo != null && stGameRoomDetailInfo.getStGameRoomInfo() != null) {
+                        UserGameInfoNet.Builder standByUserGameInfos = stGameRoomDetailInfo.getStandByUserGameInfos(uuid);
+                        HandInfo handInfo = stGameRoomDetailInfo.getmHandSecureMapByid(uuid);
+                        if (standByUserGameInfos != null && stGameRoomDetailInfo.mPlayers.contains(uuid) && handInfo != null && handInfo.getvSecureCards() != null && handInfo.getvSecureCards().get(0).size() > 0) {
+                            GameRoomInfo stGameRoomInfo = stGameRoomDetailInfo.getStGameRoomInfo();
+                            for (int i = 0; i < stGameRoomInfo.getVUserGameInfosCount(); i++) {
+                                UserGameInfoNet vUserGameInfos = stGameRoomInfo.getVUserGameInfos(i);
+                                if (uuid == vUserGameInfos.getStUserInfo().getUuid()) {
+                                    boolean encryptFlag = stGameRoomDetailInfo.setMHandSecureMapByid(vUserGameInfos.getVCurrentHands(0), vUserGameInfos.getVCurrentHands(1), uuid);
+                                    break;
+                                }
+                            }
+
+                        }
                         stQuickGameRoomResultInfo.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
                     }
 

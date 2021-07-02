@@ -52,18 +52,6 @@ public class GameRoomStateMsgManager {
 
     public void sendGameRoomStateChangeMsg(Long toUserId,TexasPoker.SCGameRoomStateChange stSCGameRoomStateChange){
         TexasPokerMsgService.GameRoomStateChangePushRequest.Builder stGameRoomStateChangePushRequestBuilder = TexasPokerMsgService.GameRoomStateChangePushRequest.newBuilder();
-        System.out.println("roomid:" + stSCGameRoomStateChange.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId() + ",stateMsg GameState()====" + stSCGameRoomStateChange.getStGameRoomInfo().getEGameState());
-        System.out.println(",stateMsg table====" + stSCGameRoomStateChange.getStGameRoomInfo().getVCurrentCardsList().toString());
-        TexasPoker.GameRoomInfo stGameRoomInfo = stSCGameRoomStateChange.getStGameRoomInfo();
-        for (int i = 0; i < stGameRoomInfo.getVUserGameInfosCount(); i++) {
-            if (stGameRoomInfo.getVUserGameInfos(i).getVCurrentHandsCount() > 0) {
-                System.out.println("card1:" + stGameRoomInfo.getVUserGameInfos(i).getVCurrentHands(0) + ",card2:" + stGameRoomInfo.getVUserGameInfos(i).getVCurrentHands(1));
-            }
-            if (stGameRoomInfo.getVUserGameInfos(i).getVCurrentHandsByteCount() > 0) {
-                System.out.println("bytecard:" + stGameRoomInfo.getVUserGameInfos(i).getVCurrentHandsByte(0));
-            }
-
-        }
         stGameRoomStateChangePushRequestBuilder.setUuid(toUserId);
         stGameRoomStateChangePushRequestBuilder.setStSCGameRoomStateChange(stSCGameRoomStateChange);
 

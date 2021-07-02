@@ -20,9 +20,7 @@ import com.texaspoker.moment.TexasPokerGameService.*;
 import com.texaspoker.moment.TexasPokerHttpClub;
 import com.texaspoker.moment.TexasPokerHttpLeague.LeagueBaseInfo;
 import com.texaspoker.moment.TexasPokerHttpLeague.LeagueInfo;
-import com.texaspoker.moment.TexasPokerSecureProtocolService;
 import com.texaspoker.moment.room.*;
-import com.texaspoker.security.SecureManager;
 import com.texaspoker.user.UserManager;
 
 import java.util.ArrayList;
@@ -99,7 +97,6 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
                 ERROR_CODE_TYPE eErrorCodeType = stGameRoomDetailInfo.enterGameRoom(request.getUuid());
                 if (eErrorCodeType == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS) {
                     stEnterGameRoomResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-//                    stEnterGameRoomResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
                     stEnterGameRoomResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getSecureGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo(), 1));
                     if (stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getECreateRoomType() == CREATE_ROOM_TYPE.QUICK_GAME_ROOM) {
                         QuickGameRoomInfo.Builder stQuickGameRoomInfoBuilder = QuickGameRoomManager.getInstance().getQuickGameRoomInfoByRoomID(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLChatRoomID());
@@ -1415,40 +1412,18 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
 
     @Override
     public NotifyUserCryptKeyResponse notifyUserCryptKey(RpcController rpcController, NotifyUserCryptKeyRequest notifyUserCryptKeyRequest) throws ServiceException {
-        NotifyUserCryptKeyResponse.Builder notifyUserCryptKeyResponse = NotifyUserCryptKeyResponse.newBuilder();
         long uuid = notifyUserCryptKeyRequest.getUuid();
-
-        int roomidCount = notifyUserCryptKeyRequest.getRoomidCount();
-        if (roomidCount < 1){
-            notifyUserCryptKeyResponse.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-        }
-
-        for (int i = 0; i < roomidCount; i++) {
-            long roomid = notifyUserCryptKeyRequest.getRoomid(i);
-            GameRoomDetailInfo stGameRoomDetailInfo;
-            if (roomid > 0) {
-                stGameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(roomid);
-            } else {
-                notifyUserCryptKeyResponse.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-                continue;
-            }
-            if (stGameRoomDetailInfo != null) {
-                GameRoomInfo stGameRoomInfo = stGameRoomDetailInfo.getStGameRoomInfo();
-                for (int j = 0; j < stGameRoomInfo.getVUserGameInfosCount(); j++) {
-                    UserGameInfoNet vUserGameInfos = stGameRoomInfo.getVUserGameInfos(j);
-                    if (vUserGameInfos.getStUserInfo().getUuid() == uuid) {
-                        stGameRoomDetailInfo.setMHandSecureMapByid(vUserGameInfos.getVCurrentHands(0), vUserGameInfos.getVCurrentHands(1), uuid);
-                        notifyUserCryptKeyResponse.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-                        break;
-                    }
-                    notifyUserCryptKeyResponse.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
-                }
-            } else {
+        NotifyUserCryptKeyResponse.Builder notifyUserCryptKeyResponse = NotifyUserCryptKeyResponse.newBuilder();
+        GameRoomDetailInfo gameRoomAbstractInfo = new GameRoomDetailInfo();
+        UserGameInfoNet.Builder standByUserGameInfos = gameRoomAbstractInfo.getStandByUserGameInfos(uuid);
+        if (standByUserGameInfos != null) {
+            boolean encryptFlag = gameRoomAbstractInfo.setMHandSecureMapByid(standByUserGameInfos.getVCurrentHands(0), standByUserGameInfos.getVCurrentHands(1), uuid);
+            if (!encryptFlag) {
                 notifyUserCryptKeyResponse.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN);
+                return notifyUserCryptKeyResponse.build();
             }
         }
-
-
+        notifyUserCryptKeyResponse.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
         return notifyUserCryptKeyResponse.build();
     }
 

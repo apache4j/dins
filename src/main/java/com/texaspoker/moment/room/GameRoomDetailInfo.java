@@ -1,6 +1,5 @@
 package com.texaspoker.moment.room;
 
-import com.google.protobuf.ByteString;
 import com.texaspoker.apns.APNManager;
 import com.texaspoker.bill.BillManager;
 import com.texaspoker.club.ClubManager;
@@ -21,7 +20,6 @@ import com.texaspoker.moment.TexasPoker.*;
 import com.texaspoker.moment.TexasPokerCommon.*;
 import com.texaspoker.moment.TexasPokerHttpLeague.LeagueInfo;
 import com.texaspoker.msg.GameRoomMsgManager;
-import com.texaspoker.security.SecureManager;
 import com.texaspoker.user.UserManager;
 import com.texaspoker.voice.VoiceManager;
 import org.apache.commons.lang.math.RandomUtils;
@@ -2463,6 +2461,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         if (bFirstWaitShowTableCard == true) {
                             bFirstWaitShowTableCard = false;
                         }
+
                         resetGameRoom();
                         GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
                         if (iCouldPlayNum >= 2 && getGameStarted() == true) {
@@ -2590,6 +2589,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                         //系统检测
                         checkUserVoiceVerification();
                     }
+
                     resetGameRoom();
                     sendAllGameStateChange(0, null);
 
@@ -4394,6 +4394,23 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
     public ERROR_CODE_TYPE enterGameRoom(long uuid) {
         synchronized (this) {
             try {
+                UserGameInfoNet.Builder standByUserGameInfos = getStandByUserGameInfos(uuid);
+                HandInfo handInfo = getmHandSecureMapByid(uuid);
+                if (standByUserGameInfos != null && mPlayers.contains(uuid) && handInfo != null && handInfo.getvSecureCards() != null && handInfo.getvSecureCards().get(0).size() > 0) {
+                    long lRoomId = standByUserGameInfos.getLRoomId();
+                    GameRoomDetailInfo gameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(lRoomId);
+                    if (gameRoomDetailInfo != null) {
+                        GameRoomInfo stGameRoomInfo = gameRoomDetailInfo.getStGameRoomInfo();
+                        for (int i = 0; i < stGameRoomInfo.getVUserGameInfosCount(); i++) {
+                            UserGameInfoNet vUserGameInfos = stGameRoomInfo.getVUserGameInfos(i);
+                            if (uuid == vUserGameInfos.getStUserInfo().getUuid()) {
+                                boolean encryptFlag = setMHandSecureMapByid(vUserGameInfos.getVCurrentHands(0), vUserGameInfos.getVCurrentHands(1), uuid);
+                                break;
+                            }
+                        }
+                    }
+
+                }
                 if (mUserKickedUser.containsKey(uuid)) {
                     return ERROR_CODE_TYPE.ERROR_CODE_TYPE_BLACKED;
                 }
@@ -4837,8 +4854,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             .addAllVData(cardList)
                             .build();
                     plainDataMessageList.add(plainDataMessage);
-
-
                     HandInfo stHandInfo = new HandInfo();
                     stHandInfo.addCards(card1, card2);
                     stHandInfo.setlRemainStacks(lRemainStacks);
@@ -5035,7 +5050,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
             }
             boolean oneFlag = false;//如果所有人的手牌都是-1 则都不加密
             for (TexasPokerSecureProtocolService.PlainDataMessage item : plainDataMessageList){
-                if (item.getVData(0) == -1 && item.getVData(1) == -1) {
+                if (item.getVData(0) == -1 && item.getVData(1) == -1) {//预期不会有只有一个-1的情况
                     oneFlag = true;
                 } else {
                     oneFlag = false;
@@ -5045,16 +5060,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                 setHandSecureMap(plainDataMessageList);
             }
 
-            for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
-                UserGameInfoNet vUserGameInfos = stGameRoomInfoBuilder.getVUserGameInfos(i);
-                long uuid = vUserGameInfos.getStUserInfo().getUuid();
-                if (mHandSecureMap.containsKey(uuid)) {
-                    if (mHandSecureMap.get(uuid).getvSecureCards() != null && mHandSecureMap.get(uuid).getvSecureCards().size() > 0){
-                        vUserGameInfos.toBuilder().addVCurrentHandsByte(mHandSecureMap.get(uuid).getvSecureCards().get(0));
-                    }
-                }
-                stGameRoomInfoBuilder.setVUserGameInfos(i, vUserGameInfos);
-            }
             if (lStepMaxStacks < stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds()) {
                 lStepMaxStacks = stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds();
             }
@@ -5423,16 +5428,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                 setHandSecureMap(plainDataMessageList);
             }
 
-            for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
-                UserGameInfoNet vUserGameInfos = stGameRoomInfoBuilder.getVUserGameInfos(i);
-                long uuid = vUserGameInfos.getStUserInfo().getUuid();
-                if (mHandSecureMap.containsKey(uuid)) {
-                    if (mHandSecureMap.get(uuid).getvSecureCards() != null && mHandSecureMap.get(uuid).getvSecureCards().size() > 0){
-                        vUserGameInfos.toBuilder().addVCurrentHandsByte(mHandSecureMap.get(uuid).getvSecureCards().get(0));
-                    }
-                }
-                stGameRoomInfoBuilder.setVUserGameInfos(i, vUserGameInfos);
-            }
             if (lStepMaxStacks < stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds()) {
                 lStepMaxStacks = stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds();
             }
@@ -5850,16 +5845,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                 setHandSecureMap(plainDataMessageList);
             }
 
-            for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
-                UserGameInfoNet vUserGameInfos = stGameRoomInfoBuilder.getVUserGameInfos(i);
-                long uuid = vUserGameInfos.getStUserInfo().getUuid();
-                if (mHandSecureMap.containsKey(uuid)) {
-                    if (mHandSecureMap.get(uuid).getvSecureCards() != null && mHandSecureMap.get(uuid).getvSecureCards().size() > 0){
-                        vUserGameInfos.toBuilder().addVCurrentHandsByte(mHandSecureMap.get(uuid).getvSecureCards().get(0));
-                    }
-                }
-                stGameRoomInfoBuilder.setVUserGameInfos(i, vUserGameInfos);
-            }
             if (lStepMaxStacks < stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds()) {
                 lStepMaxStacks = stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds();
             }
@@ -6034,7 +6019,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             .addAllVData(cardList)
                             .build();
                     plainDataMessageList.add(plainDataMessage);
-
 
                     HandInfo stHandInfo = new HandInfo();
                     stHandInfo.addCards(card1, card2);
@@ -6242,16 +6226,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                 setHandSecureMap(plainDataMessageList);
             }
 
-            for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
-                UserGameInfoNet vUserGameInfos = stGameRoomInfoBuilder.getVUserGameInfos(i);
-                long uuid = vUserGameInfos.getStUserInfo().getUuid();
-                if (mHandSecureMap.containsKey(uuid)) {
-                    if (mHandSecureMap.get(uuid).getvSecureCards() != null && mHandSecureMap.get(uuid).getvSecureCards().size() > 0){
-                        vUserGameInfos.toBuilder().addVCurrentHandsByte(mHandSecureMap.get(uuid).getvSecureCards().get(0));
-                    }
-                }
-                stGameRoomInfoBuilder.setVUserGameInfos(i, vUserGameInfos);
-            }
             if (lStepMaxStacks < stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds()) {
                 lStepMaxStacks = stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds();
             }
@@ -6620,16 +6594,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                 setHandSecureMap(plainDataMessageList);
             }
 
-            for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
-                UserGameInfoNet vUserGameInfos = stGameRoomInfoBuilder.getVUserGameInfos(i);
-                long uuid = vUserGameInfos.getStUserInfo().getUuid();
-                if (mHandSecureMap.containsKey(uuid)) {
-                    if (mHandSecureMap.get(uuid).getvSecureCards() != null && mHandSecureMap.get(uuid).getvSecureCards().size() > 0){
-                        vUserGameInfos.toBuilder().addVCurrentHandsByte(mHandSecureMap.get(uuid).getvSecureCards().get(0));
-                    }
-                }
-                stGameRoomInfoBuilder.setVUserGameInfos(i, vUserGameInfos);
-            }
             if (lStepMaxStacks < stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds()) {
                 lStepMaxStacks = stGameRoomInfo.getStGameRoomBaseInfo().getLBigBlinds();
             }

@@ -90,6 +90,7 @@ public class SecureManager {
         stEncryptDataListRequestBuilder.addAllVPlainDatas(plainDataMessageList);
         try {
             TexasPokerSecureProtocolService.EncryptDataListResponse response = blockingSecureService.encryptDataList(controller, stEncryptDataListRequestBuilder.build());
+//            Thread.sleep(1500);
             if (response != null && response.getIErrCode() == 0) {
                 return response;
             } else {

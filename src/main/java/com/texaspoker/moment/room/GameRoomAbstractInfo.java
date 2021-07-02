@@ -1,7 +1,6 @@
 package com.texaspoker.moment.room;
 
 import com.alibaba.dubbo.common.utils.CollectionUtils;
-import com.google.protobuf.ByteString;
 import com.texaspoker.bill.BillManager;
 import com.texaspoker.club.ClubManager;
 import com.texaspoker.comm.AdvancedTimeoutHashMap;
@@ -120,13 +119,15 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         return mHandSecureMap.get(uuid);
     }
 
-    public void setMHandSecureMapByid(int card1, int card2, long uuid) {
+    public boolean setMHandSecureMapByid(int card1, int card2, long uuid) {
+        boolean encryptFlag = false;
         if (card1 != -1 && card2 != -1){
-            List cardList = new ArrayList();
+            List<Integer> cardList = new ArrayList();
             cardList.add(card1);
             cardList.add(card2);
             TexasPokerSecureProtocolService.EncryptDataResponse encryptDataResponse = SecureManager.getInstance().encryptData(0, uuid, cardList);
             if (encryptDataResponse != null && encryptDataResponse.getCipherData() != null ){
+                encryptFlag = true;
                 TexasPokerSecureProtocolService.CipherDataMessage vPlainDatas = encryptDataResponse.getCipherData();
                 HandInfo stHandInfo = new HandInfo();
                 if (vPlainDatas.getVData() != null){
@@ -135,6 +136,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 }
             }
         }
+        return encryptFlag;
 
     }
 
@@ -142,7 +144,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
     public void setHandSecureMap(List<TexasPokerSecureProtocolService.PlainDataMessage> plainDataMessageList){
         TexasPokerSecureProtocolService.EncryptDataListResponse encryptDataListResponse = SecureManager.getInstance().encryptDataList(plainDataMessageList);
-        System.out.println("encryptDataListResponse=======" + encryptDataListResponse);
         if (encryptDataListResponse != null) {
             for (int i = 0; i < encryptDataListResponse.getVPlainDatasCount(); i++) {
                 TexasPokerSecureProtocolService.CipherDataMessage vPlainDatas = encryptDataListResponse.getVPlainDatas(i);
@@ -254,11 +255,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
     public GameRoomAbstractInfo() {
         mTimeoutGameUsers = new AdvancedTimeoutHashMap<Long, Long>();
 
-        vTestHandCards1.add(1);
-        vTestHandCards1.add(27);
+        vTestHandCards1.add(4);
+        vTestHandCards1.add(5);
 
-        vTestHandCards2.add(14);
-        vTestHandCards2.add(15);
+        vTestHandCards2.add(6);
+        vTestHandCards2.add(7);
 
         vTestHandCards3.add(10);
         vTestHandCards3.add(11);
@@ -266,11 +267,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         vTestHandCards4.add(8);
         vTestHandCards4.add(7);
 
-        vTestTableCards.add(3);
-        vTestTableCards.add(4);
-        vTestTableCards.add(5);
-        vTestTableCards.add(6);
-        vTestTableCards.add(9);
+        vTestTableCards.add(31);
+        vTestTableCards.add(41);
+        vTestTableCards.add(15);
+        vTestTableCards.add(16);
+        vTestTableCards.add(19);
 
         mTemporarilyLeaveUsersTimeout = new TimeoutHashMap<Long, Long>();
         mTemporarilyLeaveUsersTimeout.setTimeout(180000);
@@ -1500,13 +1501,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() != stToUserUuid) {
 
                 if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_ALLIN && bAllAllin == true) {
-//                    mHandSecureMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
-                    HandInfo handInfo = mHandMap.get(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
-                    if (handInfo != null) {
-                        stUserGameInfoNetBuilder.addAllVCurrentHands(handInfo.getvCards());
-                        stUserGameInfoNetBuilder.clearVCurrentHandsByte();
-                    }
-
                     continue;
                 }
 
@@ -4180,21 +4174,16 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             return null;
         }
 
-        if (userGameInfoNetBuilder.getVCurrentHandsByteCount() < 1){
-            HandInfo handInfo = getmHandSecureMapByid(userGameInfoNetBuilder.getStUserInfo().getUuid());
-            if (handInfo != null && handInfo.getvSecureCards().size() > 0) {
-                userGameInfoNetBuilder.clearVCurrentHands();
-                userGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
-            } else {
-//                if (type == 1) {
-//                    userGameInfoNetBuilder.clearVCurrentHands();
-//                }
+        HandInfo handInfo = getmHandSecureMapByid(userGameInfoNetBuilder.getStUserInfo().getUuid());
+        if (handInfo != null && handInfo.getvSecureCards().size() > 0  && !handInfo.getvSecureCards().get(0).isEmpty()) {
+            userGameInfoNetBuilder.clearVCurrentHands();
+            userGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+        } else {
+            if (type == 1) {
                 userGameInfoNetBuilder.clearVCurrentHands();
             }
-
-        } else {
-            userGameInfoNetBuilder.clearVCurrentHandsByte();
         }
+
         return userGameInfoNetBuilder.build();
 
     }
@@ -4213,29 +4202,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         GameRoomInfo.Builder stGameRoomInfoBuilder = gameRoomInfo.toBuilder();
         for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
             //获取每一个UserGameInfoNet
-            UserGameInfoNet.Builder userGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfos(i).toBuilder();
-            if (gameRoomInfo.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD){
-                if (userGameInfoNetBuilder.getVCurrentHandsByteCount() < 1){
-                    HandInfo handInfo = getmHandSecureMapByid(userGameInfoNetBuilder.getStUserInfo().getUuid());
-
-                    if (handInfo != null && handInfo.getvSecureCards().size() > 0) {
-                        userGameInfoNetBuilder.clearVCurrentHands();
-                        userGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
-                    } else {
-//                        if (type == 1) {
-//                            System.out.println("222");
-//                            userGameInfoNetBuilder.clearVCurrentHands();
-//                        }
-                        userGameInfoNetBuilder.clearVCurrentHands();
-                    }
-                } else {
-                    userGameInfoNetBuilder.clearVCurrentHands();
-                }
-            } else {
-                userGameInfoNetBuilder.clearVCurrentHandsByte();
+            UserGameInfoNet userGameInfoNet = stGameRoomInfoBuilder.getVUserGameInfos(i);
+            if (gameRoomInfo.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD && gameRoomInfo.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result && userGameInfoNet.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_ALLIN && !bAllAllin){
+                UserGameInfoNet secureUserGameInfoNet = getSecureUserGameInfoNet(userGameInfoNet, type);
+                stGameRoomInfoBuilder.setVUserGameInfos(i,secureUserGameInfoNet.toBuilder());
             }
-
-            stGameRoomInfoBuilder.setVUserGameInfos(i,userGameInfoNetBuilder);
         }
         return stGameRoomInfoBuilder.build();
     }
@@ -5096,9 +5067,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         if (bTable) {
             return vTestTableCards.get(time);
         } else {
-            if (uuid == 342263) {
+            if (uuid == 342342) {
                 return vTestHandCards1.get(time);
-            } else if (uuid == 342265) {
+            } else if (uuid == 203330) {
                 return vTestHandCards2.get(time);
             } else if (uuid == 342270){
                 return vTestHandCards3.get(time);
