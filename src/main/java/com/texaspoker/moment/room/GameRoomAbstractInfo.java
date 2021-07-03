@@ -126,13 +126,16 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             cardList.add(card1);
             cardList.add(card2);
             TexasPokerSecureProtocolService.EncryptDataResponse encryptDataResponse = SecureManager.getInstance().encryptData(0, uuid, cardList);
+            encryptDataResponse = null;
             if (encryptDataResponse != null && encryptDataResponse.getCipherData() != null ){
                 encryptFlag = true;
                 TexasPokerSecureProtocolService.CipherDataMessage vPlainDatas = encryptDataResponse.getCipherData();
                 HandInfo stHandInfo = new HandInfo();
-                if (vPlainDatas.getVData() != null){
+                if (vPlainDatas != null && vPlainDatas.getVData() != null && vPlainDatas.getVData().size() > 0){
                     stHandInfo.addSecureCards(vPlainDatas.getVData());
                     mHandSecureMap.put(vPlainDatas.getLuuid(), stHandInfo);
+                } else {
+                    mHandSecureMap.remove(uuid);
                 }
             }
         }
@@ -144,16 +147,18 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
     public void setHandSecureMap(List<TexasPokerSecureProtocolService.PlainDataMessage> plainDataMessageList){
         TexasPokerSecureProtocolService.EncryptDataListResponse encryptDataListResponse = SecureManager.getInstance().encryptDataList(plainDataMessageList);
+        encryptDataListResponse = null;
         if (encryptDataListResponse != null) {
             for (int i = 0; i < encryptDataListResponse.getVPlainDatasCount(); i++) {
                 TexasPokerSecureProtocolService.CipherDataMessage vPlainDatas = encryptDataListResponse.getVPlainDatas(i);
                 HandInfo stHandInfo = new HandInfo();
-                if (vPlainDatas != null && vPlainDatas.getVData() != null){
+                if (vPlainDatas != null && vPlainDatas.getVData() != null && vPlainDatas.getVData().size() > 0){
                     stHandInfo.addSecureCards(vPlainDatas.getVData());
                     mHandSecureMap.put(vPlainDatas.getLuuid(), stHandInfo);
                 }
-
             }
+        } else {
+            mHandSecureMap.clear();
         }
     }
 
