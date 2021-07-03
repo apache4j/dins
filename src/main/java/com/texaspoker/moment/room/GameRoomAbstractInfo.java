@@ -126,7 +126,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             cardList.add(card1);
             cardList.add(card2);
             TexasPokerSecureProtocolService.EncryptDataResponse encryptDataResponse = SecureManager.getInstance().encryptData(0, uuid, cardList);
-            encryptDataResponse = null;
             if (encryptDataResponse != null && encryptDataResponse.getCipherData() != null ){
                 encryptFlag = true;
                 TexasPokerSecureProtocolService.CipherDataMessage vPlainDatas = encryptDataResponse.getCipherData();
@@ -147,7 +146,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
     public void setHandSecureMap(List<TexasPokerSecureProtocolService.PlainDataMessage> plainDataMessageList){
         TexasPokerSecureProtocolService.EncryptDataListResponse encryptDataListResponse = SecureManager.getInstance().encryptDataList(plainDataMessageList);
-        encryptDataListResponse = null;
         if (encryptDataListResponse != null) {
             for (int i = 0; i < encryptDataListResponse.getVPlainDatasCount(); i++) {
                 TexasPokerSecureProtocolService.CipherDataMessage vPlainDatas = encryptDataListResponse.getVPlainDatas(i);
