@@ -4159,6 +4159,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
         }
     }
 
+    public Map<Long,Integer> bettingCount = new HashMap<>();
     /**
      *
      * <br/>
@@ -4179,8 +4180,36 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
         HandInfo handInfo = getmHandSecureMapByid(userGameInfoNetBuilder.getStUserInfo().getUuid());
         if (handInfo != null && handInfo.getvSecureCards().size() > 0  && !handInfo.getvSecureCards().get(0).isEmpty()) {
-            userGameInfoNetBuilder.clearVCurrentHands();
-            userGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+            if (stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) {
+                if (stGameRoomInfo.getEGameState().getNumber() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop.getNumber()){
+
+                    if (userGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_BETTING){
+                        userGameInfoNetBuilder.clearVCurrentHands();
+                        userGameInfoNetBuilder.clearVCurrentHandsByte();
+                        userGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                        bettingCount.put(userGameInfoNetBuilder.getStUserInfo().getUuid(), 1);
+                    } else {
+                        if (bettingCount.get(userGameInfoNetBuilder.getStUserInfo().getUuid()) == null) {
+                            userGameInfoNetBuilder.clearVCurrentHands();
+                            userGameInfoNetBuilder.clearVCurrentHandsByte();
+                            userGameInfoNetBuilder.addVCurrentHands(-1);
+                            userGameInfoNetBuilder.addVCurrentHands(-1);
+                        }
+
+                    }
+
+                } else {
+                    bettingCount.remove(userGameInfoNetBuilder.getStUserInfo().getUuid());
+                    userGameInfoNetBuilder.clearVCurrentHands();
+                    userGameInfoNetBuilder.clearVCurrentHandsByte();
+                    userGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                }
+
+            } else {
+                userGameInfoNetBuilder.clearVCurrentHands();
+                userGameInfoNetBuilder.clearVCurrentHandsByte();
+                userGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+            }
         } else {
             if (type == 1) {
                 userGameInfoNetBuilder.clearVCurrentHands();

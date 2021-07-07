@@ -2826,6 +2826,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
         stGameRoomInfoBuilder.setLEffectiveRaise(stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLBigBlinds());
         mHandMap.clear();
         mHandSecureMap.clear();
+        bettingCount.clear();
         vHandList.clear();
         mHandPos.clear();
         bFlopStatus = false;
@@ -4396,20 +4397,21 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
             try {
                 UserGameInfoNet.Builder standByUserGameInfos = getStandByUserGameInfos(uuid);
                 HandInfo handInfo = getmHandSecureMapByid(uuid);
-                if (standByUserGameInfos != null && mPlayers.contains(uuid) && handInfo != null && handInfo.getvSecureCards() != null && handInfo.getvSecureCards().get(0).size() > 0) {
-                    long lRoomId = standByUserGameInfos.getLRoomId();
-                    GameRoomDetailInfo gameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(lRoomId);
-                    if (gameRoomDetailInfo != null) {
-                        GameRoomInfo stGameRoomInfo = gameRoomDetailInfo.getStGameRoomInfo();
-                        for (int i = 0; i < stGameRoomInfo.getVUserGameInfosCount(); i++) {
-                            UserGameInfoNet vUserGameInfos = stGameRoomInfo.getVUserGameInfos(i);
-                            if (uuid == vUserGameInfos.getStUserInfo().getUuid()) {
-                                boolean encryptFlag = setMHandSecureMapByid(vUserGameInfos.getVCurrentHands(0), vUserGameInfos.getVCurrentHands(1), uuid);
-                                break;
+                if (standByUserGameInfos != null && mPlayers.contains(uuid)) {
+                    if ((handInfo != null && handInfo.getvSecureCards() != null && handInfo.getvSecureCards().get(0).size() > 0) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
+                        long lRoomId = standByUserGameInfos.getLRoomId();
+                        GameRoomDetailInfo gameRoomDetailInfo = GameRoomManager.getInstance().getGameRoomDetailInfo(lRoomId);
+                        if (gameRoomDetailInfo != null) {
+                            GameRoomInfo stGameRoomInfo = gameRoomDetailInfo.getStGameRoomInfo();
+                            for (int i = 0; i < stGameRoomInfo.getVUserGameInfosCount(); i++) {
+                                UserGameInfoNet vUserGameInfos = stGameRoomInfo.getVUserGameInfos(i);
+                                if (uuid == vUserGameInfos.getStUserInfo().getUuid()) {
+                                    setMHandSecureMapByid(vUserGameInfos.getVCurrentHands(0), vUserGameInfos.getVCurrentHands(1), uuid);
+                                    break;
+                                }
                             }
                         }
                     }
-
                 }
                 if (mUserKickedUser.containsKey(uuid)) {
                     return ERROR_CODE_TYPE.ERROR_CODE_TYPE_BLACKED;
@@ -4840,14 +4842,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                         stUserGameInfoBuilder.addVCurrentHands(-1);
                         stUserGameInfoBuilder.addVCurrentHands(-1);
-                        cardList.add(-1);
-                        cardList.add(-1);
                     } else {
                         stUserGameInfoBuilder.addVCurrentHands(card1);
                         stUserGameInfoBuilder.addVCurrentHands(card2);
-                        cardList.add(card1);
-                        cardList.add(card2);
                     }
+                    cardList.add(card1);
+                    cardList.add(card2);
                     TexasPokerSecureProtocolService.PlainDataMessage plainDataMessage = TexasPokerSecureProtocolService.PlainDataMessage.newBuilder()
                             .setLuuid(stUserGameInfoBuilder.getStUserInfo().getUuid())
                             .setLRoomid(0)
@@ -5211,14 +5211,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                         stUserGameInfoBuilder.addVCurrentHands(-1);
                         stUserGameInfoBuilder.addVCurrentHands(-1);
-                        cardList.add(-1);
-                        cardList.add(-1);
                     } else {
                         stUserGameInfoBuilder.addVCurrentHands(card1);
                         stUserGameInfoBuilder.addVCurrentHands(card2);
-                        cardList.add(card1);
-                        cardList.add(card2);
                     }
+                    cardList.add(card1);
+                    cardList.add(card2);
                     TexasPokerSecureProtocolService.PlainDataMessage plainDataMessage = TexasPokerSecureProtocolService.PlainDataMessage.newBuilder()
                             .setLuuid(stUserGameInfoBuilder.getStUserInfo().getUuid())
                             .setLRoomid(0)
@@ -5556,14 +5554,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                         stUserGameInfoBuilder.addVCurrentHands(-1);
                         stUserGameInfoBuilder.addVCurrentHands(-1);
-                        cardList.add(-1);
-                        cardList.add(-1);
                     } else {
                         stUserGameInfoBuilder.addVCurrentHands(card1);
                         stUserGameInfoBuilder.addVCurrentHands(card2);
-                        cardList.add(card1);
-                        cardList.add(card2);
                     }
+                    cardList.add(card1);
+                    cardList.add(card2);
                     TexasPokerSecureProtocolService.PlainDataMessage plainDataMessage = TexasPokerSecureProtocolService.PlainDataMessage.newBuilder()
                             .setLuuid(stUserGameInfoBuilder.getStUserInfo().getUuid())
                             .setLRoomid(0)
@@ -6005,14 +6001,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                         stUserGameInfoBuilder.addVCurrentHands(-1);
                         stUserGameInfoBuilder.addVCurrentHands(-1);
-                        cardList.add(-1);
-                        cardList.add(-1);
                     } else {
                         stUserGameInfoBuilder.addVCurrentHands(card1);
                         stUserGameInfoBuilder.addVCurrentHands(card2);
-                        cardList.add(card1);
-                        cardList.add(card2);
                     }
+                    cardList.add(card1);
+                    cardList.add(card2);
                     TexasPokerSecureProtocolService.PlainDataMessage plainDataMessage = TexasPokerSecureProtocolService.PlainDataMessage.newBuilder()
                             .setLuuid(stUserGameInfoBuilder.getStUserInfo().getUuid())
                             .setLRoomid(0)
@@ -6376,14 +6370,12 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                         stUserGameInfoBuilder.addVCurrentHands(-1);
                         stUserGameInfoBuilder.addVCurrentHands(-1);
-                        cardList.add(-1);
-                        cardList.add(-1);
                     } else {
                         stUserGameInfoBuilder.addVCurrentHands(card1);
                         stUserGameInfoBuilder.addVCurrentHands(card2);
-                        cardList.add(card1);
-                        cardList.add(card2);
                     }
+                    cardList.add(card1);
+                    cardList.add(card2);
                     TexasPokerSecureProtocolService.PlainDataMessage plainDataMessage = TexasPokerSecureProtocolService.PlainDataMessage.newBuilder()
                             .setLuuid(stUserGameInfoBuilder.getStUserInfo().getUuid())
                             .setLRoomid(0)
