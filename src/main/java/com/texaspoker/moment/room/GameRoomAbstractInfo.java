@@ -4180,7 +4180,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
         HandInfo handInfo = getmHandSecureMapByid(userGameInfoNetBuilder.getStUserInfo().getUuid());
         if (handInfo != null && handInfo.getvSecureCards().size() > 0  && !handInfo.getvSecureCards().get(0).isEmpty()) {
-            if (stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) {
+            if ((stGameRoomInfo.getStGameRoomBaseInfo().hasBFullAllIn() && stGameRoomInfo.getStGameRoomBaseInfo().getBFullAllIn() == 1 &&
+                    stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1) || stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                 if (stGameRoomInfo.getEGameState().getNumber() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop.getNumber()){
 
                     if (userGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_BETTING){

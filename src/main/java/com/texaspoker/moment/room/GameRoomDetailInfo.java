@@ -4406,7 +4406,16 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             for (int i = 0; i < stGameRoomInfo.getVUserGameInfosCount(); i++) {
                                 UserGameInfoNet vUserGameInfos = stGameRoomInfo.getVUserGameInfos(i);
                                 if (uuid == vUserGameInfos.getStUserInfo().getUuid()) {
-                                    setMHandSecureMapByid(vUserGameInfos.getVCurrentHands(0), vUserGameInfos.getVCurrentHands(1), uuid);
+                                    if (stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 0) {
+                                        setMHandSecureMapByid(vUserGameInfos.getVCurrentHands(0), vUserGameInfos.getVCurrentHands(1), uuid);
+                                    } else {
+                                        if (mHandMap.get(uuid) != null) {
+                                            List<Integer> cardList = mHandMap.get(uuid).getvCards();
+                                            if (cardList != null && cardList.size() > 1) {
+                                                setMHandSecureMapByid(cardList.get(0), cardList.get(1), uuid);
+                                            }
+                                        }
+                                    }
                                     break;
                                 }
                             }
