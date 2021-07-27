@@ -4212,9 +4212,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 userGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
             }
         } else {
-            if (type == 1) {
-                userGameInfoNetBuilder.clearVCurrentHands();
-            }
+            userGameInfoNetBuilder.clearVCurrentHands();
         }
 
         return userGameInfoNetBuilder.build();
