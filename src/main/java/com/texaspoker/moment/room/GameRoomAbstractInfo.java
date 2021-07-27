@@ -4213,6 +4213,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             }
         } else {
             userGameInfoNetBuilder.clearVCurrentHands();
+            userGameInfoNetBuilder.clearVCurrentHandsByte();
         }
 
         return userGameInfoNetBuilder.build();
