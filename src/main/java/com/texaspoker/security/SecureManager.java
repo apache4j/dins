@@ -61,12 +61,13 @@ public class SecureManager {
     }
 
     //加密数据
-    public TexasPokerSecureProtocolService.EncryptDataResponse encryptData(long roomID, long uuid, List data) {
+    public TexasPokerSecureProtocolService.EncryptDataResponse encryptData(long roomID, long uuid, List data, int handId) {
         TexasPokerSecureProtocolService.EncryptDataRequest.Builder stEncryptDataRequestBuilder = TexasPokerSecureProtocolService.EncryptDataRequest.newBuilder();
         TexasPokerSecureProtocolService.PlainDataMessage plainDataMessage = TexasPokerSecureProtocolService.PlainDataMessage.newBuilder()
                 .setLRoomid(roomID)
                 .setLuuid(uuid)
                 .addAllVData(data)
+                .setIHandid(handId)
                 .build();
         stEncryptDataRequestBuilder.setPlanData(plainDataMessage);
         try {
