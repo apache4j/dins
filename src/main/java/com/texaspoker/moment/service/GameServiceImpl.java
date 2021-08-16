@@ -427,7 +427,7 @@ public class GameServiceImpl implements TexasPokerGameService.GameService.Interf
 
             if (rst == ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS) {
                 stShowCardResponseBuilder.setEErrCode(ERROR_CODE_TYPE.ERROR_CODE_TYPE_SUCCESS);
-                stShowCardResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo());
+                stShowCardResponseBuilder.setStGameRoomInfo(stGameRoomDetailInfo.getSecureGameRoomInfo(stGameRoomDetailInfo.getStGameRoomInfo(), 1));
             } else {
                 stShowCardResponseBuilder.setEErrCode(rst);
             }
