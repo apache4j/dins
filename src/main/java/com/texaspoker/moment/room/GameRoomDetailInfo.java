@@ -4859,9 +4859,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     cardList.add(card2);
                     TexasPokerSecureProtocolService.PlainDataMessage plainDataMessage = TexasPokerSecureProtocolService.PlainDataMessage.newBuilder()
                             .setLuuid(stUserGameInfoBuilder.getStUserInfo().getUuid())
-                            .setLRoomid(lGameRoomID)
+                            .setLRoomid(0)
                             .addAllVData(cardList)
-                            .setIHandid((int) stGameRoomInfoBuilder.getLGameHandID())
                             .build();
                     plainDataMessageList.add(plainDataMessage);
                     HandInfo stHandInfo = new HandInfo();
@@ -5229,9 +5228,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     cardList.add(card2);
                     TexasPokerSecureProtocolService.PlainDataMessage plainDataMessage = TexasPokerSecureProtocolService.PlainDataMessage.newBuilder()
                             .setLuuid(stUserGameInfoBuilder.getStUserInfo().getUuid())
-                            .setLRoomid(lGameRoomID)
+                            .setLRoomid(0)
                             .addAllVData(cardList)
-                            .setIHandid((int) stGameRoomInfoBuilder.getLGameHandID())
                             .build();
                     plainDataMessageList.add(plainDataMessage);
 
@@ -5573,9 +5571,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     cardList.add(card2);
                     TexasPokerSecureProtocolService.PlainDataMessage plainDataMessage = TexasPokerSecureProtocolService.PlainDataMessage.newBuilder()
                             .setLuuid(stUserGameInfoBuilder.getStUserInfo().getUuid())
-                            .setLRoomid(lGameRoomID)
+                            .setLRoomid(0)
                             .addAllVData(cardList)
-                            .setIHandid((int) stGameRoomInfoBuilder.getLGameHandID())
                             .build();
                     plainDataMessageList.add(plainDataMessage);
 
@@ -6021,9 +6018,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     cardList.add(card2);
                     TexasPokerSecureProtocolService.PlainDataMessage plainDataMessage = TexasPokerSecureProtocolService.PlainDataMessage.newBuilder()
                             .setLuuid(stUserGameInfoBuilder.getStUserInfo().getUuid())
-                            .setLRoomid(lGameRoomID)
+                            .setLRoomid(0)
                             .addAllVData(cardList)
-                            .setIHandid((int) stGameRoomInfoBuilder.getLGameHandID())
                             .build();
                     plainDataMessageList.add(plainDataMessage);
 
@@ -6391,9 +6387,8 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     cardList.add(card2);
                     TexasPokerSecureProtocolService.PlainDataMessage plainDataMessage = TexasPokerSecureProtocolService.PlainDataMessage.newBuilder()
                             .setLuuid(stUserGameInfoBuilder.getStUserInfo().getUuid())
-                            .setLRoomid(lGameRoomID)
+                            .setLRoomid(0)
                             .addAllVData(cardList)
-                            .setIHandid((int) stGameRoomInfoBuilder.getLGameHandID())
                             .build();
                     plainDataMessageList.add(plainDataMessage);
 

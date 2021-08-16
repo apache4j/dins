@@ -125,7 +125,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             List<Integer> cardList = new ArrayList();
             cardList.add(card1);
             cardList.add(card2);
-            TexasPokerSecureProtocolService.EncryptDataResponse encryptDataResponse = SecureManager.getInstance().encryptData(lGameRoomID, uuid, cardList, (int)stGameRoomInfo.getLGameHandID());
+            TexasPokerSecureProtocolService.EncryptDataResponse encryptDataResponse = SecureManager.getInstance().encryptData(0, uuid, cardList);
             if (encryptDataResponse != null && encryptDataResponse.getCipherData() != null ){
                 encryptFlag = true;
                 TexasPokerSecureProtocolService.CipherDataMessage vPlainDatas = encryptDataResponse.getCipherData();
