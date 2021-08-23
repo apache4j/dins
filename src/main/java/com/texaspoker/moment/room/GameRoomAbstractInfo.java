@@ -1508,11 +1508,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 if (stGameRoomInfoBuilderCopy.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
                         || (stGameRoomInfoBuilderCopy.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)) {
                     if (stUserGameInfoNetBuilder.getBShowCardOne() == 1 || stUserGameInfoNetBuilder.getBShowCardTwo() == 1) {
-                        if (stUserGameInfoNetBuilder.getBShowCardOne() == 0) {
-                            stUserGameInfoNetBuilder.setVCurrentHands(0, 0);
-                        } else if (stUserGameInfoNetBuilder.getBShowCardTwo() == 0) {
-                            stUserGameInfoNetBuilder.setVCurrentHands(1, 0);
-                        }
                         continue;
                     }
                     if (stUserGameInfoNetBuilder.getEGameState() == USER_GAME_STATE.USER_GAME_STATE_FOLD) {
@@ -4301,8 +4296,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             GameRoomInfo.Builder stGameRoomInfoBuilder = stSCGameRoomStateChangeBuilder.getStGameRoomInfo().toBuilder();
             for (int i = 0; i < stGameRoomInfoBuilder.getVUserGameInfosCount(); i++) {
                 UserGameInfoNet.Builder stUserGameInfoNetBuilder = stGameRoomInfoBuilder.getVUserGameInfosBuilder(i);
-//                UserGameInfoNet.Builder stUserGameInfoNetBuilder = getSecureUserGameInfoNet(stGameRoomInfoBuilder.getVUserGameInfos(i),2).toBuilder();
-                HandInfo handInfo = getmHandSecureMapByid(stUserGameInfoNetBuilder.getStUserInfo().getUuid());
                 if (stUserGameInfoNetBuilder.getStUserInfo().getUuid() != toUuid) {
 
                     if (bAllAllin == true) {
@@ -4321,11 +4314,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result
                             || (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD)) {
                         if (stUserGameInfoNetBuilder.getBShowCardOne() == 1 || stUserGameInfoNetBuilder.getBShowCardTwo() == 1) {
-                            if (stUserGameInfoNetBuilder.getBShowCardOne() == 0) {
-                                stUserGameInfoNetBuilder.setVCurrentHands(0, 0);
-                            } else if (stUserGameInfoNetBuilder.getBShowCardTwo() == 0) {
-                                stUserGameInfoNetBuilder.setVCurrentHands(1, 0);
-                            }
                             continue;
                         }
 

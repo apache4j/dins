@@ -53,6 +53,9 @@ public class ConfigaturationManager {
 	public static String sStateMsgServiceHost;
 	public static int iStateMsgServicePost;
 
+	public static String sSecureServiceHost;
+	public static int iSecureServicePort;
+
 	//抽水间隔,时间单位为小时
 	public static int iDrawTime;
 
@@ -146,6 +149,9 @@ public class ConfigaturationManager {
 
 		sStateMsgServiceHost = stConfigaturation.getValue("statemsg_service_host");
 		iStateMsgServicePost = Integer.parseInt(stConfigaturation.getValue("statemsg_service_post"));
+
+		sSecureServiceHost = stConfigaturation.getValue("secure_service_host");
+		iSecureServicePort = Integer.parseInt(stConfigaturation.getValue("secure_service_port"));
 	}
 	
 	//单例模式

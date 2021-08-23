@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.texaspoker.configuration.ConfigaturationManager.iSecureServicePort;
+import static com.texaspoker.configuration.ConfigaturationManager.sSecureServiceHost;
+
 /**
  * @author ：piness
  * @date ：Created in 2021-06-15 19:20
@@ -31,8 +34,8 @@ public class SecureManager {
 
     //私有的构造函数
     private SecureManager(){
-        host = "172.16.32.4";
-        port = 9238;
+        host = sSecureServiceHost;
+        port = iSecureServicePort;
         System.out.println("SecureManager hosthost : " + host);
         System.out.println("SecureManager portport : " + port);
 
