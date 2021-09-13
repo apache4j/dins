@@ -467,7 +467,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                         if (userIndex == mEndPos) {
                             // ������������������������������������
-//                            sendAllGameStateChange(uuid, null);
+                            sendAllGameStateChange(uuid, null);
 
                             SidePot();
                             stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
@@ -1413,7 +1413,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                             stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
                             if (checkAllAllin() == true) {
-//                                sendAllGameStateChange(uuid, null);
+                                sendAllGameStateChange(uuid, null);
                                 bAllAllin = true;
 
                                 SidePot();
@@ -2038,7 +2038,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                         //������������������������,������������������������������������������������������������������������������������������������������������������������
                         if (userIndex == mEndPos) {
                             //������������������������������������
-//                            sendAllGameStateChange(uuid, null);
+                            sendAllGameStateChange(uuid, null);
                             SidePot();
                             stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 
