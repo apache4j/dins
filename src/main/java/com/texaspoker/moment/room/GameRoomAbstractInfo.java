@@ -467,7 +467,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                         if (userIndex == mEndPos) {
                             // ������������������������������������
-                            sendAllGameStateChange(uuid, null);
+//                            sendAllGameStateChange(uuid, null);
 
                             SidePot();
                             stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
@@ -704,9 +704,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
         stGameRoomInfo = stGameRoomInfoBuilder.build();
 
-        if (stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
-            sendAllGameStateChange(0, null);  //下发push动画过度
-        }
+//        if (stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
+//            sendAllGameStateChange(0, null);  //下发push动画过度
+//        }
 
         if (stGameRoomInfoBuilder.getVCurrentCardsCount() == 0) {
             int card1 = 0;
@@ -863,6 +863,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 //							+",checkGotoTurnStatus 2" + stGameRoomInfo.getEGameState());
                     //进入保险模式
                     stGameRoomInfoBuilder.setEInsuranceStatus(INSURANCE_STATUS.INSURANCE_STATUS_BETTING);
+                    stGameRoomInfoBuilder.setBStateChange(1);
                     stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
                     stGameRoomInfo = stGameRoomInfoBuilder.build();
                     sendAllGameStateChange(0, null);
@@ -944,6 +945,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 if (stInsuranceInfo != null) {
                     //进入保险模式
                     stGameRoomInfoBuilder.setEInsuranceStatus(INSURANCE_STATUS.INSURANCE_STATUS_BETTING);
+                    stGameRoomInfoBuilder.setBStateChange(1);
                     stGameRoomInfoBuilder.setVInsuranceInfos(stInsuranceInfo);
                     stGameRoomInfo = stGameRoomInfoBuilder.build();
                     sendAllGameStateChange(0, null);
@@ -1411,7 +1413,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                             stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
                             if (checkAllAllin() == true) {
-                                sendAllGameStateChange(uuid, null);
+//                                sendAllGameStateChange(uuid, null);
                                 bAllAllin = true;
 
                                 SidePot();
@@ -2036,7 +2038,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                         //������������������������,������������������������������������������������������������������������������������������������������������������������
                         if (userIndex == mEndPos) {
                             //������������������������������������
-                            sendAllGameStateChange(uuid, null);
+//                            sendAllGameStateChange(uuid, null);
                             SidePot();
                             stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
 
@@ -4638,7 +4640,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 long uuid = stPotInfo.playerList.get(j);
                 stPotInfoBuilder.addVUuids(uuid);
             }
-
             stGameRoomInfoBuilder.addVPotInfos(stPotInfoBuilder);
         }
 
