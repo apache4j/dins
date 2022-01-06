@@ -1525,16 +1525,20 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     stUserGameInfoNetBuilder.clearVCurrentHands();
                     stUserGameInfoNetBuilder.clearVCurrentHandsByte();
                 }
-            } /*else {
+            } else {
                 if (stGameRoomInfoBuilder.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD && stGameRoomInfoBuilder.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Result && !bAllAllin){
                     if (handInfo != null && handInfo.getvSecureCards().size() > 0  && !handInfo.getvSecureCards().get(0).isEmpty()) {
-                        stUserGameInfoNetBuilder.clearVCurrentHands();
-                        stUserGameInfoNetBuilder.clearVCurrentHandsByte();
-                        stUserGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                        System.out.println("GameRoomAbstractInfo.dealPushGameRoom  : uuid = " + stToUserUuid + "明文" +stUserGameInfoNetBuilder.getVCurrentHandsList());
+                        System.out.println("GameRoomAbstractInfo.dealPushGameRoom  : uuid = " + stToUserUuid+ "密文" + stUserGameInfoNetBuilder.getVCurrentHandsByteList());
+                        if (stUserGameInfoNetBuilder.getVCurrentHands(0) != -1){
+                            stUserGameInfoNetBuilder.clearVCurrentHands();
+                            stUserGameInfoNetBuilder.clearVCurrentHandsByte();
+                            stUserGameInfoNetBuilder.addVCurrentHandsByte(handInfo.getvSecureCards().get(0));
+                        }
                     }
                 }
 
-            }*/
+            }
             stGameRoomInfoBuilderCopy.setVUserGameInfos(i, stUserGameInfoNetBuilder);
         }
         return stGameRoomInfoBuilderCopy;
