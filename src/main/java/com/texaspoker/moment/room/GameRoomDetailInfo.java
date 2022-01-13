@@ -2850,7 +2850,6 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
             stUserGameInfoNetBuilder.setEGameRole(USER_GAME_ROLE.USER_GAME_ROLE_NORMAL);
             stUserGameInfoNetBuilder.setBGameDealer(0);
             stUserGameInfoNetBuilder.clearVCurrentHands();
-            stUserGameInfoNetBuilder.clearVCurrentHandsByte();
             stUserGameInfoNetBuilder.setLBetStacks(0);
             stUserGameInfoNetBuilder.setIDelayLong(0);
             stUserGameInfoNetBuilder.setIDelaySingleTime(20);
