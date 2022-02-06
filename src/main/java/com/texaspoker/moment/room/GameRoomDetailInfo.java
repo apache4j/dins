@@ -2468,7 +2468,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                             //首先设置牌局的状态
                             stGameRoomInfoBuilder.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameStart);
                             stGameRoomInfoBuilder.setBStateChange(1);
-
+                            setStageUpdateTime(System.currentTimeMillis());
 
                             //最后把最新的牌局信息push给每一个进入牌局的用户
                             stGameRoomInfo = stGameRoomInfoBuilder.build();
@@ -2574,6 +2574,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     //重置整个房间的状态
                     GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
                     stGameRoomInfoBuilder.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_SHOWCARD);
+                    setStageUpdateTime(System.currentTimeMillis());
                     stGameRoomInfo = stGameRoomInfoBuilder.build();
 
                     removeAllTimeOutUser();
@@ -3322,6 +3323,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
         mUserForceStandupUser.clear();
         mTemporarilyLeaveUsers.clear();
         stGameRoomInfoBuilder.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait);
+        setStageUpdateTime(System.currentTimeMillis());
 
         mPotList.clear();
         mTempPotDrawList.clear();
@@ -4678,6 +4680,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
     private void gotoAnteStatus() {
         GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
         stGameRoomInfoBuilder.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_Ante);
+        setStageUpdateTime(System.currentTimeMillis());
         stGameRoomInfoBuilder.setBStateChange(1);
 
         int iLoop = 0;
@@ -4805,6 +4808,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
         GameRoomInfo.Builder stGameRoomInfoBuilder = stGameRoomInfo.toBuilder();
         stGameRoomInfoBuilder.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop);
         stGameRoomInfoBuilder.setBStateChange(1);
+        setStageUpdateTime(System.currentTimeMillis());
 
         int userRole = 1;//0 代表deal 1代表小盲 2代表大盲 3代表普通
         int iLoop = 0;
@@ -7707,6 +7711,35 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * 打印房间状态信息
+     */
+    public void printGameStatus() {
+        synchronized (this){
+            GameRoomInfo.Builder gameRoomInfoBuilder = stGameRoomInfo.toBuilder();
+            for(int i=0;i <stGameRoomInfo.getVUserGameInfosCount();i++){
+                UserGameInfoNet vUserGameInfos = gameRoomInfoBuilder.getVUserGameInfos(i);
+                    StuckGameLogService.getInstance().error("stuck room" +
+                                stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+                                +"=" + stGameRoomInfo.getLGameHandID()
+                                +"=" + mEndPos
+                                +"=" + bAllAllin
+                                +"=" + stGameRoomInfo.getEGameState()
+                                +"=" + stageUpdateTime
+                                +"=" + i
+                                +"=" + vUserGameInfos.getStUserInfo().getUuid()
+                                +"=" + vUserGameInfos.getEGameState()
+                                +"=" + vUserGameInfos.getEGameRole()
+                                +"=" + vUserGameInfos.getBGameDealer()
+                                +"=" + vUserGameInfos.getBDelegate()
+                                +"=" + vUserGameInfos.getBJustSit());
+
+            }
+
+
         }
     }
 

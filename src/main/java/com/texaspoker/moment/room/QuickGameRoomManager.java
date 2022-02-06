@@ -319,6 +319,7 @@ public class QuickGameRoomManager {
                             }
                             gameRoomInfoBuilder.setStGameRoomBaseInfo(gameRoomBaseInfoBuilder);
                             gameRoomInfoBuilder.setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait);
+                            stGameRoomDetailInfo.setStageUpdateTime(System.currentTimeMillis());
 
                             for (int i = 0; i < gameRoomBaseInfoBuilder.getIGameRoomUserMaxNums(); i++) {
                                 TexasPoker.UserGameInfoNet.Builder userGameInfoBuilder = TexasPoker.UserGameInfoNet.newBuilder();

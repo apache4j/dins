@@ -73,6 +73,10 @@ public class GameRoomManager {
         GameRoomDrawService stGameRoomDrawService = new GameRoomDrawService();
         ScheduledExecutorService service3 = Executors.newSingleThreadScheduledExecutor();
         service3.scheduleAtFixedRate(stGameRoomDrawService, 100, 1500, TimeUnit.MILLISECONDS);
+
+        GameRoomLogService stGameRoomLogService = new GameRoomLogService();
+        ScheduledExecutorService service4 = Executors.newSingleThreadScheduledExecutor();
+        service4.scheduleAtFixedRate(stGameRoomLogService,200,30*1000,TimeUnit.MILLISECONDS);
     }
 
     public GameRoomDetailInfo getGameRoomDetailInfo(long lGameRoomID) {
@@ -229,6 +233,7 @@ public class GameRoomManager {
                         .setStGameRoomBaseInfo(createdGameRoomBaseInfo)
                         .setEGameRoomType(GAME_ROOM_TYPE.GAME_ROOM_NORMAL_INSURANCE)
                         .setEGameState(GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_GameWait);
+                stGameRoomDetailInfo.setStageUpdateTime(System.currentTimeMillis());
 
                 for (int i = 0; i < createdGameRoomBaseInfo.getIGameRoomUserMaxNums(); i++) {
                     gameRoomInfo.addVUserGameInfos(UserGameInfoNet.newBuilder()
