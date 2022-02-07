@@ -74,9 +74,9 @@ public class GameRoomManager {
         ScheduledExecutorService service3 = Executors.newSingleThreadScheduledExecutor();
         service3.scheduleAtFixedRate(stGameRoomDrawService, 100, 1500, TimeUnit.MILLISECONDS);
 
-        GameRoomLogService stGameRoomLogService = new GameRoomLogService();
-        ScheduledExecutorService service4 = Executors.newSingleThreadScheduledExecutor();
-        service4.scheduleAtFixedRate(stGameRoomLogService,200,30*1000,TimeUnit.MILLISECONDS);
+//        GameRoomLogService stGameRoomLogService = new GameRoomLogService();
+//        ScheduledExecutorService service4 = Executors.newSingleThreadScheduledExecutor();
+//        service4.scheduleAtFixedRate(stGameRoomLogService,200,30*1000,TimeUnit.MILLISECONDS);
     }
 
     public GameRoomDetailInfo getGameRoomDetailInfo(long lGameRoomID) {
@@ -84,7 +84,11 @@ public class GameRoomManager {
     }
 
     public void setGameRoomDetailInfo(GameRoomDetailInfo stGameRoomDetailInfo) {
-        mGameRoomDetailInfos.setCurrent(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId(), stGameRoomDetailInfo);
+        try {
+            mGameRoomDetailInfos.setCurrent(stGameRoomDetailInfo.getStGameRoomInfo().getStGameRoomBaseInfo().getLGameRoomId(), stGameRoomDetailInfo);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void setmGameRoomDraw(Long lGameRoomID){

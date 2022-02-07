@@ -7717,12 +7717,13 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
     /**
      * 打印房间状态信息
      */
+    /*
     public void printGameStatus() {
         synchronized (this){
             GameRoomInfo.Builder gameRoomInfoBuilder = stGameRoomInfo.toBuilder();
             for(int i=0;i <stGameRoomInfo.getVUserGameInfosCount();i++){
                 UserGameInfoNet vUserGameInfos = gameRoomInfoBuilder.getVUserGameInfos(i);
-                    StuckGameLogService.getInstance().error("stuck room" +
+                    StuckGameLogService.getInstance().error("stuck roomid " +
                                 stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
                                 +"=" + stGameRoomInfo.getLGameHandID()
                                 +"=" + mEndPos
@@ -7741,7 +7742,7 @@ public class GameRoomDetailInfo extends GameRoomAbstractInfo {
 
 
         }
-    }
+    }*/
 
     /**
      * 设置玩家下注筹码量
