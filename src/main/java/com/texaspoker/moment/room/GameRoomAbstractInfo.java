@@ -679,29 +679,31 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             }catch (Exception e){
                 e.printStackTrace();
                 try {
+                    StuckGameLogService.getInstance().error(e.toString());
                     GameRoomInfo.Builder gameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-                    for(int i=0;i <stGameRoomInfo.getVUserGameInfosCount();i++){
-                        UserGameInfoNet vUserGameInfos = gameRoomInfoBuilder.getVUserGameInfos(i);
-                        StuckGameLogService.getInstance().error("stuck roomid " +
-                                stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-                                +"=" + stGameRoomInfo.getLGameHandID()
-                                +"=" + mEndPos
-                                +"=" + bAllAllin
-                                +"=" + stGameRoomInfo.getEGameState()
-                                +"=" + stageUpdateTime
-                                +"=" + i
-                                +"=" + vUserGameInfos.getStUserInfo().getUuid()
-                                +"=" + vUserGameInfos.getEGameState()
-                                +"=" + vUserGameInfos.getEGameRole()
-                                +"=" + vUserGameInfos.getBGameDealer()
-                                +"=" + vUserGameInfos.getBDelegate()
-                                +"=" + vUserGameInfos.getBJustSit()
-                                +"=" + vUserGameInfos.getLBetStacks()
-                                +"="+ vUserGameInfos.getIDelaySingleTime()
-                                +"=" + vUserGameInfos.getLBetStacks()
-                                +"="+ vUserGameInfos.getIDelaySingleTime());
-
-                    }
+                    StuckGameLogService.getInstance().error(gameRoomInfoBuilder.toString());
+//                    for(int i=0;i <stGameRoomInfo.getVUserGameInfosCount();i++){
+//                        UserGameInfoNet vUserGameInfos = gameRoomInfoBuilder.getVUserGameInfos(i);
+//                        StuckGameLogService.getInstance().error("stuck roomid " +
+//                                stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+//                                +"=" + stGameRoomInfo.getLGameHandID()
+//                                +"=" + mEndPos
+//                                +"=" + bAllAllin
+//                                +"=" + stGameRoomInfo.getEGameState()
+//                                +"=" + stageUpdateTime
+//                                +"=" + i
+//                                +"=" + vUserGameInfos.getStUserInfo().getUuid()
+//                                +"=" + vUserGameInfos.getEGameState()
+//                                +"=" + vUserGameInfos.getEGameRole()
+//                                +"=" + vUserGameInfos.getBGameDealer()
+//                                +"=" + vUserGameInfos.getBDelegate()
+//                                +"=" + vUserGameInfos.getBJustSit()
+//                                +"=" + vUserGameInfos.getLBetStacks()
+//                                +"="+ vUserGameInfos.getIDelaySingleTime()
+//                                +"=" + vUserGameInfos.getLBetStacks()
+//                                +"="+ vUserGameInfos.getIDelaySingleTime());
+//
+//                    }
                 }catch (Exception e2){
                     e2.printStackTrace();
                 }
@@ -1532,27 +1534,29 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             }catch (Exception e){
                 e.printStackTrace();
                 try {
+                    StuckGameLogService.getInstance().error(e.toString());
                     GameRoomInfo.Builder gameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-                    for(int i=0;i <stGameRoomInfo.getVUserGameInfosCount();i++){
-                        UserGameInfoNet vUserGameInfos = gameRoomInfoBuilder.getVUserGameInfos(i);
-                        StuckGameLogService.getInstance().error("stuck roomid " +
-                                stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-                                +"=" + stGameRoomInfo.getLGameHandID()
-                                +"=" + mEndPos
-                                +"=" + bAllAllin
-                                +"=" + stGameRoomInfo.getEGameState()
-                                +"=" + stageUpdateTime
-                                +"=" + i
-                                +"=" + vUserGameInfos.getStUserInfo().getUuid()
-                                +"=" + vUserGameInfos.getEGameState()
-                                +"=" + vUserGameInfos.getEGameRole()
-                                +"=" + vUserGameInfos.getBGameDealer()
-                                +"=" + vUserGameInfos.getBDelegate()
-                                +"=" + vUserGameInfos.getBJustSit()
-                                +"=" + vUserGameInfos.getLBetStacks()
-                                +"="+ vUserGameInfos.getIDelaySingleTime());
-
-                    }
+                    StuckGameLogService.getInstance().error(gameRoomInfoBuilder.toString());
+//                    for(int i=0;i <stGameRoomInfo.getVUserGameInfosCount();i++){
+//                        UserGameInfoNet vUserGameInfos = gameRoomInfoBuilder.getVUserGameInfos(i);
+//                        StuckGameLogService.getInstance().error("stuck roomid " +
+//                                stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+//                                +"=" + stGameRoomInfo.getLGameHandID()
+//                                +"=" + mEndPos
+//                                +"=" + bAllAllin
+//                                +"=" + stGameRoomInfo.getEGameState()
+//                                +"=" + stageUpdateTime
+//                                +"=" + i
+//                                +"=" + vUserGameInfos.getStUserInfo().getUuid()
+//                                +"=" + vUserGameInfos.getEGameState()
+//                                +"=" + vUserGameInfos.getEGameRole()
+//                                +"=" + vUserGameInfos.getBGameDealer()
+//                                +"=" + vUserGameInfos.getBDelegate()
+//                                +"=" + vUserGameInfos.getBJustSit()
+//                                +"=" + vUserGameInfos.getLBetStacks()
+//                                +"="+ vUserGameInfos.getIDelaySingleTime());
+//
+//                    }
                 }catch (Exception e2){
                     e2.printStackTrace();
                 }
@@ -2046,7 +2050,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             stGameRoomInfoBuilder.setVUserGameInfos(userIndex, stUserGameInfoBuilder);
 
                             stGameRoomInfo = stGameRoomInfoBuilder.build();
-
+                            if(stGameRoomInfo.getLGameHandID()>=3){
+                                int errorNum = 1/0;
+                            }
                             //���������������allin������
                             if (stGameRoomInfoBuilder.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_River) {
 
@@ -2309,27 +2315,29 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             }catch (Exception e){
                 e.printStackTrace();
                 try {
+                    StuckGameLogService.getInstance().error(e.toString());
                     GameRoomInfo.Builder gameRoomInfoBuilder = stGameRoomInfo.toBuilder();
-                    for(int i=0;i <stGameRoomInfo.getVUserGameInfosCount();i++){
-                        UserGameInfoNet vUserGameInfos = gameRoomInfoBuilder.getVUserGameInfos(i);
-                        StuckGameLogService.getInstance().error("stuck roomid " +
-                                stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-                                +"=" + stGameRoomInfo.getLGameHandID()
-                                +"=" + mEndPos
-                                +"=" + bAllAllin
-                                +"=" + stGameRoomInfo.getEGameState()
-                                +"=" + stageUpdateTime
-                                +"=" + i
-                                +"=" + vUserGameInfos.getStUserInfo().getUuid()
-                                +"=" + vUserGameInfos.getEGameState()
-                                +"=" + vUserGameInfos.getEGameRole()
-                                +"=" + vUserGameInfos.getBGameDealer()
-                                +"=" + vUserGameInfos.getBDelegate()
-                                +"=" + vUserGameInfos.getBJustSit()
-                                +"=" + vUserGameInfos.getLBetStacks()
-                                +"="+ vUserGameInfos.getIDelaySingleTime());
-
-                    }
+                    StuckGameLogService.getInstance().error(gameRoomInfoBuilder.toString());
+//                    for(int i=0;i <stGameRoomInfo.getVUserGameInfosCount();i++){
+//                        UserGameInfoNet vUserGameInfos = gameRoomInfoBuilder.getVUserGameInfos(i);
+//                        StuckGameLogService.getInstance().error("stuck roomid " +
+//                                stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+//                                +"=" + stGameRoomInfo.getLGameHandID()
+//                                +"=" + mEndPos
+//                                +"=" + bAllAllin
+//                                +"=" + stGameRoomInfo.getEGameState()
+//                                +"=" + stageUpdateTime
+//                                +"=" + i
+//                                +"=" + vUserGameInfos.getStUserInfo().getUuid()
+//                                +"=" + vUserGameInfos.getEGameState()
+//                                +"=" + vUserGameInfos.getEGameRole()
+//                                +"=" + vUserGameInfos.getBGameDealer()
+//                                +"=" + vUserGameInfos.getBDelegate()
+//                                +"=" + vUserGameInfos.getBJustSit()
+//                                +"=" + vUserGameInfos.getLBetStacks()
+//                                +"="+ vUserGameInfos.getIDelaySingleTime());
+//
+//                    }
                 }catch (Exception e2){
                     e2.printStackTrace();
                 }
