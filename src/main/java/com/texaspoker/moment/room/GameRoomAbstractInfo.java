@@ -2050,9 +2050,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             stGameRoomInfoBuilder.setVUserGameInfos(userIndex, stUserGameInfoBuilder);
 
                             stGameRoomInfo = stGameRoomInfoBuilder.build();
-                            if(stGameRoomInfo.getLGameHandID()>=3){
-                                int errorNum = 1/0;
-                            }
+
                             //���������������allin������
                             if (stGameRoomInfoBuilder.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_River) {
 
