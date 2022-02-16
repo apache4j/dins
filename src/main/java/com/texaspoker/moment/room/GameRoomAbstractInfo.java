@@ -2058,7 +2058,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             stGameRoomInfoBuilder.setVUserGameInfos(userIndex, stUserGameInfoBuilder);
 
                             stGameRoomInfo = stGameRoomInfoBuilder.build();
-                            StuckGameLogService.getInstance().error(" 游戏状态 : " + stGameRoomInfoBuilder.getEGameState()+ " 玩家 : "+ stUserGameInfoBuilder.getStUserInfo().getUuid()+" mEndPos : "+mEndPos +" iCouldPlayNum : "+iCouldPlayNum + " mBigBlind : "+mBigBlindPos + " mSmallBlind : "+mSmallBlindPos + "bAllAllin : "+checkAllAllin());
+                            StuckGameLogService.getInstance().error(lGameRoomID + stGameRoomInfo.getLGameHandID() +" 游戏状态 : " + stGameRoomInfoBuilder.getEGameState()+ " 玩家 : "+ (stUserGameInfoBuilder.getStUserInfo().getUuid() !=0?stUserGameInfoBuilder.getStUserInfo().getUuid():0)+" mEndPos : "+mEndPos +" iCouldPlayNum : "+iCouldPlayNum + " mBigBlind : "+mBigBlindPos + " mSmallBlind : "+mSmallBlindPos + "bAllAllin : "+checkAllAllin());
                             //���������������allin������
                             if (stGameRoomInfoBuilder.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_River) {
 
