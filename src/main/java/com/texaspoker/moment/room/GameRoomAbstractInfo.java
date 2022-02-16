@@ -677,7 +677,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
                 }
             }catch (Exception e){
-                e.fillInStackTrace();
                 e.printStackTrace();
                 try {
                     StuckGameLogService.getInstance().error("doCheckAction : "+e.toString());
@@ -1537,7 +1536,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
                 }
             }catch (Exception e){
-                e.fillInStackTrace();
                 e.printStackTrace();
                 try {
                     StuckGameLogService.getInstance().error("doRaiseAction : "+e.toString());
@@ -2325,7 +2323,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
                 }
             }catch (Exception e){
-                e.fillInStackTrace();
                 e.printStackTrace();
                 try {
                     StuckGameLogService.getInstance().error("doCallAction : "+e.toString());
@@ -3099,7 +3096,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     }
                 }
             }catch (Exception e){
-                e.fillInStackTrace();
                 e.printStackTrace();
             try {
                 StuckGameLogService.getInstance().error("doFlodAction : "+e.toString());
