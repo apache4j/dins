@@ -677,6 +677,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
                 }
             }catch (Exception e){
+                e.fillInStackTrace();
                 e.printStackTrace();
                 try {
                     StuckGameLogService.getInstance().error("doCheckAction : "+e.toString());
@@ -1536,6 +1537,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
                 }
             }catch (Exception e){
+                e.fillInStackTrace();
                 e.printStackTrace();
                 try {
                     StuckGameLogService.getInstance().error("doRaiseAction : "+e.toString());
@@ -2058,7 +2060,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             stGameRoomInfoBuilder.setVUserGameInfos(userIndex, stUserGameInfoBuilder);
 
                             stGameRoomInfo = stGameRoomInfoBuilder.build();
-                            StuckGameLogService.getInstance().error(lGameRoomID + stGameRoomInfo.getLGameHandID() +" 游戏状态 : " + stGameRoomInfoBuilder.getEGameState()+ " 玩家 : "+ (stUserGameInfoBuilder.getStUserInfo().getUuid() !=0?stUserGameInfoBuilder.getStUserInfo().getUuid():0)+" mEndPos : "+mEndPos +" iCouldPlayNum : "+iCouldPlayNum + " mBigBlind : "+mBigBlindPos + " mSmallBlind : "+mSmallBlindPos + "bAllAllin : "+checkAllAllin());
+                            try {
+                                StuckGameLogService.getInstance().error(lGameRoomID + stGameRoomInfo.getLGameHandID() +" 游戏状态 : " + stGameRoomInfoBuilder.getEGameState()+ " 玩家 : "+ (stUserGameInfoBuilder.getStUserInfo().getUuid() !=0?stUserGameInfoBuilder.getStUserInfo().getUuid():0)+" mEndPos : "+mEndPos +" iCouldPlayNum : "+iCouldPlayNum + " mBigBlind : "+mBigBlindPos + " mSmallBlind : "+mSmallBlindPos + "bAllAllin : "+checkAllAllin());
+                            }catch (Exception e){
+                                e.printStackTrace();
+                            }
                             //���������������allin������
                             if (stGameRoomInfoBuilder.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_River) {
 
@@ -2319,6 +2325,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     eErrorCode = ERROR_CODE_TYPE.ERROR_CODE_TYPE_UNKNOWN;
                 }
             }catch (Exception e){
+                e.fillInStackTrace();
                 e.printStackTrace();
                 try {
                     StuckGameLogService.getInstance().error("doCallAction : "+e.toString());
@@ -3092,6 +3099,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     }
                 }
             }catch (Exception e){
+                e.fillInStackTrace();
                 e.printStackTrace();
             try {
                 StuckGameLogService.getInstance().error("doFlodAction : "+e.toString());
