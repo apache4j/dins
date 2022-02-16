@@ -679,7 +679,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             }catch (Exception e){
                 e.printStackTrace();
                 try {
-                    StuckGameLogService.getInstance().error(e.toString());
+                    StuckGameLogService.getInstance().error("doCheckAction : "+e.toString());
+                    Iterator<StackTraceElement> iterator = Arrays.asList(e.getStackTrace()).iterator();
+                    while(iterator.hasNext()){
+                        StuckGameLogService.getInstance().error(iterator.next().toString());
+                    }
                     GameRoomInfo.Builder gameRoomInfoBuilder = stGameRoomInfo.toBuilder();
                     StuckGameLogService.getInstance().error(gameRoomInfoBuilder.toString());
 //                    for(int i=0;i <stGameRoomInfo.getVUserGameInfosCount();i++){
@@ -1534,7 +1538,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             }catch (Exception e){
                 e.printStackTrace();
                 try {
-                    StuckGameLogService.getInstance().error(e.toString());
+                    StuckGameLogService.getInstance().error("doRaiseAction : "+e.toString());
+                    Iterator<StackTraceElement> iterator = Arrays.asList(e.getStackTrace()).iterator();
+                    while(iterator.hasNext()){
+                        StuckGameLogService.getInstance().error(iterator.next().toString());
+                    }
                     GameRoomInfo.Builder gameRoomInfoBuilder = stGameRoomInfo.toBuilder();
                     StuckGameLogService.getInstance().error(gameRoomInfoBuilder.toString());
 //                    for(int i=0;i <stGameRoomInfo.getVUserGameInfosCount();i++){
@@ -2050,7 +2058,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             stGameRoomInfoBuilder.setVUserGameInfos(userIndex, stUserGameInfoBuilder);
 
                             stGameRoomInfo = stGameRoomInfoBuilder.build();
-
+                            StuckGameLogService.getInstance().error(" 游戏状态 : " + stGameRoomInfoBuilder.getEGameState()+ " 玩家 : "+ stUserGameInfoBuilder.getStUserInfo().getUuid()+" mEndPos : "+mEndPos +" iCouldPlayNum : "+iCouldPlayNum + " mBigBlind : "+mBigBlindPos + " mSmallBlind : "+mSmallBlindPos + "bAllAllin : "+checkAllAllin());
                             //���������������allin������
                             if (stGameRoomInfoBuilder.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_River) {
 
@@ -2313,7 +2321,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             }catch (Exception e){
                 e.printStackTrace();
                 try {
-                    StuckGameLogService.getInstance().error(e.toString());
+                    StuckGameLogService.getInstance().error("doCallAction : "+e.toString());
+                    Iterator<StackTraceElement> iterator = Arrays.asList(e.getStackTrace()).iterator();
+                    while(iterator.hasNext()){
+                        StuckGameLogService.getInstance().error(iterator.next().toString());
+                    }
                     GameRoomInfo.Builder gameRoomInfoBuilder = stGameRoomInfo.toBuilder();
                     StuckGameLogService.getInstance().error(gameRoomInfoBuilder.toString());
 //                    for(int i=0;i <stGameRoomInfo.getVUserGameInfosCount();i++){
@@ -3082,7 +3094,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             }catch (Exception e){
                 e.printStackTrace();
             try {
-                StuckGameLogService.getInstance().error(e.toString());
+                StuckGameLogService.getInstance().error("doFlodAction : "+e.toString());
+                Iterator<StackTraceElement> iterator = Arrays.asList(e.getStackTrace()).iterator();
+                while(iterator.hasNext()){
+                    StuckGameLogService.getInstance().error(iterator.next().toString());
+                }
                 GameRoomInfo.Builder gameRoomInfoBuilder = stGameRoomInfo.toBuilder();
                 StuckGameLogService.getInstance().error(gameRoomInfoBuilder.toString());
 //                for(int i=0;i <stGameRoomInfo.getVUserGameInfosCount();i++){
