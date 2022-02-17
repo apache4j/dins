@@ -701,6 +701,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                 +"=" + i
                                 +"=" + vUserGameInfos.getStUserInfo()==null?"null":vUserGameInfos.getStUserInfo().getUuid()
                                 +"="+mHandMap.get(vUserGameInfos.getStUserInfo().getUuid())
+                                +"="+mHandMap.get(vUserGameInfos.getStUserInfo().getUuid())==null?"null":mHandMap.get(vUserGameInfos.getStUserInfo().getUuid()).getvCards()
                                 +"=" + vUserGameInfos.getEGameState()
                                 +"=" + vUserGameInfos.getEGameRole()
                                 +"=" + vUserGameInfos.getBGameDealer()
@@ -1562,6 +1563,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                 +"=" + i
                                 +"=" + vUserGameInfos.getStUserInfo()==null?"null":vUserGameInfos.getStUserInfo().getUuid()
                                 +"="+mHandMap.get(vUserGameInfos.getStUserInfo().getUuid())
+                                +"="+mHandMap.get(vUserGameInfos.getStUserInfo().getUuid())==null?"null":mHandMap.get(vUserGameInfos.getStUserInfo().getUuid()).getvCards()
                                 +"=" + vUserGameInfos.getEGameState()
                                 +"=" + vUserGameInfos.getEGameRole()
                                 +"=" + vUserGameInfos.getBGameDealer()
@@ -2354,6 +2356,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                 +"=" + i
                                 +"=" + vUserGameInfos.getStUserInfo()==null?"null":vUserGameInfos.getStUserInfo().getUuid()
                                 +"="+mHandMap.get(vUserGameInfos.getStUserInfo().getUuid())
+                                +"="+mHandMap.get(vUserGameInfos.getStUserInfo().getUuid())==null?"null":mHandMap.get(vUserGameInfos.getStUserInfo().getUuid()).getvCards()
                                 +"=" + vUserGameInfos.getEGameState()
                                 +"=" + vUserGameInfos.getEGameRole()
                                 +"=" + vUserGameInfos.getBGameDealer()
@@ -3131,6 +3134,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                 +"=" + i
                                 +"=" + vUserGameInfos.getStUserInfo()==null?"null":vUserGameInfos.getStUserInfo().getUuid()
                                 +"="+ mHandMap.get(vUserGameInfos.getStUserInfo().getUuid())
+                                +"="+mHandMap.get(vUserGameInfos.getStUserInfo().getUuid())==null?"null":mHandMap.get(vUserGameInfos.getStUserInfo().getUuid()).getvCards()
                                 +"=" + vUserGameInfos.getEGameState()
                                 +"=" + vUserGameInfos.getEGameRole()
                                 +"=" + vUserGameInfos.getBGameDealer()
