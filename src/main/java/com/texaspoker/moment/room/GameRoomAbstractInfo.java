@@ -686,28 +686,30 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     }
                     GameRoomInfo.Builder gameRoomInfoBuilder = stGameRoomInfo.toBuilder();
                     StuckGameLogService.getInstance().error(gameRoomInfoBuilder.toString());
-//                    for(int i=0;i <stGameRoomInfo.getVUserGameInfosCount();i++){
-//                        UserGameInfoNet vUserGameInfos = gameRoomInfoBuilder.getVUserGameInfos(i);
-//                        StuckGameLogService.getInstance().error("stuck roomid " +
-//                                stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-//                                +"=" + stGameRoomInfo.getLGameHandID()
-//                                +"=" + mEndPos
-//                                +"=" + bAllAllin
-//                                +"=" + stGameRoomInfo.getEGameState()
-//                                +"=" + stageUpdateTime
-//                                +"=" + i
-//                                +"=" + vUserGameInfos.getStUserInfo().getUuid()
-//                                +"=" + vUserGameInfos.getEGameState()
-//                                +"=" + vUserGameInfos.getEGameRole()
-//                                +"=" + vUserGameInfos.getBGameDealer()
-//                                +"=" + vUserGameInfos.getBDelegate()
-//                                +"=" + vUserGameInfos.getBJustSit()
-//                                +"=" + vUserGameInfos.getLBetStacks()
-//                                +"="+ vUserGameInfos.getIDelaySingleTime()
-//                                +"=" + vUserGameInfos.getLBetStacks()
-//                                +"="+ vUserGameInfos.getIDelaySingleTime());
+                    for(int i=0;i <stGameRoomInfo.getVUserGameInfosCount();i++){
+                        UserGameInfoNet vUserGameInfos = gameRoomInfoBuilder.getVUserGameInfos(i);
+                        StuckGameLogService.getInstance().error("doCheckAction " +
+                                stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+                                +"=" + stGameRoomInfo.getLGameHandID()
+                                +"=" + mEndPos
+                                +"="+mBigBlindPos
+                                +"="+mSmallBlindPos
+                                +"=" + bAllAllin
+                                +"=" + stGameRoomInfo.getEGameState()
+                                +"=" + stageUpdateTime
+                                +"="+ iCouldPlayNum
+                                +"=" + i
+                                +"=" + vUserGameInfos.getStUserInfo()==null?"null":vUserGameInfos.getStUserInfo().getUuid()
+                                +"="+mHandMap.get(vUserGameInfos.getStUserInfo().getUuid())
+                                +"=" + vUserGameInfos.getEGameState()
+                                +"=" + vUserGameInfos.getEGameRole()
+                                +"=" + vUserGameInfos.getBGameDealer()
+                                +"=" + vUserGameInfos.getBDelegate()
+                                +"=" + vUserGameInfos.getBJustSit()
+                                +"=" + vUserGameInfos.getLBetStacks()
+                                +"="+ vUserGameInfos.getIDelaySingleTime());
 //
-//                    }
+                    }
                 }catch (Exception e2){
                     e2.printStackTrace();
                 }
@@ -1545,26 +1547,30 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     }
                     GameRoomInfo.Builder gameRoomInfoBuilder = stGameRoomInfo.toBuilder();
                     StuckGameLogService.getInstance().error(gameRoomInfoBuilder.toString());
-//                    for(int i=0;i <stGameRoomInfo.getVUserGameInfosCount();i++){
-//                        UserGameInfoNet vUserGameInfos = gameRoomInfoBuilder.getVUserGameInfos(i);
-//                        StuckGameLogService.getInstance().error("stuck roomid " +
-//                                stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-//                                +"=" + stGameRoomInfo.getLGameHandID()
-//                                +"=" + mEndPos
-//                                +"=" + bAllAllin
-//                                +"=" + stGameRoomInfo.getEGameState()
-//                                +"=" + stageUpdateTime
-//                                +"=" + i
-//                                +"=" + vUserGameInfos.getStUserInfo().getUuid()
-//                                +"=" + vUserGameInfos.getEGameState()
-//                                +"=" + vUserGameInfos.getEGameRole()
-//                                +"=" + vUserGameInfos.getBGameDealer()
-//                                +"=" + vUserGameInfos.getBDelegate()
-//                                +"=" + vUserGameInfos.getBJustSit()
-//                                +"=" + vUserGameInfos.getLBetStacks()
-//                                +"="+ vUserGameInfos.getIDelaySingleTime());
+                    for(int i=0;i <stGameRoomInfo.getVUserGameInfosCount();i++){
+                        UserGameInfoNet vUserGameInfos = gameRoomInfoBuilder.getVUserGameInfos(i);
+                        StuckGameLogService.getInstance().error("doRaiseAction " +
+                                stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+                                +"=" + stGameRoomInfo.getLGameHandID()
+                                +"=" + mEndPos
+                                +"="+mBigBlindPos
+                                +"="+mSmallBlindPos
+                                +"=" + bAllAllin
+                                +"=" + stGameRoomInfo.getEGameState()
+                                +"=" + stageUpdateTime
+                                +"="+ iCouldPlayNum
+                                +"=" + i
+                                +"=" + vUserGameInfos.getStUserInfo()==null?"null":vUserGameInfos.getStUserInfo().getUuid()
+                                +"="+mHandMap.get(vUserGameInfos.getStUserInfo().getUuid())
+                                +"=" + vUserGameInfos.getEGameState()
+                                +"=" + vUserGameInfos.getEGameRole()
+                                +"=" + vUserGameInfos.getBGameDealer()
+                                +"=" + vUserGameInfos.getBDelegate()
+                                +"=" + vUserGameInfos.getBJustSit()
+                                +"=" + vUserGameInfos.getLBetStacks()
+                                +"="+ vUserGameInfos.getIDelaySingleTime());
 //
-//                    }
+                    }
                 }catch (Exception e2){
                     e2.printStackTrace();
                 }
@@ -2058,11 +2064,11 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             stGameRoomInfoBuilder.setVUserGameInfos(userIndex, stUserGameInfoBuilder);
 
                             stGameRoomInfo = stGameRoomInfoBuilder.build();
-                            try {
-                                StuckGameLogService.getInstance().error(lGameRoomID + stGameRoomInfo.getLGameHandID() +" 游戏状态 : " + stGameRoomInfoBuilder.getEGameState()+ " 玩家 : "+ (stUserGameInfoBuilder.getStUserInfo().getUuid() !=0?stUserGameInfoBuilder.getStUserInfo().getUuid():0)+" mEndPos : "+mEndPos +" iCouldPlayNum : "+iCouldPlayNum + " mBigBlind : "+mBigBlindPos + " mSmallBlind : "+mSmallBlindPos + "bAllAllin : "+checkAllAllin());
-                            }catch (Exception e){
-                                e.printStackTrace();
-                            }
+//                            try {
+//                                StuckGameLogService.getInstance().error(lGameRoomID + stGameRoomInfo.getLGameHandID() +" 游戏状态 : " + stGameRoomInfoBuilder.getEGameState()+ " 玩家 : "+ (stUserGameInfoBuilder.getStUserInfo().getUuid() !=0?stUserGameInfoBuilder.getStUserInfo().getUuid():0)+" mEndPos : "+mEndPos +" iCouldPlayNum : "+iCouldPlayNum + " mBigBlind : "+mBigBlindPos + " mSmallBlind : "+mSmallBlindPos + "bAllAllin : "+checkAllAllin());
+//                            }catch (Exception e){
+//                                e.printStackTrace();
+//                            }
                             //���������������allin������
                             if (stGameRoomInfoBuilder.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_River) {
 
@@ -2158,6 +2164,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                                             //如果在依次看牌且游戏状态为ROOM_GAME_STATE_PreFlop_VALUE时给玩家下发手牌
                                                             if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                                                 stResetUserGameInfoBuilder.clearVCurrentHands();
+                                                                System.out.println(mHandMap.get(stResetUserGameInfoBuilder.getStUserInfo().getUuid()) ==null ? true:false);
                                                                 stResetUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                                                             }
 
@@ -2332,26 +2339,30 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                     }
                     GameRoomInfo.Builder gameRoomInfoBuilder = stGameRoomInfo.toBuilder();
                     StuckGameLogService.getInstance().error(gameRoomInfoBuilder.toString());
-//                    for(int i=0;i <stGameRoomInfo.getVUserGameInfosCount();i++){
-//                        UserGameInfoNet vUserGameInfos = gameRoomInfoBuilder.getVUserGameInfos(i);
-//                        StuckGameLogService.getInstance().error("stuck roomid " +
-//                                stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-//                                +"=" + stGameRoomInfo.getLGameHandID()
-//                                +"=" + mEndPos
-//                                +"=" + bAllAllin
-//                                +"=" + stGameRoomInfo.getEGameState()
-//                                +"=" + stageUpdateTime
-//                                +"=" + i
-//                                +"=" + vUserGameInfos.getStUserInfo().getUuid()
-//                                +"=" + vUserGameInfos.getEGameState()
-//                                +"=" + vUserGameInfos.getEGameRole()
-//                                +"=" + vUserGameInfos.getBGameDealer()
-//                                +"=" + vUserGameInfos.getBDelegate()
-//                                +"=" + vUserGameInfos.getBJustSit()
-//                                +"=" + vUserGameInfos.getLBetStacks()
-//                                +"="+ vUserGameInfos.getIDelaySingleTime());
-//
-//                    }
+                    for(int i=0;i <stGameRoomInfo.getVUserGameInfosCount();i++){
+                        UserGameInfoNet vUserGameInfos = gameRoomInfoBuilder.getVUserGameInfos(i);
+                        StuckGameLogService.getInstance().error("doCallAction " +
+                                stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+                                +"=" + stGameRoomInfo.getLGameHandID()
+                                +"=" + mEndPos
+                                +"="+mBigBlindPos
+                                +"="+mSmallBlindPos
+                                +"=" + bAllAllin
+                                +"=" + stGameRoomInfo.getEGameState()
+                                +"=" + stageUpdateTime
+                                +"="+ iCouldPlayNum
+                                +"=" + i
+                                +"=" + vUserGameInfos.getStUserInfo()==null?"null":vUserGameInfos.getStUserInfo().getUuid()
+                                +"="+mHandMap.get(vUserGameInfos.getStUserInfo().getUuid())
+                                +"=" + vUserGameInfos.getEGameState()
+                                +"=" + vUserGameInfos.getEGameRole()
+                                +"=" + vUserGameInfos.getBGameDealer()
+                                +"=" + vUserGameInfos.getBDelegate()
+                                +"=" + vUserGameInfos.getBJustSit()
+                                +"=" + vUserGameInfos.getLBetStacks()
+                                +"="+ vUserGameInfos.getIDelaySingleTime());
+
+                    }
                 }catch (Exception e2){
                     e2.printStackTrace();
                 }
@@ -3105,36 +3116,35 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                 }
                 GameRoomInfo.Builder gameRoomInfoBuilder = stGameRoomInfo.toBuilder();
                 StuckGameLogService.getInstance().error(gameRoomInfoBuilder.toString());
-//                for(int i=0;i <stGameRoomInfo.getVUserGameInfosCount();i++){
-//                    UserGameInfoNet vUserGameInfos = gameRoomInfoBuilder.getVUserGameInfos(i);
-//                    StuckGameLogService.getInstance().error("stuck roomid " +
-//                            stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
-//                            +"=" + stGameRoomInfo.getLGameHandID()
-//                            +"=" + mEndPos
-//                            +"=" + bAllAllin
-//                            +"=" + stGameRoomInfo.getEGameState()
-//                            +"=" + stageUpdateTime
-//                            +"=" + i
-//                            +"=" + vUserGameInfos.getStUserInfo().getUuid()
-//                            +"=" + vUserGameInfos.getEGameState()
-//                            +"=" + vUserGameInfos.getEGameRole()
-//                            +"=" + vUserGameInfos.getBGameDealer()
-//                            +"=" + vUserGameInfos.getBDelegate()
-//                            +"=" + vUserGameInfos.getBJustSit());
+                for(int i=0;i <stGameRoomInfo.getVUserGameInfosCount();i++){
+                     UserGameInfoNet vUserGameInfos = gameRoomInfoBuilder.getVUserGameInfos(i);
+                        StuckGameLogService.getInstance().error("doFlodAction " +
+                                stGameRoomInfo.getStGameRoomBaseInfo().getLGameRoomId()
+                                +"=" + stGameRoomInfo.getLGameHandID()
+                                +"=" + mEndPos
+                                +"="+mBigBlindPos
+                                +"="+mSmallBlindPos
+                                +"=" + bAllAllin
+                                +"=" + stGameRoomInfo.getEGameState()
+                                +"=" + stageUpdateTime
+                                +"="+ iCouldPlayNum
+                                +"=" + i
+                                +"=" + vUserGameInfos.getStUserInfo()==null?"null":vUserGameInfos.getStUserInfo().getUuid()
+                                +"="+ mHandMap.get(vUserGameInfos.getStUserInfo().getUuid())
+                                +"=" + vUserGameInfos.getEGameState()
+                                +"=" + vUserGameInfos.getEGameRole()
+                                +"=" + vUserGameInfos.getBGameDealer()
+                                +"=" + vUserGameInfos.getBDelegate()
+                                +"=" + vUserGameInfos.getBJustSit()
+                                +"=" + vUserGameInfos.getLBetStacks()
+                                +"="+ vUserGameInfos.getIDelaySingleTime());
 //
-//                }
+                }
             }catch (Exception e2){
                 e2.printStackTrace();
             }
 
             }
-
-
-//			TableLogService.getInstance().error1(lFromRoomID
-//					+"," + lGameRoomID
-//					+"," + stGameRoomInfo.getLGameHandID()
-//					+",doFlodAction end" + stGameRoomInfo.getEGameState());
-
         }
         return eErrorCode;
     }
