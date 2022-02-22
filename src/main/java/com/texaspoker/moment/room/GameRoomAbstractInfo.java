@@ -2021,7 +2021,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                         UserGameInfoNet.Builder stUserGameInfoBuilder = stGameRoomInfoBuilder.getVUserGameInfos(userIndex).toBuilder();
 
                         if (stUserGameInfoBuilder.getStUserInfo().getUuid() == uuid) {
-                            System.out.println("do call action " + stUserGameInfoBuilder.getStUserInfo().getUuid() + "uuid :" +uuid );
 
                             if (stUserGameInfoBuilder.getEGameState() != USER_GAME_STATE.USER_GAME_STATE_BETTING
                                     || (lBettingID != -1 && lBettingID != stUserGameInfoBuilder.getLBettingID() && lBettingID != 0)) {
@@ -2075,15 +2074,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                             stGameRoomInfoBuilder.setVUserGameInfos(userIndex, stUserGameInfoBuilder);
 
                             stGameRoomInfo = stGameRoomInfoBuilder.build();
-                            System.out.println("docall action stage one :" + stGameRoomInfoBuilder.getStGameRoomBaseInfo().getLGameRoomId()
-                                    +"," + stGameRoomInfoBuilder.getLGameHandID()
-                                    +"," + mEndPos
-                                    +","+mBigBlindPos
-                                    +","+mSmallBlindPos
-                                    +"," + bAllAllin
-                                    +"," + stGameRoomInfo.getEGameState()
-                                    +"," + stageUpdateTime
-                                    +","+ iCouldPlayNum );
 //                            try {
 //                                StuckGameLogService.getInstance().error(lGameRoomID + stGameRoomInfo.getLGameHandID() +" 游戏状态 : " + stGameRoomInfoBuilder.getEGameState()+ " 玩家 : "+ (stUserGameInfoBuilder.getStUserInfo().getUuid() !=0?stUserGameInfoBuilder.getStUserInfo().getUuid():0)+" mEndPos : "+mEndPos +" iCouldPlayNum : "+iCouldPlayNum + " mBigBlind : "+mBigBlindPos + " mSmallBlind : "+mSmallBlindPos + "bAllAllin : "+checkAllAllin());
 //                            }catch (Exception e){
@@ -2091,7 +2081,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 //                            }
                             //���������������allin������
                             if (stGameRoomInfoBuilder.getEGameState() != GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_River) {
-                                System.out.println("do call action stage 2 alllin:"+checkAllAllin());
                                 //���������������allin������
                                 if (checkAllAllin() == true) {
                                     sendAllGameStateChange(uuid, null);
@@ -2142,16 +2131,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                 break;
                             }
                         } else if (stUserGameInfoBuilder.getStUserInfo().getUuid() != 0) {
-                            System.out.println("request uuid " + uuid +"GameRoomAbstractInfo.doCallAction uuid不相同 " +stUserGameInfoBuilder.getStUserInfo().getUuid()
-                                    + "userIndex : "+userIndex
-                            + " mEndPos :" +mEndPos
-                            + " 游戏状态 : "+ stUserGameInfoBuilder.getEGameState()
-                            + " 手牌 :" +mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards()
-                            + " 当前时间 :"+System.currentTimeMillis()
-                            + " iCouldPlayNum :" +iCouldPlayNum
-                            + " betStacks :" +stUserGameInfoBuilder.getLBetStacks()
-                            + " bAllin "+ bAllAllin
-                            + " remainStack :"+stUserGameInfoBuilder.getLRemainStacks());
+
 
                             //������������������������,������������������������������������������������������������������������������������������������������������������������
                             if (userIndex == mEndPos) {
@@ -2337,7 +2317,9 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                     //如果在依次看牌且游戏状态为ROOM_GAME_STATE_PreFlop_VALUE时给玩家下发手牌
                                     if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
                                         stUserGameInfoBuilder.clearVCurrentHands();
-                                        stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                        if (mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()) != null){
+                                            stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                        }
                                     }
 
                                     removeAllTimeOutUser();
@@ -2345,7 +2327,6 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                                     //������������gameroominfo���������������������
                                     stGameRoomInfoBuilder.setVUserGameInfos(userIndex, stUserGameInfoBuilder);
-                                    System.out.println("GameRoomAbstractInfo.doCallAction " +stUserGameInfoBuilder);
                                     stGameRoomInfo = stGameRoomInfoBuilder.build();
 
                                     sendAllGameStateChange(uuid, null);
@@ -2362,7 +2343,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
             }catch (Exception e){
                 e.printStackTrace();
                 try {
-                    StuckGameLogService.getInstance().error("doCallAction : "+e.toString());
+                    StuckGameLogService.getInstance().error("uuid - " + uuid+"doCallAction " +e.toString());
                     Iterator<StackTraceElement> iterator = Arrays.asList(e.getStackTrace()).iterator();
                     while(iterator.hasNext()){
                         StuckGameLogService.getInstance().error(iterator.next().toString());
