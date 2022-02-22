@@ -2142,7 +2142,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
                                 break;
                             }
                         } else if (stUserGameInfoBuilder.getStUserInfo().getUuid() != 0) {
-                            System.out.println("GameRoomAbstractInfo.doCallAction uuid不相同 " +stUserGameInfoBuilder.getStUserInfo().getUuid()
+                            System.out.println("request uuid " + uuid +"GameRoomAbstractInfo.doCallAction uuid不相同 " +stUserGameInfoBuilder.getStUserInfo().getUuid()
                                     + "userIndex : "+userIndex
                             + " mEndPos :" +mEndPos
                             + " 游戏状态 : "+ stUserGameInfoBuilder.getEGameState()
@@ -2345,7 +2345,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                                     //������������gameroominfo���������������������
                                     stGameRoomInfoBuilder.setVUserGameInfos(userIndex, stUserGameInfoBuilder);
-
+                                    System.out.println("GameRoomAbstractInfo.doCallAction " +stUserGameInfoBuilder);
                                     stGameRoomInfo = stGameRoomInfoBuilder.build();
 
                                     sendAllGameStateChange(uuid, null);
