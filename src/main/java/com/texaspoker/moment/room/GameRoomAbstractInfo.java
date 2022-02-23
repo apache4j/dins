@@ -2236,8 +2236,10 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                                                             //如果在依次看牌且游戏状态为ROOM_GAME_STATE_PreFlop_VALUE时给玩家下发手牌
                                                             if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
-                                                                stResetUserGameInfoBuilder.clearVCurrentHands();
-                                                                stResetUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                                                if (mHandMap.containsKey(stUserGameInfoBuilder.getStUserInfo().getUuid()) && mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards() != null){
+                                                                    stResetUserGameInfoBuilder.clearVCurrentHands();
+                                                                    stResetUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
+                                                                }
                                                             }
 
                                                         } else {
@@ -2316,7 +2318,7 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                                     //如果在依次看牌且游戏状态为ROOM_GAME_STATE_PreFlop_VALUE时给玩家下发手牌
                                     if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
-                                        if (mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()) != null){
+                                        if (mHandMap.containsKey(stUserGameInfoBuilder.getStUserInfo().getUuid()) && mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()) != null){
                                             stUserGameInfoBuilder.clearVCurrentHands();
                                             stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                                         }
