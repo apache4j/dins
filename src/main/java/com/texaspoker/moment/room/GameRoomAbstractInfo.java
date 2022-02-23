@@ -2316,8 +2316,8 @@ public class GameRoomAbstractInfo implements GameRoomAbstractInterface {
 
                                     //如果在依次看牌且游戏状态为ROOM_GAME_STATE_PreFlop_VALUE时给玩家下发手牌
                                     if (stGameRoomInfoBuilder.getEGameState() == GAME_ROOM_GAME_STATE.ROOM_GAME_STATE_PreFlop && stGameRoomInfo.getStGameRoomBaseInfo().getBLookCardTurn() == 1){
-                                        stUserGameInfoBuilder.clearVCurrentHands();
                                         if (mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()) != null){
+                                            stUserGameInfoBuilder.clearVCurrentHands();
                                             stUserGameInfoBuilder.addAllVCurrentHands(mHandMap.get(stUserGameInfoBuilder.getStUserInfo().getUuid()).getvCards());
                                         }
                                     }
